@@ -31,6 +31,9 @@ module CMDx
       #
       # @param reason [String, nil] optional human-readable reason
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
+      # @option options [Hash{Symbol => Object}] :metadata merged onto the task metadata payload
+      # @option options [Exception] :cause upstream exception when mirroring failures
+      # @option options [Array<Thread::Backtrace::Location>] :backtrace captured frames
       # @return [Signal] new instance with frozen options
       def success(reason = nil, **options)
         new(COMPLETE, SUCCESS, **options, reason:)
@@ -40,6 +43,9 @@ module CMDx
       #
       # @param reason [String, nil] optional human-readable reason
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
+      # @option options [Hash{Symbol => Object}] :metadata merged onto the task metadata payload
+      # @option options [Exception] :cause upstream exception when mirroring failures
+      # @option options [Array<Thread::Backtrace::Location>] :backtrace captured frames
       # @return [Signal] new instance with frozen options
       def skipped(reason = nil, **options)
         new(INTERRUPTED, SKIPPED, **options, reason:)
@@ -49,6 +55,9 @@ module CMDx
       #
       # @param reason [String, nil] optional human-readable reason
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
+      # @option options [Hash{Symbol => Object}] :metadata merged onto the task metadata payload
+      # @option options [Exception] :cause upstream exception when mirroring failures
+      # @option options [Array<Thread::Backtrace::Location>] :backtrace captured frames
       # @return [Signal] new instance with frozen options
       def failed(reason = nil, **options)
         new(INTERRUPTED, FAILED, **options, reason:)
@@ -60,6 +69,10 @@ module CMDx
       # @param other [Signal, Result] source to mirror state/status/reason from
       # @param options [Hash{Symbol => Object}] overrides: `:metadata`, `:cause`,
       #   `:backtrace`, `:origin`
+      # @option options [Hash{Symbol => Object}] :metadata merged onto the task metadata payload
+      # @option options [Exception] :cause upstream exception when mirroring failures
+      # @option options [Array<Thread::Backtrace::Location>] :backtrace captured frames
+      # @option options [Result] :origin peer result this signal echoes (set automatically for Results)
       # @return [Signal] new instance mirroring `other`
       # @raise [ArgumentError] when `other` is neither a Signal nor a Result
       def echoed(other, **options)

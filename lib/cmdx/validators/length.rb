@@ -69,11 +69,22 @@ module CMDx
 
       private
 
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :nil_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def nil_failure(options)
         message = options[:nil_message] || options[:message]
         Failure.new(message || I18nProxy.t("cmdx.validators.length.nil_value"))
       end
 
+      # @param min [Object]
+      # @param max [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :within_message
+      # @option options [String] :in_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def within_failure(min, max, options)
         message = options[:within_message] || options[:in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
@@ -81,6 +92,13 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.within", min:, max:))
       end
 
+      # @param min [Object]
+      # @param max [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :not_within_message
+      # @option options [String] :not_in_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def not_within_failure(min, max, options)
         message = options[:not_within_message] || options[:not_in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
@@ -88,6 +106,11 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.not_within", min:, max:))
       end
 
+      # @param min [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :min_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def min_failure(min, options)
         message = options[:min_message] || options[:message]
         message %= { min: } unless message.nil?
@@ -95,6 +118,11 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.min", min:))
       end
 
+      # @param max [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :max_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def max_failure(max, options)
         message = options[:max_message] || options[:message]
         message %= { max: } unless message.nil?
@@ -102,6 +130,11 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.max", max:))
       end
 
+      # @param gt [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :gt_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def gt_failure(gt, options)
         message = options[:gt_message] || options[:message]
         message %= { gt: } unless message.nil?
@@ -109,6 +142,11 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.gt", gt:))
       end
 
+      # @param lt [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :lt_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def lt_failure(lt, options)
         message = options[:lt_message] || options[:message]
         message %= { lt: } unless message.nil?
@@ -116,6 +154,11 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.lt", lt:))
       end
 
+      # @param is [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :is_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def is_failure(is, options) # rubocop:disable Naming/PredicatePrefix
         message = options[:is_message] || options[:message]
         message %= { is: } unless message.nil?
@@ -123,6 +166,11 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.length.is", is:))
       end
 
+      # @param is_not [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :is_not_message
+      # @option options [String] :message
+      # @return [Validators::Failure]
       def is_not_failure(is_not, options) # rubocop:disable Naming/PredicatePrefix
         message = options[:is_not_message] || options[:message]
         message %= { is_not: } unless message.nil?

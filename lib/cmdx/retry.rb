@@ -11,13 +11,15 @@ module CMDx
 
     # @param exceptions [Array<Class>] exceptions to retry on
     # @param options [Hash{Symbol => Object}]
+    # @param block [#call, nil] optional jitter callable used when `:jitter` isn't set
     # @option options [Integer] :limit (3) maximum retry attempts
     # @option options [Float] :delay (0.5) base delay in seconds between attempts
     # @option options [Float] :max_delay clamp for computed delays
     # @option options [Symbol, Proc, #call] :jitter built-in strategy (`:exponential`,
     #   `:half_random`, `:full_random`, `:bounded_random`, `:linear`, `:fibonacci`,
     #   `:decorrelated_jitter`) or custom
-    # @yield [attempt, delay] optional custom jitter block, used when `:jitter` isn't set
+    # @yieldparam attempt [Integer]
+    # @yieldparam delay [Float]
     def initialize(exceptions, options = EMPTY_HASH, &block)
       @exceptions = exceptions.flatten
       @options    = options.freeze
@@ -30,6 +32,7 @@ module CMDx
     #
     # @param new_exceptions [Array<Class>]
     # @param new_options [Hash{Symbol => Object}]
+    # @param block [#call, nil] replacement jitter callable (falls back to the prior block)
     # @yield [attempt, delay] optional replacement jitter block
     # @return [Retry]
     def build(new_exceptions, new_options, &block)

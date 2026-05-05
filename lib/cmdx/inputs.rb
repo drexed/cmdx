@@ -12,6 +12,8 @@ module CMDx
       @registry = {}
     end
 
+    # @param source [Inputs] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -21,9 +23,22 @@ module CMDx
     #
     # @param klass [Class] the task class to define readers on
     # @param names [Array<Symbol>] input names
+    # @param block [#call, nil] nested-input DSL (see {ChildBuilder})
     # @param options [Hash{Symbol => Object}] passed to {Input#initialize}
-    # @yield block evaluated in a {ChildBuilder} for nested inputs
+    # @option options [String] :description (also accepts `:desc`)
+    # @option options [Symbol] :as overrides the accessor name
+    # @option options [Boolean, String] :prefix prefix for the accessor name
+    # @option options [Boolean, String] :suffix suffix for the accessor name
+    # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+    # @option options [Object, Symbol, Proc, #call] :default
+    # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+    # @option options [Symbol, Proc, #call] :if
+    # @option options [Symbol, Proc, #call] :unless
+    # @option options [Boolean] :required
+    # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
+    # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
     # @return [Inputs] self for chaining
+    # @yield block evaluated in a {ChildBuilder} for nested inputs
     def register(klass, *names, **options, &block)
       children = block ? ChildBuilder.build(&block) : EMPTY_ARRAY
 
@@ -75,6 +90,10 @@ module CMDx
 
     private
 
+    # @param input [Input] parent input whose children should be resolved
+    # @param parent_value [Object] resolved parent value child inputs read from
+    # @param task [Task]
+    # @return [void]
     def resolve_children(input, parent_value, task)
       return if input.children.empty? || parent_value.nil?
 
@@ -109,7 +128,20 @@ module CMDx
       end
 
       # @param names [Array<Symbol>]
-      # @param options [Hash{Symbol => Object}]
+      # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :required
+      # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
+      # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
+      # @yield nested child input DSL
       # @return [Array<Input>]
       def inputs(*names, **options, &)
         build(*names, **options, &)
@@ -118,7 +150,19 @@ module CMDx
 
       # Declares optional child inputs (equivalent to `inputs ..., required: false`).
       # @param names [Array<Symbol>]
-      # @param options [Hash{Symbol => Object}]
+      # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
+      # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
+      # @yield nested child input DSL
       # @return [Array<Input>]
       def optional(*names, **options, &)
         build(*names, required: false, **options, &)
@@ -126,7 +170,19 @@ module CMDx
 
       # Declares required child inputs (equivalent to `inputs ..., required: true`).
       # @param names [Array<Symbol>]
-      # @param options [Hash{Symbol => Object}]
+      # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
+      # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
+      # @yield nested child input DSL
       # @return [Array<Input>]
       def required(*names, **options, &)
         build(*names, required: true, **options, &)
@@ -134,6 +190,23 @@ module CMDx
 
       private
 
+      # @param names [Array<Symbol>]
+      # @param block [#call, nil]
+      # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :required
+      # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
+      # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
+      # @return [Array<Input>]
+      # @yield nested child input DSL
       def build(*names, **options, &block)
         nested = block ? self.class.build(&block) : EMPTY_ARRAY
         names.map { |name| children << Input.new(name, children: nested, **options) }

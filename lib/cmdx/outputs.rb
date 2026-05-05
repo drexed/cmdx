@@ -12,6 +12,8 @@ module CMDx
       @registry = {}
     end
 
+    # @param source [Outputs] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -20,6 +22,10 @@ module CMDx
     #
     # @param keys [Array<Symbol>]
     # @param options [Hash{Symbol => Object}] passed through to {Output#initialize}
+    # @option options [String] :description (also accepts `:desc`)
+    # @option options [Symbol, Proc, #call] :if
+    # @option options [Symbol, Proc, #call] :unless
+    # @option options [Object, Symbol, Proc, #call] :default
     # @return [Outputs] self for chaining
     def register(*keys, **options)
       keys.each do |key|

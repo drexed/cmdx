@@ -9,7 +9,8 @@ module CMDx
       extend self
 
       # @param value [Object]
-      # @param options [Hash{Symbol => Object}] unused
+      # @param options [Hash{Symbol => Object}]
+      # @option options [Object] reserved for future per-coercion configuration (currently ignored)
       # @return [Symbol, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
         return value if value.is_a?(::Symbol)

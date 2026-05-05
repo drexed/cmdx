@@ -12,6 +12,8 @@ module CMDx
       @registry = []
     end
 
+    # @param source [Middlewares] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -21,13 +23,15 @@ module CMDx
     # gates evaluated against the task at process time.
     #
     # @param callable [#call, nil] provide either this or a block
+    # @param block [#call, nil] middleware callable when `callable` is omitted
     # @param options [Hash{Symbol => Object}]
     # @option options [Symbol, Proc, #call] :if   gate that must evaluate truthy
     # @option options [Symbol, Proc, #call] :unless gate that must evaluate falsy
-    # @yield the middleware body, receiving `(task)` and `next_link` via block
+    # @option options [Integer] :at insertion index (see implementation)
     # @return [Middlewares] self for chaining
     # @raise [ArgumentError] when both or neither of `callable`/block are given,
     #   when the callable doesn't respond to `#call`, or when `:at` isn't an Integer
+    # @yield the middleware body, receiving `(task)` and `next_link` via block
     def register(callable = nil, **options, &block)
       middleware = callable || block
       at = options.delete(:at)

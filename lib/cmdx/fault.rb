@@ -21,6 +21,8 @@ module CMDx
       # @raise [ArgumentError] when no tasks are given
       #
       # @example
+      #   begin
+      #     MyTask.execute!(ctx)
       #   rescue Fault.for?(ProcessOrder, ChargeCard) => fault
       #     Alert.for_fault(fault)
       #   end
@@ -41,6 +43,8 @@ module CMDx
       # @raise [ArgumentError] when no reason is given
       #
       # @example
+      #   begin
+      #     MyTask.execute!(ctx)
       #   rescue Fault.reason?("Payment failed") => fault
       #     Alert.for_fault(fault)
       #   end
@@ -54,6 +58,7 @@ module CMDx
 
       # Returns a matcher subclass whose `===` runs `block` against the fault.
       #
+      # @param block [#call] `(fault) -> Boolean` matcher body
       # @yieldparam fault [Fault]
       # @yieldreturn [Boolean]
       # @return [Class<Fault>] anonymous matcher subclass

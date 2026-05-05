@@ -177,6 +177,10 @@ module CMDx
 
     private
 
+    # @param value [Object] candidate after source resolution
+    # @param key_provided [Boolean] whether the source reported an explicit key/value pair
+    # @param task [Task]
+    # @return [Object, nil]
     def run_pipeline(value, key_provided, task)
       if required?(task) && !key_provided
         task.errors.add(accessor_name, I18nProxy.t("cmdx.attributes.required"))
@@ -198,6 +202,8 @@ module CMDx
       value
     end
 
+    # @param task [Task]
+    # @return [Array(Object, Boolean)] `[value, key_provided]`
     def resolve_with_key(task)
       case source
       when :context
@@ -216,12 +222,16 @@ module CMDx
       end
     end
 
+    # @param parent_value [#[], #key?, Object]
+    # @return [Array(Object, Boolean)] `[value, key_provided]`
     def resolve_from_parent_with_key(parent_value)
       return [nil, false] unless parent_value.respond_to?(:[])
 
       fetch_by_name(parent_value)
     end
 
+    # @param obj [Object] source object (`Hash`, duck-typed reader, etc.)
+    # @return [Array(Object, Boolean)] `[value, key_provided]`
     def fetch_by_name(obj)
       if obj.respond_to?(name, true)
         [obj.send(name), true]
@@ -243,6 +253,8 @@ module CMDx
       end
     end
 
+    # @param task [Task]
+    # @return [Object, nil]
     def apply_default(task)
       return if default.nil?
 
@@ -258,6 +270,9 @@ module CMDx
       end
     end
 
+    # @param value [Object]
+    # @param task [Task]
+    # @return [Object]
     def apply_transform(value, task)
       case transform
       when Symbol

@@ -17,6 +17,8 @@ module CMDx
       }
     end
 
+    # @param source [Mergers] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -25,6 +27,7 @@ module CMDx
     #
     # @param name [Symbol]
     # @param callable [#call, nil] pass either this or a block
+    # @param block [#call, nil] merger callable when `callable` is omitted
     # @yield merger body — `call(workflow_context, result)`
     # @return [Mergers] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are given, or

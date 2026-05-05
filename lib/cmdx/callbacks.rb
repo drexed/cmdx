@@ -31,6 +31,8 @@ module CMDx
       @registry = {}
     end
 
+    # @param source [Callbacks] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.transform_values(&:dup)
     end
@@ -39,13 +41,14 @@ module CMDx
     #
     # @param event [Symbol] one of {EVENTS}
     # @param callable [Symbol, #call, nil] method name or callable; pass either this or a block
+    # @param block [#call, nil] callback body when `callable` is omitted
     # @param options [Hash{Symbol => Object}]
     # @option options [Symbol, Proc, #call] :if   gate that must evaluate truthy
     # @option options [Symbol, Proc, #call] :unless gate that must evaluate falsy
-    # @yield the callback body
     # @return [Callbacks] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are given, when the
     #   callback type is invalid, or when `event` is unknown
+    # @yield the callback body
     def register(event, callable = nil, **options, &block)
       callback = callable || block
 
@@ -127,6 +130,7 @@ module CMDx
     #
     # @param event [Symbol]
     # @param task [Task]
+    # @param body [#call] inner continuation (Runtime lifecycle body)
     # @yield the innermost link — the lifecycle body to wrap
     # @return [void]
     # @raise [CallbackError] when a callback fails to invoke its continuation
@@ -153,6 +157,11 @@ module CMDx
 
     private
 
+    # @param callable [Symbol, Proc, #call]
+    # @param task [Task]
+    # @param extras [Array<Object>] extra args after `task` for continuation-style callbacks
+    # @return [Object] the callback's return value
+    # @raise [ArgumentError] when `callable` is invalid
     def invoke(callable, task, *extras, &)
       case callable
       when Symbol

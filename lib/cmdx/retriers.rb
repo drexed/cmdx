@@ -22,6 +22,8 @@ module CMDx
       }
     end
 
+    # @param source [Retriers] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -30,6 +32,7 @@ module CMDx
     #
     # @param name [Symbol]
     # @param callable [#call, nil] pass either this or a block
+    # @param block [#call, nil] retrier callable when `callable` is omitted
     # @yield retrier body — `call(attempt, delay, prev_delay)`
     # @return [Retriers] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are given, or

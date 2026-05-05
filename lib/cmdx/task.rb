@@ -22,6 +22,12 @@ module CMDx
       #
       # @param exceptions [Array<Class>]
       # @param options [Hash{Symbol => Object}] see {Retry#initialize}
+      # @option options [Integer] :limit (see {Retry#initialize})
+      # @option options [Float] :delay (see {Retry#initialize})
+      # @option options [Float] :max_delay (see {Retry#initialize})
+      # @option options [Symbol, Proc, #call] :jitter (see {Retry#initialize})
+      # @option options [Symbol, Proc, #call] :if gate `(task, error, attempt)` for retries
+      # @option options [Symbol, Proc, #call] :unless gate `(task, error, attempt)` for retries
       # @yield [attempt, delay] optional custom jitter block
       # @return [Retry]
       def retry_on(*exceptions, **options, &)
@@ -40,6 +46,13 @@ module CMDx
       # Reads or extends this class's {Settings}. Inherits from the superclass.
       #
       # @param options [Hash{Symbol => Object}] merged onto the current settings
+      # @option options [Logger] :logger (see {Settings#initialize})
+      # @option options [#call] :log_formatter (see {Settings#initialize})
+      # @option options [Integer] :log_level (see {Settings#initialize})
+      # @option options [#call] :backtrace_cleaner (see {Settings#initialize})
+      # @option options [Array<Symbol>] :log_exclusions (see {Settings#initialize})
+      # @option options [Array<Symbol, String>] :tags (see {Settings#initialize})
+      # @option options [Boolean] :strict_context (see {Settings#initialize})
       # @return [Settings]
       def settings(options = EMPTY_HASH)
         @settings ||=
@@ -217,9 +230,12 @@ module CMDx
       # the locally defined one, or the superclass's.
       #
       # @param value [:log, :warn, :error, Symbol, Proc, #call, nil]
-      # @param options [Hash{Symbol => Object}] `:if`/`:unless` conditions
-      # @yield optional block used as the deprecation callable
+      # @param block [#call, nil] optional block used as the deprecation callable
+      # @param options [Hash{Symbol => Object}] `:if`/`:unless` conditions (see {Deprecation#initialize})
+      # @option options [Symbol, Proc, #call] :if (see {Deprecation#initialize})
+      # @option options [Symbol, Proc, #call] :unless (see {Deprecation#initialize})
       # @return [Deprecation, nil]
+      # @yield optional block used as the deprecation callable
       def deprecation(value = nil, **options, &block)
         if value || block
           @deprecation = Deprecation.new(value || block, options)
@@ -235,6 +251,18 @@ module CMDx
       #
       # @param names [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] see {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :required
+      # @option options [Object] :coerce (see {Coercions#extract})
+      # @option options [Object] :validate (see {Validators#extract})
       # @yield nested-input DSL block (see {Inputs::ChildBuilder})
       # @return [Inputs]
       def inputs(*names, **options, &)
@@ -252,11 +280,41 @@ module CMDx
       alias input inputs
 
       # Declares optional inputs (shorthand for `inputs ..., required: false`).
+      #
+      # @param names [Array<Symbol>]
+      # @param options [Hash{Symbol => Object}] see {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Object] :coerce (see {Coercions#extract})
+      # @option options [Object] :validate (see {Validators#extract})
+      # @yield nested-input DSL block (see {Inputs::ChildBuilder})
       def optional(*names, **options, &)
         register(:input, *names, required: false, **options, &)
       end
 
       # Declares required inputs (shorthand for `inputs ..., required: true`).
+      #
+      # @param names [Array<Symbol>]
+      # @param options [Hash{Symbol => Object}] see {Input#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol] :as overrides the accessor name
+      # @option options [Boolean, String] :prefix prefix for the accessor name
+      # @option options [Boolean, String] :suffix suffix for the accessor name
+      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
+      # @option options [Object, Symbol, Proc, #call] :default
+      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Object] :coerce (see {Coercions#extract})
+      # @option options [Object] :validate (see {Validators#extract})
+      # @yield nested-input DSL block (see {Inputs::ChildBuilder})
       def required(*names, **options, &)
         register(:input, *names, required: true, **options, &)
       end
@@ -270,6 +328,10 @@ module CMDx
       #
       # @param keys [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] see {Output#initialize}
+      # @option options [String] :description (also accepts `:desc`)
+      # @option options [Symbol, Proc, #call] :if
+      # @option options [Symbol, Proc, #call] :unless
+      # @option options [Object, Symbol, Proc, #call] :default
       # @return [Outputs]
       def outputs(*keys, **options)
         @outputs ||=
@@ -320,6 +382,9 @@ module CMDx
 
       private
 
+      # @param input [Input] defines `##{input.accessor_name}` when not already taken
+      # @return [void]
+      # @raise [DefinitionError] when the accessor name collides
       def define_input_reader(input)
         accessor = input.accessor_name
 
@@ -332,6 +397,8 @@ module CMDx
         input.children.each { |child| define_input_reader(child) }
       end
 
+      # @param input [Input] removes `##{input.accessor_name}` if defined on this class
+      # @return [void]
       def undefine_input_reader(input)
         accessor = input.accessor_name
         undef_method(accessor) if method_defined?(accessor)
@@ -390,7 +457,8 @@ module CMDx
     # Signals a successful halt.
     #
     # @param reason [String, nil]
-    # @param sigdata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
+    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError] when the task has already been frozen (post-execution)
     # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
@@ -404,7 +472,8 @@ module CMDx
     # Signals a skip (interrupted + skipped).
     #
     # @param reason [String, nil]
-    # @param sigdata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
+    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError]
     def skip!(reason = nil, **sigdata)
@@ -418,7 +487,8 @@ module CMDx
     # backtrace for Fault propagation.
     #
     # @param reason [String, nil]
-    # @param sigdata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
+    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError]
     def fail!(reason = nil, **sigdata)
@@ -432,7 +502,8 @@ module CMDx
     # `other` didn't fail.
     #
     # @param other [Result]
-    # @param sigdata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before echoing
+    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void]
     # @raise [FrozenError]
     def throw!(other, **sigdata)

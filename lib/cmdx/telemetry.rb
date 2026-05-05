@@ -24,6 +24,8 @@ module CMDx
       @registry = {}
     end
 
+    # @param source [Telemetry] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.transform_values(&:dup)
     end
@@ -32,7 +34,8 @@ module CMDx
     #
     # @param event [Symbol] one of {EVENTS}
     # @param callable [#call, nil] subscriber callable; pass either this or a block
-    # @yieldparam event [Event]
+    # @param block [#call, nil] subscriber when `callable` is omitted
+    # @yieldparam evt [Event]
     # @return [Telemetry] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are provided, when
     #   the subscriber isn't callable, or when `event` is unknown

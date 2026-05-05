@@ -18,7 +18,7 @@ module CMDx
 
     class << self
 
-      # @param workflow [Task & Workflow]
+      # @param workflow [Task] workflow instance whose class includes {Workflow}
       # @return [void]
       def execute(workflow)
         new(workflow).execute
@@ -26,7 +26,7 @@ module CMDx
 
     end
 
-    # @param workflow [Task & Workflow]
+    # @param workflow [Task] workflow instance whose class includes {Workflow}
     def initialize(workflow)
       @workflow = workflow
       @executed = []
@@ -70,6 +70,8 @@ module CMDx
 
     private
 
+    # @param group [Workflow::ExecutionGroup]
+    # @return [Result, nil] failed result to halt on, or nil when the group succeeds
     def run_sequential(group)
       continue = group.options[:continue_on_failure]
       failures = group.tasks.each_with_object([]) do |task_class, bucket|
@@ -85,6 +87,8 @@ module CMDx
       aggregate(failures, continue:)
     end
 
+    # @param group [Workflow::ExecutionGroup]
+    # @return [Result, nil] failed result to halt on, or nil when the group succeeds
     def run_parallel(group)
       tasks     = group.tasks
       chain     = Chain.current
@@ -150,6 +154,9 @@ module CMDx
       end
     end
 
+    # @param failures [Array<Result>]
+    # @param continue [Boolean] when true, merges failures into the workflow's errors
+    # @return [Result, nil] first failure (echoed upstream), or nil when `failures` is empty
     def aggregate(failures, continue:)
       return if failures.empty?
       return failures.first unless continue

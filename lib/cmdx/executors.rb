@@ -17,6 +17,8 @@ module CMDx
       }
     end
 
+    # @param source [Executors] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -25,6 +27,7 @@ module CMDx
     #
     # @param name [Symbol]
     # @param callable [#call, nil] pass either this or a block
+    # @param block [#call, nil] executor callable when `callable` is omitted
     # @yield executor body — `call(jobs:, concurrency:, on_job:)`
     # @return [Executors] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are given, or

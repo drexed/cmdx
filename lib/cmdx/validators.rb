@@ -26,6 +26,8 @@ module CMDx
       }
     end
 
+    # @param source [Validators] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -34,6 +36,7 @@ module CMDx
     #
     # @param name [Symbol]
     # @param callable [#call, nil] pass either this or a block
+    # @param block [#call, nil] validator callable when `callable` is omitted
     # @yield validator body — `call(value, options = {})`
     # @return [Validators] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are given, or
@@ -71,6 +74,14 @@ module CMDx
     # appends `:validate` (inline callable(s)) when present.
     #
     # @param options [Hash{Symbol => Object}] declaration options
+    # @option options [Object] :presence payload for the presence validator (`call`)
+    # @option options [Object] :absence payload for the absence validator (`call`)
+    # @option options [Object] :format payload for the format validator (`call`)
+    # @option options [Object] :inclusion payload for the inclusion validator (`call`)
+    # @option options [Object] :exclusion payload for the exclusion validator (`call`)
+    # @option options [Object] :length payload for the length validator (`call`)
+    # @option options [Object] :numeric payload for the numeric validator (`call`)
+    # @option options [Object, Array<Object>] :validate inline callable(s) (`Validators::Validate`)
     # @return [Hash{Symbol => Object}] validator rules to run
     def extract(options)
       return EMPTY_HASH if options.empty?
@@ -126,6 +137,9 @@ module CMDx
 
     private
 
+    # @param raw_options [Object] truthy flag, Hash, Array, Regexp, etc. from a declaration
+    # @return [Hash{Symbol => Object}, nil] normalized rule options, or nil when disabled
+    # @raise [ArgumentError] when `raw_options` has an unsupported shape
     def normalize_options(raw_options)
       case raw_options
       when FalseClass, NilClass

@@ -12,6 +12,8 @@ module CMDx
     module ClassMethods
 
       # @api private
+      # @param subclass [Class] newly defined workflow subclass
+      # @return [void]
       def inherited(subclass)
         super
         subclass.instance_variable_set(:@pipeline, pipeline.dup)
@@ -76,6 +78,8 @@ module CMDx
       # Forbids user-defined `work` on workflows; `Workflow#work` delegates
       # to {Pipeline}.
       #
+      # @param method_name [Symbol] hook name reported by Ruby
+      # @return [void]
       # @raise [ImplementationError] when a workflow defines `work`
       def method_added(method_name)
         return super unless method_name == :work
@@ -89,6 +93,8 @@ module CMDx
     ExecutionGroup = Data.define(:tasks, :options)
 
     # @api private
+    # @param base [Class] task class including this mixin
+    # @return [void]
     def self.included(base)
       base.extend(ClassMethods)
     end

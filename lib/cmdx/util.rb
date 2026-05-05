@@ -10,7 +10,7 @@ module CMDx
 
     # Evaluates a condition against `receiver`, dispatching by type.
     #
-    # @param condition [Boolean, nil, Symbol, Proc, #call] condition to evaluate
+    # @param condition [Boolean, nil, Symbol, Proc, #call] `:if`/`:unless`-style gate, method name, or callable evaluated against `receiver`
     # @param receiver [Object] object the condition runs against (usually a Task)
     # @param args [Array<Object>] extra arguments forwarded to the condition
     # @return [Boolean, Object] truthiness result (Procs `instance_exec` on receiver)

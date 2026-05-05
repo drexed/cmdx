@@ -151,6 +151,8 @@ module CMDx
       @duration = Process.clock_gettime(Process::CLOCK_MONOTONIC, :float_millisecond) - start
     end
 
+    # @param event [Symbol] callback event from {Callbacks::EVENTS}
+    # @return [void]
     def run_callbacks(event)
       callbacks = @task.class.callbacks
       return if callbacks.empty?
@@ -158,6 +160,9 @@ module CMDx
       callbacks.process(event, @task)
     end
 
+    # @param event [Symbol] callback event from {Callbacks::EVENTS}
+    # @yield nested lifecycle segment wrapped by `around_execution` callbacks
+    # @return [Object] the wrapped block's return value
     def run_around(event, &)
       callbacks = @task.class.callbacks
       return yield if callbacks.empty?
@@ -220,6 +225,9 @@ module CMDx
       throw(Signal::TAG, Signal.failed(@task.errors.to_s, metadata: @task.metadata))
     end
 
+    # @param name [Symbol] telemetry channel from {Telemetry::EVENTS}
+    # @param payload [Hash{Symbol => Object}] forwarded onto {Telemetry::Event#payload}
+    # @return [void]
     def emit_telemetry(name, payload = EMPTY_HASH)
       telemetry = @task.class.telemetry
       return unless telemetry.subscribed?(name)

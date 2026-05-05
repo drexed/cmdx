@@ -32,6 +32,8 @@ module CMDx
       }
     end
 
+    # @param source [Coercions] registry to duplicate
+    # @return [void]
     def initialize_copy(source)
       @registry = source.registry.dup
     end
@@ -41,6 +43,7 @@ module CMDx
     #
     # @param name [Symbol]
     # @param callable [#call, nil] pass either this or a block
+    # @param block [#call, nil] coercion implementation when `callable` is omitted
     # @yield (see built-in coercion signatures — `call(value, options = {})`)
     # @return [Coercions] self for chaining
     # @raise [ArgumentError] when both `callable` and a block are given, or
@@ -79,6 +82,7 @@ module CMDx
     # callable.
     #
     # @param options [Hash{Symbol => Object}] declaration options
+    # @option options [Object] :coerce coercion rule(s): Symbol, Array, Hash, or `#call`-able
     # @return [Array<Array(Object, Hash)>] pairs of handler + per-handler options
     # @raise [ArgumentError] when `:coerce` is an unsupported format
     def extract(options)
@@ -118,7 +122,7 @@ module CMDx
     #
     # @param task [Task] used for inline `Symbol`/`Proc` handlers and error recording
     # @param name [Symbol] attribute name for error reporting
-    # @param value [Object] value to coerce
+    # @param value [Object] raw input before coercion rules run
     # @param rules [Array<Array(Object, Hash)>] from {#extract}
     # @return [Object, Failure] coerced value, or `Failure` when every rule failed
     def coerce(task, name, value, rules)
@@ -152,6 +156,9 @@ module CMDx
 
     private
 
+    # @param entry [Object] Array entry from a `:coerce` list
+    # @return [Array(Object, Hash)] handler + options pair
+    # @raise [ArgumentError] when `entry` is unsupported
     def normalize_entry(entry)
       case entry
       when ::Symbol, ::Proc

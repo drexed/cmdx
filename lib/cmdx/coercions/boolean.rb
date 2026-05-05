@@ -13,7 +13,8 @@ module CMDx
       FALSEY = Set["false", "no", "off", "n", "0", "f"].freeze
 
       # @param value [Object]
-      # @param options [Hash{Symbol => Object}] unused
+      # @param options [Hash{Symbol => Object}]
+      # @option options [Object] reserved for future per-coercion configuration (currently ignored)
       # @return [Boolean, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
         return coercion_failure if value.nil?

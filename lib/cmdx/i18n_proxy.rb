@@ -15,13 +15,21 @@ module CMDx
       end
 
       # @param key [String, Symbol] dot-separated translation key
-      # @param options [Hash{Symbol => Object}] interpolation values (e.g. `type:`)
+      # @param options [Hash{Symbol => Object}] forwarded to `I18n.translate` or bundled interpolation
+      # @option options [Object] :default fallback when the bundled YAML lookup misses
+      # @option options [Hash{Symbol => Object}] extra keys interpolated via `String#%` for bundled translations
       # @return [String, Object] the translated string (or the raw default value)
       def translate(key, **options)
         @proxy ||= new
         @proxy.translate(key, **options)
       end
-      alias t translate
+
+      # @param (see .translate)
+      # @option (see .translate)
+      # @return (see .translate)
+      def t(key, **options)
+        translate(key, **options)
+      end
 
       # Register an additional directory containing locale YAML files. Later
       # registrations take precedence over earlier ones (the most recently
@@ -50,6 +58,8 @@ module CMDx
 
     # @param key [String, Symbol] dot-separated translation key
     # @param options [Hash{Symbol => Object}] interpolation values
+    # @option options [Object] :default fallback when the bundled YAML lookup misses
+    # @option options [Hash{Symbol => Object}] extra keys interpolated via `String#%` for bundled translations
     # @return [String, Object] the translated/interpolated message
     def translate(key, **options)
       return ::I18n.translate(key, **options) if defined?(::I18n) && ::I18n.respond_to?(:translate)
@@ -69,6 +79,8 @@ module CMDx
 
     private
 
+    # @param key [String, Symbol] lookup key (without locale prefix)
+    # @return [Object, nil] message template from bundled YAML, when present
     def translation_default(key)
       default_locale  = CMDx.configuration.default_locale || "en"
       translation_key = "#{default_locale}.#{key}"

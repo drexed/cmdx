@@ -36,8 +36,9 @@ RSpec.describe CMDx::I18nProxy do
       end
     end
 
-    it "is aliased as #t" do
-      expect(proxy.method(:t)).to eq(proxy.method(:translate))
+    it "delegates to #translate with the same arguments" do
+      allow(proxy).to receive(:translation_default).and_return(nil)
+      expect(proxy.t("nope.nothing")).to eq(proxy.translate("nope.nothing"))
     end
   end
 
@@ -48,8 +49,8 @@ RSpec.describe CMDx::I18nProxy do
       expect(described_class.translate("cmdx.faults.unspecified")).to be_a(String)
     end
 
-    it "is aliased as .t" do
-      expect(described_class.method(:t)).to eq(described_class.method(:translate))
+    it "delegates to .translate with the same arguments" do
+      expect(described_class.t("cmdx.faults.unspecified")).to eq(described_class.translate("cmdx.faults.unspecified"))
     end
   end
 

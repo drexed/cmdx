@@ -274,6 +274,10 @@ module CMDx
     # - `ctx.name = val` — stores `val` under `:name`.
     # - `ctx.name?` — truthy check for `@table[:name]`.
     #
+    # @param method_name [Symbol] dynamic reader/writer/predicate name
+    # @param args [Array<Object>] stores RHS for writers (`name=` → `[value]`)
+    # @param _kwargs [Hash{Symbol => Object}] ignored (accepted for Ruby keyword forwarding)
+    # @option _kwargs [Object] ignored
     # @raise [NoMethodError] when {#strict?} is true and the key is missing
     # @api private
     def method_missing(method_name, *args, **_kwargs, &)
@@ -288,10 +292,15 @@ module CMDx
       end
     end
 
+    # @param method_name [Symbol]
+    # @param include_private [Boolean] forwarded to Ruby's `respond_to?` lookup
+    # @return [Boolean]
     def respond_to_missing?(method_name, include_private = false)
       @table.key?(method_name) || method_name.end_with?("=", "?") || super
     end
 
+    # @param value [Object] nested value from the context table
+    # @return [Object] recursively duplicated scalar/collection snapshot
     def compute_deep_dup(value)
       case value
       when Numeric, Symbol, TrueClass, FalseClass, NilClass
@@ -309,6 +318,9 @@ module CMDx
       end
     end
 
+    # @param lhs [Hash]
+    # @param rhs [Hash]
+    # @return [Hash] merged hash (recursive for nested `{Hash => Hash}` pairs)
     def compute_deep_merge(lhs, rhs)
       lhs.merge(rhs) do |_key, l, r|
         l.is_a?(Hash) && r.is_a?(Hash) ? compute_deep_merge(l, r) : r
