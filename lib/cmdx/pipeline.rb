@@ -158,7 +158,7 @@ module CMDx
         prefix = result.task.name
 
         if result.errors.empty?
-          message = result.reason || I18nProxy.t("cmdx.reasons.unspecified")
+          message = I18nProxy.tr(result.reason)
           @workflow.errors.add(:"#{prefix}.#{result.status}", message)
         else
           result.errors.each do |key, messages|

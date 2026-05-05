@@ -139,6 +139,21 @@ RSpec.describe CMDx::Pipeline do
           expect(result.errors[:"Reasonless.failed"]).to eq([CMDx::I18nProxy.t("cmdx.reasons.unspecified")])
         end
 
+        it "resolves the failure reason through I18nProxy when a translation key matches" do
+          allow(CMDx::I18nProxy).to receive(:tr).with("translatable.reason").and_return("Translated reason")
+          a = create_failing_task(name: "Translatable", reason: "translatable.reason")
+
+          workflow_class = create_workflow_class do
+            tasks a, continue_on_failure: true
+          end
+
+          result = workflow_class.execute
+
+          expect(result).to be_failed
+          translatable_key = result.errors.messages.keys.find { |k| k.to_s.start_with?("Translatable") }
+          expect(result.errors[translatable_key]).to eq(["Translated reason"])
+        end
+
         it "the first failure (declaration order) becomes the signal origin" do
           first_fail = create_failing_task(name: "First", reason: "first")
           second_fail = create_failing_task(name: "Second", reason: "second")

@@ -83,7 +83,7 @@ module CMDx
     def initialize(result)
       @result = result
 
-      super(result.reason || I18nProxy.t("cmdx.reasons.unspecified"))
+      super(I18nProxy.tr(result.reason))
 
       if (frames = result.backtrace || result.cause&.backtrace_locations)
         frames = frames.map(&:to_s)

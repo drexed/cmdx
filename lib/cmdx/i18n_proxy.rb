@@ -9,6 +9,11 @@ module CMDx
 
     class << self
 
+      # @return [Array<String>] directories searched (in order) for bundled locale YAMLs
+      def locale_paths
+        @locale_paths ||= [File.expand_path("../locales", __dir__)]
+      end
+
       # @param key [String, Symbol] dot-separated translation key
       # @param options [Hash{Symbol => Object}] interpolation values (e.g. `type:`)
       # @return [String, Object] the translated string (or the raw default value)
@@ -17,11 +22,6 @@ module CMDx
         @proxy.translate(key, **options)
       end
       alias t translate
-
-      # @return [Array<String>] directories searched (in order) for bundled locale YAMLs
-      def locale_paths
-        @locale_paths ||= [File.expand_path("../locales", __dir__)]
-      end
 
       # Register an additional directory containing locale YAML files. Later
       # registrations take precedence over earlier ones (the most recently
@@ -36,6 +36,16 @@ module CMDx
         locale_paths
       end
 
+      # Resolves a reason string through translation, falling back to either
+      # the literal reason (when present) or the `cmdx.reasons.unspecified`
+      # default (when nil).
+      #
+      # @param reason [String, Symbol, nil] reason text or translation key
+      # @return [String] translated message, literal reason, or default
+      def tr(reason)
+        translate(reason || "cmdx.reasons.unspecified", default: reason)
+      end
+
     end
 
     # @param key [String, Symbol] dot-separated translation key
@@ -44,9 +54,9 @@ module CMDx
     def translate(key, **options)
       return ::I18n.translate(key, **options) if defined?(::I18n) && ::I18n.respond_to?(:translate)
 
-      options[:default] ||= translation_default(key)
+      message = translation_default(key) || options[:default]
 
-      case message = options.delete(:default)
+      case message
       when String
         message % options
       when NilClass

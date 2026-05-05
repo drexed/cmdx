@@ -38,6 +38,11 @@ RSpec.describe CMDx::Fault do
         .to eq(CMDx::I18nProxy.t("cmdx.reasons.unspecified"))
     end
 
+    it "resolves the reason through I18nProxy when a translation key matches" do
+      allow(CMDx::I18nProxy).to receive(:tr).with("boom").and_return("Translated boom")
+      expect(described_class.new(result).message).to eq("Translated boom")
+    end
+
     it "descends from CMDx::Error" do
       expect(described_class.new(result)).to be_a(CMDx::Error)
     end

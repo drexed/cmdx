@@ -69,6 +69,31 @@ RSpec.describe CMDx::I18nProxy do
     end
   end
 
+  describe ".tr" do
+    before { hide_const("I18n") }
+
+    it "returns the unspecified default when the reason is nil" do
+      expect(described_class.tr(nil))
+        .to eq(described_class.t("cmdx.reasons.unspecified"))
+    end
+
+    it "returns the literal reason when no translation key matches" do
+      expect(described_class.tr("Payment failed")).to eq("Payment failed")
+    end
+
+    it "resolves the reason through translation when a matching key exists" do
+      Dir.mktmpdir do |dir|
+        File.write(File.join(dir, "en.yml"), { "en" => { "payment_failed" => "Payment failed" } }.to_yaml)
+        described_class.register(dir)
+
+        expect(described_class.tr("payment_failed")).to eq("Payment failed")
+      end
+    ensure
+      described_class.instance_variable_set(:@locale_paths, nil)
+      described_class.instance_variable_set(:@proxy, nil)
+    end
+  end
+
   describe ".locale_paths / .register" do
     let(:default_paths) { [File.expand_path("../../lib/cmdx/../locales", __dir__)] }
 
