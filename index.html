@@ -3456,39 +3456,37 @@
         </div>
         <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PayOrder</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
   <span class="n">required</span> <span class="ss">:order_id</span>, <span class="ss">coerce:</span> <span class="ss">:integer</span>
-  <span class="n">required</span> <span class="ss">:payment_method_id</span>, <span class="ss">coerce:</span> <span class="ss">:string</span>
+  <span class="n">required</span> <span class="ss">:payment_method_id</span>, <span class="ss">presence:</span> { <span class="ss">message:</span> <span class="s">"Choose a payment method"</span> }
   <span class="n">required</span> <span class="ss">:user</span>
 
   <span class="n">output</span> <span class="ss">:order</span>
 
-  <span class="n">on_success</span> <span class="ss">:deliver_side_effects!</span>
+  <span class="n">on_success</span> <span class="k">do</span>
+    <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
+    <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">order</span>.<span class="n">id</span>)
+  <span class="k">end</span>
 
   <span class="k">def</span> <span class="n">work</span>
-    <span class="n">fail!</span>(<span class="s">"Choose a payment method"</span>) <span class="k">if</span> <span class="n">payment_method_id</span>.<span class="n">strip</span>.<span class="n">empty?</span>
-
-    <span class="n">context</span>.<span class="n">order</span> = <span class="n">order</span>
-    <span class="n">success!</span>(<span class="s">"already_paid"</span>, <span class="ss">skip_side_effects:</span> <span class="n">true</span>) <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>
+    <span class="n">skip!</span>(<span class="s">"Already paid"</span>) <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>
 
     <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
-      <span class="n">intent</span> = <span class="n">payment_intent</span>
-      <span class="k">if</span> <span class="n">intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
-        <span class="n">fail!</span>(<span class="n">intent</span>.<span class="n">last_payment_error</span>&amp;.<span class="n">message</span> <span class="o">||</span> <span class="s">"Card declined"</span>)
-      <span class="k">end</span>
-      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">intent</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
+      <span class="n">fail!</span>(<span class="n">payment_intent</span>.<span class="n">last_payment_error</span>&amp;.<span class="n">message</span> <span class="o">||</span> <span class="s">"Card declined"</span>) <span class="k">if</span> <span class="n">payment_intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
+      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">payment_intent</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
       <span class="nc">AuditLog</span>.<span class="n">create!</span>(<span class="ss">user:</span> <span class="n">user</span>, <span class="ss">action:</span> <span class="s">"order_paid"</span>, <span class="ss">subject:</span> <span class="n">order</span>)
     <span class="k">end</span>
-
-    <span class="n">context</span>.<span class="n">order</span> = <span class="n">order</span>
   <span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+    <span class="nc">Sentry</span>.<span class="n">capture_exception</span>(<span class="n">e</span>)
     <span class="n">fail!</span>(<span class="n">e</span>.<span class="n">message</span>)
   <span class="k">end</span>
 
   <span class="k">private</span>
 
-  <span class="k">def</span> <span class="n">order</span> = <span class="n">@order</span> <span class="o">||=</span> <span class="n">user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">order_id</span>)
+  <span class="k">def</span> <span class="n">order</span>
+    <span class="n">context.order</span> <span class="o">||=</span> <span class="n">user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">order_id</span>)
+  <span class="k">end</span>
 
   <span class="k">def</span> <span class="n">payment_intent</span>
-    <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
+    <span class="n">@payment_intent</span> <span class="o">||=</span> <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
       <span class="ss">amount:</span> <span class="n">order</span>.<span class="n">total_cents</span>,
       <span class="ss">currency:</span> <span class="s">"usd"</span>,
       <span class="ss">payment_method:</span> <span class="n">payment_method_id</span>,
@@ -3496,13 +3494,6 @@
       <span class="ss">confirm:</span> <span class="n">true</span>,
       <span class="ss">idempotency_key:</span> <span class="s">"order-#{order.id}-pay"</span>
     )
-  <span class="k">end</span>
-
-  <span class="k">def</span> <span class="n">deliver_side_effects!</span>
-    <span class="k">return</span> <span class="k">if</span> <span class="n">metadata</span>[<span class="ss">:skip_side_effects</span>]
-
-    <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
-    <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">order</span>.<span class="n">id</span>)
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
         <ul class="problem-annos">
@@ -3518,21 +3509,22 @@
     <div class="problem-panel problem-caller">
       <div class="caller-label">your controller, now</div>
       <pre class="problem-code"><code><span class="k">def</span> <span class="n">create</span>
-  <span class="n">result</span> = <span class="nc">PayOrder</span>.<span class="n">execute</span>(
-    <span class="ss">order_id:</span> <span class="n">params</span>[<span class="ss">:order_id</span>],
-    <span class="ss">payment_method_id:</span> <span class="n">params</span>[<span class="ss">:payment_method_id</span>],
-    <span class="ss">user:</span> <span class="n">current_user</span>
-  )
-
-  <span class="k">return</span> <span class="n">head</span>(<span class="ss">:not_found</span>) <span class="k">if</span> <span class="n">result</span>.<span class="n">cause</span>.<span class="n">is_a?</span>(<span class="nc">ActiveRecord::RecordNotFound</span>)
+  <span class="n">result</span> = <span class="nc">PayOrder</span>.<span class="n">execute</span>(<span class="ss">**payment_params</span>, <span class="ss">user:</span> <span class="n">current_user</span>)
 
   <span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
-    <span class="n">notice</span> = <span class="n">result</span>.<span class="n">reason</span> <span class="o">==</span> <span class="s">"already_paid"</span> <span class="o">?</span> <span class="n">nil</span> <span class="o">:</span> <span class="s">"Payment received"</span>
-    <span class="n">redirect_to</span> <span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>, <span class="ss">notice:</span> <span class="n">notice</span>
+    <span class="n">redirect_to</span> <span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>, <span class="ss">notice:</span> <span class="n">"Payment received"</span>
+  <span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
+    <span class="n">redirect_to</span> <span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>, <span class="ss">notice:</span> <span class="n">result</span>.<span class="n">reason</span>
   <span class="k">else</span>
     <span class="n">flash</span>.<span class="n">now</span>[<span class="ss">:alert</span>] = <span class="n">result</span>.<span class="n">reason</span> <span class="o">||</span> <span class="s">"Something went wrong"</span>
     <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">status:</span> <span class="ss">:unprocessable_entity</span>
   <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">private</span>
+
+<span class="k">def</span> <span class="n">payment_params</span>
+  <span class="n">params</span>.<span class="n">permit</span>(<span class="ss">:order_id</span>, <span class="ss">:payment_method_id</span>)
 <span class="k">end</span></code></pre>
     </div>
 
