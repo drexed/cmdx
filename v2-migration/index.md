@@ -4,7 +4,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 
 Not a drop-in upgrade
 
-Plan to touch every task class. Halt is now `throw`/`catch` (not `Result` mutation), attributes became inputs (`type:` → `coerce:`), returns became outputs, middleware takes one arg and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
+Plan to touch every task class. Halt is now `throw`/`catch` (not `Result` mutation), attributes became inputs (`type:` → `coerce:`), returns became outputs, middleware takes one arg and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone. The [Automated Migration Prompt](#automated-migration-prompt) below mechanizes most of the rewrite — paste it into your agent before hand-editing.
 
 Benchmarks
 
@@ -55,10 +55,6 @@ ______________________________________________________________________
 1. **Re-run the suite.** When green, delete dead helpers that papered over v1's rough edges (manual rollbacks, `dry_run:` flags, `SKIP_CMDX_FREEZING` toggles).
 1. **Validate.** Run the grep list in [Validating the Migration](#validating-the-migration) to catch stragglers.
 
-Tip
-
-Coming from < 1.21? Also rename `def call` to `def work` and class-level `.call` / `.call!` to `.execute` / `.execute!`. v2 keeps `.call` / `.call!` as aliases.
-
 ______________________________________________________________________
 
 ## Configuration
@@ -67,12 +63,12 @@ The `CMDx::Configuration` surface shrank. Breakpoints, rollback config, freezing
 
 ### Removed Keys
 
-| Removed                                                            | Replacement                                                                                  |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `task_breakpoints`, `workflow_breakpoints`                         | Failure halting is intrinsic. Use `execute!` for strict mode, or gate halts in a middleware. |
-| `rollback_on`                                                      | `Task#rollback` runs automatically on failure (see [Rollback](#rollback)).                   |
-| `dump_context`, `freeze_results`, `backtrace`, `exception_handler` | Removed.                                                                                     |
-| `SKIP_CMDX_FREEZING` env var                                       | Removed. Teardown always freezes `task`, `errors`, and (for the root) `context` and `chain`. |
+| Removed                                                            | Replacement |
+| ------------------------------------------------------------------ | ----------- |
+| `task_breakpoints`, `workflow_breakpoints`                         | Removed.    |
+| `rollback_on`                                                      | Removed.    |
+| `dump_context`, `freeze_results`, `backtrace`, `exception_handler` | Removed.    |
+| `SKIP_CMDX_FREEZING` env var                                       | Removed.    |
 
 ### v2 Surface
 
@@ -82,7 +78,13 @@ CMDx.configure do |config|
   config.callbacks         # CMDx::Callbacks
   config.coercions         # CMDx::Coercions
   config.validators        # CMDx::Validators
-  config.telemetry         # CMDx::Telemetry  (NEW)
+  config.executors         # CMDx::Executors
+  config.mergers           # CMDx::Mergers
+  config.retriers          # CMDx::Retriers
+  config.deprecators       # CMDx::Deprecators
+  config.telemetry         # CMDx::Telemetry
+  config.correlation_id    # nil or callable resolving an external request id
+  config.strict_context    # false (raise on unknown `context` reads when true)
   config.default_locale    # "en"
   config.backtrace_cleaner # ->(bt) { ... } or nil
   config.logger            # Logger instance
@@ -91,10 +93,6 @@ CMDx.configure do |config|
   config.log_exclusions    # [] (Result#to_h keys stripped from the lifecycle log entry)
 end
 ```
-
-Note
-
-`CMDx.reset_configuration!` is new — call it in test setup/teardown to replace the global config and clear cached registries **on `Task`** only. Subclass caches aren't cleared — prefer freshly defined task classes per example (`stub_const` or anonymous classes).
 
 See [Configuration](https://drexed.github.io/cmdx/configuration/index.md) for the full surface.
 
@@ -139,18 +137,8 @@ ______________________________________________________________________
 
 `success!` / `skip!` / `fail!` / `throw!` are private instance methods on `Task` that `throw(Signal::TAG, signal)`. Runtime's `catch` intercepts the signal and constructs the result once at the end.
 
-```ruby
-# v1 — mutated result.state, kept running unless you returned
-# v2 — throws; unreachable after the call
-def work
-  fail!("invalid email", code: :bad_input)
-  deliver(context)  # v1 could still hit this; v2 NEVER reaches this
-end
-```
-
 Breaking changes:
 
-- **Halts are terminating.** Code after them in `work` is unreachable.
 - `result.fail!` / `result.skip!` are gone — halts live on `Task`, not delegated through `Result`.
 - `success!` is new — halt `work` early while staying successful.
 - Only `fail!` and `throw!` capture `caller_locations(1)` as the signal backtrace; `success!` and `skip!` do not. `Fault#backtrace` points at your call site, cleaned through `Settings#backtrace_cleaner` when present.
@@ -241,12 +229,12 @@ ______________________________________________________________________
 
 ### Event Renames
 
-| v1                                                                                                                | v2                                                                       |
-| ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `before_validation`, `before_execution`, `on_complete`, `on_interrupted`, `on_success`, `on_skipped`, `on_failed` | unchanged                                                                |
-| `on_executed`                                                                                                     | **removed** — use `on_complete` + `on_interrupted`, or `on_ok` / `on_ko` |
-| `on_good`                                                                                                         | `on_ok`                                                                  |
-| `on_bad`                                                                                                          | `on_ko`                                                                  |
+| v1                                                                                                                | v2        |
+| ----------------------------------------------------------------------------------------------------------------- | --------- |
+| `before_validation`, `before_execution`, `on_complete`, `on_interrupted`, `on_success`, `on_skipped`, `on_failed` | unchanged |
+| `on_executed`                                                                                                     | removed   |
+| `on_good`                                                                                                         | `on_ok`   |
+| `on_bad`                                                                                                          | `on_ko`   |
 
 ### Registration
 
@@ -350,13 +338,19 @@ ______________________________________________________________________
 `Settings` is a frozen value object. Per-task overrides cover logger, log formatter, log level, log exclusions, backtrace cleaner, tags, and strict context — nothing else. Registries live on the `Task` class itself.
 
 ```ruby
-# v1                                   # v2
-settings logger: MyLogger.new,         settings logger:            MyLogger.new,
-         tags:   %i[critical],                  log_formatter:     CMDx::LogFormatters::JSON.new,
-         task_breakpoints: %w[failed], # gone   log_level:         Logger::DEBUG,
-         freeze_results:   false       # gone   log_exclusions:    %i[context metadata],
-                                                backtrace_cleaner: ->(bt) { bt.reject { |l| l.include?("gems/") } },
-                                                tags:              %i[critical]
+# v1
+settings logger:           MyLogger.new,
+         tags:             %i[critical],
+         task_breakpoints: %w[failed], # gone in v2
+         freeze_results:   false       # gone in v2
+
+# v2
+settings logger:            MyLogger.new,
+         log_formatter:     CMDx::LogFormatters::JSON.new,
+         log_level:         Logger::DEBUG,
+         log_exclusions:    %i[context metadata],
+         backtrace_cleaner: ->(bt) { bt.reject { |l| l.include?("gems/") } },
+         tags:              %i[critical]
 ```
 
 `Settings#build(opts)` returns a new instance and does a flat `Hash#merge` — a subclass that overrides `tags:` **replaces** (not concatenates) the parent's. Every getter falls back to `CMDx.configuration` when the key is absent.
@@ -405,10 +399,10 @@ result.on(:success) { |r| deliver(r.context) }    # predicate dispatch
       .on(:failed)  { |r| alert(r.reason) }
 # Accepted keys: :complete :interrupted :success :skipped :failed :ok :ko
 
-case result                                       # pattern matching
-in [*, [:status, "success"], *]                  then ok!
+case result                                          # pattern matching
+in [*, [:status, "success"], *]                      then ok!
 in [*, [:status, "failed"], *, [:reason, reason], *] then alert(reason)
-in { task:, status: "failed", cause: }           then ...
+in { task:, status: "failed", cause: }               then ...
 end
 
 result.tid             # uuid_v7
@@ -448,10 +442,8 @@ ______________________________________________________________________
 class FanOutWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task  LoadInvoice                              # sequential default
-  tasks ChargeCard, EmailReceipt,
-        strategy:  :parallel,                    # NEW
-        pool_size: 4                             # NEW
+  task  LoadInvoice
+  tasks ChargeCard, EmailReceipt, strategy:  :parallel, pool_size: 4
   task  FinalizeOrder
 end
 ```
@@ -474,10 +466,15 @@ ______________________________________________________________________
 ## Chain
 
 ```ruby
-# v1                             # v2
-Thread.current[:cmdx_chain]      Fiber[:cmdx_chain]
-chain.dry_run?                   # gone
-                                 Chain.current, Chain.current=, Chain.clear  # accessors
+# v1
+Thread.current[:cmdx_chain]
+chain.dry_run? # gone in v2
+
+# v2
+Fiber[:cmdx_chain]
+Chain.current
+Chain.current=
+Chain.clear
 ```
 
 `Chain` is fiber-local so parallel workers each see the same underlying chain. `push` and `unshift` are `Mutex`-synchronized. Runtime `unshift`s the root result and `push`es children, so `chain[0]` (and `chain.root`) is always the outermost task regardless of finalization order.
@@ -517,6 +514,10 @@ rescue Fault.for?(ProcessOrder, ChargeCard) => fault
   Alert.for(fault.task, fault.message)
 end
 
+rescue Fault.reason?("api rate limit") => fault
+  RetryQueue.push(fault)
+end
+
 rescue Fault.matches? { |f| f.result.metadata[:retryable] } => fault
   RetryQueue.push(fault)
 end
@@ -524,7 +525,7 @@ end
 
 ### Construction
 
-`Fault#initialize(result)` takes a `Result` (was `(task_class, signal)`). It derives the backtrace from `result.backtrace || result.cause&.backtrace_locations`, then runs it through `task.settings.backtrace_cleaner` when present. `fault.task`, `fault.context`, `fault.chain`, and `fault.result` are all exposed.
+`fault.task`, `fault.context`, `fault.chain`, and `fault.result` are all exposed.
 
 Note
 
@@ -534,7 +535,7 @@ ______________________________________________________________________
 
 ## Errors
 
-Mostly compatible. Messages are stored in a `Set` per key, so duplicate messages on the same key are silently dropped. `Errors` `include`s `Enumerable`, iterating `[key, Set<String>]` pairs (not `Array`).
+`Errors` `include`s `Enumerable`, iterating `[key, Set<String>]` pairs (not `Array`).
 
 New in v2:
 
@@ -554,15 +555,15 @@ ______________________________________________________________________
 ## Context
 
 ```ruby
-context.merge(other)              # accepts Context, Hash, or anything to_h-able
+context.merge(other)               # accepts Context, Hash, or anything to_h-able
 context.retrieve(:foo) { compute } # fetch-or-store
 context.delete(:foo)
 context.clear
 context.deep_dup
-context.map { |k, v| ... }        # Enumerable
+context.map { |k, v| ... }         # Enumerable
 ```
 
-Dynamic accessors (`context.foo`, `context.foo = 1`, `context.foo?`) are unchanged. The root context is frozen by Runtime teardown; nested subtask contexts stay mutable while their parent runs. `context.dry_run` and the `dry_run: true` constructor flag are gone.
+Dynamic accessors (`context.foo`, `context.foo = 1`) are unchanged. An accessor predicted has been added, eg: `context.foo?`
 
 ______________________________________________________________________
 
@@ -572,20 +573,15 @@ Shape unchanged; implementation is now a value object that accumulates across in
 
 ```ruby
 class FlakyTask < CMDx::Task
-  retry_on Net::ReadTimeout, ConnectionPool::TimeoutError,
-           limit:     4,
-           delay:     0.5,
-           max_delay: 5.0,
-           jitter:    :exponential   # :exponential, :half_random, :full_random,
-                                     # :bounded_random, Symbol, Proc, or any callable
+  retry_on Net::ReadTimeout, ConnectionPool::TimeoutError, limit: 4, delay: 0.5, max_delay: 5.0, jitter: :exponential
 end
 
 class ChildTask < FlakyTask
-  retry_on Errno::ECONNRESET         # accumulated; ChildTask retries on all 3
+  retry_on Errno::ECONNRESET
 end
 ```
 
-`Task.retry_on` with no exceptions returns the current (possibly inherited) `Retry`. See [Retries](https://drexed.github.io/cmdx/retries/index.md).
+See [Retries](https://drexed.github.io/cmdx/retries/index.md) for full options.
 
 ______________________________________________________________________
 
@@ -595,7 +591,7 @@ v1's `Deprecator` class is replaced by a class-level `deprecation` DSL.
 
 ```ruby
 class LegacyImporter < CMDx::Task
-  deprecation :warn                       # :log, :warn, :error, Symbol, Proc, or any #call-able
+  deprecation :warn # :log, :warn, :error, Symbol, Proc, or any #call-able
   # deprecation :error, if: -> { Rails.env.production? }
   # deprecation ->(task) { Sentry.capture_message("deprecated task run: #{task.class}") }
 
@@ -626,10 +622,6 @@ class ChargeCard < CMDx::Task
   end
 end
 ```
-
-Note
-
-v1 had no built-in rollback dispatch (`rollback_on` config existed but didn't invoke anything). If you wired rollback manually from a middleware or callback, drop the scaffolding.
 
 ______________________________________________________________________
 
@@ -711,6 +703,10 @@ en:
         nil_value: "must be numeric"
 ```
 
+Note
+
+All 86+ internalization files have been moved to the [`cmdx-i18n`](https://github.com/drexed/cmdx-i18n) gem.
+
 See [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md).
 
 ______________________________________________________________________
@@ -720,8 +716,6 @@ ______________________________________________________________________
 `cmdx:install`, `cmdx:task`, and `cmdx:workflow` emit the v2 template shape:
 
 ```ruby
-# v1 templates: def call ... end
-# v2 templates:
 class MyTask < ApplicationTask
   def work
     # Your logic here...
@@ -983,6 +977,12 @@ If either fails and you can't resolve it from the rules above, stop and report t
 
 The v2 internals open the door to a number of additions that didn't fit the rewrite. The list below is **planned, not committed** — semantics may shift before they ship.
 
+### Infrastructure primitives
+
+- **`CMDx::Stores`** — pluggable KV with `get` / `set` / `incr` / `del` + TTL. Memory and Redis adapters substrate `idempotent_by`, rate limiting, circuit breakers, checkpoints, and result caching.
+- **`CMDx::Cache`** — `cache_result key: ->(t) { … }, ttl: 60` memoizes a successful result per-input on the configured store.
+- **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".
+
 ### Tasks
 
 - **`idempotent_by`** — declarative idempotency keyed off context: `idempotent_by :payment_id, ttl: 5.minutes`. Backed by `CMDx::Stores`.
@@ -999,13 +999,5 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 - **`Chain#to_mermaid` / `#to_dot`** — render a chain (with result statuses) for debugging deeply nested executions.
 - **`Chain#timeline`** — Gantt-shaped `(task, start, end, status)` rows usable directly in dashboards. The data exists; only the assembly is missing.
-- **`Result#pretty_print`** — REPL-friendly multi-line formatter with color and child indentation; the current single-line `to_s` gets noisy at depth.
-
-### Infrastructure primitives
-
-The same example middlewares (rate limit, idempotency, circuit breaker) all reinvent the same KV interface. Promoting it to a core registry lets every primitive share one swappable backend.
-
-- **`CMDx::Stores`** — pluggable KV with `get` / `set` / `incr` / `del` + TTL. Memory and Redis adapters substrate `idempotent_by`, rate limiting, circuit breakers, checkpoints, and result caching.
-- **`CMDx::Cache`** — `cache_result key: ->(t) { … }, ttl: 60` memoizes a successful result per-input on the configured store.
-- **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".```
+- **`Result#pretty_print`** — REPL-friendly multi-line formatter with color and child indentation; the current single-line `to_s` gets noisy at depth.```
 ````
