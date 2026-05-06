@@ -1354,23 +1354,36 @@
           <span>today, in every rails app</span>
         </div>
         <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PaymentsController</span> <span class="o">&lt;</span> <span class="nc">ApplicationController</span>
+  <span class="n">before_action</span> <span class="ss">:authenticate_user!</span>
+
   <span class="k">def</span> <span class="n">create</span>
-    <span class="n">order</span> = <span class="nc">Order</span>.<span class="n">find</span>(<span class="n">params</span>[<span class="ss">:order_id</span>])
+    <span class="n">order</span> = <span class="n">current_user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">params</span>[<span class="ss">:order_id</span>])
+    <span class="k">return</span> <span class="n">redirect_to</span>(<span class="n">order</span>) <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>
+
+    <span class="k">if</span> <span class="n">params</span>[<span class="ss">:token</span>].<span class="n">blank?</span>
+      <span class="n">flash</span>[<span class="ss">:error</span>] = <span class="s">"Missing token"</span>
+      <span class="k">return</span> <span class="n">render</span> <span class="ss">:new</span>
+    <span class="k">end</span>
+
     <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
       <span class="n">charge</span> = <span class="nc">Stripe::Charge</span>.<span class="n">create</span>(
-        <span class="ss">amount:</span>   <span class="n">order</span>.<span class="n">total_cents</span>,
-        <span class="ss">currency:</span> <span class="s">"usd"</span>,
-        <span class="ss">source:</span>   <span class="n">params</span>[<span class="ss">:token</span>]
+        <span class="ss">amount:</span>          <span class="n">order</span>.<span class="n">total_cents</span>,
+        <span class="ss">currency:</span>        <span class="s">"usd"</span>,
+        <span class="ss">source:</span>          <span class="n">params</span>[<span class="ss">:token</span>],
+        <span class="ss">idempotency_key:</span> <span class="s">"order-#{order.id}"</span>
       )
-      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">charged:</span> <span class="n">true</span>, <span class="ss">charge_id:</span> <span class="n">charge</span>.<span class="n">id</span>)
+      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">charge_id:</span> <span class="n">charge</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
+      <span class="nc">AuditLog</span>.<span class="n">create!</span>(<span class="ss">user:</span> <span class="n">current_user</span>, <span class="ss">action:</span> <span class="s">"payment"</span>, <span class="ss">subject:</span> <span class="n">order</span>)
       <span class="nc">OrderMailer</span>.<span class="n">receipt</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
+      <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">current_user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">order</span>.<span class="n">id</span>)
     <span class="k">end</span>
-    <span class="n">redirect_to</span> <span class="n">order</span>
+    <span class="n">redirect_to</span> <span class="n">order</span>, <span class="ss">notice:</span> <span class="s">"Payment received"</span>
   <span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
     <span class="n">flash</span>[<span class="ss">:error</span>] = <span class="n">e</span>.<span class="n">message</span>
     <span class="n">render</span> <span class="ss">:new</span>
   <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
     <span class="nc">Rails</span>.<span class="n">logger</span>.<span class="n">error</span>(<span class="n">e</span>)
+    <span class="nc">Sentry</span>.<span class="n">capture_exception</span>(<span class="n">e</span>)
     <span class="n">render</span> <span class="ss">:new</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
