@@ -154,19 +154,19 @@ See the [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md) docs f
 
 Callbacks fire at specific lifecycle points. Valid events:
 
-| Event                | When                                                                                               |
-| -------------------- | -------------------------------------------------------------------------------------------------- |
-| `:before_execution`  | Before any `work` is executed                                                                      |
-| `:before_validation` | Right after `:before_execution`, before input resolution                                           |
-| `:around_execution`  | Wraps `before_validation`, `work`, `rollback`, and `after_execution`; must invoke its continuation |
-| `:after_execution`   | After `work` and `rollback` is executed                                                            |
-| `:on_complete`       | When `state == "complete"` (success path)                                                          |
-| `:on_interrupted`    | When `state == "interrupted"` (skip or fail)                                                       |
-| `:on_success`        | When `status == "success"`                                                                         |
-| `:on_skipped`        | When `status == "skipped"`                                                                         |
-| `:on_failed`         | When `status == "failed"`                                                                          |
-| `:on_ok`             | Success or skipped (`signal.ok?` — not failed)                                                     |
-| `:on_ko`             | Skipped or failed (`signal.ko?` — not success)                                                     |
+| Event                | When                                                          |
+| -------------------- | ------------------------------------------------------------- |
+| `:before_execution`  | Before any `work` is executed                                 |
+| `:before_validation` | Right after `:before_execution`, before input resolution      |
+| `:around_execution`  | Wraps `work` and any `rollback`; must invoke its continuation |
+| `:after_execution`   | After `work` and `rollback` is executed                       |
+| `:on_complete`       | When `state == "complete"` (success path)                     |
+| `:on_interrupted`    | When `state == "interrupted"` (skip or fail)                  |
+| `:on_success`        | When `status == "success"`                                    |
+| `:on_skipped`        | When `status == "skipped"`                                    |
+| `:on_failed`         | When `status == "failed"`                                     |
+| `:on_ok`             | Success or skipped (`signal.ok?` — not failed)                |
+| `:on_ko`             | Skipped or failed (`signal.ko?` — not success)                |
 
 ```ruby
 CMDx.configure do |config|

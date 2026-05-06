@@ -2683,12 +2683,12 @@
 <pre class="mermaid"><code>flowchart TD
     Invoke([Task.execute]) --&gt; Dep{Deprecation?}
     Dep --&gt;|":error"| Raise([raise DeprecationError])
-    Dep --&gt;|"none / :log / :warn"| Setup["Middlewares + before_execution&lt;br/&gt;+ around_execution + before_validation&lt;br/&gt;+ resolve inputs"]
+    Dep --&gt;|"none / :log / :warn"| Setup["Middlewares + before_execution&lt;br/&gt;+ before_validation + around_execution&lt;br/&gt;+ resolve inputs"]
     Setup --&gt; Work["work (wrapped in retry_on)"]
     Work --&gt;|"success! / skip!"| Verify[Verify outputs]
     Work --&gt;|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
     Work -.-&gt;|"raises Fault"| Rollback
-    Rollback --&gt;|yes| Cb["on_state / on_status / on_ok / on_ko&lt;br/&gt;+ after_execution"]
+    Rollback --&gt;|yes| Cb["after_execution&lt;br/&gt;+ on_state / on_status / on_ok / on_ko"]
     Rollback --&gt;|no| Cb
     Verify --&gt; Cb
     Cb --&gt; Finalize["Finalize Result + Chain&lt;br/&gt;emit :task_executed, freeze &amp; teardown"]

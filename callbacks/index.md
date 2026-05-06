@@ -18,8 +18,8 @@ Callbacks execute in a predictable lifecycle order:
 
 ```ruby
 1. before_execution            # Prepare for execution
-2. around_execution            # Wraps everything below; must invoke its continuation
-3. before_validation           # Pre-validation setup
+2. before_validation           # Pre-validation setup
+3. around_execution            # Wraps work/rollback; must invoke its continuation
 
 # --- inputs resolved, Task#work runs (with retries), outputs verified ---
 # --- #rollback runs here when failed ---
@@ -158,7 +158,7 @@ end
 
 ## Around Callbacks
 
-`around_execution` wraps `before_validation`, `Task#work`, any `#rollback`, and `after_execution` in a single hook. Each callback **must invoke its continuation exactly once** — failure to do so raises `CMDx::CallbackError`. Multiple `around_execution` hooks nest in declaration order (outer-first).
+`around_execution` wraps `Task#work` and any `#rollback` in a single hook. `before_validation` runs *before* the around-block; `after_execution` runs *after* it. Each callback **must invoke its continuation exactly once** — failure to do so raises `CMDx::CallbackError`. Multiple `around_execution` hooks nest in declaration order (outer-first).
 
 The continuation surface differs by callback form:
 

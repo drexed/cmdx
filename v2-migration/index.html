@@ -2409,28 +2409,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#inputs-outputs-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inputs / outputs / schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#telemetry_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Telemetry
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#observability-tooling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2446,17 +2424,6 @@
     <span class="md-ellipsis">
       
         Infrastructure primitives
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#developer-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Developer experience
       
     </span>
   </a>
@@ -3536,28 +3503,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#inputs-outputs-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inputs / outputs / schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#telemetry_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Telemetry
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#observability-tooling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3573,17 +3518,6 @@
     <span class="md-ellipsis">
       
         Infrastructure primitives
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#developer-experience" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Developer experience
       
     </span>
   </a>
@@ -4865,7 +4799,6 @@
 <p>The v2 internals open the door to a number of additions that didn't fit the rewrite. The list below is <strong>planned, not committed</strong> — semantics may shift before they ship.</p>
 <h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>retry_when</code> on <code>Result</code></strong> — retry on outcome, not exceptions: <code>retry_when status: :failed, reason: /rate.?limit/, limit: 3</code>. <code>retry_on</code> only catches raised errors; many APIs return failures-as-data.</li>
 <li><strong><code>idempotent_by</code></strong> — declarative idempotency keyed off context: <code>idempotent_by :payment_id, ttl: 5.minutes</code>. Backed by <code>CMDx::Stores</code>.</li>
 <li><strong><code>circuit_break</code></strong> — <code>circuit_break threshold: 5, cool_off: 30.seconds</code> without bolting on Stoplight per task.</li>
 <li><strong><code>concurrency_limit</code></strong> — global bulkhead capping simultaneous executions of a task class.</li>
@@ -4874,22 +4807,7 @@
 </ul>
 <h3 id="workflows_1">Workflows<a class="headerlink" href="#workflows_1" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Sub-workflow inlining</strong> — invoking another <code>Workflow</code> from within one expands as nested groups in the chain instead of an opaque single result. <code>Chain</code> already supports nesting; <code>Pipeline</code> doesn't expose it.</li>
-<li><strong>Streaming parallel results</strong> — yield each child result to a block as it completes rather than waiting for the join. Useful for progress reporting and fail-fast UIs.</li>
 <li><strong>Checkpoint/resume</strong> — persist <code>context</code> after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with <code>idempotent_by</code>.</li>
-</ul>
-<h3 id="inputs-outputs-schema">Inputs / outputs / schema<a class="headerlink" href="#inputs-outputs-schema" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Schema export</strong> — <code>MyTask.to_json_schema</code> / <code>to_openapi_operation</code> derived from inputs, coercions, and validators.</li>
-</ul>
-<h3 id="telemetry_1">Telemetry<a class="headerlink" href="#telemetry_1" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Status-specific events</strong> — <code>task_failed</code> / <code>task_skipped</code> / <code>task_succeeded</code> alongside <code>task_executed</code>. Specific events let subscribers express intent without inspecting <code>event.payload[:result].status</code>.</li>
-<li><strong>Sampling</strong> — <code>subscribe(:task_executed, sample: 0.01)</code> for high-volume tasks instead of everyone reimplementing the same <code>rand &lt; 0.01</code> gate.</li>
-<li><strong>Optional-require integrations</strong> shipped in-tree:</li>
-<li><code>require "cmdx/telemetry/open_telemetry"</code> — per-task spans with parent linkage from <code>xid</code> / <code>cid</code>.</li>
-<li><code>require "cmdx/telemetry/statsd"</code> / <code>dogstatsd</code> — <code>cmdx.task.duration</code> / <code>.success</code> / <code>.failed</code> tagged by task class.</li>
-<li><code>require "cmdx/telemetry/active_support_notifications"</code> — bridge for Rails apps.</li>
 </ul>
 <h3 id="observability-tooling">Observability / tooling<a class="headerlink" href="#observability-tooling" title="Permanent link">&para;</a></h3>
 <ul>
@@ -4903,11 +4821,6 @@
 <li><strong><code>CMDx::Stores</code></strong> — pluggable KV with <code>get</code> / <code>set</code> / <code>incr</code> / <code>del</code> + TTL. Memory and Redis adapters substrate <code>idempotent_by</code>, rate limiting, circuit breakers, checkpoints, and result caching.</li>
 <li><strong><code>CMDx::Cache</code></strong> — <code>cache_result key: -&gt;(t) { … }, ttl: 60</code> memoizes a successful result per-input on the configured store.</li>
 <li><strong><code>CMDx::Locks</code></strong> — <code>lock_with key: …, ttl: …, wait: …</code> serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".</li>
-</ul>
-<h3 id="developer-experience">Developer experience<a class="headerlink" href="#developer-experience" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Authorization gate</strong> — <code>policy MyPolicy, action: :execute</code> raising a typed <code>AuthorizationFault</code> before input resolution touches sensitive params.</li>
-<li><strong>YARD-driven schema docs</strong> — Rake task that walks every <code>Task</code> subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining <code>docs/</code>.</li>
 </ul>
 
 

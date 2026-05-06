@@ -199,12 +199,12 @@ Every `Task.execute` runs the same orchestrated lifecycle. The diagram below tra
 flowchart TD
     Invoke([Task.execute]) --> Dep{Deprecation?}
     Dep -->|":error"| Raise([raise DeprecationError])
-    Dep -->|"none / :log / :warn"| Setup["Middlewares + before_execution<br/>+ around_execution + before_validation<br/>+ resolve inputs"]
+    Dep -->|"none / :log / :warn"| Setup["Middlewares + before_execution<br/>+ before_validation + around_execution<br/>+ resolve inputs"]
     Setup --> Work["work (wrapped in retry_on)"]
     Work -->|"success! / skip!"| Verify[Verify outputs]
     Work -->|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
     Work -.->|"raises Fault"| Rollback
-    Rollback -->|yes| Cb["on_state / on_status / on_ok / on_ko<br/>+ after_execution"]
+    Rollback -->|yes| Cb["after_execution<br/>+ on_state / on_status / on_ok / on_ko"]
     Rollback -->|no| Cb
     Verify --> Cb
     Cb --> Finalize["Finalize Result + Chain<br/>emit :task_executed, freeze & teardown"]

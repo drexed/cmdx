@@ -28,7 +28,7 @@
     
     
       
-        <title>April 2026 - CMDx</title>
+        <title>May 2026 - CMDx</title>
       
     
     
@@ -81,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#april-2026" class="md-skip">
+        <a href="#may-2026" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              April 2026
+              May 2026
             
           </span>
         </div>
@@ -2018,6 +2018,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cmdx-patterns-debugging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: Debugging and Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cmdx-patterns-the-error-handling-playbook" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2116,17 +2127,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-the-art-of-observability-with-logging" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx: The Art of Observability with Logging
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2139,8 +2139,61 @@
   <div class="md-content" data-md-component="content">
     <div class="md-content__inner">
       <header class="md-typeset">
-        <h1 id="april-2026">April 2026<a class="headerlink" href="#april-2026" title="Permanent link">&para;</a></h1>
+        <h1 id="may-2026">May 2026<a class="headerlink" href="#may-2026" title="Permanent link">&para;</a></h1>
       </header>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-05-06 00:00:00+00:00">May 6, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="cmdx-patterns-debugging-and-observability"><a class="toclink" href="../../cmdx-patterns-debugging-and-observability/">CMDx Patterns: Debugging and Observability</a></h2>
+<p><em>Part 4 of the CMDx Patterns series</em></p>
+<p><em>Targets CMDx v1.21.</em></p>
+<p>It's 2 AM. Your pager fires. A customer reports that their order went through but they never got a confirmation email. You open your log aggregator and search for the user ID. In a typical Rails app, you'd find a scattered trail of <code>puts</code>-style logs, maybe a Sentry exception if you're lucky, and no clear picture of what actually happened.</p>
+<p>With CMDx, you search for the <code>chain_id</code> and see every task that ran, in order, with timing, status, and metadata. The confirmation email task shows <code>status: "skipped"</code>, <code>reason: "User unsubscribed from order notifications"</code>. Mystery solved in under a minute.</p>
+<p>That's the power of observability built into the framework. This post covers how to use CMDx's logging, chain correlation, result inspection, and tagging to debug problems fast—in both development and production.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../cmdx-patterns-debugging-and-observability/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
       
         <article class="md-post md-post--excerpt">
   <header class="md-post__header">
@@ -2598,57 +2651,6 @@
     
       <nav class="md-post__action">
         <a href="../../building-production-ready-rails-with-cmdx/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-02-25 00:00:00+00:00">February 25, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              3 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="mastering-cmdx-the-art-of-observability-with-logging"><a class="toclink" href="../../mastering-cmdx-logging/">Mastering CMDx: The Art of Observability with Logging</a></h2>
-<p><em>Targets CMDx v1.17.</em></p>
-<p>We've all been there. A production incident report lands on your desk. "Transaction failed for user X." You open the logs, grep for the user ID, and... silence. Or worse, a wall of unstructured text that tells you everything except what you need to know.</p>
-<p>Logging is often an afterthought—something we sprinkle in <code>rescue</code> blocks when we're debugging. But in CMDx, the Ruby framework for business logic, observability isn't an add-on; it's a first-class citizen.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../mastering-cmdx-logging/">
           Continue reading
         </a>
       </nav>

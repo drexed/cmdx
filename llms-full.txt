@@ -242,12 +242,12 @@ Every `Task.execute` runs the same orchestrated lifecycle. The diagram below tra
 flowchart TD
     Invoke([Task.execute]) --> Dep{Deprecation?}
     Dep -->|":error"| Raise([raise DeprecationError])
-    Dep -->|"none / :log / :warn"| Setup["Middlewares + before_execution<br/>+ around_execution + before_validation<br/>+ resolve inputs"]
+    Dep -->|"none / :log / :warn"| Setup["Middlewares + before_execution<br/>+ before_validation + around_execution<br/>+ resolve inputs"]
     Setup --> Work["work (wrapped in retry_on)"]
     Work -->|"success! / skip!"| Verify[Verify outputs]
     Work -->|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
     Work -.->|"raises Fault"| Rollback
-    Rollback -->|yes| Cb["on_state / on_status / on_ok / on_ko<br/>+ after_execution"]
+    Rollback -->|yes| Cb["after_execution<br/>+ on_state / on_status / on_ok / on_ko"]
     Rollback -->|no| Cb
     Verify --> Cb
     Cb --> Finalize["Finalize Result + Chain<br/>emit :task_executed, freeze & teardown"]
@@ -481,19 +481,19 @@ See the [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md) docs f
 
 Callbacks fire at specific lifecycle points. Valid events:
 
-| Event                | When                                                                                               |
-| -------------------- | -------------------------------------------------------------------------------------------------- |
-| `:before_execution`  | Before any `work` is executed                                                                      |
-| `:before_validation` | Right after `:before_execution`, before input resolution                                           |
-| `:around_execution`  | Wraps `before_validation`, `work`, `rollback`, and `after_execution`; must invoke its continuation |
-| `:after_execution`   | After `work` and `rollback` is executed                                                            |
-| `:on_complete`       | When `state == "complete"` (success path)                                                          |
-| `:on_interrupted`    | When `state == "interrupted"` (skip or fail)                                                       |
-| `:on_success`        | When `status == "success"`                                                                         |
-| `:on_skipped`        | When `status == "skipped"`                                                                         |
-| `:on_failed`         | When `status == "failed"`                                                                          |
-| `:on_ok`             | Success or skipped (`signal.ok?` — not failed)                                                     |
-| `:on_ko`             | Skipped or failed (`signal.ko?` — not success)                                                     |
+| Event                | When                                                          |
+| -------------------- | ------------------------------------------------------------- |
+| `:before_execution`  | Before any `work` is executed                                 |
+| `:before_validation` | Right after `:before_execution`, before input resolution      |
+| `:around_execution`  | Wraps `work` and any `rollback`; must invoke its continuation |
+| `:after_execution`   | After `work` and `rollback` is executed                       |
+| `:on_complete`       | When `state == "complete"` (success path)                     |
+| `:on_interrupted`    | When `state == "interrupted"` (skip or fail)                  |
+| `:on_success`        | When `status == "success"`                                    |
+| `:on_skipped`        | When `status == "skipped"`                                    |
+| `:on_failed`         | When `status == "failed"`                                     |
+| `:on_ok`             | Success or skipped (`signal.ok?` — not failed)                |
+| `:on_ko`             | Skipped or failed (`signal.ko?` — not success)                |
 
 ```ruby
 CMDx.configure do |config|
@@ -866,14 +866,14 @@ Tasks follow a predictable execution pattern. Halt primitives — `success!`, `s
 | Stage                    | Description                                                                                                                                                                                                      |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Before execution**     | `before_execution` callbacks run first                                                                                                                                                                           |
-| **Around execution**     | `around_execution` callbacks wrap everything from `before_validation` through `after_execution`; each must yield exactly once. Multiple hooks nest in declaration order (outer-first)                            |
 | **Before validation**    | `before_validation` callbacks run next                                                                                                                                                                           |
+| **Around execution**     | `around_execution` callbacks wrap `work` (and any `rollback`); each must yield exactly once. Multiple hooks nest in declaration order (outer-first)                                                              |
 | **Validation**           | Inputs are coerced/validated; failures halt with `failed`                                                                                                                                                        |
 | **Work**                 | `work` runs inside `catch(:cmdx_signal)`, wrapped in retries                                                                                                                                                     |
 | **Output verification**  | Declared `output` keys are checked on `context` when `work` returned without halting; `:default` fills nils, missing keys fail the task. Skipped when `work` halts via `success!` / `skip!` / `fail!` / `throw!` |
 | **Rollback**             | `rollback` runs when the signal is `failed` (before completion callbacks)                                                                                                                                        |
+| **After execution**      | `after_execution` callbacks run after the around-block completes                                                                                                                                                 |
 | **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order                                                                                                                                                  |
-| **After execution**      | `after_execution` callbacks run as the inner-most teardown hook (still inside `around_execution`)                                                                                                                |
 | **Result finalization**  | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed)                                                                                                                                 |
 | **Teardown**             | Task, root context, errors, and chain are frozen; chain reference cleared from the fiber                                                                                                                         |
 
@@ -3434,8 +3434,8 @@ Callbacks execute in a predictable lifecycle order:
 
 ```ruby
 1. before_execution            # Prepare for execution
-2. around_execution            # Wraps everything below; must invoke its continuation
-3. before_validation           # Pre-validation setup
+2. before_validation           # Pre-validation setup
+3. around_execution            # Wraps work/rollback; must invoke its continuation
 
 # --- inputs resolved, Task#work runs (with retries), outputs verified ---
 # --- #rollback runs here when failed ---
@@ -3574,7 +3574,7 @@ end
 
 ## Around Callbacks
 
-`around_execution` wraps `before_validation`, `Task#work`, any `#rollback`, and `after_execution` in a single hook. Each callback **must invoke its continuation exactly once** — failure to do so raises `CMDx::CallbackError`. Multiple `around_execution` hooks nest in declaration order (outer-first).
+`around_execution` wraps `Task#work` and any `#rollback` in a single hook. `before_validation` runs *before* the around-block; `after_execution` runs *after* it. Each callback **must invoke its continuation exactly once** — failure to do so raises `CMDx::CallbackError`. Multiple `around_execution` hooks nest in declaration order (outer-first).
 
 The continuation surface differs by callback form:
 
@@ -6720,7 +6720,6 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 ### Tasks
 
-- **`retry_when` on `Result`** — retry on outcome, not exceptions: `retry_when status: :failed, reason: /rate.?limit/, limit: 3`. `retry_on` only catches raised errors; many APIs return failures-as-data.
 - **`idempotent_by`** — declarative idempotency keyed off context: `idempotent_by :payment_id, ttl: 5.minutes`. Backed by `CMDx::Stores`.
 - **`circuit_break`** — `circuit_break threshold: 5, cool_off: 30.seconds` without bolting on Stoplight per task.
 - **`concurrency_limit`** — global bulkhead capping simultaneous executions of a task class.
@@ -6729,22 +6728,7 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 ### Workflows
 
-- **Sub-workflow inlining** — invoking another `Workflow` from within one expands as nested groups in the chain instead of an opaque single result. `Chain` already supports nesting; `Pipeline` doesn't expose it.
-- **Streaming parallel results** — yield each child result to a block as it completes rather than waiting for the join. Useful for progress reporting and fail-fast UIs.
 - **Checkpoint/resume** — persist `context` after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with `idempotent_by`.
-
-### Inputs / outputs / schema
-
-- **Schema export** — `MyTask.to_json_schema` / `to_openapi_operation` derived from inputs, coercions, and validators.
-
-### Telemetry
-
-- **Status-specific events** — `task_failed` / `task_skipped` / `task_succeeded` alongside `task_executed`. Specific events let subscribers express intent without inspecting `event.payload[:result].status`.
-- **Sampling** — `subscribe(:task_executed, sample: 0.01)` for high-volume tasks instead of everyone reimplementing the same `rand < 0.01` gate.
-- **Optional-require integrations** shipped in-tree:
-- `require "cmdx/telemetry/open_telemetry"` — per-task spans with parent linkage from `xid` / `cid`.
-- `require "cmdx/telemetry/statsd"` / `dogstatsd` — `cmdx.task.duration` / `.success` / `.failed` tagged by task class.
-- `require "cmdx/telemetry/active_support_notifications"` — bridge for Rails apps.
 
 ### Observability / tooling
 
@@ -6758,10 +6742,5 @@ The same example middlewares (rate limit, idempotency, circuit breaker) all rein
 
 - **`CMDx::Stores`** — pluggable KV with `get` / `set` / `incr` / `del` + TTL. Memory and Redis adapters substrate `idempotent_by`, rate limiting, circuit breakers, checkpoints, and result caching.
 - **`CMDx::Cache`** — `cache_result key: ->(t) { … }, ttl: 60` memoizes a successful result per-input on the configured store.
-- **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".
-
-### Developer experience
-
-- **Authorization gate** — `policy MyPolicy, action: :execute` raising a typed `AuthorizationFault` before input resolution touches sensitive params.
-- **YARD-driven schema docs** — Rake task that walks every `Task` subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining `docs/`.```
+- **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".```
 ````
