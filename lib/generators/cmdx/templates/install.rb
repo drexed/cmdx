@@ -109,6 +109,28 @@ CMDx.configure do |config|
   # end)
 
   # ===========================================================================
+  # Retriers
+  # ===========================================================================
+  # Registered retriers compute the sleep duration between `retry_on` attempts.
+  # Built-ins: `:exponential` (default), `:linear`, `:fibonacci`, `:half_random`,
+  # `:full_random`, `:bounded_random`, `:decorrelated_jitter`. A callable
+  # receives `call(attempt, delay, prev_delay)` and returns seconds.
+  #
+  # config.retriers.register(:capped_exponential, proc do |attempt, delay, _prev|
+  #   [delay * (2**(attempt - 1)), 30.0].min
+  # end)
+
+  # ===========================================================================
+  # Deprecators
+  # ===========================================================================
+  # Registered deprecators dispatch a task class's `deprecation` declaration.
+  # Built-ins: `:log`, `:warn`, `:error`. A callable receives `call(task)`.
+  #
+  # config.deprecators.register(:notify, proc do |task|
+  #   Bugsnag.notify("Deprecated task invoked: #{task.class.name}")
+  # end)
+
+  # ===========================================================================
   # Executors
   # ===========================================================================
   # Registered executors drive `:parallel` workflow groups. Built-ins:
