@@ -998,17 +998,6 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 - **Checkpoint/resume** — persist `context` after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with `idempotent_by`.
 
-### Inputs / outputs / schema
-
-- **Schema export** — `MyTask.to_json_schema` / `to_openapi_operation` derived from inputs, coercions, and validators.
-
-### Telemetry
-
-- **Optional-require integrations** shipped in-tree:
-  - `require "cmdx/telemetry/open_telemetry"` — per-task spans with parent linkage from `xid` / `cid`.
-  - `require "cmdx/telemetry/statsd"` / `dogstatsd` — `cmdx.task.duration` / `.success` / `.failed` tagged by task class.
-  - `require "cmdx/telemetry/active_support_notifications"` — bridge for Rails apps.
-
 ### Observability / tooling
 
 - **`Chain#to_mermaid` / `#to_dot`** — render a chain (with result statuses) for debugging deeply nested executions.
@@ -1022,7 +1011,3 @@ The same example middlewares (rate limit, idempotency, circuit breaker) all rein
 - **`CMDx::Stores`** — pluggable KV with `get` / `set` / `incr` / `del` + TTL. Memory and Redis adapters substrate `idempotent_by`, rate limiting, circuit breakers, checkpoints, and result caching.
 - **`CMDx::Cache`** — `cache_result key: ->(t) { … }, ttl: 60` memoizes a successful result per-input on the configured store.
 - **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".
-
-### Developer experience
-
-- **YARD-driven schema docs** — Rake task that walks every `Task` subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining `docs/`.
