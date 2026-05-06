@@ -7,7 +7,21 @@ module CMDx
   class Telemetry
 
     # Immutable event payload passed to subscribers.
-    Event = Data.define(:xid, :cid, :root, :type, :task, :tid, :name, :payload, :timestamp)
+    Event = Data.define(:xid, :cid, :root, :type, :task, :tid, :name, :payload, :timestamp) do
+      def self.build(task, name, root: false, payload: EMPTY_HASH)
+        new(
+          xid: Chain.current.xid,
+          cid: Chain.current.id,
+          root:,
+          type: task.class.type,
+          task: task.class,
+          tid: task.tid,
+          name:,
+          payload:,
+          timestamp: Time.now.utc
+        )
+      end
+    end
 
     # Lifecycle event names Runtime emits.
     EVENTS = %i[

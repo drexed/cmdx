@@ -70,8 +70,6 @@ module CMDx
 
     private
 
-    # @param group [Workflow::ExecutionGroup]
-    # @return [Result, nil] failed result to halt on, or nil when the group succeeds
     def run_sequential(group)
       continue = group.options[:continue_on_failure]
       failures = group.tasks.each_with_object([]) do |task_class, bucket|
@@ -87,8 +85,6 @@ module CMDx
       aggregate(failures, continue:)
     end
 
-    # @param group [Workflow::ExecutionGroup]
-    # @return [Result, nil] failed result to halt on, or nil when the group succeeds
     def run_parallel(group)
       tasks     = group.tasks
       chain     = Chain.current
@@ -146,19 +142,23 @@ module CMDx
         next unless result.success?
         next unless instance.respond_to?(:rollback)
 
-        instance.rollback
-
         old_opts = result.instance_variable_get(:@options)
         new_opts = old_opts.merge(rolled_back: true).freeze
         result.instance_variable_set(:@options, new_opts)
 
-        # TODO: emit_telemetry(:task_rolled_back, result:)
+        emit_telemetry(instance, :task_rolled_back)
+        instance.rollback
       end
     end
 
-    # @param failures [Array<Result>]
-    # @param continue [Boolean] when true, merges failures into the workflow's errors
-    # @return [Result, nil] first failure (echoed upstream), or nil when `failures` is empty
+    def emit_telemetry(instance, name, payload = EMPTY_HASH)
+      telemetry = instance.class.telemetry
+      return unless telemetry.subscribed?(name)
+
+      event = Telemetry::Event.build(instance, name, root: false, payload:)
+      telemetry.emit(name, event)
+    end
+
     def aggregate(failures, continue:)
       return if failures.empty?
       return failures.first unless continue
