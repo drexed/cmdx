@@ -90,12 +90,12 @@ module CMDx
     def run_lifecycle
       measure_duration do
         run_callbacks(:before_execution)
+        run_callbacks(:before_validation)
         run_around(:around_execution) do
-          run_callbacks(:before_validation)
           perform_work
           perform_rollback if @signal.failed?
-          run_callbacks(:after_execution)
         end
+        run_callbacks(:after_execution)
         run_callbacks(:"on_#{@signal.state}")
         run_callbacks(:"on_#{@signal.status}")
         run_callbacks(:on_ok) if @signal.ok?

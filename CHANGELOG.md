@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 - Translate errors `full_messages`
+- `around_execution` callbacks now wrap only `Task#work` (and any `#rollback`); `before_validation` runs *before* the around-block and `after_execution` runs *after* it. Previously both were nested inside the around-block
 
 ## [2.0.0] - 2026-05-05
 

@@ -158,7 +158,7 @@ Callbacks fire at specific lifecycle points. Valid events:
 |-------|------|
 | `:before_execution` | Before any `work` is executed |
 | `:before_validation` | Right after `:before_execution`, before input resolution |
-| `:around_execution` | Wraps `before_validation`, `work`, `rollback`, and `after_execution`; must invoke its continuation |
+| `:around_execution` | Wraps `work` and any `rollback`; must invoke its continuation |
 | `:after_execution` | After `work` and `rollback` is executed |
 | `:on_complete` | When `state == "complete"` (success path) |
 | `:on_interrupted` | When `state == "interrupted"` (skip or fail) |

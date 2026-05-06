@@ -275,7 +275,7 @@ RSpec.describe "Task callbacks", type: :feature do
   end
 
   describe "around_execution" do
-    it "wraps before_validation, work, and after_execution" do
+    it "wraps work only; before_validation/after_execution run outside" do
       task = create_task_class(name: "AroundOk") do
         before_execution { (context.log ||= []) << :before_execution }
         around_execution(proc { |t, cont|
@@ -291,7 +291,7 @@ RSpec.describe "Task callbacks", type: :feature do
       end
 
       expect(task.execute.context[:log]).to eq(
-        %i[before_execution around_before before_validation work after_execution around_after on_complete on_success]
+        %i[before_execution before_validation around_before work around_after after_execution on_complete on_success]
       )
     end
 
