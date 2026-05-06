@@ -281,14 +281,14 @@ module CMDx
     # @raise [NoMethodError] when {#strict?} is true and the key is missing
     # @api private
     def method_missing(method_name, *args, **_kwargs, &)
-      if method_name.end_with?("=")
+      if @table.key?(method_name)
+        @table[method_name]
+      elsif method_name.end_with?("=")
         @table[method_name[..-2].to_sym] = args.first
       elsif method_name.end_with?("?")
         !!@table[method_name[..-2].to_sym]
-      elsif strict? && !@table.key?(method_name)
+      elsif strict?
         raise NoMethodError, "unknown context key #{method_name.inspect} (strict mode)"
-      else
-        @table[method_name]
       end
     end
 
