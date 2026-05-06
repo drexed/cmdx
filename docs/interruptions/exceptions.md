@@ -1,10 +1,12 @@
 # Interruptions - Exceptions
 
-CMDx defines a small, flat exception hierarchy. Every exception the framework raises descends from `CMDx::Error`, so a single `rescue CMDx::Error` catches everything without trapping unrelated `StandardError`s. How they surface depends on whether you call `execute` (safe) or `execute!` (strict).
+CMDx keeps its exceptions in a small, flat family tree. Everything the framework raises inherits from `CMDx::Error`, so one `rescue CMDx::Error` can catch CMDx problems without swallowing random app errors.
 
-!!! warning "Important"
+Whether you see an exception or a `Result` depends on how you call the task: `execute` is the safe path, `execute!` is the strict one.
 
-    Prefer `skip!` and `fail!` over raising exceptions — they signal intent more clearly and carry structured `reason`/`metadata`. See [Signals](signals.md).
+!!! warning "Prefer signals inside work"
+
+    Inside `work`, reach for `skip!` and `fail!` before you `raise`. They spell out intent and carry `reason` and `metadata` in a way exceptions usually do not. See [Signals](signals.md).
 
 ## Hierarchy
 
@@ -21,13 +23,13 @@ StandardError
 
 !!! note
 
-    `execute!` only raises `Fault` on `failed?` results — skipped results return normally. Coercion and validation errors do **not** raise; they accumulate on `task.errors` and surface as a failed result (a `Fault` under `execute!`).
+    `execute!` raises `Fault` only for failed results. Skips return normally. Bad coercion or validation does not raise during the happy path — those issues collect on `task.errors` and show up as a failed result (and thus a `Fault` under `execute!`).
 
 ## Exception Types
 
 ### CMDx::Error
 
-Base class for every CMDx exception. Aliased as `CMDx::Exception`.
+The umbrella type for "this came from CMDx." Also aliased as `CMDx::Exception`.
 
 ```ruby
 begin
@@ -39,10 +41,10 @@ end
 
 ### CMDx::DefinitionError
 
-Raised at class-load time when a declaration is structurally invalid:
+The framework raises this while your class file loads if a declaration does not make sense:
 
-- An input name clashes with an existing accessor on the task (e.g. `:context`, `:errors`, or any user-defined method).
-- A workflow `task` / `tasks` declaration is called with options but no tasks.
+- An input name fights with something already on the task (for example `:context`, `:errors`, or a method you defined).
+- A workflow calls `task` / `tasks` with options but no actual tasks.
 
 ```ruby
 class ConflictingTask < CMDx::Task
@@ -59,7 +61,7 @@ end
 
 ### CMDx::DeprecationError
 
-Raised by [`deprecation :error`](../deprecation.md) when a class marked as prohibited is executed.
+Shows up when you marked a class with `deprecation :error` and someone still runs it.
 
 ```ruby
 class LegacyTask < CMDx::Task
@@ -79,12 +81,12 @@ end
 
 ### CMDx::ImplementationError
 
-Raised when a subclass fails its abstract contract:
+"You forgot to finish the homework." Raised when a subclass breaks the abstract rules:
 
 | Trigger | When it's raised | Message |
 |---------|------------------|---------|
-| Defining `#work` on a `Workflow` | at class-load time (via `method_added`) | `cannot define <Class>#work in a workflow` |
-| Calling `Task#work` without overriding it | inside `work` at execution time | `undefined method <Class>#work` |
+| You define `#work` on a `Workflow` | at class-load time (via `method_added`) | `cannot define <Class>#work in a workflow` |
+| You call `Task#work` without overriding it | inside `work` at run time | `undefined method <Class>#work` |
 
 ```ruby
 class IncompleteTask < CMDx::Task
@@ -97,7 +99,7 @@ IncompleteTask.execute! #=> raises CMDx::ImplementationError
 
 ### CMDx::CallbackError
 
-Raised when an `around_execution` callback fails to invoke its continuation. Without this guard, a buggy around callback would silently bypass the task body.
+Raised when an `around_execution` callback never calls its continuation. Without this, a buggy callback could skip the task body and nobody would notice.
 
 ```ruby
 class ForgetfulCallback < CMDx::Task
@@ -112,7 +114,7 @@ ForgetfulCallback.execute!
 
 ### CMDx::MiddlewareError
 
-Raised by the middleware chain when a registered middleware forgets to yield to `next_link`. Without this guard, a buggy middleware would silently bypass the task body.
+Same idea as callbacks, but for middleware: something in the chain forgot to yield to `next_link`.
 
 ```ruby
 class BrokenMiddleware
@@ -130,13 +132,13 @@ MyTask.execute!
 #=> raises CMDx::MiddlewareError: "middleware did not yield the next_link"
 ```
 
-!!! warning "Important"
+!!! warning "Middleware escapes the signal catch"
 
-    Always `yield` (or call `next_link.call`) inside your middleware — `MiddlewareError` is raised outside the signal `catch` and propagates from both `execute` and `execute!`.
+    Always `yield` (or call `next_link.call`) in middleware. `MiddlewareError` is raised outside the signal handler, so it bubbles out of both `execute` and `execute!`.
 
 ### CMDx::Fault
 
-The only exception raised by `execute!` on `failed?` results. `Fault` carries the **originating** failed [`Result`](../outcomes/result.md) and delegates `task`, `context`, and `chain` to it. For workflows, the originating result is the deepest leaf that failed — not the workflow itself — so matchers like `Fault.for?(LeafTask)` work uniformly across flat and nested executions.
+The one exception `execute!` raises for a failed task result. A `Fault` holds the **originating** failed [`Result`](../outcomes/result.md) and forwards `task`, `context`, and `chain` from it. In workflows the "origin" is the deepest leaf that failed, not the outer workflow — so `Fault.for?(LeafTask)` works the same for flat runs and nested ones.
 
 ```ruby
 begin
@@ -159,7 +161,13 @@ end
 
 ## Execute vs Execute!
 
-`Runtime#perform_work` rescues in a strict order: `Fault` (echoes) → `CMDx::Error` (**re-raises**, never converts to a failed result) → `StandardError` (converts to a failed result with `cause` set). `execute!` then re-raises: if `result.cause` holds a captured exception, the **original** exception bubbles up; otherwise a `CMDx::Fault` wrapping the failed result is raised.
+Think of the runtime as a traffic cop with a fixed order of operations:
+
+1. `Fault` echoes get handled as failures.
+2. Any other `CMDx::Error` is **re-raised** — it never becomes a failed result.
+3. A normal `StandardError` becomes a failed result with `cause` set.
+
+After that, `execute!` decides what to raise: if `result.cause` holds a captured exception, you see that **original** exception again. Otherwise you get a `CMDx::Fault` wrapping the failed result.
 
 ```ruby
 class CompressDocument < CMDx::Task
@@ -195,11 +203,11 @@ end
 | `DefinitionError` from a conflicting input declaration | propagates at class-load time | propagates at class-load time |
 | Non-`StandardError` (e.g. `Interrupt`, `SignalException`) | propagates | propagates |
 
-See [Faults](faults.md) for `Fault.for?` / `Fault.matches?` matchers.
+For matching faults in `rescue` clauses, see [Faults](faults.md).
 
 ## Backtrace Cleaning
 
-`Fault` backtraces are passed through the configured `backtrace_cleaner` (set on `CMDx.configuration.backtrace_cleaner` or per-task via `settings`). This is useful for stripping framework frames in Rails apps:
+`Fault` backtraces can pass through a `backtrace_cleaner` (global on `CMDx.configuration` or per-task in `settings`). Rails apps often wire this to strip framework noise:
 
 ```ruby
 CMDx.configure do |config|

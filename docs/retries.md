@@ -1,10 +1,14 @@
 # Retries
 
-CMDx retries `work` automatically when it raises an exception that matches a class-level `retry_on` declaration. Retries are scoped to `work` itself — input resolution, output verification, and lifecycle callbacks run only once.
+Networks flake. APIs rate-limit you. Sometimes the universe just says “not yet.”
+
+`retry_on` tells CMDx: **when `work` raises one of these exception types, wait a beat and try again** — up to a limit you control.
+
+Important nuance: retries only rerun **`work`**. Inputs, outputs, and most lifecycle callbacks still run **once** per execution. That keeps retries predictable: you are not re-validating the world on every attempt unless you put that logic inside `work` (or another layer).
 
 ## Basic Usage
 
-`retry_on` takes one or more exception classes and an options hash. With no exceptions declared (the default), no retries happen.
+List the exception classes you care about. If you never declare `retry_on`, nothing is retried.
 
 ```ruby
 class FetchExternalData < CMDx::Task
@@ -17,14 +21,14 @@ class FetchExternalData < CMDx::Task
 end
 ```
 
-| Option       | Default | Description                                                    |
-|--------------|---------|----------------------------------------------------------------|
-| `limit:`     | `3`     | Maximum retry attempts (total invocations = `limit + 1`); `0` disables retries entirely |
-| `delay:`     | `0.5`   | Base delay in seconds; `0` disables sleeping between attempts  |
-| `max_delay:` | `nil`   | Upper bound clamp applied after jitter is computed             |
-| `jitter:`    | `nil`   | Strategy for spreading delays — see [Jitter](#jitter) below    |
-| `if:`        | `nil`   | Gate evaluated per attempt; when falsy the exception is re-raised instead of retried — see [Conditional Retries](#conditional-retries) |
-| `unless:`    | `nil`   | Inverse of `if:` — when truthy the exception is re-raised      |
+| Option       | Default | Plain-English meaning |
+|--------------|---------|----------------------|
+| `limit:`     | `3`     | How many **retries** after the first try. Total runs = `limit + 1`. Set `limit: 0` to turn retries off. |
+| `delay:`     | `0.5`   | Base pause in seconds between tries. `0` means “do not sleep.” |
+| `max_delay:` | `nil`   | Cap the sleep so jittered waits do not grow forever. |
+| `jitter:`    | `nil`   | How to **wiggle** the delay so thundering herds calm down — see [Jitter](#jitter). |
+| `if:`        | `nil`   | Per-attempt gate: when falsy, stop retrying and re-raise. See [Conditional Retries](#conditional-retries). |
+| `unless:`    | `nil`   | Inverse of `if:` — when truthy, re-raise instead of retrying. |
 
 ```ruby
 class ProcessPayment < CMDx::Task
@@ -39,11 +43,11 @@ end
 
 !!! warning "Important"
 
-    Only exceptions matching `retry_on` retry. Anything else — or a matching exception after the limit is exhausted — is captured by Runtime and turned into a failed result with the exception attached as `result.cause`.
+    Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
 
 ## Inheritance
 
-`retry_on` accumulates across inheritance — subclasses extend the parent's exceptions and merge options instead of replacing them.
+Subclasses **add** to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -58,7 +62,9 @@ end
 
 ## Jitter
 
-Jitter spreads delay across attempts. Strategies receive `(attempt, delay)` where `attempt` is zero-based and `delay` is the base delay. The result is clamped to `max_delay` if set.
+“Jitter” is a fancy word for **random-ish spacing** so many clients do not all wake up at the exact same millisecond.
+
+Built-in strategies receive `(attempt, delay)` where `attempt` is zero-based and `delay` is your base delay. The computed sleep is clamped by `max_delay` when you set it.
 
 ### Built-in Strategies
 
@@ -89,16 +95,13 @@ retry_on TransientError, delay: 1.0, jitter: :decorrelated_jitter
 
 !!! note
 
-    `:decorrelated_jitter` is stateful — the previous sleep is threaded across
-    retries inside a single `process` call. Calling `#wait` directly without
-    passing `prev_delay` falls back to the base delay each time.
+    `:decorrelated_jitter` remembers the previous sleep **within one** `process` call. If something calls `#wait` without passing `prev_delay`, it falls back to the base delay — fine for normal retries, just know the state is scoped to that run.
 
 ### Custom Strategies via the `Retriers` Registry
 
-Built-in strategies live in the `CMDx::Retriers` registry, mirroring `Mergers`
-and `Executors`. Strategies are any callable matching
-`call(attempt, delay, prev_delay)` returning the next delay in seconds. Register
-custom strategies globally on the configuration or per-task:
+Built-ins live in `CMDx::Retriers` (same idea as `Mergers` and `Executors`). A strategy is any callable shaped like `call(attempt, delay, prev_delay)` → seconds to sleep.
+
+Register globally in config, or per-task with `register :retrier`:
 
 ```ruby
 CMDx.configure do |config|
@@ -115,12 +118,11 @@ class FetchExternalData < CMDx::Task
 end
 ```
 
-Symbols not present in the registry fall through to a task instance method, so
-existing `jitter: :exponential_backoff` declarations keep working.
+If a symbol is not in the registry, CMDx falls back to an **instance method** on the task — so older `jitter: :my_custom_method` style configs keep working.
 
 ### Symbol (Instance Method)
 
-A `Symbol` resolves to an instance method on the task. The method receives `(attempt, delay)` and must return the desired sleep duration in seconds.
+The method receives `(attempt, delay)` and returns how long to sleep, in seconds.
 
 ```ruby
 class SyncInventory < CMDx::Task
@@ -140,7 +142,7 @@ end
 
 ### Proc or Lambda
 
-Procs and lambdas are evaluated with `instance_exec` against the task, so they have access to `context` and other instance methods.
+Procs run with `instance_exec` on the task, so `context` and your helpers are right there.
 
 ```ruby
 class PollJobStatus < CMDx::Task
@@ -158,7 +160,7 @@ end
 
 ### Callable (Class or Module)
 
-Anything responding to `#call(attempt, delay)` works. The task is **not** passed in — capture state in the callable instead.
+Anything with `#call(attempt, delay)` works. The task is **not** passed in — bake config into the object.
 
 ```ruby
 class ExponentialBackoff
@@ -183,7 +185,7 @@ end
 
 ### Custom Block
 
-When no `:jitter` option is given, you can pass a block to `retry_on` instead. It runs in the task's instance scope.
+No `:jitter` option? You can pass a block to `retry_on` instead. It runs as instance code on the task.
 
 ```ruby
 class FetchAnalytics < CMDx::Task
@@ -195,12 +197,12 @@ end
 
 ## Conditional Retries
 
-`:if` / `:unless` gate each retry attempt. When the gate is falsy (`if`) or truthy (`unless`), the rescued exception is re-raised instead of retried, skipping any remaining budget and the `wait` between attempts.
+`:if` / `:unless` let you say “this exception **matches**, but do not retry **this time**.” When the gate says no, the exception is re-raised immediately — no more sleeps, no more attempts.
 
-| Gate form | How it's invoked | Effective signature |
-|-----------|------------------|---------------------|
+| Gate form | How it runs | Think of it as |
+|-----------|-------------|----------------|
 | `Symbol` | `task.send(sym, error, attempt)` | `def sym(error, attempt)` |
-| `Proc` / lambda | `task.instance_exec(error, attempt, &gate)` (`self` is the task) | `->(error, attempt) { ... }` |
+| `Proc` / lambda | `task.instance_exec(error, attempt, &gate)` | `->(error, attempt) { ... }` |
 | `#call`-able | `gate.call(task, error, attempt)` | `def call(task, error, attempt)` |
 
 ```ruby
@@ -224,19 +226,19 @@ end
 
 !!! note
 
-    The gate fires *before* `wait` sleeps. When the gate rejects, no delay elapses — the exception propagates immediately and Runtime converts it to a failed result (or raises under `execute!`).
+    The gate runs **before** the sleep. If it rejects a retry, you do not wait — you fail fast, and Runtime turns that into a failed result (or raises under `execute!`).
 
 ## Behavior
 
-- **Same task instance** — retries reuse the same task object. `context` and any side effects from previous attempts persist.
-- **Only `work` repeats** — input resolution, output verification, and `before_execution` / `before_validation` callbacks run once. Retries wrap `work` only. (This is intentional — flaky input sources are not retried here; wrap the source in a `retry_on` around its own fetcher or in a middleware.)
-- **Errors carry over** — `task.errors` accumulates across attempts; entries added during a previous attempt remain. Clear them at the start of `work` if you re-add per attempt, otherwise a successful retry will still finalize as failed once `signal_errors!` runs.
-- **Telemetry** — Runtime emits a `:task_retried` event for each retry (`attempt:` is zero-based; the initial call is `attempt = 0` and is not emitted).
-- **Inside the middleware stack** — middlewares wrap the entire lifecycle (callbacks, inputs, retries, outputs, rollback). Each retried `work` call is *inside* every middleware, so middlewares see the task once per execution, not once per attempt. Subscribe to the `:task_retried` telemetry event if you need per-attempt visibility.
+- **Same task object** — `context` and any ivars mutated in earlier attempts are still there. Design `work` accordingly.
+- **Only `work` loops** — inputs, outputs, and `before_execution` / `before_validation` callbacks are not replayed per retry. If your *input source* is flaky, wrap that fetch in its own task with `retry_on`, or use middleware — do not expect CMDx to magically re-resolve inputs for free.
+- **`task.errors` sticks around** — errors added on a failed attempt remain. Clear at the top of `work` if each attempt should start fresh; otherwise a later success might still lose at `signal_errors!`.
+- **Telemetry** — each retry emits `:task_retried` (`attempt` is zero-based; the first run is attempt `0` and does **not** emit).
+- **Middleware sees one execution** — middleware wraps the whole lifecycle, so it does not “re-enter” per retry. For per-attempt hooks, listen to `:task_retried`.
 
 ## Inspecting Retries
 
-`Result` exposes retry metadata after execution:
+After the run, ask the `Result`:
 
 ```ruby
 result = FetchExternalData.execute
@@ -245,14 +247,14 @@ result.retries   #=> 2  (number of *retry* attempts; 0 if first attempt succeede
 result.retried?  #=> true
 ```
 
-These are also surfaced in the structured log output (`retried`, `retries`).
+Structured logs include `retried` / `retries` too.
 
 ## When Retries Are Exhausted
 
-Once `limit` retries are spent, the last exception is re-raised inside `work` and Runtime converts it:
+After the last allowed retry, the exception surfaces like any other unhandled error from `work`:
 
-- `execute` — captured by `rescue StandardError`; produces a failed result with `result.cause` set to the exception and `result.reason` set to `"[ExceptionClass] message"`.
-- `execute!` — same conversion, but Runtime re-raises the original exception (not a `Fault`) after the lifecycle finalizes.
+- **`execute`** — Runtime rescues, you get `result.failed?`, `result.cause` is the exception, `result.reason` looks like `"[ExceptionClass] message"`.
+- **`execute!`** — same lifecycle handling, then the **original** exception is re-raised (not wrapped as `CMDx::Fault`).
 
 ```ruby
 result = FetchExternalData.execute

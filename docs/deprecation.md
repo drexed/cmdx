@@ -1,22 +1,24 @@
 # Task Deprecation
 
-Mark legacy tasks for graceful migration. Choose how to handle deprecated execution—log warnings for awareness, emit Ruby warnings during development, or block execution entirely.
+Sometimes a task has to stick around for a while—even though you wish it would retire. Deprecation lets you **flag old tasks** so teams migrate gently instead of everything blowing up at once.
 
-Deprecation is declared at the **class level** with `deprecation`, **not** through `settings(...)`. Subclasses inherit their parent's deprecation declaration unless they override it. When the action fires, `result.deprecated?` is `true` and a `:task_deprecated` telemetry event is emitted.
+You pick what happens when someone runs a deprecated task: **block it**, **log a heads-up**, or **print a Ruby warning** (great in dev, quieter in prod).
+
+Put deprecation on the **class** with `deprecation`, **not** inside `settings(...)`. Subclasses copy the parent’s rule unless they define their own. When deprecation actually runs, `result.deprecated?` is `true` and CMDx emits a `:task_deprecated` telemetry ping—handy for dashboards or metrics.
 
 !!! note
 
-    Deprecation runs after middlewares (and the `:task_started` telemetry event) but **before** callbacks, input resolution, and `work`. Conditional gates (`:if` / `:unless`) therefore can't read inputs — only the raw `context` and the task instance.
+    Deprecation fires **after** middleware (and the `:task_started` event) but **before** callbacks, input resolution, and `work`. That means `:if` / `:unless` gates only see the raw `context` and the task instance—not resolved inputs yet.
 
 ## Modes
 
 ### Error
 
-Prevent the task from executing. Use for tasks that must no longer run.
+**Stop the task cold.** Use this when running the task would be wrong or dangerous.
 
 !!! warning
 
-    `:error` breaks every caller of the task immediately. Roll out behind a feature flag (via `:if`) when in doubt.
+    `:error` breaks **every** caller immediately. If you’re not 100% sure, roll it out behind a feature flag with `:if` so you can flip it off fast.
 
 ```ruby
 class ProcessObsoleteAPI < CMDx::Task
@@ -33,7 +35,7 @@ ProcessObsoleteAPI.execute
 
 ### Log
 
-Allow execution and log a warning. Ideal for gradual migrations.
+**Let the task run**, but write a warning to the task logger. Nice when you’re sunsetting something and want logs to tell the story.
 
 ```ruby
 class ProcessLegacyFormat < CMDx::Task
@@ -51,7 +53,7 @@ result.success? #=> true
 
 ### Warn
 
-Emit a Ruby warning to stderr. Visible during development and testing without polluting production logs.
+**Emit a Ruby warning** to stderr—developers and tests see it; production logs stay calmer than with `:log`.
 
 ```ruby
 class ProcessOldData < CMDx::Task
@@ -71,6 +73,8 @@ result.success? #=> true
 
 ### Symbol
 
+The quick path: pass `:error`, `:log`, or `:warn`.
+
 ```ruby
 class OutdatedConnector < CMDx::Task
   deprecation :error
@@ -80,7 +84,7 @@ end
 
 ### Method Reference
 
-Dispatched as `task.send(name)`. The method must perform the action itself (raise, log, warn, or no-op); its return value is discarded:
+CMDx calls `task.send(name)`. **Your method** does the real work—raise, log, warn, or nothing. Whatever it returns is ignored.
 
 ```ruby
 class OutdatedConnector < CMDx::Task
@@ -102,7 +106,7 @@ end
 
 ### Proc or Lambda
 
-`instance_exec`'d on the task with the task as the sole block argument:
+Runs with `instance_exec` on the task; the block gets the task as its argument.
 
 ```ruby
 class OutdatedConnector < CMDx::Task
@@ -118,11 +122,11 @@ end
 
 !!! warning
 
-    Only one `deprecation` declaration is honored per class — repeated calls overwrite the previous declaration. To express multi-modal behavior, branch inside a single callable.
+    You only get **one** `deprecation` per class—each new call **replaces** the last. Need several behaviors? Branch inside a single Proc or callable.
 
 ### Class or Module
 
-Anything that responds to `#call(task)`:
+Anything that responds to `call(task)` works—class or instance.
 
 ```ruby
 class OutdatedTaskDeprecator
@@ -144,7 +148,7 @@ end
 
 ## Conditional Gating
 
-Pass `:if` / `:unless` to skip the deprecation action when the gate fails. Both accept a Symbol (method name), Proc/Lambda, or any callable, and are evaluated against the task instance via `Util.satisfied?`:
+Use `:if` or `:unless` to **skip** the deprecation action when the condition fails. You can pass a symbol (method name), a Proc, or any callable; CMDx checks it with `Util.satisfied?` on the task.
 
 ```ruby
 class OutdatedConnector < CMDx::Task
@@ -164,11 +168,13 @@ end
 
 !!! note
 
-    Only the **most recent** `deprecation` call wins — there's a single `@deprecation` per class. Combine modes with conditions inside a single Proc when you need branching.
+    Again: only the **latest** `deprecation` call wins (one slot per class). Fancy branching? Do it inside one Proc.
 
 ## Inheritance
 
-Subclasses inherit the parent's deprecation. Re-declare to override. `deprecation nil` is a read (returns the inherited value rather than clearing it), so opt out by passing a no-op callable — note that this still marks the result as `deprecated?` and emits `:task_deprecated`, it just suppresses the visible log/warn/raise:
+Child tasks **inherit** the parent’s deprecation. Redefine `deprecation` on the child to override.
+
+`deprecation nil` **does not clear** inheritance—it reads the inherited value. To “turn off” the visible behavior, use a no-op callable. Heads-up: the result can still be `deprecated?` and still emit `:task_deprecated`; you’re just not logging, warning, or raising.
 
 ```ruby
 class BaseLegacyTask < CMDx::Task
@@ -190,10 +196,7 @@ end
 
 ## Custom Actions via the `Deprecators` Registry
 
-Built-in actions (`:log`, `:warn`, `:error`) live in the `CMDx::Deprecators`
-registry, mirroring `Retriers` and `Mergers`. Actions are any callable matching
-`call(task)`; the return value is discarded. Register custom actions globally
-on the configuration or per-task:
+Built-ins (`:log`, `:warn`, `:error`) live in `CMDx::Deprecators`—same idea as `Retriers` and `Mergers`. Each action is a callable `call(task)`; return values are ignored. Register yours globally or on a single task:
 
 ```ruby
 CMDx.configure do |config|
@@ -210,12 +213,11 @@ class OutdatedConnector < CMDx::Task
 end
 ```
 
-Symbols not present in the registry fall through to a task instance method, so
-existing `deprecation :handle_deprecation` declarations keep working.
+If a symbol isn’t in the registry, CMDx falls back to a **method on the task**—so `deprecation :handle_deprecation` keeps working the way you expect.
 
 ## Telemetry
 
-When deprecation fires (and conditions pass), Runtime emits the `:task_deprecated` telemetry event before the action runs, and the resulting `Result` reports `deprecated?` as `true`:
+When deprecation runs (and any `:if` / `:unless` passes), Runtime fires `:task_deprecated` **before** the action. The returned `Result` has `deprecated? == true`.
 
 ```ruby
 CMDx.configure do |config|

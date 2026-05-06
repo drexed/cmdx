@@ -1,28 +1,38 @@
 # Upgrading from v1.x to v2.0
 
-CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, callbacks, middlewares, `retry_on`, `settings`, `Workflow` / `task` — largely survives, but halt semantics, attribute/return declarations, middleware signatures, and most internal classes have changed.
+Welcome to CMDx 2.0. Under the hood, almost everything was rebuilt for speed and clarity. The good news: the Ruby you already write — `required`, `optional`, callbacks, middleware, `retry_on`, `settings`, `Workflow` / `task` — still looks mostly familiar.
 
-!!! warning "Not a drop-in upgrade"
+The catch: a few big ideas changed. Halts no longer poke at a mutable `Result`. Task inputs used to be called attributes; now they are inputs with `coerce:` instead of `type:`. “Returns” are now outputs with a bit more power. Middleware has a simpler signature. Some old built-ins and internal classes went away.
 
-    Plan to touch every task class. Halt is now `throw`/`catch` (not `Result` mutation), attributes became inputs (`type:` → `coerce:`), returns became outputs, middleware takes one arg and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone. The [Automated Migration Prompt](#automated-migration-prompt) below mechanizes most of the rewrite — paste it into your agent before hand-editing.
+Take a breath. You are not expected to memorize this page in one sitting.
 
-!!! tip "Benchmarks"
+!!! warning "This is not a drop-in upgrade"
 
-    Halts are ~2.5× faster, workflow failures ~3×, allocations down 50–80%. See [`benchmark/RESULTS.md`](https://github.com/drexed/cmdx/blob/main/benchmark/RESULTS.md).
+    Expect to open most of your task files at least once. In v2, halts use Ruby’s `throw` / `catch` instead of mutating `Result`. `attribute` → `input`, `type:` → `coerce:`, `returns` → `output`. Middleware is `call(task) { yield }` — one argument, always yield. The old built-in middleware helpers (`Correlate`, `Runtime`, `Timeout`) are removed; you wire your own or use Telemetry.
+
+    Want a robot to do the boring parts? Scroll to [Automated Migration Prompt](#automated-migration-prompt), paste it into your AI tool, then tidy whatever it misses by hand.
+
+!!! tip "Faster and lighter"
+
+    Halts are roughly 2.5× faster, workflow failures about 3×, and allocations dropped ~50-80% (depending on usecase). Numbers live in [`benchmark/RESULTS.md`](https://github.com/drexed/cmdx/blob/main/benchmark/RESULTS.md).
 
 ---
 
 ## Before You Begin
 
-1. **Check requirements.** Ruby 3.3+ (MRI, JRuby, or TruffleRuby). See [Getting Started](getting_started.md#requirements).
-2. **Pin your current version.** `gem "cmdx", "~> 1.21"` in the `Gemfile` — a quick rollback path if the upgrade stalls.
-3. **Baseline the suite.** Run `bundle exec rspec` on v1.x once and save the output; a green suite is your "before" snapshot.
-4. **Skim the changelog.** The `[2.0.0]` section of [`CHANGELOG.md`](https://github.com/drexed/cmdx/blob/main/CHANGELOG.md) lists every breaking change by category.
-5. **Read this page top-to-bottom.** Each section is a recipe you can apply independently.
+Treat this like moving apartments: pack before you lift the couch.
+
+1. **Confirm Ruby.** You need Ruby 3.3+ (MRI, JRuby, or TruffleRuby). Details: [Getting Started](getting_started.md#requirements).
+2. **Keep an escape hatch.** Pin v1 in your `Gemfile` first, e.g. `gem "cmdx", "~> 1.21"`, so you can roll back if the upgrade needs more time.
+3. **Save a green baseline.** On v1, run `bundle exec rspec` once and keep the output. That is your “before” photo.
+4. **Peek at the changelog.** The `[2.0.0]` section in [`CHANGELOG.md`](https://github.com/drexed/cmdx/blob/main/CHANGELOG.md) lists breaks grouped by topic.
+5. **Skim this page in order.** Each section stands alone, but reading top to bottom matches how most teams migrate.
 
 ---
 
 ## TL;DR Cheat Sheet
+
+One screen of “what moved where”:
 
 | Area | v1.x | v2.0 |
 |---|---|---|
@@ -47,19 +57,21 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 
 ## Upgrade Workflow
 
-1. **Bump the gem.** `bundle update cmdx` and run the suite to surface breakage.
-2. **Fix configuration.** Drop removed keys (see [Configuration](#configuration)). `rails generate cmdx:install` regenerates the v2 initializer as a reference.
-3. **Fix tasks category-by-category.** Inputs → Outputs → Callbacks → Middlewares → Result consumers. The [Automated Migration Prompt](#automated-migration-prompt) mechanizes most of this.
-4. **Audit result-handling code** for state-machine assumptions (`result.executing?`, `result.metadata[:x] = ...`, `result.cid`, `result.good?` / `bad?`) and any breakpoint / strict-mode configuration.
-5. **Move observability** (correlation IDs, runtime metrics, timeouts) to [Telemetry](#telemetry) subscribers or hand-rolled middlewares.
-6. **Re-run the suite.** When green, delete dead helpers that papered over v1's rough edges (manual rollbacks, `dry_run:` flags, `SKIP_CMDX_FREEZING` toggles).
-7. **Validate.** Run the grep list in [Validating the Migration](#validating-the-migration) to catch stragglers.
+A practical order that keeps surprises small:
+
+1. **Bump the gem.** `bundle update cmdx`, then run tests. Red is normal; it tells you what to fix next.
+2. **Fix configuration first.** Remove keys that no longer exist ([Configuration](#configuration)). `rails generate cmdx:install` prints a fresh v2 initializer you can copy ideas from.
+3. **Fix tasks in layers.** Inputs, then outputs, then callbacks, then middleware, then anything that reads `Result`. The [Automated Migration Prompt](#automated-migration-prompt) automates a big chunk of that if you want help.
+4. **Hunt old `Result` habits.** Look for `result.executing?`, writes to `result.metadata`, `result.good?` / `bad?`, and breakpoint-style config. v2’s `Result` is calmer and stricter.
+5. **Recreate observability.** Correlation IDs, timing, timeouts — use [Telemetry](#telemetry) and/or your own middleware instead of the removed built-ins.
+6. **Green tests, then cleanup.** Once the suite passes, delete v1-only shims (`dry_run:`, `SKIP_CMDX_FREEZING`, manual rollback hacks you no longer need).
+7. **Run the straggler grep.** [Validating the Migration](#validating-the-migration) has a copy-paste command to catch leftovers.
 
 ---
 
 ## Configuration
 
-The `CMDx::Configuration` surface shrank. Breakpoints, rollback config, freezing, and exception handlers are gone; what remains is registries plus logging/locale.
+v2 exposes less on `CMDx::Configuration`. Gone: breakpoints, rollback toggles, result freezing knobs, and the old exception-handler hooks. Still there: registries (middleware, callbacks, coercions, and friends) plus logging and locale.
 
 ### Removed Keys
 
@@ -94,13 +106,13 @@ CMDx.configure do |config|
 end
 ```
 
-See [Configuration](configuration.md) for the full surface.
+See [Configuration](configuration.md) for every option explained in one place.
 
 ---
 
 ## Task Definition
 
-`def work` is unchanged. v2 raises `ImplementationError` (was `UndefinedMethodError`) if you don't override it.
+You still implement `def work`. If you forget, v2 raises `ImplementationError` (v1 called that `UndefinedMethodError`).
 
 ### Execution Entry Points
 
@@ -115,11 +127,11 @@ task.execute(strict: true)      # unchanged
 task.call / .call(strict: true) # still aliases of execute / execute!
 ```
 
-`MyTask.new(ctx).execute` runs an already-built task instance through `Runtime`. The class-level `MyTask.execute` / `MyTask.execute!` simply forward to it. `Runtime.execute(task)` is still available for callers that need to drive the lifecycle directly without going through `Task`.
+**How the pieces fit:** `MyTask.new(ctx).execute` hands a ready-made task instance to `Runtime`. Class methods `MyTask.execute` / `MyTask.execute!` are thin wrappers around that same path. If you are doing something custom, `Runtime.execute(task)` still exists for driving the lifecycle without the `Task` sugar.
 
 ### Removed Instance Accessors
 
-Read task-level data off the returned `Result` instead.
+Some things you used to read off the task instance after a run now live on the `Result`. That keeps one object as the “answer” from a run.
 
 | v1 | v2 |
 |---|---|
@@ -129,29 +141,29 @@ Read task-level data off the returned `Result` instead.
 | `task.chain` | `result.chain` (a `Chain`, not an Array) |
 | `task.dry_run?` | removed — `dry_run` is gone |
 
-`task.context`, `task.errors`, and `task.logger` still exist on the instance during `work`.
+During `work`, you still have `task.context`, `task.errors`, and `task.logger` on the instance.
 
 ---
 
 ## Halts
 
-`success!` / `skip!` / `fail!` / `throw!` are private instance methods on `Task` that `throw(Signal::TAG, signal)`. Runtime's `catch` intercepts the signal and constructs the result once at the end.
+Halts are how you stop `work` early: success, skip, fail, or re-throw someone else’s failure. In v2 they are private methods on `Task` (`success!`, `skip!`, `fail!`, `throw!`) that `throw` a small frozen `Signal`. `Runtime` uses `catch` around your task, turns that throw into a single finished `Result` at the end.
 
-Breaking changes:
+**Heads-up compared to v1:**
 
-- `result.fail!` / `result.skip!` are gone — halts live on `Task`, not delegated through `Result`.
-- `success!` is new — halt `work` early while staying successful.
-- Only `fail!` and `throw!` capture `caller_locations(1)` as the signal backtrace; `success!` and `skip!` do not. `Fault#backtrace` points at your call site, cleaned through `Settings#backtrace_cleaner` when present.
-- `throw!(other_result)` is a no-op when `other_result` didn't fail (same as v1; now implemented as a `Signal.echoed` throw).
-- Calling any halt method on a frozen task raises `FrozenError`.
+- You cannot call `result.fail!` or `result.skip!` anymore. Halts belong to the task while `work` runs, not to `Result` afterward.
+- `success!` is new: exit early but count as a success (handy for “nothing to do” paths).
+- `fail!` and `throw!` record a backtrace from where you called them. `success!` and `skip!` do not. `Fault#backtrace` still reflects your call site when a cleaner is configured in `Settings`.
+- `throw!(other_result)` still does nothing useful if that result did not fail (same idea as v1; internally it is an echoed signal).
+- If the task is already frozen, calling any halt raises `FrozenError` — usually a sign you are halting too late in the lifecycle.
 
-See [Interruptions - Signals](interruptions/signals.md) for the full semantics.
+Full story: [Interruptions - Signals](interruptions/signals.md).
 
 ---
 
 ## Inputs (was Attributes)
 
-Rename `attribute` / `attributes` to `input` / `inputs`, and `type:` to `coerce:`. `required` / `optional` aliases are unchanged.
+Think “arguments to the task,” not database columns. Rename `attribute` / `attributes` → `input` / `inputs`, and rename the option `type:` → `coerce:`. `required` / `optional` work the same as before.
 
 | v1 | v2 |
 |---|---|
@@ -167,11 +179,11 @@ Rename `attribute` / `attributes` to `input` / `inputs`, and `type:` to `coerce:
 
 ### Removed
 
-- `Attribute`, `AttributeRegistry`, `AttributeValue`, `Resolver`, `Identifier` classes
+These internal types went away or moved: `Attribute`, `AttributeRegistry`, `AttributeValue`, `Resolver`, `Identifier`. You should not need to reference them in app code.
 
 ### Bridge
 
-Want to keep using `attribute` and `attributes`?
+Prefer not to touch every file today? You can alias the old names in a base class:
 
 ```
 class ApplicationTask
@@ -188,7 +200,7 @@ See [Inputs - Definitions](inputs/definitions.md).
 
 ## Outputs (was Returns)
 
-`returns` was a presence check. `output` keeps the same implicit-required semantics and adds optional `:default` and `:if`/`:unless` gates. Outputs are intentionally minimal — for coercion, transformation, or validation use [Inputs](inputs/definitions.md) (or compute in `work`).
+In v1, `returns` mostly meant “these keys must end up set on the context after `work`.” v2’s `output` keeps that idea — every declared output is expected unless you give a default or a guard — and adds optional `:default` and `:if` / `:unless`.
 
 ```ruby
 # v1
@@ -199,7 +211,7 @@ output :user
 output :token, default: -> { JwtService.encode(user_id: context.user.id) }
 ```
 
-Outputs run **after** `work` returns successfully (skipped if the task halted). Every declared output is implicitly required: a missing key adds `outputs.missing` to `task.errors`, which Runtime converts into a failed signal. `:default` satisfies the check when it produces a non-nil value.
+Outputs are checked **after** `work` finishes successfully (if you halted, outputs are skipped). If a required output is missing, you get `outputs.missing` in `task.errors`, and the run fails. A `:default` counts as “present” when it returns something other than `nil`.
 
 ### Removed
 
@@ -211,7 +223,7 @@ Outputs run **after** `work` returns successfully (skipped if the task halted). 
 
 ### Bridge
 
-Want to keep using `returns`?
+Same trick as inputs — alias in a base class if you want the old word:
 
 ```
 class ApplicationTask
@@ -227,6 +239,8 @@ See [Outputs](outputs.md) for the full surface.
 
 ## Callbacks
 
+Callbacks still fire around validation, execution, and completion. Only a few names changed so we do not sound like a noir film.
+
 ### Event Renames
 
 | v1 | v2 |
@@ -238,7 +252,7 @@ See [Outputs](outputs.md) for the full surface.
 
 ### Registration
 
-Every event has an auto-defined DSL method; `register :callback, ...` still works.
+Each event has a friendly DSL method (`on_success`, `on_failed`, …). The lower-level `register :callback, ...` form still works if you like spelling things out.
 
 ```ruby
 class MyTask < CMDx::Task
@@ -249,7 +263,7 @@ class MyTask < CMDx::Task
 end
 ```
 
-Handlers may be a `Symbol` (dispatched via `task.send`), a `Proc` (`instance_exec`'d with the task), or any `#call`-able (invoked with the task). Unknown events and unsupported handlers raise `ArgumentError`.
+A handler can be a `Symbol` (method on the task), a `Proc` (runs with `instance_exec` on the task), or anything that responds to `#call` (called with the task). Typos in the event name or a weird handler shape raise `ArgumentError` early.
 
 ### Deregistration
 
@@ -263,6 +277,8 @@ See [Callbacks](callbacks.md) for Proc-identity caveats and conditional gates.
 ---
 
 ## Middlewares
+
+Middleware is still “wrap the task run,” but the method signature got simpler so the runtime can stay fast and predictable.
 
 ### New Signature
 
@@ -288,23 +304,23 @@ class Timing
 end
 ```
 
-Procs and lambdas must capture the next link explicitly — `yield` in a lambda targets the enclosing method:
+**Lambdas are picky:** `yield` inside a `lambda` refers to the *outer* method, not the next middleware link. Pass the next link as a block argument instead:
 
 ```ruby
 ->(task, &next_link) { next_link.call }
 proc { |task, &next_link| next_link.call }
 ```
 
-Differences:
+**Rules of the road:**
 
-- **No `options` parameter.** Carry config on the middleware instance.
-- **No return-value contract.** Middlewares wrap; Runtime builds the result after the chain unwinds.
-- **Must yield.** Skipping `yield` raises `CMDx::MiddlewareError`. The task body never runs, and the error propagates out of both `execute` and `execute!`.
-- **Result data isn't visible inside the chain.** Read `task.context` / `task.errors` while wrapping; subscribe to Telemetry's `:task_executed` when you need the finalized `Result`.
+- **No `options` hash** passed into `call`. Put options on `initialize` and keep them on the instance.
+- **Do not return the `Result` yourself.** Wrap, `yield`, unwind — `Runtime` builds the result when the chain finishes.
+- **Always `yield`.** If a path skips `yield`, you get `CMDx::MiddlewareError` and the task never runs.
+- **You do not see the finished `Result` inside the chain.** Use `task.context` / `task.errors` while wrapping, or subscribe to Telemetry `:task_executed` for the full `Result`.
 
 ### Registration
 
-The registry no longer auto-instantiates classes or forwards `**options`. Pass a `#call`-able (class instance, proc, lambda) or a block.
+You register something that already responds to `#call` — usually an **instance** (`MyMiddleware.new(...)`), not the class name alone. The registry no longer magically calls `.new` or forwards `**options` for you.
 
 | v1 | v2 |
 |---|---|
@@ -314,6 +330,8 @@ The registry no longer auto-instantiates classes or forwards `**options`. Pass a
 
 ### Built-ins Removed
 
+The gem used to ship three opinionated middlewares. They are gone so you pick exactly what “correlation id,” “timing,” and “timeout” mean for your app:
+
 | Removed | Replacement |
 |---|---|
 | `CMDx::Middlewares::Correlate` | Built-in: configure `CMDx.configuration.correlation_id = -> { ... }` to surface `xid` on `Chain`/`Result`/`Telemetry::Event` (see [Configuration - Correlation ID](configuration.md#correlation-id-xid)) |
@@ -322,7 +340,7 @@ The registry no longer auto-instantiates classes or forwards `**options`. Pass a
 
 ### Deregistration
 
-Middleware identity is by-reference — deregister with the exact instance you registered, or by index:
+Middleware is matched by **object identity** (same instance you registered) or by stack **index**:
 
 ```ruby
 deregister :middleware, audit_instance
@@ -335,7 +353,7 @@ See [Middlewares](middlewares.md) for the full surface.
 
 ## Settings
 
-`Settings` is a frozen value object. Per-task overrides cover logger, log formatter, log level, log exclusions, backtrace cleaner, tags, and strict context — nothing else. Registries live on the `Task` class itself.
+`Settings` is a small frozen object: think “overrides for this task class.” You can override logger, formatter, level, log exclusions, backtrace cleaner, tags, and strict-context behavior. Everything else (middleware registries, coercions, …) hangs off the **task class**, not `settings`.
 
 ```ruby
 # v1
@@ -353,13 +371,15 @@ settings logger:            MyLogger.new,
          tags:              %i[critical]
 ```
 
-`Settings#build(opts)` returns a new instance and does a flat `Hash#merge` — a subclass that overrides `tags:` **replaces** (not concatenates) the parent's. Every getter falls back to `CMDx.configuration` when the key is absent.
+`Settings#build(opts)` shallow-merges a hash into a copy. If a subclass sets `tags:`, it **replaces** the parent list — it does not append. Any setting you omit falls back to `CMDx.configuration`.
 
-`MyTask.middlewares`, `.callbacks`, `.coercions`, `.validators`, `.telemetry`, `.inputs`, `.outputs` are class-level accessors that lazy-clone from the superclass (or global config) on first read. Subclasses extend — they never replace.
+Class-level helpers like `MyTask.middlewares`, `.callbacks`, `.coercions`, `.validators`, `.telemetry`, `.inputs`, `.outputs` lazy-clone from the superclass (or global config) the first time you touch them. Subclasses **add**; they do not wipe the parent’s registries.
 
 ---
 
 ## Result Consumers
+
+When `execute` returns, you hold a `Result`. In v2 it behaves more like a receipt: frozen fields, no sneaky writes after the fact.
 
 ### Mutability
 
@@ -376,9 +396,11 @@ CMDx::Chain.current     #=> nil (cleared on root teardown)
 
 !!! note
 
-    User-supplied `metadata:` hashes (passed to `success!` / `skip!` / `fail!`) are **not** deep-frozen — freeze them yourself before throwing if you need that guarantee.
+    If you pass a `metadata:` hash into `success!` / `skip!` / `fail!`, CMDx does **not** deep-freeze it for you. Freeze it yourself first if you rely on immutability.
 
 ### Predicate Renames
+
+v2 only builds a `Result` when the run is **done**, so the old “halfway through” predicates disappear. Use the table below as a straight v1 → v2 map:
 
 | v1 | v2 |
 |---|---|
@@ -390,9 +412,11 @@ CMDx::Chain.current     #=> nil (cleared on root teardown)
 | `result.chain_id` | `result.cid` |
 | `result.task` (instance) | `result.task` (**class**) |
 | `result.chain` (Array) | `result.chain` (`Chain`, Enumerable) |
-| `result.threw_failure?` | `result.thrown_failure?` (semantics flipped: true only when this result re-threw an upstream failure) |
+| `result.threw_failure?` | `result.thrown_failure?` (**meaning changed:** `true` only when *this* result re-threw an upstream failure) |
 
 ### New Surface
+
+A few quality-of-life APIs landed in v2 — chaining with `.on`, pattern matching on `Result`, and extra fields like `duration` / `retries`:
 
 ```ruby
 result.on(:success) { |r| deliver(r.context) }    # predicate dispatch
@@ -421,6 +445,8 @@ result.tags            # settings.tags
 
 ### Failure References
 
+When tasks call other tasks, failures can chain. These helpers answer “who started the fire?” vs “who passed the bucket?”
+
 ```ruby
 result.threw_failure   # origin || self (nearest upstream failed, or self when originator)
 result.thrown_failure? # true only when this result re-threw an upstream failure
@@ -428,13 +454,15 @@ result.caused_failure  # walks `origin` to the root-cause leaf
 result.caused_failure? # true when this result originated the failure
 ```
 
-`Result#to_h` no longer recursively serializes failure chains. `origin`, `threw_failure`, and `caused_failure` render as `{ task: Class, tid: uuid }`, and `to_s` formats them as `<TaskClass uuid>`.
+`Result#to_h` is simpler: it no longer walks nested failure objects forever. `origin`, `threw_failure`, and `caused_failure` show up as `{ task: Class, tid: uuid }`, and `to_s` prints a short `<TaskClass uuid>` style string.
 
-See [Outcomes - Result](outcomes/result.md) for the full surface.
+More detail: [Outcomes - Result](outcomes/result.md).
 
 ---
 
 ## Workflows
+
+Workflows still declare steps with `task` / `tasks`. The headline feature in v2 is **parallel groups** — run several child tasks at once and merge their context back safely.
 
 ### Parallel Groups (NEW)
 
@@ -448,22 +476,25 @@ class FanOutWorkflow < CMDx::Task
 end
 ```
 
-- Each parallel worker `deep_dup`s the workflow context, runs its task, then merges its successful child context back into the workflow (on the parent thread, after all workers join).
-- All workers share the parent's fiber-local `Chain` — each worker sets `Fiber[Chain::STORAGE_KEY]` on thread entry, and each result is pushed under a `Mutex`.
-- By default (`continue_on_failure: false`), pending workers are drained as soon as any sibling fails (in-flight tasks still finish, successful contexts still merge), and the first failure **by declaration index** is propagated. With `continue_on_failure: true`, every worker runs to completion and all failures are aggregated into the workflow's `errors` (keyed `:"TaskClass.<input>"` for input/validation errors and `:"TaskClass.<status>"` for bare `fail!` reasons); the first failure **by declaration index** is still the one propagated via `throw!`.
-- Additional knobs: `:executor` (`:threads` default, `:fibers`, or a callable), `:merger` (`:last_write_wins` default, `:deep_merge`, `:no_merge`, or a callable), and `:continue_on_failure`. See [Workflows - Parallel Execution](workflows.md#parallel-execution).
+- Each worker gets its **own copy** of the workflow context (`deep_dup`), runs one child task, then hands successful writes back to the parent after everyone finishes.
+- Everyone still belongs to the **same logical chain**, stored in **fiber-local** storage so parallel threads do not step on each other. Results are appended under a `Mutex`.
+- **`continue_on_failure: false` (default):** as soon as one sibling fails, the workflow stops scheduling new work. Tasks already running still finish; successful merges still apply. The failure that “wins” for halting is the first one **in the order you declared the tasks**.
+- **`continue_on_failure: true`:** every scheduled task runs to the end. Failures collect in the workflow’s `errors` hash (keys look like `:"TaskClass.field"` for validation issues or `:"TaskClass.status"` for plain `fail!` reasons). The halt you bubble out is still the first failure **by declaration order**.
+- Fine tuning: pick an `:executor` (`:threads` by default, `:fibers`, or your own callable), a `:merger` (`:last_write_wins`, `:deep_merge`, `:no_merge`, or custom), and whether to `continue_on_failure`. [Workflows - Parallel Execution](workflows.md#parallel-execution) has examples.
 
 ### Behavioral Changes
 
-- Defining `#work` on a workflow raises `ImplementationError` — the check fires only for methods defined **on the workflow subclass itself**, so `Workflow#work` (the delegator) is fine.
-- `:if` / `:unless` gate the entire group.
-- `workflow_breakpoints` is gone — failure always halts the pipeline. To keep going on a skip, branch explicitly in a wrapping task or middleware.
+- Do **not** define `#work` on your workflow subclass — that now raises `ImplementationError`. (The built-in `Workflow#work` that delegates to the pipeline is still fine; only **your** subclass is forbidden.)
+- `:if` / `:unless` on a group wraps the **whole** group.
+- `workflow_breakpoints` is gone: a failure stops the train. If you want “keep going after a skip,” wrap the workflow in another task or middleware and branch yourself.
 
-See [Workflows](workflows.md).
+Full guide: [Workflows](workflows.md).
 
 ---
 
 ## Chain
+
+The chain is the ordered list of results for nested calls. v1 stashed it on the thread; v2 uses **fibers** so parallel work stays honest.
 
 ```ruby
 # v1
@@ -477,22 +508,24 @@ Chain.current=
 Chain.clear
 ```
 
-`Chain` is fiber-local so parallel workers each see the same underlying chain. `push` and `unshift` are `Mutex`-synchronized. Runtime `unshift`s the root result and `push`es children, so `chain[0]` (and `chain.root`) is always the outermost task regardless of finalization order.
+Fibers let parallel branches share one logical chain without corrupting each other. `push` / `unshift` are mutex-protected. `Runtime` unshifts the root result and pushes children, so index `0` is always the outermost caller — even if inner tasks finish first.
 
-New in v2:
+**New helpers:**
 
-- `Chain#root`, `Chain#state`, `Chain#status` — delegate to the root result (`nil` when absent).
-- `Chain#last` — most recently appended result.
-- `Chain#freeze` — Runtime freezes the chain (and its results array) on root teardown; later mutations raise `FrozenError`.
-- `Chain` `include`s `Enumerable`, so `chain.map(&:status)`, `chain.find(&:failed?)`, `chain.first(3)`, `chain.to_a` all work.
+- `Chain#root`, `#state`, `#status` — read-through to the root `Result` (or `nil` if empty).
+- `Chain#last` — newest child.
+- `Chain#freeze` — after the root finishes, the chain freezes; mutating it raises `FrozenError`.
+- `Chain` includes `Enumerable`, so `map`, `find`, `first`, `to_a`, etc. all work.
 
-!!! warning "Important"
+!!! warning "Heads-up: `result.chain` type changed"
 
-    `Result#chain` now returns the `Chain` itself, not its results array. Call `chain.id` for the uuid, `chain.to_a` for a plain array, or iterate directly via Enumerable.
+    `result.chain` is a `Chain` object now, not a raw `Array`. Use `chain.id` for the UUID, `chain.to_a` if you truly need an array, or iterate the chain directly — it behaves like a collection.
 
 ---
 
 ## Faults & Exceptions
+
+CMDx raises normal Ruby exceptions you can rescue. A few names moved; a few new ones describe mistakes in definitions or middleware.
 
 ### Hierarchy
 
@@ -505,9 +538,11 @@ CMDx::Error = CMDx::Exception    (StandardError)
 └── CMDx::MiddlewareError        (NEW — middleware didn't yield)
 ```
 
-`CMDx::UndefinedMethodError` is gone. Exception classes are now declared inline in `lib/cmdx.rb` (was `lib/cmdx/exception.rb`).
+`CMDx::UndefinedMethodError` retired; use `ImplementationError` when a task forgot to implement `work`. Exception classes now live in `lib/cmdx.rb` instead of a separate `exception.rb` file.
 
 ### Matcher API
+
+`Fault` ships little helpers so your `rescue` lines read like English:
 
 ```ruby
 rescue Fault.for?(ProcessOrder, ChargeCard) => fault
@@ -525,19 +560,19 @@ end
 
 ### Construction
 
-`fault.task`, `fault.context`, `fault.chain`, and `fault.result` are all exposed.
+`Fault` exposes `task`, `context`, `chain`, and `result` so you can log or retry with full context.
 
 !!! note
 
-    `SkipFault` / `FailFault` (v1) are gone. There's just `Fault` — distinguish via `fault.result.skipped?` / `fault.result.failed?`.
+    v1 had `SkipFault` and `FailFault`. v2 has one `Fault` type — ask `fault.result.skipped?` or `fault.result.failed?` when you need to branch.
 
 ---
 
 ## Errors
 
-`Errors` `include`s `Enumerable`, iterating `[key, Set<String>]` pairs (not `Array`).
+`Errors` is still the bag of validation messages, but it now behaves like a tiny collection (`Enumerable`). Each pair is `[key, Set<String>]` — sets dedupe messages automatically.
 
-New in v2:
+**New helpers:**
 
 ```ruby
 errors.added?(:email, "is invalid")
@@ -548,11 +583,13 @@ errors.each_key { ... }
 errors.each_value { ... }
 ```
 
-`errors[:email]` returns `Array<String>` (deduped via the backing Set).
+`errors[:email]` still returns an `Array<String>` built from the internal set.
 
 ---
 
 ## Context
+
+`Context` grew a few small utilities for merging, memoized reads, and cleanup — handy when workflows pass big blobs around.
 
 ```ruby
 context.merge(other)               # accepts Context, Hash, or anything to_h-able
@@ -563,13 +600,13 @@ context.deep_dup
 context.map { |k, v| ... }         # Enumerable
 ```
 
-Dynamic accessors (`context.foo`, `context.foo = 1`) are unchanged. An accessor predicted has been added, eg: `context.foo?`
+Dynamic readers/writers (`context.user`, `context.user = value`) work like before. Predicate readers (`context.foo?`) were added so you can ask “is this set?” without remembering internal keys.
 
 ---
 
 ## Retries
 
-Shape unchanged; implementation is now a value object that accumulates across inheritance.
+`retry_on` looks the same in your task files. Behind the scenes it is now a tidy value object that stacks cleanly across subclasses (child classes add more exception types instead of fighting the parent).
 
 ```ruby
 class FlakyTask < CMDx::Task
@@ -587,7 +624,7 @@ See [Retries](retries.md) for full options.
 
 ## Deprecation
 
-v1's `Deprecator` class is replaced by a class-level `deprecation` DSL.
+Instead of a standalone `Deprecator` object, you declare behavior right on the task with `deprecation`.
 
 ```ruby
 class LegacyImporter < CMDx::Task
@@ -601,13 +638,15 @@ class LegacyImporter < CMDx::Task
 end
 ```
 
-Runtime invokes the deprecation right before the task body runs, sets `result.deprecated?` to `true`, and emits `:task_deprecated`. With `:error`, it raises `DeprecationError` and the task never runs. See [Deprecation](deprecation.md).
+Runtime checks this right before `work` runs, marks `result.deprecated?`, and emits `:task_deprecated`. Severity `:error` raises `DeprecationError` and skips the body — handy when you want CI or staging to fail loudly on legacy tasks.
+
+More patterns: [Deprecation](deprecation.md).
 
 ---
 
 ## Rollback
 
-`Task#rollback` is now a first-class lifecycle hook. When `work` fails, Runtime calls `rollback` if defined (after `work`, before result finalization), sets `result.rolled_back?` to `true`, and emits `:task_rolled_back`.
+`rollback` is no longer something you wire by hand in middleware for the common case. If `work` blows up, `Runtime` calls `rollback` (when you define it), sets `result.rolled_back?`, and fires `:task_rolled_back`.
 
 ```ruby
 class ChargeCard < CMDx::Task
@@ -627,7 +666,7 @@ end
 
 ## Telemetry
 
-v1's pattern for observing the runtime was to write a middleware. v2 ships a dedicated pub/sub with five events that fire **only when subscribers exist** (zero cost otherwise).
+In v1, “watch the runtime” often meant writing middleware that wrapped every task. v2 adds **Telemetry**: a tiny pub/sub bus with five events. Nothing runs if nobody is listening, so the default cost is basically free.
 
 ```ruby
 CMDx.configure do |config|
@@ -649,13 +688,13 @@ end
 | `:task_rolled_back` | empty |
 | `:task_executed` | `{ result: Result }` |
 
-Every event carries a `Telemetry::Event` with `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`. Subscribe per-task via `MyTask.telemetry.subscribe(...)`. See [Configuration - Telemetry](configuration.md#telemetry).
+Each event is a `Telemetry::Event` (`cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`). You can also subscribe on a single task class with `MyTask.telemetry.subscribe(...)`. [Configuration - Telemetry](configuration.md#telemetry) lists everything you can tweak.
 
 ---
 
 ## Locale & I18n
 
-CMDx now ships `CMDx::I18nProxy`, which delegates to the `i18n` gem when loaded and falls back to bundled YAML otherwise. Default locale is `en`; override with `config.default_locale`.
+Translations now go through `CMDx::I18nProxy`: if the `i18n` gem is loaded, messages flow through it; otherwise CMDx falls back to its built-in YAML. Set `config.default_locale` if you are not `"en"`.
 
 ### Key Renames
 
@@ -705,15 +744,15 @@ en:
 
 !!! note
 
-    All 86+ internalization files have been moved to the [`cmdx-i18n`](https://github.com/drexed/cmdx-i18n) gem.
+    Most locale files moved out of this gem into [`cmdx-i18n`](https://github.com/drexed/cmdx-i18n) so translations can ship on their own cadence.
 
-See [Internationalization](internationalization.md).
+More: [Internationalization](internationalization.md).
 
 ---
 
 ## Generators
 
-`cmdx:install`, `cmdx:task`, and `cmdx:workflow` emit the v2 template shape:
+`rails g cmdx:install`, `cmdx:task`, and `cmdx:workflow` now scaffold the v2 shape — plain `def work` bodies without v1-only boilerplate.
 
 ```ruby
 class MyTask < ApplicationTask
@@ -723,11 +762,13 @@ class MyTask < ApplicationTask
 end
 ```
 
-Regenerate `cmdx:install` as a reference when migrating an initializer — it documents the v2 middleware / callback / telemetry / coercion / validator registration shapes.
+Regenerate `cmdx:install` when you want a fresh cheat sheet for initializer wiring (middleware, callbacks, telemetry, coercions, validators).
 
 ---
 
 ## Removed Modules & Classes
+
+If grep says “uninitialized constant …,” this table is your map from old names to new homes:
 
 | Removed | Replacement |
 |---|---|
@@ -753,9 +794,9 @@ Regenerate `cmdx:install` as a reference when migrating an initializer — it do
 
 ## Validating the Migration
 
-Before you call it done:
+Before you merge the upgrade branch, do three quick checks:
 
-**1. Run the suite.** `bundle exec rspec` must be green. For Rails projects, reset the global config between examples so registry caching on `Task` doesn't leak across tests:
+**1. Tests.** `bundle exec rspec` (or your runner) should be green. In Rails apps, reset CMDx config between examples so class-level registries do not leak:
 
 ```ruby
 RSpec.configure do |c|
@@ -763,24 +804,26 @@ RSpec.configure do |c|
 end
 ```
 
-**2. Grep for v1 symbols.** Any hit indicates missed migration:
+**2. Grep for ghosts.** Any match below usually means “unfinished v1 → v2 edit”:
 
 ```bash
 rg --hidden \
   'task_breakpoints|workflow_breakpoints|rollback_on|dump_context|freeze_results|SKIP_CMDX_FREEZING|\.good\?|\.bad\?|cid[^=]|threw_failure\?|dry_run|attributes_schema|remove_attribute|remove_return|on_executed|on_good|on_bad|cmdx\.returns\.missing|cmdx\.faults\.(invalid|unspecified)|CMDx::Executor|CMDx::Middlewares::(Correlate|Runtime|Timeout)|CMDx::(SkipFault|FailFault|UndefinedMethodError)|register\s+:attribute|attribute\s+:'
 ```
 
-**3. Check one log line.** A successful task logs a v2-shaped record with `cid`, `index`, `root`, `type`, `task`, `id`, `state`, `status`, `duration`:
+**3. Read one log line.** Successful runs print a compact hash with `cid`, `index`, `root`, `type`, `task`, `id`, `state`, `status`, `duration`. If you still see `initialized` or `executing`, something is logging a half-baked v1-shaped object.
+
+Example shape (values will differ):
 
 ```text
 cmdx: cid="0190..." index=0 root=true type="Task" task=MyTask tid="0190..." state="complete" status="success" reason=nil metadata={} duration=12.34 ...
 ```
 
-If you see `initialized` or `executing` in the output, something is serializing a v1 result.
-
 ---
 
 ## Troubleshooting
+
+Quick fixes for the errors people hit first:
 
 | Symptom | Fix |
 |---|---|
@@ -799,24 +842,24 @@ If you see `initialized` or `executing` in the output, something is serializing 
 
 ## Rollback Plan
 
-If the upgrade stalls:
+Sometimes you need to pause halfway. That is fine.
 
-1. `git revert` the migration branch.
-2. Pin the gem: `gem "cmdx", "~> 1.21"`.
-3. Restore any helpers you deleted (manual rollback dispatchers, breakpoint config, `dry_run` branches).
+1. Revert the migration commit(s) or branch (`git revert` / `git checkout` — whatever your team uses).
+2. Pin CMDx again, e.g. `gem "cmdx", "~> 1.21"`.
+3. Bring back any small helpers you deleted (manual rollback wiring, breakpoint YAML, `dry_run` branches).
 
-A handful of patterns are hard to shim under v1 once you've rewritten them — keep them in git history rather than trying to forward-port:
+A few v2-only ideas do not map cleanly back to v1. Keep the v2 version in git history instead of trying to polyfill:
 
-- Read-only `Result` access patterns (v1 `Result` is mutable, so nothing breaks if you leave guards in).
-- `success!` calls (no v1 equivalent — replace with `return` or custom metadata).
-- Parallel workflow groups (v1 has no first-class parallel strategy — fall back to running groups sequentially).
-- Telemetry subscribers (wrap as v1 middlewares calling the same sinks).
+- Treating `Result` as read-only (extra guards on v1 do not hurt).
+- `success!` (no twin in v1 — use early `return` or stash data on `context`).
+- Parallel workflow groups (run those steps one-by-one under v1, or wrap them yourself).
+- Telemetry subscribers (re-express the same sinks as v1 middleware if you must roll back).
 
 ---
 
 ## Automated Migration Prompt
 
-Paste the block below into your agent (Cursor, Claude Code, etc.) with your project open. It's written to be idempotent — running it twice won't double-rewrite already-migrated code.
+This block is written for an AI assistant, not humans — stiff voice on purpose. Paste it into Cursor, Claude Code, or similar **with your repo open**. It is idempotent: running it twice should not double-apply the same rewrite.
 
 ````markdown
 You are upgrading a Ruby project from CMDx v1.x to v2.0.
@@ -978,28 +1021,30 @@ report the failing file:line with a one-line diagnosis.
 
 ## Future
 
-The v2 internals open the door to a number of additions that didn't fit the rewrite. The list below is **planned, not committed** — semantics may shift before they ship.
+Everything below is **ideas on the roadmap**, not shipped promises. Names and APIs may move.
 
 ### Infrastructure primitives
 
-- **`CMDx::Stores`** — pluggable KV with `get` / `set` / `incr` / `del` + TTL. Memory and Redis adapters substrate `idempotent_by`, rate limiting, circuit breakers, checkpoints, and result caching.
-- **`CMDx::Cache`** — `cache_result key: ->(t) { … }, ttl: 60` memoizes a successful result per-input on the configured store.
-- **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".
+- **`CMDx::Stores`** — a tiny key/value abstraction (`get` / `set` / `incr` / `del` + TTL) with in-memory and Redis-style adapters. Think shared scratch space for idempotency keys, rate limits, circuit breakers, checkpoints, and cached results.
+- **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
+- **`CMDx::Locks`** — `lock_with key: ..., ttl: ..., wait: ...` prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.
 
 ### Tasks
 
-- **`idempotent_by`** — declarative idempotency keyed off context: `idempotent_by :payment_id, ttl: 5.minutes`. Backed by `CMDx::Stores`.
-- **`circuit_break`** — `circuit_break threshold: 5, cool_off: 30.seconds` without bolting on Stoplight per task.
-- **`concurrency_limit`** — global bulkhead capping simultaneous executions of a task class.
-- **`execute_async`** — returns a `Concurrent::Promise`-shaped future without forcing the caller to wrap in `Async { }`.
-- **Background-job adapter** — `Task.perform_async` / `perform_in` / `perform_at` over Sidekiq, ActiveJob, or GoodJob, with JSON-safety enforced at enqueue time. Replaces the per-app Sidekiq mixin recipe.
+- **`idempotent_by`** — declare a stable key from context so retries short-circuit safely.
+- **`circuit_break`** — flip a task open/closed after repeated failures without bolting Stoplight into every class.
+- **`concurrency_limit`** — cap how many instances of a task may run at once across the process.
+- **`execute_async`** — return a future-like object instead of always blocking the caller.
+- **Background-job adapter** — `perform_async` / `perform_in` / `perform_at` helpers for Sidekiq, ActiveJob, GoodJob, etc., with JSON-safe payloads at enqueue time.
 
 ### Workflows
 
-- **Checkpoint/resume** — persist `context` after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with `idempotent_by`.
+- **Checkpoint / resume** — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with `idempotent_by`).
 
 ### Observability / tooling
 
-- **`Chain#to_mermaid` / `#to_dot`** — render a chain (with result statuses) for debugging deeply nested executions.
-- **`Chain#timeline`** — Gantt-shaped `(task, start, end, status)` rows usable directly in dashboards. The data exists; only the assembly is missing.
-- **`Result#pretty_print`** — REPL-friendly multi-line formatter with color and child indentation; the current single-line `to_s` gets noisy at depth.
+- **`Chain#to_mermaid` / `#to_dot`** — pretty diagrams for gnarly chains.
+- **`Chain#timeline`** — rows of `(task, start, end, status)` for dashboards.
+- **`Result#pretty_print`** — multi-line REPL output with indentation and optional color.
+
+None of the above exists in the gem yet; treat it as a peek at where maintainers are thinking, not a contract.

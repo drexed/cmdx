@@ -1,12 +1,12 @@
 # Inputs - Validations
 
-Ensure inputs meet requirements before execution. Validations run after coercions and transformations.
+Think of validations as the bouncer at the door: they check that each input looks right **before** your task runs its real work. They run **after** coercions and transformations, so they always see the “final” shape of the value.
 
-See [Global Configuration](../configuration.md#validators) for custom validator setup.
+Need to plug in your own validator machinery app-wide? Peek at [Global Configuration](../configuration.md#validators).
 
 ## Usage
 
-Define validation rules on inputs to enforce data requirements:
+You attach validation rules right on the input. If something fails, the task stops early and you get clear errors — no surprises halfway through `work`:
 
 ```ruby
 class ProcessSubscription < CMDx::Task
@@ -40,9 +40,12 @@ ProcessSubscription.execute(
 
 ## Built-in Validators
 
-### Common Options
+### Common options
 
-`:allow_nil` and `:message` cover the simple cases:
+Most validators understand a few shared knobs:
+
+- **`:allow_nil`** — “Skip this check when the value is `nil`.”
+- **`:message`** — Your own words when something fails.
 
 ```ruby
 class ProcessProduct < CMDx::Task
@@ -52,17 +55,17 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-`:if` / `:unless` gate validators on Symbol, Proc, or `#call`-able objects:
+**Conditional checks** use `:if` and `:unless`. You can hand in a `Symbol`, a `Proc`, or anything that responds to `#call`:
 
 ```ruby
 class ProcessProduct < CMDx::Task
-  # Proc: instance_exec'd on task; arg = value
+  # Proc: runs in the context of the task; argument is the current value
   optional :contact_email, format: {
     with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
     if: ->(value) { value.include?("@") }
   }
 
-  # Symbol: invoked as task.product_sunsetted?(value)
+  # Symbol: calls `product_sunsetted?(value)` on the task
   required :status, exclusion: { in: %w[recalled archived], unless: :product_sunsetted? }
 
   private
@@ -73,26 +76,28 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-This list of options is available to all built-in validators:
+These options work across the built-in validators:
 
-| Option | Description |
-|--------|-------------|
-| `:allow_nil` | Skip validation when value is `nil` |
-| `:if` | Symbol, Proc, or callable gate (see table below) — must evaluate truthy for validation to run |
-| `:unless` | Symbol, Proc, or callable gate (see table below) — must evaluate falsy for validation to run |
-| `:message` | Custom error message for validation failures |
+| Option | What it does |
+|--------|----------------|
+| `:allow_nil` | Don’t validate when the value is `nil` |
+| `:if` | Only run the validator when this is truthy (see below) |
+| `:unless` | Only run the validator when this is falsy (see below) |
+| `:message` | Custom failure message |
 
-| `:if` / `:unless` form | How it's invoked | Effective signature |
-|------------------------|------------------|---------------------|
+| `:if` / `:unless` shape | How it runs | Think of the signature as |
+|-------------------------|-------------|---------------------------|
 | `Symbol` (e.g. `:method_name`) | `task.send(method_name, value)` | `def method_name(value)` |
-| `Proc` / lambda | `task.instance_exec(value, &proc)` (`self` is the task) | `->(value) { ... }` |
-| `#call`-able object/class | `callable.call(task, value)` | `def call(task, value)` |
+| `Proc` / lambda | `task.instance_exec(value, &proc)` — `self` is the task | `->(value) { ... }` |
+| `#call`-able object | `callable.call(task, value)` | `def call(task, value)` |
 
 !!! note
 
-    Short-form normalization: `Hash` → options, `Array` → `{ in: array }`, `Regexp` → `{ with: regexp }`, `true` → `{}`, `false`/`nil` skips the validator entirely.
+    **Shorthand shapes:** a lone `Hash` becomes options, an `Array` becomes `{ in: array }`, a `Regexp` becomes `{ with: regexp }`, `true` becomes `{}`, and `false` / `nil` turns the validator off entirely. Less typing, same behavior.
 
 ### Absence
+
+“Please be empty.” Handy for honeypot fields and “this must not be filled in” cases.
 
 ```ruby
 class CreateUser < CMDx::Task
@@ -101,11 +106,13 @@ class CreateUser < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `true` | Ensures value is nil, empty string, empty collection, or whitespace-only |
+| Options | What it checks |
+|---------|----------------|
+| `true` | Value is `nil`, empty string, empty collection, or only whitespace |
 
 ### Exclusion
+
+“The answer cannot be one of these.”
 
 ```ruby
 class ProcessProduct < CMDx::Task
@@ -113,50 +120,56 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:in` | The collection of forbidden values or range |
-| `:within` | Alias for :in option |
-| `:of_message` | Custom message for discrete value exclusions |
-| `:in_message` | Custom message for range-based exclusions |
-| `:within_message` | Alias for :in_message option |
+| Options | Meaning |
+|---------|---------|
+| `:in` | Values (or a range) that are **not** allowed |
+| `:within` | Same as `:in` |
+| `:of_message` | Message when a single discrete value is wrong |
+| `:in_message` | Message when a range check fails |
+| `:within_message` | Same as `:in_message` |
 
 ### Format
 
+“Must look like this pattern.” A bare regex is sugar for `{ with: regex }`.
+
 ```ruby
 class ProcessProduct < CMDx::Task
-  # Shorthand: a bare Regexp is normalized to `{ with: regex }`
+  # Shorthand: bare Regexp → `{ with: regex }`
   input :sku, format: /\A[A-Z]{3}-[0-9]{4}\z/
 
-  # Equivalent long form
+  # Long form — same idea
   input :code, format: { with: /\A[A-Z]{3}-[0-9]{4}\z/ }
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:with` | Regex pattern that the value must match |
-| `:without` | Regex pattern that the value must not match |
+| Options | Meaning |
+|---------|---------|
+| `:with` | Must match this regex |
+| `:without` | Must **not** match this regex |
 
 ### Inclusion
+
+“Pick one of these friends.” Members are compared with `===`, so you can use regexes or classes in the list too.
 
 ```ruby
 class ProcessProduct < CMDx::Task
   input :availability, inclusion: { in: %w[available limited] }
-  # Enumerable members are matched with `===`, so Regex and Class members work too:
+  # Enumerable members use `===`, so Regex and Class entries work:
   input :sku_or_code, inclusion: { in: [/\A[A-Z]{3}-\d{4}\z/, Integer] }
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:in` | Range (`#cover?`) or Enumerable (`===` per member — Regex/Class/Range members match accordingly) |
-| `:within` | Alias for :in option |
-| `:of_message` | Custom message for enumerable-member failures |
-| `:in_message` | Custom message for range failures |
-| `:within_message` | Alias for :in_message option |
+| Options | Meaning |
+|---------|---------|
+| `:in` | Allowed range (`#cover?`) or allowed list (`===` per item) |
+| `:within` | Same as `:in` |
+| `:of_message` | Message when a list member fails |
+| `:in_message` | Message when a range fails |
+| `:within_message` | Same as `:in_message` |
 
 ### Length
+
+For anything that has a length (strings, arrays, etc.).
 
 ```ruby
 class CreateBlogPost < CMDx::Task
@@ -164,23 +177,25 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:within` | Range that the length must fall within (inclusive) |
-| `:not_within` | Range that the length must not fall within |
-| `:in` | Alias for :within |
-| `:not_in` | Alias for :not_within |
-| `:min` / `:gte` | Minimum allowed length (inclusive, >=) |
-| `:max` / `:lte` | Maximum allowed length (inclusive, <=) |
-| `:gt` | Length must be strictly greater than value |
-| `:lt` | Length must be strictly less than value |
-| `:is` / `:eq` | Exact required length |
-| `:is_not` / `:not_eq` | Length that is not allowed |
-| `:nil_message` | Custom message when value does not respond to `#length` |
+| Options | Meaning |
+|---------|---------|
+| `:within` | Length must fall in this range (inclusive) |
+| `:not_within` | Length must **not** fall in this range |
+| `:in` | Alias for `:within` |
+| `:not_in` | Alias for `:not_within` |
+| `:min` / `:gte` | Minimum length (inclusive) |
+| `:max` / `:lte` | Maximum length (inclusive) |
+| `:gt` | Length must be strictly greater than this |
+| `:lt` | Length must be strictly less than this |
+| `:is` / `:eq` | Exact length required |
+| `:is_not` / `:not_eq` | Forbidden length |
+| `:nil_message` | When the value doesn’t respond to `#length` |
 
-Each rule supports a matching `<rule>_message` override (e.g. `:min_message`, `:within_message`, `:gt_message`); aliases share their target's message key (e.g. `:gte_message` → `:min_message`).
+Each rule can have a matching `<rule>_message` (e.g. `:min_message`). Aliases share the same message key (e.g. `:gte_message` → `:min_message`).
 
 ### Numeric
+
+Same shape as length rules, but for numbers.
 
 ```ruby
 class CreateBlogPost < CMDx::Task
@@ -188,44 +203,46 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:within` | Range that the value must fall within (inclusive) |
-| `:not_within` | Range that the value must not fall within |
-| `:in` | Alias for :within option |
-| `:not_in` | Alias for :not_within option |
-| `:min` / `:gte` | Minimum allowed value (inclusive, >=) |
-| `:max` / `:lte` | Maximum allowed value (inclusive, <=) |
-| `:gt` | Value must be strictly greater than bound |
-| `:lt` | Value must be strictly less than bound |
-| `:is` / `:eq` | Exact value that must match |
-| `:is_not` / `:not_eq` | Value that must not match |
-| `:nil_message` | Custom message when value is `nil` |
+| Options | Meaning |
+|---------|---------|
+| `:within` | Value must be inside this range (inclusive) |
+| `:not_within` | Value must stay outside this range |
+| `:in` | Alias for `:within` |
+| `:not_in` | Alias for `:not_within` |
+| `:min` / `:gte` | Minimum value (inclusive) |
+| `:max` / `:lte` | Maximum value (inclusive) |
+| `:gt` | Must be strictly greater |
+| `:lt` | Must be strictly less |
+| `:is` / `:eq` | Must equal exactly |
+| `:is_not` / `:not_eq` | Must not equal |
+| `:nil_message` | When the value is `nil` |
 
-Each rule supports a matching `<rule>_message` override (e.g. `:min_message`, `:within_message`, `:gt_message`); aliases share their target's message key (e.g. `:gte_message` → `:min_message`).
+Again, `<rule>_message` overrides exist; aliases share keys.
 
 ### Presence
+
+“Something must be here.” Not the same as `required:` — see the section at the bottom.
 
 ```ruby
 class CreateBlogPost < CMDx::Task
   input :content, presence: true
-  # Or with a custom message: presence: { message: "cannot be blank" }
+  # Or: presence: { message: "cannot be blank" }
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `true` | Ensures value is not nil, empty collection, or whitespace-only string |
+| Options | What it checks |
+|---------|----------------|
+| `true` | Not `nil`, not an empty collection, not a whitespace-only string |
 
 ## Declarations
 
 !!! warning "Important"
 
-    Return `CMDx::Validators::Failure.new("message")` to fail validation; any other return (including `nil` / `true` / `false`) is treated as success. Errors are keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`).
+    To **fail** validation, return `CMDx::Validators::Failure.new("message")`. Anything else — even `false` or `nil` — counts as **pass**. Errors show up under the input’s **accessor** name (after `:as` / `:prefix` / `:suffix`).
 
 ### Proc or Lambda
 
-Use anonymous functions for simple validation logic:
+Great for small, one-off rules:
 
 ```ruby
 class SetupApplication < CMDx::Task
@@ -247,7 +264,7 @@ end
 
 ### Class or Module
 
-Register custom validation logic for specialized requirements:
+Pull fancy rules into a named object — easier to test and reuse:
 
 ```ruby
 class ApiKeyValidator
@@ -267,11 +284,11 @@ end
 
 ### Inline `:validate` callable
 
-For one-off validations that don't need a registered name, pass a `Symbol` (instance method), `Proc`, or any callable directly to `validate:`. Pass an array to chain several. Symbols receive `(value)`, Procs are `instance_exec`'d with `(value)` (`self` is the task), and `#call`-able objects receive `(value, task)`:
+No `register`? Pass a `Symbol` (instance method), `Proc`, or callable straight to `validate:`. Use an array to chain several. Symbols get `(value)`; procs run with `instance_exec` and `(value)` (`self` is the task); `#call`-ables get `(value, task)`.
 
-!!! warning "Arity asymmetry"
+!!! warning "Watch the argument order"
 
-    `:if` / `:unless` callables receive `(task, value)`, but inline `:validate` callables receive `(value, task)`. The arguments are swapped — mirror the same gotcha that applies to inline `:coerce`.
+    `:if` / `:unless` callables use `(task, value)`. Inline `:validate` callables use `(value, task)`. Same heads-up as inline `:coerce` — the arguments are **swapped**.
 
 ```ruby
 class CreateUser < CMDx::Task
@@ -301,11 +318,11 @@ end
 
 ## Removals
 
-Remove unwanted validators:
+Don’t want a registered validator anymore? Drop it.
 
 !!! warning
 
-    Each `deregister` call removes one validator. Use multiple calls for batch removals.
+    One name per `deregister` call. Removing several? Call `deregister` several times.
 
 ```ruby
 class SetupApplication < CMDx::Task
@@ -315,18 +332,18 @@ end
 
 ## `required` vs `presence: true`
 
-These two aren't interchangeable:
+Easy to mix up — they solve different problems:
 
-| Declaration | When the caller omits the key |
-|-------------|------------------------------|
-| `required :email` | `email is required` — the missing-key error is added; validators don't run |
-| `input :email, presence: true` | **No error.** Validators (including `presence`) are skipped when an optional key is absent |
-| `required :email, presence: true` | Both: missing-key gate first; `presence:` then re-runs on the resolved value |
+| Declaration | Caller **omits** the key entirely |
+|-------------|-----------------------------------|
+| `required :email` | You get “email is required.” Validators never run for that missing key. |
+| `input :email, presence: true` | **No error** by default: optional + missing key skips validators. |
+| `required :email, presence: true` | Missing key fails first; if the key exists, `presence` still runs on the value. |
 
-!!! danger "Optional + validator"
+!!! danger "Optional + presence alone"
 
-    Validators (including `presence`) do **not** run when an optional input's final resolved value is `nil` — the pipeline short-circuits after the default step. `input :email, presence: true` by itself enforces nothing when the caller omits `email`: declare it with `required :email` (or `required :email, presence: true`) whenever the caller must supply the key.
+    If an optional input ends up `nil`, validators (including `presence`) **do not** run — the pipeline stops after defaults. So `input :email, presence: true` does **nothing** when the caller never sends `email`. Use `required :email` (or both) when the key must be supplied.
 
-## Error Handling
+## Error handling
 
-Validation failures accumulate on `task.errors` and surface as a failed result with the joined sentence as `result.reason`. See [Inputs - Error Handling](definitions.md#error-handling) for the full lifecycle.
+Failed validations pile onto `task.errors` and the task returns failure; `result.reason` is a human sentence built from those messages. For the full story (nested inputs, etc.), see [Inputs - Error Handling](definitions.md#error-handling).

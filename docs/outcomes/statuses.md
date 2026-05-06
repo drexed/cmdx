@@ -1,38 +1,44 @@
 # Outcomes - Statuses
 
-Statuses represent the business outcome — did the task succeed, skip, or fail? This is independent of state, which only tracks whether the lifecycle ran to completion or was interrupted.
+**Status** answers the question everyone cares about first: *did this task win, bail out gracefully, or blow up?* It is all about the **business outcome**. It does not tell you whether the lifecycle ran start-to-finish—that job belongs to [state](states.md).
 
 ## Definitions
 
-| Status | Description |
-| ------ | ----------- |
-| `success` | Task `work` ran to completion (and any declared outputs verified), or halted via `success!`. Default outcome. |
-| `skipped` | Task halted via `skip!`. Treated as a non-failure outcome. |
-| `failed`  | Task halted via `fail!`, `throw!`, accumulated `task.errors`, or a `StandardError` raised from `work` (Runtime captures it on `result.cause`). |
+Think of status as the label on your report card:
+
+| Status | In plain English |
+| ------ | ---------------- |
+| `success` | `work` finished happily (outputs checked out too), or you stopped early with `success!`. This is the happy path most of the time. |
+| `skipped` | You called `skip!`. Nothing crashed—it is just “we are not doing this.” Still counts as a non-failure. |
+| `failed` | You called `fail!` or `throw!`, errors piled up on the task, or `work` raised a normal Ruby exception (Runtime stashes it on `result.cause`). |
 
 !!! note
 
-    `throw!` isn't a primitive halt — it re-throws a peer's already-`failed?` result through the current task. See [Fault Propagation](../interruptions/faults.md#fault-propagation).
+    `throw!` is special: it forwards another task’s already-failed result through yours. For the full story, see [Fault propagation](../interruptions/faults.md#fault-propagation).
 
-## Single Final Status
+## One shot, one status
 
-Statuses don't transition. The first `skip!` / `fail!` inside `work` throws out of the call stack, so the result is built once with a single, final status:
+Statuses do not morph over time. The moment `skip!` or `fail!` runs inside `work`, execution unwinds and the result is built **once** with a single final status:
 
 ```ruby
 def work
   fail!("first")    # Runtime catches this and finalizes the result
-  skip!("second")   # Unreachable
+  skip!("second")   # Unreachable—game over after fail!
 end
 ```
 
 !!! note
 
-    Calling `skip!` or `fail!` on a frozen task (after `Runtime` teardown) raises `FrozenError` — they can't mutate a finalized result.
+    If you try `skip!` or `fail!` after Runtime has torn everything down (frozen task), you get `FrozenError`. The story is already written—you cannot rewrite it.
 
-## Predicates and Handlers
+## Predicates and handlers
 
-`result.success?` / `result.skipped?` / `result.failed?` check status; `result.ok?` (success or skipped) and `result.ko?` (skipped or failed) categorize the outcome. Dispatch with `result.on(:success | :skipped | :failed | :ok | :ko)`. See [Result - Lifecycle Predicates](result.md#lifecycle-predicates) and [Result - Predicate Dispatch](result.md#predicate-dispatch).
+- `result.success?`, `result.skipped?`, `result.failed?` mirror those three labels.
+- `result.ok?` means success **or** skipped (fine enough to move on).
+- `result.ko?` means skipped **or** failed (work did not fully succeed).
+
+Hook them up with `result.on(:success | :skipped | :failed | :ok | :ko)`. More detail lives in [Result — lifecycle predicates](result.md#lifecycle-predicates) and [Result — predicate dispatch](result.md#predicate-dispatch).
 
 !!! note
 
-    `skipped` is intentionally both `ok?` and `ko?`. It's a valid outcome (`ok` — nothing broke) and a non-success (`ko` — work wasn't done). Use `success?` when you need a strict success check.
+    `skipped` is the quirky one: it is both `ok?` and `ko?`. Valid outcome (`ok`) but not the gold star (`ko`). When you truly need “we shipped it,” use `success?`.

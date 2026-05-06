@@ -1,20 +1,20 @@
 # Interruptions - Signals
 
-Halt `work` intentionally with `success!`, `skip!`, `fail!`, or `throw!`. Each signals a clear intent and can carry a reason and metadata.
+Sometimes you already know how a task should end before you finish the method. CMDx gives you four friendly "stop here" helpers: `success!`, `skip!`, `fail!`, and `throw!`. Each one says what you mean, and you can attach a human-readable reason plus extra data for logs or APIs.
 
-Internally these methods `throw` a `CMDx::Signal` that Runtime catches around `work`, breaking out of the current call stack the moment they fire — nothing after them runs.
+Under the hood they `throw` a `CMDx::Signal`. The runtime catches that around `work`, so execution jumps out right away — nothing below the halt line runs.
 
 !!! note
 
-    `success!` is the third halt method; it produces a `complete`/`success` result with a custom reason and metadata. See [Annotating a Successful Result](../outcomes/result.md#annotating-a-successful-result).
+    `success!` is the "happy stop" with a custom reason and metadata. For the full picture, see [Annotating a Successful Result](../outcomes/result.md#annotating-a-successful-result).
 
 ## Skipping
 
-Use `skip!` when the task doesn't need to run. It's a controlled no-op, not an error.
+Use `skip!` when the task does not need to do anything useful right now. That is a deliberate choice, not a bug.
 
-!!! warning "Important"
+!!! warning "Heads up"
 
-    Skipped tasks are considered "ok" outcomes (`result.ok? #=> true`). `execute!` does **not** raise on a skip — only on a failure.
+    A skip still counts as an OK outcome (`result.ok?` is true). `execute!` only raises on a real failure — it stays quiet on skips.
 
 ```ruby
 class ProcessInventory < CMDx::Task
@@ -49,7 +49,7 @@ result.reason #=> "Warehouse closed"
 
 ## Failing
 
-Use `fail!` when the task can't complete successfully. It signals controlled, intentional failure:
+Use `fail!` when the task cannot honestly finish as a success. You stay in control: you chose to stop, you pick the message.
 
 ```ruby
 class ProcessRefund < CMDx::Task
@@ -84,11 +84,11 @@ result.reason #=> "Refund period has expired"
 
 !!! note
 
-    `result.reason` is exactly what you passed (or `nil`). The localized `cmdx.reasons.unspecified` fallback only appears on `Fault#message` when `execute!` raises with no reason.
+    `result.reason` is whatever string you passed (or `nil`). The generic "unspecified" text only shows up on `Fault#message` when `execute!` raises and you never gave a reason.
 
 ## Metadata Enrichment
 
-Enrich halt calls with metadata for better debugging and error handling. Keyword args passed to `success!` / `skip!` / `fail!` / `throw!` are merged into `Task#metadata` first, then the resulting hash is attached to the thrown `Signal` — so middlewares that pre-populated `task.metadata` (e.g. a request id) show up on the same result without the caller having to forward them.
+Want more than a string? Pass keyword arguments. They merge into `Task#metadata`, then ride along on the signal. If middleware already stuffed a request id into `task.metadata`, it still shows up — you do not have to copy it by hand.
 
 ```ruby
 class ProcessRenewal < CMDx::Task
@@ -127,25 +127,25 @@ result.metadata #=> {
 
 ## Short-Circuit Behavior
 
-Halt methods always `throw` — they never return. The first one to fire ends `work` immediately, so any subsequent halt calls are unreachable:
+Halt helpers always `throw`. They never "return" to the next line in `work`. The first one that runs wins; anything after it is dead code until the method ends.
 
 ```ruby
 class ProcessOrder < CMDx::Task
   def work
     fail!("Out of stock") if out_of_stock?
     fail!("Insufficient funds") if insufficient_funds?
-    # If both conditions are true, only the first fail! ever runs.
+    # If both are true, only the first fail! runs.
   end
 end
 ```
 
-!!! warning "Important"
+!!! warning "Where they work"
 
-    Halt methods only work inside `work` (and anything it calls). Throwing from rollback, callbacks, or middlewares raises `UncaughtThrowError`; on a frozen task (post-teardown) they raise `FrozenError`.
+    These helpers only work inside `work` (or code `work` calls). If you try them from rollback, callbacks, or middleware you get `UncaughtThrowError`. On a frozen task after teardown you get `FrozenError`. Stay inside the story.
 
 ## State Transitions
 
-Halt methods trigger specific state and status transitions:
+Each halt maps to a simple combo of state, status, and how `ok?` / `ko?` read:
 
 | Method | State | Status | Outcome |
 |--------|-------|--------|---------|
@@ -170,51 +170,50 @@ result.ko?          #=> true for both skipped and failed
 
 ## Execution Behavior
 
-`execute` always returns a `Result`, regardless of whether `work` finished normally or halted via a signal. `execute!` only raises on `failed?` — `skip!` and `success!` return normally. See [Basics - Execution](../basics/execution.md) for the full entry-point contract and [Interruptions - Faults](faults.md) for the rescued exception hierarchy.
+`execute` always hands you a `Result`, whether `work` ran to the end or stopped on a signal. `execute!` only raises when the outcome is a failure; skips and custom successes return normally. For the full contract see [Basics - Execution](../basics/execution.md). For what actually gets raised, see [Interruptions - Faults](faults.md).
 
 ## Rethrowing a Peer Failure
 
-Use `throw!` to halt the current task by echoing another task's failed result. It's a no-op when the other result isn't `failed?`:
+`throw!` is your "echo this other task's failure" button. If the other result is not failed, nothing happens and you keep going.
 
 ```ruby
 class ReportMonthlyMetrics < CMDx::Task
   def work
     result = BuildReport.execute(context)
-    throw!(result) # echoes the peer's state/status/reason; the upstream
-                   # result is exposed via `origin`. Metadata on this task's
-                   # result is this task's `metadata` (merged with any kwargs
-                   # passed to throw!), not a copy of the peer's metadata.
+    throw!(result) # Copies the peer's state/status/reason; see `origin` for upstream.
+                   # Metadata on *this* result is this task's metadata (plus any kwargs
+                   # you pass to throw!), not a copy of the peer's hash.
 
-    # ...happy path continues here when result isn't failed
+    # Happy path continues here when result isn't failed
   end
 end
 ```
 
-The resulting `Result` carries the upstream failure in `result.origin`; `result.thrown_failure?` is `true`. See [Result - Chain Analysis](../outcomes/result.md#chain-analysis).
+The `Result` you get back keeps the upstream failure in `result.origin`, and `result.thrown_failure?` is true when you echoed a failure. More detail in [Result - Chain Analysis](../outcomes/result.md#chain-analysis).
 
 !!! note
 
-    `throw!` accepts a `Result` or a raw `CMDx::Signal`. Non-failed inputs are a no-op (caller continues past the `throw!`). Use it to forward another task's halt state without unwrapping.
+    `throw!` accepts a `Result` or a raw `CMDx::Signal`. If the input is not failed, it is a no-op. Handy when you want to forward a halt without unpacking it yourself.
 
 ## Best Practices
 
-Prefer specific reasons — they become `result.reason`, `Fault#message`, and end up in logs and telemetry:
+Specific reasons make everyone's life easier: they land on `result.reason`, in `Fault#message`, and in logs.
 
 ```ruby
-# Best: Specific reason + structured metadata
+# Best: specific reason + structured metadata
 fail!("File format not supported by processor", code: "FORMAT_UNSUPPORTED")
 
-# Good: Clear reason
+# Good: clear reason
 skip!("Document processing paused for compliance review")
 
-# Avoid: nil reason (Fault#message falls back to the localized cmdx.reasons.unspecified)
+# Avoid: nil reason (Fault#message falls back to localized cmdx.reasons.unspecified)
 skip!
 fail!
 ```
 
 ## Manual Errors
 
-Accumulate structured errors on `task.errors` during `work`; if any are present when `work` returns, Runtime throws a failed signal whose reason is the joined messages — no explicit `fail!` required.
+You can also push errors onto `task.errors` as you go. If any are still there when `work` returns, the runtime turns that into a failed signal for you — no explicit `fail!` needed.
 
 ```ruby
 class ProcessRenewal < CMDx::Task
