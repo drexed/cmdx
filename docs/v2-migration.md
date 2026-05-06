@@ -988,7 +988,6 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 ### Tasks
 
-- **`retry_when` on `Result`** — retry on outcome, not exceptions: `retry_when status: :failed, reason: /rate.?limit/, limit: 3`. `retry_on` only catches raised errors; many APIs return failures-as-data.
 - **`idempotent_by`** — declarative idempotency keyed off context: `idempotent_by :payment_id, ttl: 5.minutes`. Backed by `CMDx::Stores`.
 - **`circuit_break`** — `circuit_break threshold: 5, cool_off: 30.seconds` without bolting on Stoplight per task.
 - **`concurrency_limit`** — global bulkhead capping simultaneous executions of a task class.
@@ -997,8 +996,6 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 ### Workflows
 
-- **Sub-workflow inlining** — invoking another `Workflow` from within one expands as nested groups in the chain instead of an opaque single result. `Chain` already supports nesting; `Pipeline` doesn't expose it.
-- **Streaming parallel results** — yield each child result to a block as it completes rather than waiting for the join. Useful for progress reporting and fail-fast UIs.
 - **Checkpoint/resume** — persist `context` after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with `idempotent_by`.
 
 ### Inputs / outputs / schema
@@ -1007,8 +1004,6 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 ### Telemetry
 
-- **Status-specific events** — `task_failed` / `task_skipped` / `task_succeeded` alongside `task_executed`. Specific events let subscribers express intent without inspecting `event.payload[:result].status`.
-- **Sampling** — `subscribe(:task_executed, sample: 0.01)` for high-volume tasks instead of everyone reimplementing the same `rand < 0.01` gate.
 - **Optional-require integrations** shipped in-tree:
   - `require "cmdx/telemetry/open_telemetry"` — per-task spans with parent linkage from `xid` / `cid`.
   - `require "cmdx/telemetry/statsd"` / `dogstatsd` — `cmdx.task.duration` / `.success` / `.failed` tagged by task class.
@@ -1030,5 +1025,4 @@ The same example middlewares (rate limit, idempotency, circuit breaker) all rein
 
 ### Developer experience
 
-- **Authorization gate** — `policy MyPolicy, action: :execute` raising a typed `AuthorizationFault` before input resolution touches sensitive params.
 - **YARD-driven schema docs** — Rake task that walks every `Task` subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining `docs/`.
