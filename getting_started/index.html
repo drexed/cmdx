@@ -543,15 +543,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-cero-pattern" class="md-nav__link">
+  <a href="#the-cero-pattern-say-it-like-zero" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The CERO Pattern
+        The CERO Pattern (say it like “zero”)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The CERO Pattern">
+    <nav class="md-nav" aria-label="The CERO Pattern (say it like “zero”)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -604,10 +604,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-lifecycle" class="md-nav__link">
+  <a href="#task-lifecycle-the-big-picture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Lifecycle
+        Task lifecycle (the big picture)
       
     </span>
   </a>
@@ -615,10 +615,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#domain-driven-design" class="md-nav__link">
+  <a href="#domain-driven-design-without-the-buzzword-fatigue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Domain Driven Design
+        Domain-driven design (without the buzzword fatigue)
       
     </span>
   </a>
@@ -629,7 +629,7 @@
   <a href="#task-generator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Generator
+        Task generator
       
     </span>
   </a>
@@ -637,10 +637,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation-editor-support" class="md-nav__link">
+  <a href="#documentation-and-editor-help" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Documentation &amp; Editor Support
+        Documentation and editor help
       
     </span>
   </a>
@@ -2293,15 +2293,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-cero-pattern" class="md-nav__link">
+  <a href="#the-cero-pattern-say-it-like-zero" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The CERO Pattern
+        The CERO Pattern (say it like “zero”)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The CERO Pattern">
+    <nav class="md-nav" aria-label="The CERO Pattern (say it like “zero”)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2354,10 +2354,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-lifecycle" class="md-nav__link">
+  <a href="#task-lifecycle-the-big-picture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Lifecycle
+        Task lifecycle (the big picture)
       
     </span>
   </a>
@@ -2365,10 +2365,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#domain-driven-design" class="md-nav__link">
+  <a href="#domain-driven-design-without-the-buzzword-fatigue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Domain Driven Design
+        Domain-driven design (without the buzzword fatigue)
       
     </span>
   </a>
@@ -2379,7 +2379,7 @@
   <a href="#task-generator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Generator
+        Task generator
       
     </span>
   </a>
@@ -2387,10 +2387,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation-editor-support" class="md-nav__link">
+  <a href="#documentation-and-editor-help" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Documentation &amp; Editor Support
+        Documentation and editor help
       
     </span>
   </a>
@@ -2472,31 +2472,32 @@
 <hr />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>These docs track <code>main</code>. For version-specific docs, see the <code>docs/</code> directory in that version's tag.</p>
+<p>These docs follow <code>main</code>. If you are on an older gem version, open the <code>docs/</code> folder from that release’s tag so examples match what you run.</p>
 </div>
-<p>CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.</p>
-<p><strong>Common challenges:</strong></p>
+<p>Welcome. <strong>CMDx</strong> is a small Ruby framework that helps you write business logic as clear, reusable <strong>tasks</strong>—think “one job per class,” with inputs checked for you, errors handled in a predictable way, and logs that tell a story when things go wrong.</p>
+<p>If you have ever opened a “service object” file and wondered <em>what actually runs, in what order, and what happens on error</em>, CMDx is meant to calm that chaos.</p>
+<p><strong>Sound familiar?</strong></p>
 <ul>
-<li>Inconsistent service object patterns across the codebase</li>
-<li>Opaque control flow makes debugging hard</li>
-<li>Fragile error handling erodes confidence</li>
+<li>Every team invents its own “service” pattern, so nothing feels the same from file to file.</li>
+<li>When something breaks, it is hard to follow the path the code took.</li>
+<li>Error handling is inconsistent, so you stop trusting the happy path.</li>
 </ul>
-<p><strong>What you get:</strong></p>
+<p><strong>What CMDx gives you instead:</strong></p>
 <ul>
-<li>A standardized task contract</li>
-<li>Built-in flow control and error handling</li>
-<li>Composable, reusable workflows</li>
-<li>Structured logging for observability</li>
-<li>Input validation with type coercions</li>
+<li>One clear contract: how you declare inputs, run work, and read the outcome.</li>
+<li>Built-in flow control (success, skip, fail) so branches are explicit, not hidden.</li>
+<li>Workflows that chain tasks without spaghetti.</li>
+<li>Structured logging so you can see what ran, how long it took, and why it stopped.</li>
+<li>Input validation and type coercion so bad data fails fast with useful messages.</li>
 </ul>
 <h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release</li>
-<li>Runtime dependencies: <code>bigdecimal</code> and <code>logger</code> (both stdlib gems on most distributions)</li>
+<li><strong>Ruby:</strong> MRI 3.3+ (or a recent JRuby / TruffleRuby that matches)</li>
+<li><strong>Gems:</strong> <code>bigdecimal</code> and <code>logger</code> (stdlib gems on most setups)</li>
 </ul>
-<p>No ActiveSupport or Rails required — Rails integration is opt-in via <code>CMDx::Railtie</code>.</p>
+<p>You do <strong>not</strong> need Rails. If you use Rails, there is an optional hook (<code>CMDx::Railtie</code>) so integration is a choice, not a requirement.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>Add CMDx to your Gemfile:</p>
+<p>Pick one:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gem<span class="w"> </span>install<span class="w"> </span>cmdx
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># - or -</span>
@@ -2504,12 +2505,13 @@
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>bundle<span class="w"> </span>add<span class="w"> </span>cmdx
 </span></code></pre></div>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>For Rails applications, run the following command to generate a global configuration file in <code>config/initializers/cmdx.rb</code>.</p>
+<p><strong>Rails:</strong> generate an initializer so you have one place for global settings:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:install
 </span></code></pre></div>
-<p>If not using Rails, manually copy the <a href="https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb">configuration file</a>.</p>
+<p>That drops <code>config/initializers/cmdx.rb</code> into your app.</p>
+<p><strong>Not on Rails:</strong> copy the same template by hand from the repo: <a href="https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb">install.rb template</a>.</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<p>A self-contained example you can run in <code>irb</code> or a plain Ruby script — no Rails required:</p>
+<p>Below is a tiny task you can paste into <code>irb</code> or a scratch Ruby file—no framework required. It says hello when the name is present, and complains politely when it is not.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;cmdx&quot;</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">Greet</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -2529,71 +2531,77 @@
 </span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">            </span><span class="c1">#=&gt; &quot;name cannot be empty&quot;</span>
 </span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">to_h</span><span class="w">       </span><span class="c1">#=&gt; { name: [&quot;cannot be empty&quot;] }</span>
 </span></code></pre></div>
-<p>From here, layer in features as you need them:</p>
+<p>When you are ready to go deeper, this map points you at the right doc:</p>
 <table>
 <thead>
 <tr>
-<th>Need</th>
-<th>Feature</th>
-<th>Example</th>
+<th>You want…</th>
+<th>Read…</th>
+<th>Quick idea</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Type safety on inputs</td>
+<td>Safer input types</td>
 <td><a href="../inputs/coercions/">Coercions</a></td>
 <td><code>coerce: :integer</code></td>
 </tr>
 <tr>
-<td>Input constraints</td>
+<td>Rules on values</td>
 <td><a href="../inputs/validations/">Validations</a></td>
 <td><code>numeric: { min: 1 }</code></td>
 </tr>
 <tr>
-<td>Conditional stops</td>
+<td>Stop early on purpose</td>
 <td><a href="../interruptions/signals/">Signals</a></td>
 <td><code>skip!</code>, <code>fail!</code></td>
 </tr>
 <tr>
-<td>Multi-task pipelines</td>
+<td>Several tasks in a row</td>
 <td><a href="../workflows/">Workflows</a></td>
 <td><code>include CMDx::Workflow</code></td>
 </tr>
 <tr>
-<td>Cross-cutting concerns</td>
+<td>Cross-cutting stuff (timing, auth, etc.)</td>
 <td><a href="../middlewares/">Middlewares</a></td>
 <td><code>register :middleware</code></td>
 </tr>
 <tr>
-<td>Lifecycle hooks</td>
+<td>Hooks around run</td>
 <td><a href="../callbacks/">Callbacks</a></td>
 <td><code>on_success</code>, <code>before_execution</code></td>
 </tr>
 <tr>
-<td>Output contracts</td>
+<td>Declared outputs</td>
 <td><a href="../outputs/">Outputs</a></td>
 <td><code>output :user, :token</code></td>
 </tr>
 <tr>
-<td>Retry policies</td>
+<td>Automatic retries</td>
 <td><a href="../retries/">Retries</a></td>
 <td><code>retry_on Net::OpenTimeout, limit: 3</code></td>
 </tr>
 <tr>
-<td>Structured logs</td>
+<td>What got logged</td>
 <td><a href="../logging/">Logging</a></td>
-<td>Automatic</td>
+<td>Built-in structured lines</td>
 </tr>
 </tbody>
 </table>
-<h2 id="the-cero-pattern">The CERO Pattern<a class="headerlink" href="#the-cero-pattern" title="Permanent link">&para;</a></h2>
-<p>CMDx organizes business logic around the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern.</p>
+<h2 id="the-cero-pattern-say-it-like-zero">The CERO Pattern (say it like “zero”)<a class="headerlink" href="#the-cero-pattern-say-it-like-zero" title="Permanent link">&para;</a></h2>
+<p>CMDx lines up with a simple mental model: <strong>CERO</strong> — <strong>C</strong>ompose, <strong>E</strong>xecute, <strong>R</strong>eact, <strong>O</strong>bserve.</p>
+<ul>
+<li><strong>Compose:</strong> write small tasks with clear inputs and outputs; plug them together.</li>
+<li><strong>Execute:</strong> call <code>.execute</code> and let CMDx validate, run <code>work</code>, and wrap errors.</li>
+<li><strong>React:</strong> branch on the result (<code>success?</code>, <code>skipped?</code>, <code>failed?</code>) in your app.</li>
+<li><strong>Observe:</strong> read structured logs to debug production without guesswork.</li>
+</ul>
 <pre class="mermaid"><code>flowchart LR
     Compose --&gt; Execute
     Execute --&gt; React
     Execute -.-&gt; Observe</code></pre>
 <h3 id="compose">Compose<a class="headerlink" href="#compose" title="Permanent link">&para;</a></h3>
-<p>Build single-responsibility tasks with typed inputs, validation, and callbacks. Compose them into workflows to assemble larger processes from small, reusable pieces.</p>
+<p>Start with one task that does one thing. Give it typed inputs, optional defaults, and callbacks if you need them. When a process grows, compose several tasks into a workflow instead of growing one giant class.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Full Featured Task</label><label for="__tabbed_1_2">Minimum Viable Task</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -2645,7 +2653,7 @@
 </div>
 </div>
 <h3 id="execute">Execute<a class="headerlink" href="#execute" title="Permanent link">&para;</a></h3>
-<p>Every task invocation returns a <code>Result</code>. Runtime coerces and validates inputs, runs your <code>work</code>, handles exceptions, verifies declared outputs, and logs the outcome — automatically.</p>
+<p>Calling <code>YourTask.execute(...)</code> gives you a <strong><code>Result</code></strong> object. Under the hood CMDx coerces and validates arguments, runs <code>work</code>, rescues surprises, checks declared outputs, and logs—all in one predictable path.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">With args</label><label for="__tabbed_2_2">Without args</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -2659,7 +2667,7 @@
 </div>
 </div>
 <h3 id="react">React<a class="headerlink" href="#react" title="Permanent link">&para;</a></h3>
-<p>Branch on the result's status (<code>success?</code>, <code>skipped?</code>, <code>failed?</code>) and read values, reasons, or metadata from it. See <a href="../outcomes/result/">Outcomes</a> for the full surface.</p>
+<p>The <code>Result</code> is your public API for “what happened?” Use the status helpers and read <code>reason</code>, errors, and metadata. For every field and edge case, see <a href="../outcomes/result/">Outcomes</a>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">success?</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Metrics analyzed at </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">analyzed_at</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">elsif</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">skipped?</span>
@@ -2669,17 +2677,17 @@
 </span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="observe">Observe<a class="headerlink" href="#observe" title="Permanent link">&para;</a></h3>
-<p>Every execution emits a structured log line with the chain id, task identity, state, status, reason, metadata, duration, and tags — enough to correlate nested tasks and reconstruct what happened. See <a href="../logging/">Logging</a> for the full field reference.</p>
+<p>Each run writes a structured log line: chain id, task name, status, reason, timing, tags—handy when tasks call other tasks and you need to replay the story. Full field list: <a href="../logging/">Logging</a>.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: cid=&quot;018c2b95-b764-7fff-a1d2-...&quot; index=1 root=false type=&quot;Task&quot; task=SendAnalyzedEmail tid=&quot;018c2b95-c091-...&quot; state=&quot;complete&quot; status=&quot;success&quot; reason=nil metadata={} duration=347.21 ...
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: cid=&quot;018c2b95-b764-7fff-a1d2-...&quot; index=0 root=true type=&quot;Task&quot; task=AnalyzeMetrics tid=&quot;018c2b95-b764-...&quot; state=&quot;complete&quot; status=&quot;success&quot; reason=nil metadata={} duration=1872.04 ...
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>With a durable log sink, these lines double as event sourcing — a time-ordered history of every task execution.</p>
+<p>If you ship logs to durable storage, these entries become a time-ordered trail of “who did what, when”—great for audits and spooky production mysteries.</p>
 </div>
-<h2 id="task-lifecycle">Task Lifecycle<a class="headerlink" href="#task-lifecycle" title="Permanent link">&para;</a></h2>
-<p>Every <code>Task.execute</code> runs the same orchestrated lifecycle. The diagram below traces the path from invocation to a frozen <code>Result</code>, including how signals (<code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code>) and exceptions interleave with middlewares, callbacks, retries, and rollback.</p>
+<h2 id="task-lifecycle-the-big-picture">Task lifecycle (the big picture)<a class="headerlink" href="#task-lifecycle-the-big-picture" title="Permanent link">&para;</a></h2>
+<p>Every <code>Task.execute</code> walks the same path: setup, optional retries around <code>work</code>, output checks, callbacks, then a frozen <code>Result</code>. The diagram below is dense on purpose; bookmark it when you are debugging middleware, signals (<code>success!</code>, <code>skip!</code>, <code>fail!</code>, <code>throw!</code>), or rollbacks.</p>
 <pre class="mermaid"><code>flowchart TD
     Invoke([Task.execute]) --&gt; Dep{Deprecation?}
     Dep --&gt;|":error"| Raise([raise DeprecationError])
@@ -2693,28 +2701,22 @@
     Verify --&gt; Cb
     Cb --&gt; Finalize["Finalize Result + Chain&lt;br/&gt;emit :task_executed, freeze &amp; teardown"]
     Finalize --&gt; Out([Frozen Result])</code></pre>
-<p>Key invariants:</p>
+<p><strong>Rules of thumb (memorize these four):</strong></p>
 <ul>
-<li><strong>Middlewares wrap everything inside <code>execute</code></strong> — telemetry, deprecation, callbacks, work, rollback, and result finalization all happen inside the middleware chain.</li>
-<li><strong>Retry only wraps <code>work</code></strong> — input resolution and output verification run exactly once, outside the retry loop.</li>
-<li><strong>Rollback only runs on failure</strong>, before result finalization, so <code>Result#rolled_back?</code> is already known when <code>on_failed</code> callbacks and <code>:task_executed</code> telemetry fire.</li>
-<li><strong>Teardown always runs</strong> (via <code>ensure</code>), freezing the context/errors and clearing the fiber-local chain even when <code>execute!</code> re-raises.</li>
+<li><strong>Middleware wraps the whole <code>execute</code> trip</strong> — everything from callbacks through finalization runs inside that chain.</li>
+<li><strong>Retries only wrap <code>work</code></strong> — validating inputs and verifying outputs happen once per invocation, not on every retry attempt.</li>
+<li><strong>Rollback runs only on failure</strong>, before the result is finalized, so callbacks and telemetry already know whether rollback happened.</li>
+<li><strong>Teardown always runs</strong> (via <code>ensure</code>): the context is frozen, errors are captured, and fiber-local chain state is cleared—even when <code>execute!</code> re-raises.</li>
 </ul>
-<h2 id="domain-driven-design">Domain Driven Design<a class="headerlink" href="#domain-driven-design" title="Permanent link">&para;</a></h2>
-<p>CMDx makes business processes explicit and structural — a natural fit for Domain Driven Design (DDD).</p>
+<h2 id="domain-driven-design-without-the-buzzword-fatigue">Domain-driven design (without the buzzword fatigue)<a class="headerlink" href="#domain-driven-design-without-the-buzzword-fatigue" title="Permanent link">&para;</a></h2>
+<p>You do not have to read a thick DDD book to benefit. CMDx nudges you toward three ideas that keep big apps sane:</p>
 <ul>
-<li>
-<p><strong>Ubiquitous Language:</strong> Task names like <code>ApproveLoan</code> or <code>ShipOrder</code> mirror the language of domain experts.</p>
-</li>
-<li>
-<p><strong>Bounded Contexts:</strong> Namespaces enforce boundaries — <code>Billing::GenerateInvoice</code> and <code>Shipping::GenerateLabel</code> keep logic within their domains.</p>
-</li>
-<li>
-<p><strong>Rich Domain Layer:</strong> Move orchestration out of Controllers and ActiveRecord models. Entities hold state; tasks hold behavior. Business logic stays testable and isolated.</p>
-</li>
+<li><strong>Speak the same words as the business.</strong> Name tasks like the team names workflows: <code>ApproveLoan</code>, <code>ShipOrder</code>, not <code>DoStuffService</code>.</li>
+<li><strong>Draw boundaries.</strong> Use namespaces so <code>Billing::GenerateInvoice</code> and <code>Shipping::GenerateLabel</code> do not step on each other’s toes.</li>
+<li><strong>Keep controllers thin.</strong> Let models hold data; let tasks hold orchestration and rules. That split makes tests smaller and failures easier to find.</li>
 </ul>
-<h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
-<p>Generate new CMDx tasks quickly using the built-in generator:</p>
+<h2 id="task-generator">Task generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
+<p>Rails ships generators so you are not copy-pasting boilerplate:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Task</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:task<span class="w"> </span>ModerateBlogPost
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
@@ -2725,7 +2727,7 @@
 </span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:task<span class="w"> </span>Admin::AuditUser
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1"># =&gt; Creates app/tasks/admin/audit_user.rb</span>
 </span></code></pre></div>
-<p>This creates a new task file with the basic structure:</p>
+<p>You get a starter file like:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># app/tasks/moderate_blog_post.rb</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">ModerateBlogPost</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -2733,7 +2735,7 @@
 </span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>The generator inherits from <code>ApplicationTask</code> if defined, falling back to <code>CMDx::Task</code>. Define an <code>ApplicationTask</code> base class to share configuration across all tasks:</p>
+<p>If you define <code>ApplicationTask</code>, new files inherit from it; otherwise they inherit <code>CMDx::Task</code>. Handy for shared retries, logging, or request context:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># app/tasks/application_task.rb</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span>
@@ -2749,15 +2751,16 @@
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Use <strong>present tense verbs + noun</strong> for task names, eg: <code>ModerateBlogPost</code>, <code>ScheduleAppointment</code>, <code>ValidateDocument</code></p>
+<p>Name tasks like <strong>verb + thing</strong>: <code>ModerateBlogPost</code>, <code>ScheduleAppointment</code>, <code>ValidateDocument</code>. Your future self will thank you in <code>grep</code>.</p>
 </div>
-<h2 id="documentation-editor-support">Documentation &amp; Editor Support<a class="headerlink" href="#documentation-editor-support" title="Permanent link">&para;</a></h2>
-<p>The codebase ships with comprehensive YARD annotations on every public class, method, and option. Combined with the structured DSL (<code>required</code>, <code>optional</code>, <code>output</code>, <code>coerce:</code>, <code>validate:</code>, <code>on_success</code>, ...), this gives you:</p>
+<h2 id="documentation-and-editor-help">Documentation and editor help<a class="headerlink" href="#documentation-and-editor-help" title="Permanent link">&para;</a></h2>
+<p>Public APIs in the gem are documented with YARD. Together with the DSL (<code>required</code>, <code>optional</code>, <code>output</code>, <code>coerce:</code>, <code>validate:</code>, <code>on_success</code>, …) you get:</p>
 <ul>
-<li><strong>Self-documenting tasks</strong> — declared inputs and outputs read like a contract</li>
-<li><strong>IDE awareness</strong> — autocomplete and inline docs in editors that consume YARD (Solargraph, RubyMine, etc.)</li>
-<li><strong>Generated reference</strong> — run <code>bundle exec yard doc</code> (or browse <a href="https://drexed.github.io/cmdx/api/index.html">the published docs</a>)</li>
+<li><strong>Readable task definitions</strong> — the top of a class lists its contract at a glance.</li>
+<li><strong>Editor hints</strong> — Solargraph, RubyMine, and friends can show docs inline.</li>
+<li><strong>A generated book</strong> — run <code>bundle exec yard doc</code> locally or browse <a href="https://drexed.github.io/cmdx/api/index.html">the published API docs</a>.</li>
 </ul>
+<p>If something in this guide felt fast, pick a link from the table above and read that page next—you are already on the right track.</p>
 
 
 

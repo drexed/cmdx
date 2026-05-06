@@ -2318,17 +2318,17 @@
 
 
 <h1 id="basics-context">Basics - Context<a class="headerlink" href="#basics-context" title="Permanent link">&para;</a></h1>
-<p><code>Context</code> is the shared data bag passed through a task's execution. It holds inputs, intermediate values, and anything the task writes back for downstream consumers.</p>
+<p>Think of <strong><code>Context</code></strong> as the shared notepad for a task run. It carries what came in (inputs), what you figured out along the way, and anything the next step might need. One bag, many readers and writers — all in one execution.</p>
 <h2 id="assigning-data">Assigning Data<a class="headerlink" href="#assigning-data" title="Permanent link">&para;</a></h2>
-<p>The hash (or Context / Task / Result) handed to <code>execute</code> is normalized into a <code>Context</code>. String keys are symbolized; nested values are not.</p>
+<p>Whatever you pass to <code>execute</code> — a Hash, another <code>Context</code>, a <code>Task</code>, or a <code>Result</code> — gets normalized into a <code>Context</code>. String keys become symbols; nested values stay as-is (no deep magic).</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>Context.build</code> passes an existing un-frozen <code>Context</code> through unchanged, unwraps anything that responds to <code>#context</code> (Task, Result), and wraps hash-likes in a fresh <code>Context</code>.</p>
+<p><code>Context.build</code> is the traffic cop: an unfrozen <code>Context</code> passes through unchanged; things with <code>#context</code> (like <code>Task</code> or <code>Result</code>) unwrap; hash-likes become a new <code>Context</code>.</p>
 </div>
 <h2 id="accessing-and-modifying">Accessing and Modifying<a class="headerlink" href="#accessing-and-modifying" title="Permanent link">&para;</a></h2>
-<p>Read with method, hash, or safe accessors; mutate freely inside <code>work</code> (the root context is frozen only after Runtime teardown). <code>ctx</code> is a shorthand alias for <code>context</code>.</p>
+<p>You can read like an object, like a hash, or with safe helpers. While <code>work</code> is running, mutate away — the root context only freezes <strong>after</strong> teardown. Short alias: <code>ctx</code> means <code>context</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># Reads</span>
@@ -2346,7 +2346,7 @@
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="n">context</span><span class="o">[</span><span class="ss">:status</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;calculating&quot;</span><span class="w">                       </span><span class="c1"># alias: context.store(:status, &quot;...&quot;)</span>
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">insurance_included</span><span class="w"> </span><span class="o">||=</span><span class="w"> </span><span class="kp">false</span>
 </span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="ss">shipping_cost</span><span class="p">:</span><span class="w"> </span><span class="n">calculate_cost</span><span class="p">)</span><span class="w">           </span><span class="c1"># top-level last-write-wins (mutates in place)</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">deep_merge</span><span class="p">(</span><span class="ss">options</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">carrier</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ups&quot;</span><span class="w"> </span><span class="p">})</span><span class="w">        </span><span class="c1"># recurses into Hash values</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">deep_merge</span><span class="p">(</span><span class="ss">options</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">carrier</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ups&quot;</span><span class="w"> </span><span class="p">})</span><span class="w">      </span><span class="c1"># recurses into Hash values</span>
 </span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="ss">:credit_card_token</span><span class="p">)</span>
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">clear</span><span class="w">                                          </span><span class="c1"># wipes every entry</span>
 </span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="k">end</span>
@@ -2354,17 +2354,17 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Method-style reads return <code>nil</code> for unknown keys. <code>Context</code> includes <code>Enumerable</code> and exposes the usual <code>keys</code>/<code>values</code>/<code>key?</code>/<code>each</code>/<code>each_key</code>/<code>each_value</code>. <code>#merge</code> / <code>#deep_merge</code> mutate in place and return <code>self</code>. <code>#store</code> (aliased <code>[]=</code>) symbolizes the key. See YARD for the full surface.</p>
+<p>Method-style reads give <code>nil</code> for keys that don’t exist — no exception. <code>Context</code> is <code>Enumerable</code> and has the usual <code>keys</code> / <code>values</code> / <code>key?</code> / <code>each</code> friends. <code>#merge</code> and <code>#deep_merge</code> change the context <strong>in place</strong> and return <code>self</code>. <code>#store</code> (same as <code>[]=</code>) symbolizes the key. For every method, peek at the YARD docs.</p>
 </div>
 <h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h2>
-<p><code>Context</code> serializes cleanly for logs, telemetry payloads, and Rails <code>render json:</code> callers:</p>
+<p>Need to log it or return JSON? Context plays nice:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">context</span><span class="o">.</span><span class="n">to_h</span><span class="w">      </span><span class="c1">#=&gt; { weight: 2.5, destination: &quot;CA&quot; }  (the backing table, not a copy)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">context</span><span class="o">.</span><span class="n">as_json</span><span class="w">   </span><span class="c1">#=&gt; same as to_h (aliased for Rails/ActiveSupport callers)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">context</span><span class="o">.</span><span class="n">to_json</span><span class="w">   </span><span class="c1">#=&gt; &#39;{&quot;weight&quot;:2.5,&quot;destination&quot;:&quot;CA&quot;}&#39;  (Symbol keys are emitted as strings)</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">context</span><span class="o">.</span><span class="n">to_s</span><span class="w">      </span><span class="c1">#=&gt; &#39;weight=2.5 destination=&quot;CA&quot;&#39;        (space-separated key=value.inspect)</span>
 </span></code></pre></div>
 <h2 id="sharing-between-tasks">Sharing Between Tasks<a class="headerlink" href="#sharing-between-tasks" title="Permanent link">&para;</a></h2>
-<p>Context flows through nested executions. A sub-task invoked with <code>execute(context)</code> (or <code>execute(task)</code> / <code>execute(result)</code>) reuses the same underlying <code>Context</code>, so writes compound.</p>
+<p>When a task calls another task with the <strong>same</strong> context object (or something that unwraps to it), you’re appending to the same notepad. Writes stack up — handy for pipelines.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># During execution</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -2391,11 +2391,11 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Passing a <code>Context</code>, <code>Task</code>, or <code>Result</code> shares context by reference — callee writes are visible to the caller. <code>context.to_h</code> exposes the backing hash; <code>Context.build(context.to_h)</code> rebuilds the top-level table but nested mutables still alias. Use <code>context.deep_dup</code> for full isolation.</p>
+<p>Sharing a <code>Context</code>, <code>Task</code>, or <code>Result</code> means <strong>by reference</strong> — the callee’s writes show up for the caller. <code>context.to_h</code> is still the live backing hash; <code>Context.build(context.to_h)</code> copies the top level but nested objects might still be the same object in memory. Want a full snapshot? <code>context.deep_dup</code>.</p>
 </div>
 <h2 id="strict-mode">Strict Mode<a class="headerlink" href="#strict-mode" title="Permanent link">&para;</a></h2>
-<p>By default, reading an unknown key via the dynamic method reader returns <code>nil</code>. Enable strict mode to raise <code>NoMethodError</code> for unknown reads instead — useful for catching typos in larger tasks.</p>
-<p>Strict mode can be set globally or per-task:</p>
+<p>By default, <code>context.unknown_method</code> is just <code>nil</code> — forgiving, sometimes <em>too</em> forgiving. Turn on <strong>strict mode</strong> and typos explode as <code>NoMethodError</code> so you catch them early.</p>
+<p>Global or per-task:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">strict_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">end</span>
@@ -2409,47 +2409,47 @@
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Strict mode only affects the dynamic method reader. Every other access channel keeps its lenient semantics so defaults and explicit presence checks still work:</p>
+<p>Strict mode only changes the <strong>dynamic method reader</strong>. Brackets, <code>fetch</code>, <code>dig</code>, predicates, and writers behave like before:</p>
 <table>
 <thead>
 <tr>
-<th>Access</th>
-<th>Behavior in strict mode</th>
+<th>How you access</th>
+<th>In strict mode</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>context.missing</code></td>
-<td>raises <code>NoMethodError</code></td>
+<td>Raises <code>NoMethodError</code></td>
 </tr>
 <tr>
 <td><code>context[:missing]</code></td>
-<td>returns <code>nil</code></td>
+<td>Still <code>nil</code></td>
 </tr>
 <tr>
 <td><code>context.fetch(:missing, :default)</code></td>
-<td>returns <code>:default</code></td>
+<td>Still <code>:default</code></td>
 </tr>
 <tr>
 <td><code>context.dig(:a, :b)</code></td>
-<td>returns <code>nil</code></td>
+<td>Still <code>nil</code></td>
 </tr>
 <tr>
 <td><code>context.missing?</code></td>
-<td>returns <code>false</code></td>
+<td>Still <code>false</code></td>
 </tr>
 <tr>
 <td><code>context.missing = 1</code></td>
-<td>writes succeed</td>
+<td>Still works — assignment always allowed</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>strict_context</code> is re-applied on every <code>Task#initialize</code> — nested tasks flip the shared flag to their own <code>settings.strict_context</code> for their execution. For consistent behavior across a pipeline, set it on a base class (e.g. <code>ApplicationTask</code>).</p>
+<p>Strictness is reapplied on each <code>Task#initialize</code>. Nested tasks can flip the shared flag to <strong>their</strong> <code>settings.strict_context</code> while they run. For a whole app that should feel the same, set it once on a base class like <code>ApplicationTask</code>.</p>
 </div>
 <h2 id="pattern-matching">Pattern Matching<a class="headerlink" href="#pattern-matching" title="Permanent link">&para;</a></h2>
-<p><code>Context</code> supports both array and hash deconstruction (Ruby 3.0+).</p>
+<p>Ruby 3+ can destructure <code>Context</code> like a hash or an array of pairs — nice for <code>case</code> expressions.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">options</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">carrier</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ups&quot;</span><span class="w"> </span><span class="p">})</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">case</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">context</span>
@@ -2459,7 +2459,7 @@
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="n">track_with</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<p><code>deconstruct_keys(nil)</code> returns the full backing table; a key list slices it (unknown keys are omitted). <code>deconstruct</code> yields <code>[[key, value], ...]</code> pairs for find-pattern matches (<code>in [*, [:weight, Float], *]</code>).</p>
+<p><code>deconstruct_keys(nil)</code> returns the full table; pass a key list and you get a slice (unknown keys omitted). <code>deconstruct</code> yields <code>[[key, value], ...]</code> for find-style patterns like <code>in [*, [:weight, Float], *]</code>.</p>
 
 
 

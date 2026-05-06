@@ -1,12 +1,21 @@
 # Middlewares
 
-Wrap task execution with middleware for cross-cutting concerns like authentication, caching, telemetry, and timeouts. Think Rack middleware, but for your business logic.
+Middlewares are little wrappers around your task. They are the right place for cross-cutting stuff you do not want to copy-paste into every `work` method: auth checks, caching, logging, timeouts, “set this thread-local for the duration of the call,” and so on.
 
-See [Global Configuration](https://drexed.github.io/cmdx/configuration/#middlewares) for framework-wide setup.
+If you have used Rack middleware, you already get the idea: same onion, different layer.
+
+For wiring middleware everywhere at once, see [Global Configuration](https://drexed.github.io/cmdx/configuration/#middlewares).
 
 ## Signature
 
-Every middleware receives the task and a block: `call(task) { ... }`. Invoke `yield` (or `next_link.call` from a Proc) to run the next link; skipping it raises `CMDx::MiddlewareError`. Middlewares see only the `task` — `Result` is built after the chain unwinds, so read `task.context` / `task.errors` from inside, or subscribe to Telemetry's `:task_executed` event when you need the finalized result.
+Each middleware gets the **task** and a **block** that means “run the rest of the chain.” Your job is to call that block when it is time to continue.
+
+- **Class style:** `def call(task) ... yield ... end`
+- **Proc style:** capture the block as `&next_link` and call `next_link.call` (Procs cannot `yield` the outer block the same way)
+
+If you never call `yield` / `next_link.call`, CMDx raises `CMDx::MiddlewareError` on purpose so you do not accidentally skip the task body.
+
+**Heads up:** middleware runs while the task is still “in flight.” The final `Result` object is assembled *after* the chain unwinds. Inside middleware, peek at `task.context` and `task.errors`. If you need the finished result every time, Telemetry’s `:task_executed` event is a better hook.
 
 ```ruby
 class TelemetryMiddleware
@@ -22,7 +31,7 @@ end
 
 ## Execution Order
 
-Middleware wraps task execution in layers, like an onion. **First registered = outermost wrapper**, executing in registration order:
+Think of an onion. The **first** middleware you register sits on the **outside**. It runs first on the way in and last on the way out.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -50,7 +59,7 @@ end
 
 ### Class or Instance
 
-For reusable middleware logic, use classes (or pass an instance for stateful middleware):
+Use a class when the middleware is reusable. Use an instance when you want to inject config or keep a little state.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -63,7 +72,7 @@ end
 
 ### Proc or Lambda
 
-Procs and lambdas need an explicit `&next_link` parameter to capture the block (Procs can't `yield` directly):
+Procs and lambdas need `&next_link` so they can forward the chain explicitly:
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -87,7 +96,7 @@ end
 
 ### Inline Block
 
-`register :middleware` accepts a block directly:
+You can also pass a block straight to `register :middleware`:
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -99,7 +108,9 @@ end
 
 ## Ordering
 
-Control insertion position with `at:`. With no `at:`, middlewares append (innermost). The index supports negative values and is clamped to the registry size:
+By default, new middlewares **append** (they move closer to the task, so they run later on the way “in”).
+
+Use `at:` when you care about insertion order. Indexes can be negative and get clamped to the registry size so you do not shoot yourself in the foot.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -111,7 +122,7 @@ end
 # Execution order: PriorityMiddleware → AuditMiddleware → CacheMiddleware → [task] → ...
 ```
 
-Remove by reference or by index:
+To remove middleware, pass the same object you registered, or remove by index:
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -122,11 +133,13 @@ end
 
 Note
 
-`register` requires either a callable or a block (not both). `deregister` requires either a `middleware` argument or `at:` (not both). Both raise `ArgumentError` otherwise.
+`register` wants **either** a callable **or** a block — not both at once. `deregister` wants **either** a middleware reference **or** `at:` — not both. Mixing those raises `ArgumentError`.
 
 ## Conditional Registration
 
-`:if` / `:unless` gate a middleware at `#process` time (per task, per execution) without changing the registry. Symbol, Proc, and any `#call`-able resolve against the task — same semantics as callback gates.
+Sometimes you want a middleware registered, but only **sometimes** active. `:if` and `:unless` do that at **run time** (each `#process`), without ripping entries out of the registry.
+
+You can pass a Symbol (method on the task), a Proc, or anything that responds to `#call` with the task — same idea as callback gates.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -146,17 +159,17 @@ end
 
 Note
 
-Procs are `instance_exec`'d on the task with zero args (`self` is the task) — a 1-arity lambda raises `ArgumentError`. Classes dispatch to `Klass.call(task)`, instances to `instance.call(task)`.
+Procs run with `instance_exec` on the task and **no** arguments (`self` is the task). A lambda that insists on one argument will blow up with `ArgumentError`. Classes call `Klass.call(task)`; instances call `instance.call(task)`.
 
-When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.
+When a gate says “skip this middleware,” the chain just walks past it. Inner middlewares still run. You do not implement the gate by yielding — only the middleware body forwards the chain.
 
 Note
 
-Use `:if`/`:unless` to skip the middleware entirely; use inline "Conditional wrapping" when the middleware should wrap but only some side-effects are gated.
+Rule of thumb: `:if` / `:unless` skips the whole middleware. If you still want the wrapper but only sometimes do extra work, see “Conditional wrapping” under Common Patterns.
 
 ## Safety
 
-If a middleware forgets to call `yield` (or `next_link.call`), the chain raises `CMDx::MiddlewareError` instead of silently bypassing the task body:
+Forgetting to forward the chain is a bug, not a silent “no-op task.” CMDx raises `CMDx::MiddlewareError`:
 
 ```ruby
 class BrokenMiddleware
@@ -176,17 +189,17 @@ MyTask.execute!
 
 Caution
 
-`MiddlewareError` propagates from both `execute` and `execute!` — it's raised *outside* the signal `catch` boundary and never becomes a failed result. Always yield in every code path (including `rescue`/`ensure`).
+That error is **not** swallowed into a failed `Result` like a normal task failure. It bubbles out of the `catch` boundary for signals. So treat “always forward the chain” as non-negotiable — including inside `rescue` / `ensure` paths.
 
 Note
 
-Other exceptions propagate out — outer middlewares' after-yield code is skipped unless wrapped in `ensure`. Treat middlewares like Rack: put cleanup in `ensure`.
+Any other exception behaves like Ruby: it unwinds the stack. Code *after* `yield` in outer middlewares might not run unless you used `ensure`. Same mental model as Rack: cleanup belongs in `ensure`.
 
 ## Common Patterns
 
 ### Conditional wrapping
 
-Middlewares **must** yield on every code path — skipping `yield` raises `CMDx::MiddlewareError`. To gate side-effects on a condition, branch around the extra work but always invoke the next link:
+You **must** still call `yield` / `next_link.call` on every path. Branch the *extra* work, not the chain:
 
 ```ruby
 class FeatureFlag
@@ -208,7 +221,7 @@ class ExperimentalTask < CMDx::Task
 end
 ```
 
-If you actually need to short-circuit `work` itself (skip the body but still produce a result), do it from inside the task with `skip!` / `success!` — not from a middleware.
+If you truly need to skip `work` but still finish with a result, do that **inside** the task with `skip!` / `success!` — not from middleware.
 
 ### Wrapping with thread-local state
 
@@ -223,7 +236,7 @@ ensure
 
 ### Enriching result metadata
 
-Mutate `task.metadata` to attach request-scoped data (e.g. a Rails `request_id`) without polluting `context`. The hash is merged into every `Signal` the task throws, so it surfaces on `result.metadata` and the default JSON log line — regardless of whether the task succeeds, skips, or fails:
+`task.metadata` is a small hash you can mutate for “stuff about this run” that should ride along on signals and default logging — without stuffing everything into `context`.
 
 ```ruby
 class RequestIdMiddleware
@@ -243,4 +256,4 @@ result = ProcessOrder.execute(order_id: 42)
 result.metadata[:request_id] #=> "req-abc123"
 ```
 
-Explicit `success!/skip!/fail!/throw!(metadata: {...})` keys are merged on top, so user code can always override middleware-supplied values.
+If the task later calls `success!` / `skip!` / `fail!` / `throw!` with its own `metadata:` keys, those win on merge — user code always gets the last word.

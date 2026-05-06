@@ -2440,10 +2440,11 @@
 
 
 <h1 id="interruptions-exceptions">Interruptions - Exceptions<a class="headerlink" href="#interruptions-exceptions" title="Permanent link">&para;</a></h1>
-<p>CMDx defines a small, flat exception hierarchy. Every exception the framework raises descends from <code>CMDx::Error</code>, so a single <code>rescue CMDx::Error</code> catches everything without trapping unrelated <code>StandardError</code>s. How they surface depends on whether you call <code>execute</code> (safe) or <code>execute!</code> (strict).</p>
+<p>CMDx keeps its exceptions in a small, flat family tree. Everything the framework raises inherits from <code>CMDx::Error</code>, so one <code>rescue CMDx::Error</code> can catch CMDx problems without swallowing random app errors.</p>
+<p>Whether you see an exception or a <code>Result</code> depends on how you call the task: <code>execute</code> is the safe path, <code>execute!</code> is the strict one.</p>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Prefer <code>skip!</code> and <code>fail!</code> over raising exceptions — they signal intent more clearly and carry structured <code>reason</code>/<code>metadata</code>. See <a href="../signals/">Signals</a>.</p>
+<p class="admonition-title">Prefer signals inside work</p>
+<p>Inside <code>work</code>, reach for <code>skip!</code> and <code>fail!</code> before you <code>raise</code>. They spell out intent and carry <code>reason</code> and <code>metadata</code> in a way exceptions usually do not. See <a href="../signals/">Signals</a>.</p>
 </div>
 <h2 id="hierarchy">Hierarchy<a class="headerlink" href="#hierarchy" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>StandardError
@@ -2457,11 +2458,11 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>execute!</code> only raises <code>Fault</code> on <code>failed?</code> results — skipped results return normally. Coercion and validation errors do <strong>not</strong> raise; they accumulate on <code>task.errors</code> and surface as a failed result (a <code>Fault</code> under <code>execute!</code>).</p>
+<p><code>execute!</code> raises <code>Fault</code> only for failed results. Skips return normally. Bad coercion or validation does not raise during the happy path — those issues collect on <code>task.errors</code> and show up as a failed result (and thus a <code>Fault</code> under <code>execute!</code>).</p>
 </div>
 <h2 id="exception-types">Exception Types<a class="headerlink" href="#exception-types" title="Permanent link">&para;</a></h2>
 <h3 id="cmdxerror">CMDx::Error<a class="headerlink" href="#cmdxerror" title="Permanent link">&para;</a></h3>
-<p>Base class for every CMDx exception. Aliased as <code>CMDx::Exception</code>.</p>
+<p>The umbrella type for "this came from CMDx." Also aliased as <code>CMDx::Exception</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">begin</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Error</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -2469,10 +2470,10 @@
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="cmdxdefinitionerror">CMDx::DefinitionError<a class="headerlink" href="#cmdxdefinitionerror" title="Permanent link">&para;</a></h3>
-<p>Raised at class-load time when a declaration is structurally invalid:</p>
+<p>The framework raises this while your class file loads if a declaration does not make sense:</p>
 <ul>
-<li>An input name clashes with an existing accessor on the task (e.g. <code>:context</code>, <code>:errors</code>, or any user-defined method).</li>
-<li>A workflow <code>task</code> / <code>tasks</code> declaration is called with options but no tasks.</li>
+<li>An input name fights with something already on the task (for example <code>:context</code>, <code>:errors</code>, or a method you defined).</li>
+<li>A workflow calls <code>task</code> / <code>tasks</code> with options but no actual tasks.</li>
 </ul>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConflictingTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:context</span><span class="w">  </span><span class="c1">#=&gt; raises CMDx::DefinitionError</span>
@@ -2486,7 +2487,7 @@
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="cmdxdeprecationerror">CMDx::DeprecationError<a class="headerlink" href="#cmdxdeprecationerror" title="Permanent link">&para;</a></h3>
-<p>Raised by <a href="../../deprecation/"><code>deprecation :error</code></a> when a class marked as prohibited is executed.</p>
+<p>Shows up when you marked a class with <code>deprecation :error</code> and someone still runs it.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LegacyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -2502,7 +2503,7 @@
 </span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="cmdximplementationerror">CMDx::ImplementationError<a class="headerlink" href="#cmdximplementationerror" title="Permanent link">&para;</a></h3>
-<p>Raised when a subclass fails its abstract contract:</p>
+<p>"You forgot to finish the homework." Raised when a subclass breaks the abstract rules:</p>
 <table>
 <thead>
 <tr>
@@ -2513,13 +2514,13 @@
 </thead>
 <tbody>
 <tr>
-<td>Defining <code>#work</code> on a <code>Workflow</code></td>
+<td>You define <code>#work</code> on a <code>Workflow</code></td>
 <td>at class-load time (via <code>method_added</code>)</td>
 <td><code>cannot define &lt;Class&gt;#work in a workflow</code></td>
 </tr>
 <tr>
-<td>Calling <code>Task#work</code> without overriding it</td>
-<td>inside <code>work</code> at execution time</td>
+<td>You call <code>Task#work</code> without overriding it</td>
+<td>inside <code>work</code> at run time</td>
 <td><code>undefined method &lt;Class&gt;#work</code></td>
 </tr>
 </tbody>
@@ -2532,7 +2533,7 @@
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="no">IncompleteTask</span><span class="o">.</span><span class="n">execute!</span><span class="w"> </span><span class="c1">#=&gt; raises CMDx::ImplementationError</span>
 </span></code></pre></div>
 <h3 id="cmdxcallbackerror">CMDx::CallbackError<a class="headerlink" href="#cmdxcallbackerror" title="Permanent link">&para;</a></h3>
-<p>Raised when an <code>around_execution</code> callback fails to invoke its continuation. Without this guard, a buggy around callback would silently bypass the task body.</p>
+<p>Raised when an <code>around_execution</code> callback never calls its continuation. Without this, a buggy callback could skip the task body and nobody would notice.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ForgetfulCallback</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">around_execution</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">_cont</span><span class="o">|</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;started&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1"># never calls cont</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
@@ -2543,7 +2544,7 @@
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1">#=&gt; raises CMDx::CallbackError: &quot;around_execution callback did not invoke its continuation&quot;</span>
 </span></code></pre></div>
 <h3 id="cmdxmiddlewareerror">CMDx::MiddlewareError<a class="headerlink" href="#cmdxmiddlewareerror" title="Permanent link">&para;</a></h3>
-<p>Raised by the middleware chain when a registered middleware forgets to yield to <code>next_link</code>. Without this guard, a buggy middleware would silently bypass the task body.</p>
+<p>Same idea as callbacks, but for middleware: something in the chain forgot to yield to <code>next_link</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BrokenMiddleware</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="c1"># forgot to yield</span>
@@ -2559,11 +2560,11 @@
 </span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1">#=&gt; raises CMDx::MiddlewareError: &quot;middleware did not yield the next_link&quot;</span>
 </span></code></pre></div>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Always <code>yield</code> (or call <code>next_link.call</code>) inside your middleware — <code>MiddlewareError</code> is raised outside the signal <code>catch</code> and propagates from both <code>execute</code> and <code>execute!</code>.</p>
+<p class="admonition-title">Middleware escapes the signal catch</p>
+<p>Always <code>yield</code> (or call <code>next_link.call</code>) in middleware. <code>MiddlewareError</code> is raised outside the signal handler, so it bubbles out of both <code>execute</code> and <code>execute!</code>.</p>
 </div>
 <h3 id="cmdxfault">CMDx::Fault<a class="headerlink" href="#cmdxfault" title="Permanent link">&para;</a></h3>
-<p>The only exception raised by <code>execute!</code> on <code>failed?</code> results. <code>Fault</code> carries the <strong>originating</strong> failed <a href="../../outcomes/result/"><code>Result</code></a> and delegates <code>task</code>, <code>context</code>, and <code>chain</code> to it. For workflows, the originating result is the deepest leaf that failed — not the workflow itself — so matchers like <code>Fault.for?(LeafTask)</code> work uniformly across flat and nested executions.</p>
+<p>The one exception <code>execute!</code> raises for a failed task result. A <code>Fault</code> holds the <strong>originating</strong> failed <a href="../../outcomes/result/"><code>Result</code></a> and forwards <code>task</code>, <code>context</code>, and <code>chain</code> from it. In workflows the "origin" is the deepest leaf that failed, not the outer workflow — so <code>Fault.for?(LeafTask)</code> works the same for flat runs and nested ones.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -2582,7 +2583,13 @@
 </span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="execute-vs-execute">Execute vs Execute!<a class="headerlink" href="#execute-vs-execute" title="Permanent link">&para;</a></h2>
-<p><code>Runtime#perform_work</code> rescues in a strict order: <code>Fault</code> (echoes) → <code>CMDx::Error</code> (<strong>re-raises</strong>, never converts to a failed result) → <code>StandardError</code> (converts to a failed result with <code>cause</code> set). <code>execute!</code> then re-raises: if <code>result.cause</code> holds a captured exception, the <strong>original</strong> exception bubbles up; otherwise a <code>CMDx::Fault</code> wrapping the failed result is raised.</p>
+<p>Think of the runtime as a traffic cop with a fixed order of operations:</p>
+<ol>
+<li><code>Fault</code> echoes get handled as failures.</li>
+<li>Any other <code>CMDx::Error</code> is <strong>re-raised</strong> — it never becomes a failed result.</li>
+<li>A normal <code>StandardError</code> becomes a failed result with <code>cause</code> set.</li>
+</ol>
+<p>After that, <code>execute!</code> decides what to raise: if <code>result.cause</code> holds a captured exception, you see that <strong>original</strong> exception again. Otherwise you get a <code>CMDx::Fault</code> wrapping the failed result.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>
@@ -2663,9 +2670,9 @@
 </tr>
 </tbody>
 </table>
-<p>See <a href="../faults/">Faults</a> for <code>Fault.for?</code> / <code>Fault.matches?</code> matchers.</p>
+<p>For matching faults in <code>rescue</code> clauses, see <a href="../faults/">Faults</a>.</p>
 <h2 id="backtrace-cleaning">Backtrace Cleaning<a class="headerlink" href="#backtrace-cleaning" title="Permanent link">&para;</a></h2>
-<p><code>Fault</code> backtraces are passed through the configured <code>backtrace_cleaner</code> (set on <code>CMDx.configuration.backtrace_cleaner</code> or per-task via <code>settings</code>). This is useful for stripping framework frames in Rails apps:</p>
+<p><code>Fault</code> backtraces can pass through a <code>backtrace_cleaner</code> (global on <code>CMDx.configuration</code> or per-task in <code>settings</code>). Rails apps often wire this to strip framework noise:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">end</span>

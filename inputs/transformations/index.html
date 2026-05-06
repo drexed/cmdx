@@ -1258,7 +1258,7 @@
   <a href="#processing-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Processing Pipeline
+        Processing pipeline
       
     </span>
   </a>
@@ -1281,7 +1281,7 @@
   <a href="#symbol-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol References
+        Symbol references
       
     </span>
   </a>
@@ -1319,7 +1319,7 @@
   <a href="#pipeline-position" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Position
+        Pipeline position
       
     </span>
   </a>
@@ -2175,7 +2175,7 @@
   <a href="#processing-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Processing Pipeline
+        Processing pipeline
       
     </span>
   </a>
@@ -2198,7 +2198,7 @@
   <a href="#symbol-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol References
+        Symbol references
       
     </span>
   </a>
@@ -2236,7 +2236,7 @@
   <a href="#pipeline-position" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Position
+        Pipeline position
       
     </span>
   </a>
@@ -2330,61 +2330,58 @@
 
 
 <h1 id="inputs-transformations">Inputs - Transformations<a class="headerlink" href="#inputs-transformations" title="Permanent link">&para;</a></h1>
-<p>Modify input values after coercion but before validation — e.g. normalization, formatting, and data cleanup.</p>
-<h2 id="processing-pipeline">Processing Pipeline<a class="headerlink" href="#processing-pipeline" title="Permanent link">&para;</a></h2>
-<p>Each input flows through a fixed pipeline:</p>
+<p>Transforms are the <strong>tidy-up step</strong>: trim strings, normalize emails, clamp numbers — whatever polish you want <strong>after</strong> coercion but <strong>before</strong> validation. Validators always see the cleaned-up value.</p>
+<h2 id="processing-pipeline">Processing pipeline<a class="headerlink" href="#processing-pipeline" title="Permanent link">&para;</a></h2>
+<p>Every input walks the same line:</p>
 <pre class="mermaid"><code>flowchart LR
     Source --&gt; Default --&gt; Coerce --&gt; Transform --&gt; Validate</code></pre>
 <table>
 <thead>
 <tr>
 <th>Stage</th>
-<th>Description</th>
+<th>What happens</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>Source</strong></td>
-<td>Resolve value from context, method, proc, or callable</td>
+<td>Pull raw value from context, method, proc, or callable</td>
 </tr>
 <tr>
 <td><strong>Default</strong></td>
-<td>Apply <code>default:</code> when the resolved value is <code>nil</code></td>
+<td>If still <code>nil</code>, apply <code>default:</code></td>
 </tr>
 <tr>
 <td><strong>Coerce</strong></td>
-<td>Convert via <code>coerce:</code> (e.g., string → integer)</td>
+<td>Turn into the target type (<code>coerce:</code>)</td>
 </tr>
 <tr>
 <td><strong>Transform</strong></td>
-<td>Apply <code>transform:</code> to the coerced value</td>
+<td>Massage the coerced value (<code>transform:</code>)</td>
 </tr>
 <tr>
 <td><strong>Validate</strong></td>
-<td>Run validators (presence, format, etc.) on the final value</td>
+<td>Run presence, format, inclusion, etc.</td>
 </tr>
 </tbody>
 </table>
-<p>This means transformations receive already-coerced values, and validators see the final transformed output.</p>
+<p>So: coerce first, then transform, then validate. Plan rules accordingly.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
-<p>Reference a method by symbol. The value's own method takes precedence (called as <code>value.send(symbol)</code> with no arguments); if the value doesn't respond to it, CMDx falls back to <code>task.send(symbol, value)</code>:</p>
+<h3 id="symbol-references">Symbol references<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
+<p>Call a method on the <strong>value</strong> if it exists (<code>value.send(symbol)</code>); otherwise CMDx tries <code>task.send(symbol, value)</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessAnalytics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:options</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="ss">:compact_blank</span><span class="w">   </span><span class="c1"># value.compact_blank or task#compact_blank(value)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:options</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="ss">:compact_blank</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p>Use anonymous functions for inline transformations:</p>
+<p>Inline tweaks without extra classes:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CacheContent</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:expire_hours</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="c1"># Lambda</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:compression</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">v</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">upcase</span><span class="o">.</span><span class="n">strip</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">2</span><span class="o">]</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">end</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:expire_hours</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:compression</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">v</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">upcase</span><span class="o">.</span><span class="n">strip</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">2</span><span class="o">]</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
-<p>Use any object that responds to <code>#call(value, task)</code> for reusable transformation logic:</p>
+<p>Share logic with <code>#call(value, task)</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailNormalizer</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">_task</span><span class="p">)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">value</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">downcase</span><span class="o">.</span><span class="n">strip</span>
@@ -2398,26 +2395,20 @@
 </span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">end</span>
 </span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessContacts</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="c1"># Class with a class-level `.call` — pass the class itself</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="no">EmailNormalizer</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="c1"># Instance with `#call` — instantiate when registering</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:phone</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="no">PhoneNormalizer</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="k">end</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="no">EmailNormalizer</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:phone</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="no">PhoneNormalizer</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="pipeline-position">Pipeline Position<a class="headerlink" href="#pipeline-position" title="Permanent link">&para;</a></h2>
-<p>Validations run on transformed values, ensuring data consistency:</p>
+<h2 id="pipeline-position">Pipeline position<a class="headerlink" href="#pipeline-position" title="Permanent link">&para;</a></h2>
+<p>Because validation runs last, you can coerce → fix → then check:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ScheduleBackup</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Coerce then clamp</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:retention_days</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="c1"># Downcase then validate inclusion</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">optional</span><span class="w"> </span><span class="ss">:frequency</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="ss">:downcase</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="sx">%w[hourly daily weekly monthly]</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:retention_days</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">optional</span><span class="w"> </span><span class="ss">:frequency</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="ss">:downcase</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="sx">%w[hourly daily weekly monthly]</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition warning">
-<p class="admonition-title">Optional + nil value</p>
-<p>Transforms run only when the coerced value is non-<code>nil</code>. When an optional input's key is absent from <code>context</code> and no default is declared, the pipeline short-circuits after the default step — transforms (and validators) don't fire. Declare a <code>default:</code> or <code>required</code> if you need the transform to always run.</p>
+<p class="admonition-title">Optional + nil</p>
+<p>Transforms only run when the coerced value is <strong>non-<code>nil</code></strong>. If the key is missing, there’s no default, and the input is optional, the pipeline stops early — no transform, no validator. Need the transform every time? Add a <code>default:</code> or make the input <code>required</code>.</p>
 </div>
 
 

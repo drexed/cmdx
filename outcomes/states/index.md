@@ -1,26 +1,26 @@
 # Outcomes - States
 
-States track the lifecycle dimension of a result: did `work` run end-to-end, or did something interrupt it? There are exactly two states. Transient stages (`initialized`/`executing`) aren't modeled — `Result` is constructed once, after `Runtime` has finalized the task.
+**State** answers a different question than status: *did `work` run all the way through, or did something cut it short?* There are only **two** states. You will not see half-built labels like `initialized` or `executing` on a `Result`—by the time you hold a result, Runtime has already wrapped things up.
 
 ## Definitions
 
-| State         | Description                                                                                                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `complete`    | Task finished `work` (and output verification) without interruption. Includes both the implicit success path and an explicit `success!` halt.                                              |
-| `interrupted` | Task halted via `skip!`, `fail!`, `throw!`, accumulated `task.errors`, or a `StandardError` raised from `work` (Runtime captures it on `result.cause` and converts the outcome to failed). |
+| State         | In plain English                                                                                                                                                             |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `complete`    | `work` finished without interruption (outputs verified too). Includes the normal path **and** an early exit via `success!`.                                                  |
+| `interrupted` | Something stopped the train: `skip!`, `fail!`, `throw!`, stacked `task.errors`, or an exception from `work` (Runtime puts it on `result.cause` and the outcome goes failed). |
 
-State-Status combinations:
+How state and status pair up:
 
-| State         | Status    | Meaning                                                                        |
-| ------------- | --------- | ------------------------------------------------------------------------------ |
-| `complete`    | `success` | Task finished successfully                                                     |
-| `interrupted` | `skipped` | Task halted via `skip!`                                                        |
-| `interrupted` | `failed`  | Task halted via `fail!`, `throw!`, an exception, or validation/coercion errors |
+| State         | Status    | What it feels like                                              |
+| ------------- | --------- | --------------------------------------------------------------- |
+| `complete`    | `success` | We ran the play and scored.                                     |
+| `interrupted` | `skipped` | We tapped out on purpose (`skip!`).                             |
+| `interrupted` | `failed`  | We tapped out with fire (`fail!`, `throw!`, errors, exception). |
 
 Note
 
-`complete` only ever pairs with `success`, and `interrupted` only ever pairs with `skipped` or `failed`. There is no `complete` + `skipped` or `interrupted` + `success` combination.
+Real talk: `complete` **only** hangs out with `success`. `interrupted` **only** hangs out with `skipped` or `failed`. No mixing and matching—you will not see `complete` + `skipped` or `interrupted` + `success`.
 
-## Predicates and Handlers
+## Predicates and handlers
 
-`result.complete?` / `result.interrupted?` are the state predicates; `result.on(:complete)` / `result.on(:interrupted)` dispatch on them. See [Result - Lifecycle Predicates](https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates) and [Result - Predicate Dispatch](https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch) for the canonical list.
+Use `result.complete?` and `result.interrupted?` for state. Use `result.on(:complete)` and `result.on(:interrupted)` when you want a tiny dispatch table. Full cheat sheet: [Result — lifecycle predicates](https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates) and [Result — predicate dispatch](https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch).

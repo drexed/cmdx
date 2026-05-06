@@ -1,8 +1,8 @@
 # Workflows
 
-Compose multiple tasks into ordered pipelines. A workflow is a `Task` subclass that includes `CMDx::Workflow`; the module supplies a `#work` that delegates to `CMDx::Pipeline`, which runs the declared task groups against a shared context.
+A workflow is a regular `CMDx::Task` that includes `CMDx::Workflow`. You list child tasks; CMDx runs them as a **pipeline** on one shared **context**. Under the hood, `#work` is wired up for you — it hands off to `CMDx::Pipeline`.
 
-Because workflows are tasks, they inherit every Task feature: [inputs](https://drexed.github.io/cmdx/inputs/definitions/index.md), [callbacks](https://drexed.github.io/cmdx/callbacks/index.md), [middlewares](https://drexed.github.io/cmdx/middlewares/index.md), [settings](https://drexed.github.io/cmdx/configuration/#settings), [outputs](https://drexed.github.io/cmdx/outputs/index.md), and [retries](https://drexed.github.io/cmdx/retries/index.md). Use these to validate workflow-level inputs, set up shared state, or react to workflow outcomes.
+Because a workflow is still a task, you keep all the goodies: [inputs](https://drexed.github.io/cmdx/inputs/definitions/index.md), [callbacks](https://drexed.github.io/cmdx/callbacks/index.md), [middlewares](https://drexed.github.io/cmdx/middlewares/index.md), [settings](https://drexed.github.io/cmdx/configuration/#settings), [outputs](https://drexed.github.io/cmdx/outputs/index.md), and [retries](https://drexed.github.io/cmdx/retries/index.md). Use those hooks to validate at the workflow level, warm up shared state, or react when things go sideways.
 
 ```ruby
 class OnboardingWorkflow < CMDx::Task
@@ -33,15 +33,15 @@ end
 
 ## Declarations
 
-Tasks run in declaration order, sharing the workflow's context.
+Tasks run in the order you declare them. They all read and write the **same** workflow `context` — think of it as a shared notepad passed down the line.
 
 Warning
 
-Don't define `#work` on a workflow — `Workflow#work` delegates to `Pipeline`. Defining your own raises `CMDx::ImplementationError`.
+Do **not** define your own `#work` on a workflow. The module already owns `#work` and forwards to `Pipeline`. If you override it, CMDx raises `CMDx::ImplementationError` — that is intentional, not a bug.
 
-### Task
+### `task` / `tasks`
 
-`task` and `tasks` are aliases — use either interchangeably. Each call appends a new group to the pipeline.
+`task` and `tasks` are twins — same thing, pick the name that reads best. Each call adds **one group** to the pipeline (a group can hold one task or many).
 
 ```ruby
 class OnboardingWorkflow < CMDx::Task
@@ -54,24 +54,24 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-Every entry must be a `Task` subclass; anything else raises `TypeError` at declaration time.
+Every entry must be a `Task` subclass. Pass anything else and you get a `TypeError` **at load time** — nice and early.
 
-### Group Options
+### Group options
 
-Options apply to the entire group:
+These knobs apply to the **whole** group you just declared:
 
-| Option                 | Default            | Description                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `strategy:`            | `:sequential`      | `:sequential` or `:parallel`                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `pool_size:`           | `tasks.size`       | Worker/fiber count when `strategy: :parallel`                                                                                                                                                                                                                                                                                                                                                                                         |
-| `executor:`            | `:threads`         | Parallel dispatch backend: `:threads`, `:fibers`, or a callable. `:fibers` requires a `Fiber.scheduler` to be installed (e.g. inside `Async { ... }`)                                                                                                                                                                                                                                                                                 |
-| `merger:`              | `:last_write_wins` | How successful parallel contexts fold back into the workflow context: `:last_write_wins`, `:deep_merge`, `:no_merge`, or a callable `->(workflow_context, result) { ... }`                                                                                                                                                                                                                                                            |
-| `continue_on_failure:` | `false`            | When `true`, run every task in the group to completion even after a failure, and aggregate all failures into the workflow's `errors` (keyed as the Symbol `:"TaskClass.<input>"` for input/validation errors and `:"TaskClass.<status>"` for bare `fail!` reasons). Applies to both strategies. When `false` (default), `:sequential` halts on the first failure and `:parallel` cancels pending tasks (in-flight tasks still finish) |
-| `if:` / `unless:`      | —                  | Skip the entire group when the predicate isn't satisfied                                                                                                                                                                                                                                                                                                                                                                              |
+| Option                 | Default            | Plain-English meaning                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `strategy:`            | `:sequential`      | Run one after another, or `:parallel` at the same time.                                                                                                                                                                                                                                                                                                        |
+| `pool_size:`           | `tasks.size`       | How many workers/fibers to use when you pick `:parallel`.                                                                                                                                                                                                                                                                                                      |
+| `executor:`            | `:threads`         | What actually runs parallel jobs: `:threads`, `:fibers`, or your own callable. `:fibers` needs a `Fiber.scheduler` (for example inside `Async { ... }`).                                                                                                                                                                                                       |
+| `merger:`              | `:last_write_wins` | After parallel siblings finish successfully, how their **copies** of context get folded back into the workflow context: shallow last-wins, `:deep_merge`, `:no_merge`, or your own function.                                                                                                                                                                   |
+| `continue_on_failure:` | `false`            | **`false` (default):** sequential stops on first failure; parallel cancels work that has not started yet (in-flight tasks still finish). **`true`:** run every task in the group anyway, then collect failures on the workflow's `errors` (keys look like `:"TaskClass.<input>"` for validation issues and `:"TaskClass.<status>"` for bare `fail!` messages). |
+| `if:` / `unless:`      | —                  | Skip the **entire** group when the condition says "nope".                                                                                                                                                                                                                                                                                                      |
 
 ### Conditionals
 
-Conditionals support multiple syntaxes for flexible execution control. They're evaluated against the workflow instance.
+You can gate a group with a symbol (method on the workflow), a proc/lambda, or an object that responds to `call(workflow)`. Pick whatever reads clearest.
 
 ```ruby
 class ContentAccessCheck
@@ -86,7 +86,7 @@ class OnboardingWorkflow < CMDx::Task
   # Symbols resolve to instance methods on the workflow
   task SendWelcomeEmail, if: :email_configured?
 
-  # Procs and lambdas are instance_exec'd against the workflow
+  # Procs and lambdas run with the workflow as `self`
   task SendWelcomeEmail, if: -> { Rails.env.production? }
   task SendWelcomeEmail, if: proc { context.features_enabled? }
 
@@ -105,11 +105,11 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-## Halt Behavior
+## Halt behavior
 
-A workflow halts on the **first failed result** in any group. Skipped tasks never halt the pipeline — they're treated as no-ops and the next task runs as normal.
+**Failed** stops the train. **Skipped** does not — skips are treated like "no-op, keep going."
 
-When a task fails, the pipeline echoes its `reason`, `state`, and `status` through the workflow via `throw!`, so the workflow's own result is `failed?` with the same `reason`. The propagated signal carries the failed leaf as its `origin`, so `result.origin` / `result.threw_failure` / `result.caused_failure` all point at the originating task without scanning the chain:
+When something fails, the pipeline copies that task's `reason`, `state`, and `status` up to the workflow with `throw!`, so the workflow's result looks failed too. You can still find the original culprit without scanning: `result.origin`, `result.threw_failure`, and `result.caused_failure` point at the right task.
 
 ```ruby
 result = AnalyticsWorkflow.execute
@@ -124,27 +124,30 @@ result.caused_failure.task      #=> CollectMetrics
 class AnalyticsWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task CollectMetrics      # If fails → workflow stops, AnalyticsWorkflow is failed
-  task FilterOutliers      # If skipped → workflow continues
-  task GenerateDashboard   # Only runs if no upstream failure occurred
+  task CollectMetrics      # Fails → workflow stops, workflow result is failed
+  task FilterOutliers      # Skipped → workflow keeps going
+  task GenerateDashboard   # Only runs if nothing upstream failed
 end
 ```
 
-To make a "soft" failure non-halting, have the task `skip!` instead of `fail!`. There is no per-group or per-workflow setting to ignore failures.
+Want a "soft" failure that does **not** halt? Use `skip!` with a clear reason instead of `fail!`. There is no magic switch to ignore `fail!` per group — that is by design.
 
-## Rollback in Workflows
+## Rollback in workflows
 
-When a task fails, Runtime calls its `#rollback` method (if defined) immediately after `work` returns and *before* the failure is `throw!`n up to the workflow. Concretely, the failed leaf task's lifecycle is: `perform_work` → `perform_rollback` → `on_*` callbacks → result finalization → throw to workflow.
+Picture compensation like undoing a stack of sticky notes.
 
-When a workflow's pipeline halts, `Pipeline` then walks every previously executed task instance whose result is `success?` in **reverse** execution order and invokes `#rollback` on any that defines it — saga-style compensation across the whole pipeline. Each compensated result's `#rolled_back?` becomes `true`. Skipped tasks are excluded; the failing task itself is rolled back by Runtime and is not re-invoked. Exceptions raised inside a compensator propagate to the caller — handling them is the developer's responsibility.
+1. When a task fails, **Runtime** calls that task's `#rollback` (if you defined one) right after `work` returns — **before** the failure is thrown to the workflow.
+1. When the whole pipeline gives up, **Pipeline** walks successful tasks in **reverse** run order and calls `#rollback` on any that define it. That is the saga-style cleanup.
+
+Skipped tasks are skipped for rollback too. The task that actually failed was already rolled back by Runtime — Pipeline does not call it twice. If `#rollback` raises, that exception bubbles to **you** — handle it if the domain needs it.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task ReserveInventory   # Succeeds → no rollback
-  task ChargeCard         # Fails    → ChargeCard#rollback runs
-  task SendConfirmation   # Never runs (workflow halts on failure)
+  task ReserveInventory   # Succeeds → no rollback from Pipeline for this path alone
+  task ChargeCard         # Fails    → ChargeCard#rollback runs (Runtime), then pipeline stops
+  task SendConfirmation   # Never runs (workflow halted on failure)
 end
 
 class ChargeCard < CMDx::Task
@@ -161,14 +164,14 @@ end
 
 Compensation across tasks
 
-Define `#rollback` on each task with side effects — the workflow compensates them in reverse order on failure. Use a workflow-level `on_failed` callback only when the cleanup doesn't belong to any single task.
+Put `#rollback` on the task that made the mess — inventory holds, charges, emails, whatever. Reach for a workflow-level `on_failed` only when cleanup does not belong to a single task.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task ReserveInventory  # rolled back second on failure (in reverse)
-  task ChargeCard        # rolled back first if it succeeded; Runtime rolls it back if it failed
+  task ReserveInventory  # Rolled back second (reverse order) if we unwind
+  task ChargeCard        # Rolled back first if it succeeded; Runtime handles it if it failed
   task SendConfirmation
 end
 
@@ -185,11 +188,11 @@ end
 
 Parallel groups
 
-Parallel tasks run on a `deep_dup`'d context, so their `#rollback` sees only that copy — not the merged workflow context. Keep parallel compensators self-contained (capture what they need during `work`).
+Parallel tasks each get a **deep-duplicated** context. Their `#rollback` sees that copy — not the merged workflow context. Keep parallel undo logic self-contained: stash whatever IDs you need on the duplicate during `work`.
 
-## Nested Workflows
+## Nested workflows
 
-Workflows are tasks, so they nest naturally:
+Workflows are tasks, so nesting is free — drop one workflow inside another.
 
 ```ruby
 class EmailPreparationWorkflow < CMDx::Task
@@ -214,11 +217,11 @@ class CompleteEmailWorkflow < CMDx::Task
 end
 ```
 
-A nested workflow's failure echoes through its parent the same way a leaf task's failure does, and the chain captures every result for traceability.
+A nested workflow failure bubbles up like any other task failure. The `chain` still records everything — great for debugging and support.
 
-## Parallel Execution
+## Parallel execution
 
-Run a group concurrently using native Ruby threads. No external dependencies required.
+Same group, same time — Ruby threads by default. No extra gems required for the stock path.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
@@ -231,10 +234,10 @@ class SendWelcomeNotifications < CMDx::Task
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush,
         strategy: :parallel, pool_size: 2
 
-  # Default behavior: pending parallel tasks are cancelled once any sibling fails
+  # Default: if one sibling fails, pending siblings are cancelled (started ones still finish)
   tasks ChargeCard, ReserveInventory, EmitAnalytics, strategy: :parallel
 
-  # Batch processing: run every task and collect every failure into result.errors
+  # Batch mode: finish everyone, collect every failure on errors
   tasks ProcessOrder1, ProcessOrder2, ProcessOrder3,
         strategy: :parallel, continue_on_failure: true
 end
@@ -242,13 +245,13 @@ end
 
 Warning
 
-Each parallel task gets a deep-duplicated `context` copy, merged back in **declaration order** (not completion order) — last writer to a key wins, so prefer distinct keys per task.
+Each parallel task works on a **copy** of `context`. When successes merge back, order follows **declaration order**, not who finished first — last write to a key wins. Give siblings different keys when you can.
 
-On failure, pending tasks are cancelled (in-flight ones still finish and their contexts merge) and the failed result propagates via `throw!`. With `continue_on_failure: true`, every task runs to completion and failures aggregate on `workflow.errors` (keyed `:"TaskClass.<input>"` for validation errors, `:"TaskClass.<status>"` for bare `fail!` reasons); the first declaration-order failure is the one re-thrown.
+On failure, work that has not started is cancelled; in-flight work still finishes and may merge. With `continue_on_failure: true`, every task runs to completion; failures pile into `workflow.errors` (same key shapes as the table above). The pipeline still stops **after** that group — later groups do not run. The "first" failure for signaling is still declaration order.
 
 ### Batch processing with `continue_on_failure`
 
-For batch-style groups where you want to know about every failure rather than stopping at the first one, set `continue_on_failure: true`. Failures are aggregated into the workflow's `errors` collection.
+Use this when you need a report card, not a panic stop — "which rows broke?" instead of "we died on row two."
 
 ```ruby
 class ProcessOrders < CMDx::Task
@@ -266,11 +269,9 @@ result.errors.to_h
 #    }
 ```
 
-The pipeline still halts after the failed group — subsequent groups do not run. The first failure (declaration order) is the signal origin.
-
 ### Executors
 
-The `:executor` option swaps the concurrency backend while keeping the rest of the parallel semantics (context isolation, merge-on-success, fail-fast) identical.
+Same parallel rules; different **engine**. `:executor` swaps how jobs are scheduled — threads, fibers, or your own pool.
 
 ```ruby
 # Default — native Ruby threads
@@ -283,7 +284,7 @@ tasks A, B, C, strategy: :parallel, executor: :fibers, pool_size: 10
 tasks A, B, C, strategy: :parallel, executor: MyPool.method(:run)
 ```
 
-`:fibers` spawns one fiber per job bounded by `pool_size` (via a semaphore) and relies on whatever scheduler the caller has installed — most commonly the [`async`](https://github.com/socketry/async) gem:
+`:fibers` plays nicest when something (often the [`async`](https://github.com/socketry/async) gem) has installed a scheduler:
 
 ```ruby
 require "async"
@@ -293,11 +294,11 @@ Async do
 end
 ```
 
-Without a scheduler, `:fibers` raises at run time — the gem itself stays zero-dep.
+No scheduler? `:fibers` complains at runtime. CMDx itself stays dependency-free.
 
-A user-supplied executor is any object responding to `call(jobs:, concurrency:, on_job:)`. It must invoke `on_job.call(job)` for each job and block until all jobs have completed. Chain propagation, cancellation, and context merging are already baked into `on_job`; the executor only decides how to dispatch.
+**Building a custom executor:** anything that responds to `call(jobs:, concurrency:, on_job:)` works. You must call `on_job.call(job)` for each job and block until all finish. The gnarly bits — chain updates, cancellation, merging — stay inside `on_job`; you just decide how to schedule.
 
-Executors are resolved from a per-task registry (`CMDx::Executors`). Built-ins ship with `:threads` and `:fibers`; register your own named executor once and reference it by symbol from `:executor`:
+Register once, reuse by symbol:
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -311,17 +312,17 @@ class ShipItAll < ApplicationTask
 end
 ```
 
-The same registry is available globally via `CMDx.configuration.executors.register(...)`.
+Globally: `CMDx.configuration.executors.register(...)`.
 
 ### Merge strategies
 
-After every successful sibling completes, each sibling's duplicated context is folded back into the workflow context. The default is last-write-wins in declaration order — reliable and fast, but brittle when two tasks write a nested structure under the same key. `:merger` lets you pick the collision policy up front.
+After parallel siblings succeed, their context copies fold back into the workflow. Default is shallow last-write-wins in declaration order — fast and predictable until two tasks fight over the same nested key. `:merger` picks the policy up front.
 
 ```ruby
 # Default — shallow, last declared task wins on conflicts
 tasks A, B, C, strategy: :parallel, merger: :last_write_wins
 
-# Recursive hash merge — nested structures are combined instead of replaced
+# Recursive hash merge — nested hashes combine instead of replacing wholesale
 tasks A, B, C, strategy: :parallel, merger: :deep_merge
 
 # Don't touch the workflow context at all
@@ -332,13 +333,13 @@ tasks A, B, C, strategy: :parallel,
       merger: ->(ctx, result) { ctx[result.task.name] = result.context.to_h }
 ```
 
-Behavior notes:
+**Quick mental model:**
 
-- Merging always walks successful results in **declaration order**, never completion order — the fold is deterministic even though parallel execution isn't.
-- `:deep_merge` recurses only into `Hash` values; non-hash collisions (Integer, String, Array, custom objects) still follow last-write-wins so a scalar on either side wins over a hash on the other.
-- `:no_merge` keeps the parallel tasks' side effects (each sibling's `result.context` is still reachable via `result.chain`) but nothing is written back to the workflow context. Useful when you're only interested in per-task telemetry, or when tasks own their own persistence.
-- A callable receives `(workflow_context, result)` and is free to write whatever shape you want. Failed results never reach the merger.
-- Merge strategies are resolved from a per-task registry (`CMDx::Mergers`). Register your own named merger with `register :merger, :name, callable` (or on `CMDx.configuration.mergers`) and reference it by symbol from `:merger`.
+- Merging always walks **successful** results in **declaration** order — deterministic even when wall-clock order is not.
+- `:deep_merge` only dives into nested `Hash` values. If one side has a string and the other a hash, you still get last-write-wins behavior for that spot.
+- `:no_merge` leaves the workflow context alone; you can still inspect each sibling via `result.chain` if you need proof of work.
+- A callable gets `(workflow_context, result)` and can write any shape you like. Failed results never reach the merger.
+- Named mergers live on `CMDx::Mergers` — `register :merger, :name, callable` on a task or on `CMDx.configuration.mergers`.
 
 ```ruby
 class BuildDashboard < CMDx::Task
@@ -352,9 +353,9 @@ class BuildDashboard < CMDx::Task
 end
 ```
 
-## Task Generator
+## Task generator
 
-Generate a workflow scaffold:
+Scaffold a workflow file:
 
 ```bash
 rails generate cmdx:workflow SendNotifications
@@ -371,8 +372,8 @@ class SendNotifications < ApplicationTask
 end
 ```
 
-If `ApplicationTask` isn't defined the generator falls back to `CMDx::Task`.
+If you do not have `ApplicationTask`, the generator falls back to `CMDx::Task`.
 
 Tip
 
-Use **present-tense verb + pluralized noun** for workflow names: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`.
+Name workflows like actions: **present-tense verb + plural noun** — `SendNotifications`, `DownloadFiles`, `ValidateDocuments`. Reads like a button label.

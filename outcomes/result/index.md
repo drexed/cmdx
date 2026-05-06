@@ -1,12 +1,14 @@
 # Outcomes - Result
 
-A `Result` is the read-only outcome of a task execution. It exposes the signal (state, status, reason, metadata, cause), the owning chain, the task's context, and lifecycle metadata (retries, duration, rollback, deprecation).
+When a task finishes, you get a **`Result`**—a read-only snapshot of what happened. It bundles the **signal** (state, status, reason, metadata, cause), where this task sits in its **chain**, the task’s **context**, and a few **lifecycle stats** (retries, how long it took, rollback flags, deprecation).
 
-## Result Attributes
+If `Result` were a receipt, everything on it would be printed in ink: no edits after the fact.
+
+## Result attributes
 
 Note
 
-Results are immutable. Runtime teardown freezes the `Task`, `Errors`, and — for the root — the `Context` and `Chain`. The backing signal's payload is frozen at construction.
+Results are immutable. When Runtime tears down, it freezes the `Task`, `Errors`, and—for the root—the `Context` and `Chain`. The signal’s payload freezes when the result is built.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -45,7 +47,7 @@ result.rolled_back? #=> false
 result.tags         #=> []               (from settings(tags: [...]))
 ```
 
-## Lifecycle Predicates
+## Lifecycle predicates
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -59,32 +61,32 @@ result.success?     #=> true when status == "success"
 result.skipped?     #=> true when status == "skipped"
 result.failed?      #=> true when status == "failed"
 
-# Outcome categorization
+# Outcome buckets
 result.ok?          #=> true for success or skipped
 result.ko?          #=> true for skipped or failed
 ```
 
 Note
 
-There are no `executed?` / `executing?` predicates — a `Result` only exists post-finalization, so every result is by definition already executed.
+There is no `executing?` here. A `Result` only appears **after** things are finalized—so “already ran” is baked in.
 
-## Chain Analysis
+## Chain analysis: who broke what?
 
-Failure propagation is tracked as `origin` — the upstream `Result` this one was echoed from (set automatically by `Task#throw!` and by `Runtime` when it rescues a `Fault` inside `work`). The chain helpers all return `nil` when the result isn't `failed?`:
+When failures bubble, CMDx remembers **`origin`**—the upstream `Result` yours echoed (via `Task#throw!` or Runtime rescuing a `Fault` inside `work`). The helpers below only make sense when `result.failed?`; otherwise they return `nil`:
 
 ```ruby
 result = DeploymentWorkflow.execute(app_name: "webapp")
 
 if result.failed?
-  result.origin            #=> immediate upstream Result, or nil if locally originated
+  result.origin            #=> immediate upstream Result, or nil if this task started the mess
   result.threw_failure     #=> origin || self  (nearest upstream failed result)
   result.caused_failure    #=> walks origin recursively to the deepest leaf
-  result.caused_failure?   #=> true when this result originated the failure chain (no origin)
-  result.thrown_failure?   #=> true when this result re-threw an upstream failure (has an origin)
+  result.caused_failure?   #=> true when this result started the failure chain (no origin)
+  result.thrown_failure?   #=> true when this result passed someone else’s failure along (has origin)
 end
 ```
 
-For a nested workflow where leaf `ChargeCard` fails inside `PaymentWorkflow`, which is run inside `CheckoutWorkflow`:
+Picture a nested workflow: `ChargeCard` fails inside `PaymentWorkflow`, which sits inside `CheckoutWorkflow`:
 
 | Result             | `origin`          | `threw_failure`   | `caused_failure` | `caused_failure?` | `thrown_failure?` |
 | ------------------ | ----------------- | ----------------- | ---------------- | ----------------- | ----------------- |
@@ -92,18 +94,19 @@ For a nested workflow where leaf `ChargeCard` fails inside `PaymentWorkflow`, wh
 | `PaymentWorkflow`  | `ChargeCard`      | `ChargeCard`      | `ChargeCard`     | `false`           | `true`            |
 | `CheckoutWorkflow` | `PaymentWorkflow` | `PaymentWorkflow` | `ChargeCard`     | `false`           | `true`            |
 
-`threw_failure` is the nearest upstream failed result (`origin` if present, else `self` for the originator); `caused_failure` walks `origin` recursively down to the originator.
+- **`threw_failure`** is the nearest failed neighbor (`origin` if there is one, otherwise `self` for whoever started it).
+- **`caused_failure`** keeps walking `origin` until it hits the task that actually broke first.
 
-## Annotating a Successful Result
+## Annotating a successful result
 
-`success!` halts `work` early with a custom reason and metadata, just like `skip!` / `fail!` — the difference is that the produced signal has `status: "success"` and `state: "complete"`:
+`success!` stops `work` early like `skip!` and `fail!`—except the signal says **`status: "success"`** and **`state: "complete"`**:
 
 ```ruby
 class ImportRecords < CMDx::Task
   def work
     count = import_all(context.records)
     success!("Imported #{count} records", rows: count)
-    # Anything below is unreachable
+    # Code below never runs
   end
 end
 
@@ -117,11 +120,11 @@ result.metadata #=> { rows: 42 }
 
 Note
 
-`success!` `throw`s out of `work` like every other halt method — it is **not** a "set fields without halting" call. To attach metadata mid-`work` without halting, mutate `context` instead.
+`success!` **throws** out of `work`, same family as the other halt helpers—it is not a quiet “set fields and keep going.” Need metadata mid-flight without stopping? Put it on `context`.
 
-## Block Yield
+## Block yield
 
-`execute` and `execute!` both accept a block; the block receives the result and its return value becomes the call's return value:
+Both `execute` and `execute!` can take a block. The block receives the result; whatever the block returns becomes the return value of the call:
 
 ```ruby
 deploy_url = BuildApplication.execute(version: "1.2.3") do |result|
@@ -135,9 +138,9 @@ deploy_url = BuildApplication.execute(version: "1.2.3") do |result|
 end
 ```
 
-## Predicate Dispatch
+## Predicate dispatch with `on`
 
-`Result#on(*keys, &block)` yields `self` when any key matches a truthy predicate. Returns `self` for chaining:
+`Result#on(*keys, &block)` runs your block when **any** listed predicate is truthy. It returns `self` so you can chain:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -152,17 +155,17 @@ result
   .on(:ko)          { |r| alert_operations_team(r) }       # skipped or failed
 ```
 
-Important
+Heads up
 
-`on` requires a block (raises `ArgumentError` otherwise) and accepts only these event keys: `:complete`, `:interrupted`, `:success`, `:skipped`, `:failed`, `:ok`, `:ko`. Unknown keys raise `ArgumentError`.
+You **must** pass a block (otherwise `ArgumentError`). Keys must be one of `:complete`, `:interrupted`, `:success`, `:skipped`, `:failed`, `:ok`, `:ko`. Anything else raises `ArgumentError`.
 
-## Pattern Matching
+## Pattern matching
 
-`Result` supports both array and hash deconstruction (Ruby 3.0+).
+Ruby 3.0+ can destructure a `Result` as arrays or hashes.
 
-### Array Pattern
+### Array pattern
 
-`deconstruct` returns `to_h.to_a` — an array of `[key, value]` pairs in insertion order. Use find-patterns to match on specific entries regardless of position:
+`deconstruct` returns `to_h.to_a`—`[key, value]` pairs in order. Find-patterns let you match specific entries without caring about position:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -175,9 +178,13 @@ in [*, [:type, "Workflow"], *]                       then handle_build_workflow(
 end
 ```
 
-### Hash Pattern
+### Hash pattern
 
-`deconstruct_keys(keys)` delegates to `#to_h` — `nil` returns the full hash, a key list slices it (unknown keys are omitted). Keys always present: `:xid, :cid, :index, :root, :type, :task, :tid, :context, :state, :status, :reason, :metadata, :strict, :deprecated, :retried, :retries, :duration, :tags`. Failure-only keys (`:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`) appear only on `failed?` results.
+`deconstruct_keys(keys)` delegates to `#to_h`. Pass `nil` for the whole hash, or a list of keys for a slice (unknown keys disappear).
+
+Keys you can usually count on: `:xid, :cid, :index, :root, :type, :task, :tid, :context, :state, :status, :reason, :metadata, :strict, :deprecated, :retried, :retries, :duration, :tags`.
+
+Failure-only keys (`:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`) show up when `failed?` is true.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -194,7 +201,7 @@ in { root: true, rolled_back: true }
 end
 ```
 
-### Pattern Guards
+### Pattern guards
 
 ```ruby
 case result
@@ -209,7 +216,10 @@ end
 
 ## Serialization
 
-`to_h` returns a memoized hash suitable for telemetry sinks and structured logs. `as_json` aliases `to_h` for Rails/ActiveSupport callers; `to_json` serializes via the `json` stdlib. `to_s` is the space-separated `key=value.inspect` rendering that `Runtime` writes to the task logger after `task_executed`.
+- **`to_h`** — memoized hash for logs and telemetry.
+- **`as_json`** — same as `to_h` for Rails-style callers.
+- **`to_json`** — uses the stdlib `json` gem.
+- **`to_s`** — space-separated `key=value.inspect` line Runtime logs after `task_executed`.
 
 ```ruby
 result.to_h
@@ -231,8 +241,8 @@ result.to_s
 #=> "xid=nil cid=\"0190...\" index=0 ... state=\"complete\" status=\"success\" ..."
 ```
 
-On `failed?` results, `to_h` additionally includes `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` and `:origin` entries are compact `{ task:, tid: }` hashes (and render as `<TaskClass uuid>` in `to_s`) to avoid serializing entire upstream results. `:origin` is `nil` when the failure is locally originated.
+For failed results, `to_h` also adds `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` fields and `:origin` are compact `{ task:, tid: }` hashes (and `to_s` renders tasks as `<TaskClass uuid>`) so you do not serialize giant upstream trees. `:origin` is `nil` when the failure started here.
 
 Note
 
-`to_json` emits the task Class and any `:cause` Exception via their stdlib `to_json` defaults; the embedded `:context` delegates to `Context#to_json`. Symbol keys are emitted as strings.
+`to_json` uses each object’s default JSON rules—Classes, exceptions, nested `Context`, etc. Symbol keys become strings in JSON output.

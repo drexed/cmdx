@@ -2484,9 +2484,11 @@
 
 
 <h1 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h1>
-<p>CMDx retries <code>work</code> automatically when it raises an exception that matches a class-level <code>retry_on</code> declaration. Retries are scoped to <code>work</code> itself — input resolution, output verification, and lifecycle callbacks run only once.</p>
+<p>Networks flake. APIs rate-limit you. Sometimes the universe just says “not yet.”</p>
+<p><code>retry_on</code> tells CMDx: <strong>when <code>work</code> raises one of these exception types, wait a beat and try again</strong> — up to a limit you control.</p>
+<p>Important nuance: retries only rerun <strong><code>work</code></strong>. Inputs, outputs, and most lifecycle callbacks still run <strong>once</strong> per execution. That keeps retries predictable: you are not re-validating the world on every attempt unless you put that logic inside <code>work</code> (or another layer).</p>
 <h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
-<p><code>retry_on</code> takes one or more exception classes and an options hash. With no exceptions declared (the default), no retries happen.</p>
+<p>List the exception classes you care about. If you never declare <code>retry_on</code>, nothing is retried.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchExternalData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -2501,39 +2503,39 @@
 <tr>
 <th>Option</th>
 <th>Default</th>
-<th>Description</th>
+<th>Plain-English meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>limit:</code></td>
 <td><code>3</code></td>
-<td>Maximum retry attempts (total invocations = <code>limit + 1</code>); <code>0</code> disables retries entirely</td>
+<td>How many <strong>retries</strong> after the first try. Total runs = <code>limit + 1</code>. Set <code>limit: 0</code> to turn retries off.</td>
 </tr>
 <tr>
 <td><code>delay:</code></td>
 <td><code>0.5</code></td>
-<td>Base delay in seconds; <code>0</code> disables sleeping between attempts</td>
+<td>Base pause in seconds between tries. <code>0</code> means “do not sleep.”</td>
 </tr>
 <tr>
 <td><code>max_delay:</code></td>
 <td><code>nil</code></td>
-<td>Upper bound clamp applied after jitter is computed</td>
+<td>Cap the sleep so jittered waits do not grow forever.</td>
 </tr>
 <tr>
 <td><code>jitter:</code></td>
 <td><code>nil</code></td>
-<td>Strategy for spreading delays — see <a href="#jitter">Jitter</a> below</td>
+<td>How to <strong>wiggle</strong> the delay so thundering herds calm down — see <a href="#jitter">Jitter</a>.</td>
 </tr>
 <tr>
 <td><code>if:</code></td>
 <td><code>nil</code></td>
-<td>Gate evaluated per attempt; when falsy the exception is re-raised instead of retried — see <a href="#conditional-retries">Conditional Retries</a></td>
+<td>Per-attempt gate: when falsy, stop retrying and re-raise. See <a href="#conditional-retries">Conditional Retries</a>.</td>
 </tr>
 <tr>
 <td><code>unless:</code></td>
 <td><code>nil</code></td>
-<td>Inverse of <code>if:</code> — when truthy the exception is re-raised</td>
+<td>Inverse of <code>if:</code> — when truthy, re-raise instead of retrying.</td>
 </tr>
 </tbody>
 </table>
@@ -2548,10 +2550,10 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Only exceptions matching <code>retry_on</code> retry. Anything else — or a matching exception after the limit is exhausted — is captured by Runtime and turned into a failed result with the exception attached as <code>result.cause</code>.</p>
+<p>Only exceptions you listed in <code>retry_on</code> get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with <code>result.cause</code> under <code>execute</code>), or blows up under <code>execute!</code> once the lifecycle finishes.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p><code>retry_on</code> accumulates across inheritance — subclasses extend the parent's exceptions and merge options instead of replacing them.</p>
+<p>Subclasses <strong>add</strong> to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
@@ -2562,7 +2564,8 @@
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="jitter">Jitter<a class="headerlink" href="#jitter" title="Permanent link">&para;</a></h2>
-<p>Jitter spreads delay across attempts. Strategies receive <code>(attempt, delay)</code> where <code>attempt</code> is zero-based and <code>delay</code> is the base delay. The result is clamped to <code>max_delay</code> if set.</p>
+<p>“Jitter” is a fancy word for <strong>random-ish spacing</strong> so many clients do not all wake up at the exact same millisecond.</p>
+<p>Built-in strategies receive <code>(attempt, delay)</code> where <code>attempt</code> is zero-based and <code>delay</code> is your base delay. The computed sleep is clamped by <code>max_delay</code> when you set it.</p>
 <h3 id="built-in-strategies">Built-in Strategies<a class="headerlink" href="#built-in-strategies" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 4s, ...</span>
@@ -2589,15 +2592,11 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>:decorrelated_jitter</code> is stateful — the previous sleep is threaded across
-retries inside a single <code>process</code> call. Calling <code>#wait</code> directly without
-passing <code>prev_delay</code> falls back to the base delay each time.</p>
+<p><code>:decorrelated_jitter</code> remembers the previous sleep <strong>within one</strong> <code>process</code> call. If something calls <code>#wait</code> without passing <code>prev_delay</code>, it falls back to the base delay — fine for normal retries, just know the state is scoped to that run.</p>
 </div>
 <h3 id="custom-strategies-via-the-retriers-registry">Custom Strategies via the <code>Retriers</code> Registry<a class="headerlink" href="#custom-strategies-via-the-retriers-registry" title="Permanent link">&para;</a></h3>
-<p>Built-in strategies live in the <code>CMDx::Retriers</code> registry, mirroring <code>Mergers</code>
-and <code>Executors</code>. Strategies are any callable matching
-<code>call(attempt, delay, prev_delay)</code> returning the next delay in seconds. Register
-custom strategies globally on the configuration or per-task:</p>
+<p>Built-ins live in <code>CMDx::Retriers</code> (same idea as <code>Mergers</code> and <code>Executors</code>). A strategy is any callable shaped like <code>call(attempt, delay, prev_delay)</code> → seconds to sleep.</p>
+<p>Register globally in config, or per-task with <code>register :retrier</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">retriers</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:capped_exponential</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">,</span><span class="w"> </span><span class="n">_prev</span><span class="o">|</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="o">[</span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">attempt</span><span class="p">),</span><span class="w"> </span><span class="mi">30</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span>
@@ -2611,10 +2610,9 @@ custom strategies globally on the configuration or per-task:</p>
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:retrier</span><span class="p">,</span><span class="w"> </span><span class="ss">:doubled</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">_a</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">,</span><span class="w"> </span><span class="n">_p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Symbols not present in the registry fall through to a task instance method, so
-existing <code>jitter: :exponential_backoff</code> declarations keep working.</p>
+<p>If a symbol is not in the registry, CMDx falls back to an <strong>instance method</strong> on the task — so older <code>jitter: :my_custom_method</code> style configs keep working.</p>
 <h3 id="symbol-instance-method">Symbol (Instance Method)<a class="headerlink" href="#symbol-instance-method" title="Permanent link">&para;</a></h3>
-<p>A <code>Symbol</code> resolves to an instance method on the task. The method receives <code>(attempt, delay)</code> and must return the desired sleep duration in seconds.</p>
+<p>The method receives <code>(attempt, delay)</code> and returns how long to sleep, in seconds.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SyncInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">InventoryAPI</span><span class="o">::</span><span class="no">ServerError</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential_backoff</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
@@ -2630,7 +2628,7 @@ existing <code>jitter: :exponential_backoff</code> declarations keep working.</p
 </span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p>Procs and lambdas are evaluated with <code>instance_exec</code> against the task, so they have access to <code>context</code> and other instance methods.</p>
+<p>Procs run with <code>instance_exec</code> on the task, so <code>context</code> and your helpers are right there.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PollJobStatus</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">JobAPI</span><span class="o">::</span><span class="no">Pending</span><span class="p">,</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">           </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
@@ -2644,7 +2642,7 @@ existing <code>jitter: :exponential_backoff</code> declarations keep working.</p
 </span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="callable-class-or-module">Callable (Class or Module)<a class="headerlink" href="#callable-class-or-module" title="Permanent link">&para;</a></h3>
-<p>Anything responding to <code>#call(attempt, delay)</code> works. The task is <strong>not</strong> passed in — capture state in the callable instead.</p>
+<p>Anything with <code>#call(attempt, delay)</code> works. The task is <strong>not</strong> passed in — bake config into the object.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExponentialBackoff</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="ss">base</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">cap</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="vi">@base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span>
@@ -2665,7 +2663,7 @@ existing <code>jitter: :exponential_backoff</code> declarations keep working.</p
 </span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="custom-block">Custom Block<a class="headerlink" href="#custom-block" title="Permanent link">&para;</a></h3>
-<p>When no <code>:jitter</code> option is given, you can pass a block to <code>retry_on</code> instead. It runs in the task's instance scope.</p>
+<p>No <code>:jitter</code> option? You can pass a block to <code>retry_on</code> instead. It runs as instance code on the task.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchAnalytics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Analytics</span><span class="o">::</span><span class="no">Throttled</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="o">|</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">delay</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">attempt</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
@@ -2673,13 +2671,13 @@ existing <code>jitter: :exponential_backoff</code> declarations keep working.</p
 </span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="conditional-retries">Conditional Retries<a class="headerlink" href="#conditional-retries" title="Permanent link">&para;</a></h2>
-<p><code>:if</code> / <code>:unless</code> gate each retry attempt. When the gate is falsy (<code>if</code>) or truthy (<code>unless</code>), the rescued exception is re-raised instead of retried, skipping any remaining budget and the <code>wait</code> between attempts.</p>
+<p><code>:if</code> / <code>:unless</code> let you say “this exception <strong>matches</strong>, but do not retry <strong>this time</strong>.” When the gate says no, the exception is re-raised immediately — no more sleeps, no more attempts.</p>
 <table>
 <thead>
 <tr>
 <th>Gate form</th>
-<th>How it's invoked</th>
-<th>Effective signature</th>
+<th>How it runs</th>
+<th>Think of it as</th>
 </tr>
 </thead>
 <tbody>
@@ -2690,7 +2688,7 @@ existing <code>jitter: :exponential_backoff</code> declarations keep working.</p
 </tr>
 <tr>
 <td><code>Proc</code> / lambda</td>
-<td><code>task.instance_exec(error, attempt, &amp;gate)</code> (<code>self</code> is the task)</td>
+<td><code>task.instance_exec(error, attempt, &amp;gate)</code></td>
 <td><code>-&gt;(error, attempt) { ... }</code></td>
 </tr>
 <tr>
@@ -2719,29 +2717,29 @@ existing <code>jitter: :exponential_backoff</code> declarations keep working.</p
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The gate fires <em>before</em> <code>wait</code> sleeps. When the gate rejects, no delay elapses — the exception propagates immediately and Runtime converts it to a failed result (or raises under <code>execute!</code>).</p>
+<p>The gate runs <strong>before</strong> the sleep. If it rejects a retry, you do not wait — you fail fast, and Runtime turns that into a failed result (or raises under <code>execute!</code>).</p>
 </div>
 <h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Same task instance</strong> — retries reuse the same task object. <code>context</code> and any side effects from previous attempts persist.</li>
-<li><strong>Only <code>work</code> repeats</strong> — input resolution, output verification, and <code>before_execution</code> / <code>before_validation</code> callbacks run once. Retries wrap <code>work</code> only. (This is intentional — flaky input sources are not retried here; wrap the source in a <code>retry_on</code> around its own fetcher or in a middleware.)</li>
-<li><strong>Errors carry over</strong> — <code>task.errors</code> accumulates across attempts; entries added during a previous attempt remain. Clear them at the start of <code>work</code> if you re-add per attempt, otherwise a successful retry will still finalize as failed once <code>signal_errors!</code> runs.</li>
-<li><strong>Telemetry</strong> — Runtime emits a <code>:task_retried</code> event for each retry (<code>attempt:</code> is zero-based; the initial call is <code>attempt = 0</code> and is not emitted).</li>
-<li><strong>Inside the middleware stack</strong> — middlewares wrap the entire lifecycle (callbacks, inputs, retries, outputs, rollback). Each retried <code>work</code> call is <em>inside</em> every middleware, so middlewares see the task once per execution, not once per attempt. Subscribe to the <code>:task_retried</code> telemetry event if you need per-attempt visibility.</li>
+<li><strong>Same task object</strong> — <code>context</code> and any ivars mutated in earlier attempts are still there. Design <code>work</code> accordingly.</li>
+<li><strong>Only <code>work</code> loops</strong> — inputs, outputs, and <code>before_execution</code> / <code>before_validation</code> callbacks are not replayed per retry. If your <em>input source</em> is flaky, wrap that fetch in its own task with <code>retry_on</code>, or use middleware — do not expect CMDx to magically re-resolve inputs for free.</li>
+<li><strong><code>task.errors</code> sticks around</strong> — errors added on a failed attempt remain. Clear at the top of <code>work</code> if each attempt should start fresh; otherwise a later success might still lose at <code>signal_errors!</code>.</li>
+<li><strong>Telemetry</strong> — each retry emits <code>:task_retried</code> (<code>attempt</code> is zero-based; the first run is attempt <code>0</code> and does <strong>not</strong> emit).</li>
+<li><strong>Middleware sees one execution</strong> — middleware wraps the whole lifecycle, so it does not “re-enter” per retry. For per-attempt hooks, listen to <code>:task_retried</code>.</li>
 </ul>
 <h2 id="inspecting-retries">Inspecting Retries<a class="headerlink" href="#inspecting-retries" title="Permanent link">&para;</a></h2>
-<p><code>Result</code> exposes retry metadata after execution:</p>
+<p>After the run, ask the <code>Result</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="w">   </span><span class="c1">#=&gt; 2  (number of *retry* attempts; 0 if first attempt succeeded)</span>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="w">  </span><span class="c1">#=&gt; true</span>
 </span></code></pre></div>
-<p>These are also surfaced in the structured log output (<code>retried</code>, <code>retries</code>).</p>
+<p>Structured logs include <code>retried</code> / <code>retries</code> too.</p>
 <h2 id="when-retries-are-exhausted">When Retries Are Exhausted<a class="headerlink" href="#when-retries-are-exhausted" title="Permanent link">&para;</a></h2>
-<p>Once <code>limit</code> retries are spent, the last exception is re-raised inside <code>work</code> and Runtime converts it:</p>
+<p>After the last allowed retry, the exception surfaces like any other unhandled error from <code>work</code>:</p>
 <ul>
-<li><code>execute</code> — captured by <code>rescue StandardError</code>; produces a failed result with <code>result.cause</code> set to the exception and <code>result.reason</code> set to <code>"[ExceptionClass] message"</code>.</li>
-<li><code>execute!</code> — same conversion, but Runtime re-raises the original exception (not a <code>Fault</code>) after the lifecycle finalizes.</li>
+<li><strong><code>execute</code></strong> — Runtime rescues, you get <code>result.failed?</code>, <code>result.cause</code> is the exception, <code>result.reason</code> looks like <code>"[ExceptionClass] message"</code>.</li>
+<li><strong><code>execute!</code></strong> — same lifecycle handling, then the <strong>original</strong> exception is re-raised (not wrapped as <code>CMDx::Fault</code>).</li>
 </ul>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>

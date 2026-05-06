@@ -1,14 +1,14 @@
 # Outcomes - Errors
 
-`CMDx::Errors` is the per-task container for keyed, deduplicating failure messages — typically one key per attribute name. Validators, coercions, output verification, and hand-rolled `errors.add(...)` calls inside `work` all write here; a non-empty container at any lifecycle checkpoint causes `Runtime` to throw a failed signal.
+**`CMDx::Errors`** is each task’s junk drawer for validation-style messages—usually one key per attribute. Validators, coercions, output checks, and hand-rolled `errors.add(...)` calls all land here. If this drawer is **not** empty when Runtime checks it, you get a failed signal.
 
 Note
 
-`task.errors` and `result.errors` are the same object. Runtime teardown freezes `Errors` alongside `Task` and `Context`, so post-execution the container, its hash, and each underlying message `Set` are frozen.
+`task.errors` and `result.errors` point at the **same** object. After teardown, Runtime freezes `Errors` with the task and context—so the container, its hash, and each message `Set` stay put.
 
 ## Access
 
-Inside `work`, errors are reachable via the `errors` reader (or `task.errors` from outside). After execution, the same container is exposed on the frozen result:
+Inside `work`, use the `errors` reader (or `task.errors` from outside). After the run, the frozen result exposes the same bag:
 
 ```ruby
 class CreateUser < CMDx::Task
@@ -29,39 +29,43 @@ result.errors.frozen? #=> true
 
 ## API
 
-| Method                  | Purpose                                                                                                     |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `add(key, message)`     | Append a message under a key; duplicates for the same key are silently dropped (backed by a `Set`).         |
-| `errors[key] = message` | Alias for `add`.                                                                                            |
-| `merge!(other)`         | Union every `(key, message)` pair from another `Errors` (or any object responding to `#to_hash`) into self. |
-| `delete(key)`           | Remove the key entirely; returns the removed `Set` or `nil`.                                                |
-| `clear`                 | Empty the container. Raises `FrozenError` post-teardown.                                                    |
+**Writing**
 
-| Method                           | Returns                                                                               |
-| -------------------------------- | ------------------------------------------------------------------------------------- |
-| `errors[key]`                    | `Array<String>` of messages under `key`, or a frozen empty array when absent.         |
-| `errors.added?(key, message)`    | `true` when the exact message was recorded under `key`.                               |
-| `errors.key?(key)` / `for?(key)` | `true` when `key` has at least one message.                                           |
-| `errors.keys`                    | Keys that have at least one message, in insertion order.                              |
-| `errors.empty?`                  | `true` when no messages have been added.                                              |
-| `errors.size`                    | Number of distinct keys.                                                              |
-| `errors.count`                   | Total messages across all keys.                                                       |
-| `errors.each`                    | Yields `[Symbol, Set<String>]` pairs. `each_key` and `each_value` are also available. |
-| `errors.as_json`                 | Alias for `to_h` — for Rails/ActiveSupport callers.                                   |
-| `errors.to_json`                 | Serializes `to_h` via the `json` stdlib (Symbol keys emitted as strings).             |
+| Method                  | What it does                                                                                    |
+| ----------------------- | ----------------------------------------------------------------------------------------------- |
+| `add(key, message)`     | Adds a message under `key`. Duplicate strings for the same key are ignored (backed by a `Set`). |
+| `errors[key] = message` | Same as `add`.                                                                                  |
+| `merge!(other)`         | Pulls every `(key, message)` from another `Errors` (or anything `#to_hash`-able) into this one. |
+| `delete(key)`           | Drops the key; returns the removed `Set` or `nil`.                                              |
+| `clear`                 | Empties everything. After teardown, this raises `FrozenError`.                                  |
+
+**Reading**
+
+| Method                           | What you get                                                         |
+| -------------------------------- | -------------------------------------------------------------------- |
+| `errors[key]`                    | `Array<String>` for that key, or a frozen empty array if none.       |
+| `errors.added?(key, message)`    | `true` if that exact string lives under `key`.                       |
+| `errors.key?(key)` / `for?(key)` | `true` if the key has at least one message.                          |
+| `errors.keys`                    | Keys with messages, in insertion order.                              |
+| `errors.empty?`                  | `true` when nothing was recorded.                                    |
+| `errors.size`                    | How many keys have messages.                                         |
+| `errors.count`                   | Total messages across all keys.                                      |
+| `errors.each`                    | Yields `[Symbol, Set<String>]`. `each_key` / `each_value` exist too. |
+| `errors.as_json`                 | Alias for `to_h` (Rails-friendly).                                   |
+| `errors.to_json`                 | Serializes `to_h` via stdlib `json` (Symbol keys → strings).         |
 
 ```ruby
 def work
   errors.add(:amount, "must be positive") if amount.negative?
   errors[:amount] = "cannot exceed daily limit" if amount > 10_000
 
-  # Fold in errors from a child task's result without overwriting local ones
+  # Pull in a child task’s errors without stomping your own
   sub = ValidateAddress.execute(address: context.address)
   errors.merge!(sub.errors) if sub.failed?
 end
 ```
 
-Because `Errors` includes `Enumerable`, every standard enumerable method works (`any?`, `select`, `find`, `group_by`, `partition`, ...):
+Because `Errors` mixes in `Enumerable`, all the usual goodies work (`any?`, `select`, `find`, `group_by`, `partition`, …):
 
 ```ruby
 result.errors.any? { |_key, set| set.size > 1 } # keys with multiple messages
@@ -90,11 +94,11 @@ result.errors.to_s
 result.reason == result.errors.to_s #=> true
 ```
 
-`to_hash` mirrors `to_h` by default and `full_messages` when called with `true`.
+`to_hash` mirrors `to_h` by default and `full_messages` when you pass `true`.
 
-## Pattern Matching
+## Pattern matching
 
-`Errors` supports both array and hash deconstruction (Ruby 3.0+).
+Ruby 3.0+ can pattern-match `Errors` too.
 
 ```ruby
 result = CreateUser.execute(email: "taken@example.com")
@@ -107,32 +111,32 @@ in { base: messages } if messages.any?
 end
 ```
 
-`deconstruct_keys(nil)` returns the full `to_h` (`{ key => [messages] }`); a key list slices it — unknown keys are omitted. `deconstruct` yields `[[key, messages], ...]` pairs for find-pattern matches.
+`deconstruct_keys(nil)` is the full `to_h` (`{ key => [messages] }`); a key list slices it. `deconstruct` yields `[[key, messages], ...]` for find-style matches.
 
-## Failure Propagation
+## Failure propagation
 
-Runtime checks `task.errors.empty?` at three lifecycle checkpoints: after input resolution, after `work` returns, and after output verification. A non-empty container at any checkpoint short-circuits the rest of the lifecycle by throwing a failed signal whose `reason` is `errors.to_s` and whose `metadata` is `task.metadata`.
+Runtime peeks at `task.errors.empty?` three times: after inputs resolve, after `work` returns, and after outputs are verified. Any time the bag is not empty, it throws a failed signal with `reason` = `errors.to_s` and `metadata` = `task.metadata`.
 
 ```
 flowchart LR
-    Resolve[Resolve inputs] --> C1{errors.empty?}
-    C1 -->|no| Fail["throw Signal.failed<br/>reason = errors.to_s<br/>metadata = task.metadata"]
-    C1 -->|yes| Work[work]
-    Work --> C2{errors.empty?}
-    C2 -->|no| Fail
-    C2 -->|yes| Verify[Verify outputs]
-    Verify --> C3{errors.empty?}
-    C3 -->|no| Fail
-    C3 -->|yes| Ok[Signal.success]
+  Resolve[Resolve inputs] --> C1{errors.empty?}
+  C1 -->|no| Fail["throw Signal.failed<br/>reason = errors.to_s<br/>metadata = task.metadata"]
+  C1 -->|yes| Work[work]
+  Work --> C2{errors.empty?}
+  C2 -->|no| Fail
+  C2 -->|yes| Verify[Verify outputs]
+  Verify --> C3{errors.empty?}
+  C3 -->|no| Fail
+  C3 -->|yes| Ok[Signal.success]
 ```
 
-This is `Runtime#signal_errors!`, called at each stage.
+Under the hood that is `Runtime#signal_errors!` at each gate.
 
-Important
+Surprise for newcomers
 
-Adding errors inside `work` does **not** halt execution immediately — the throw happens after `work` returns (and again after output verification). To halt mid-`work`, use `fail!(...)` instead.
+Adding errors inside `work` does **not** stop the method on the spot—the throw happens **after** `work` returns (and again after output verification). Need to bail immediately? Use `fail!(...)`.
 
-## Freeze Semantics
+## Freeze semantics
 
 ```ruby
 result = CreateUser.execute(email: "")
@@ -144,11 +148,11 @@ result.errors[:email].frozen?          #=> false  (#[] returns a fresh Array via
 result.errors.add(:x, "y")             #=> raises FrozenError
 ```
 
-`Errors#freeze` deep-freezes every message `Set` before freezing the container itself.
+`Errors#freeze` deep-freezes each message `Set` before freezing the wrapper.
 
-## See Also
+## See also
 
-- [Inputs - Validations](https://drexed.github.io/cmdx/inputs/validations/index.md) — validators that populate `errors` automatically.
-- [Inputs - Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md) — coercion failures land here.
-- [Outputs](https://drexed.github.io/cmdx/outputs/index.md) — output verification errors fold into the same container.
-- [v1 → v2 Migration](https://drexed.github.io/cmdx/v2-migration/#errors) — what changed about `Errors` in 2.0.
+- [Inputs — validations](https://drexed.github.io/cmdx/inputs/validations/index.md) — validators that fill `errors` for you.
+- [Inputs — coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md) — coercion failures show up here.
+- [Outputs](https://drexed.github.io/cmdx/outputs/index.md) — output verification errors use the same bucket.
+- [v1 → v2 migration](https://drexed.github.io/cmdx/v2-migration/#errors) — what changed for `Errors` in 2.0.

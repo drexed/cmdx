@@ -2274,16 +2274,16 @@
 
 
 <h1 id="basics-setup">Basics - Setup<a class="headerlink" href="#basics-setup" title="Permanent link">&para;</a></h1>
-<p>Tasks are the unit of work in CMDx: self-contained business logic with built-in input validation, error handling, and execution tracking.</p>
+<p>Hey there. In CMDx, a <strong>task</strong> is just a tidy box for one piece of business logic. You get input checks, errors that behave predictably, and a clear story of what ran — without building all of that wiring by hand.</p>
 <h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>Tasks need only two things: inherit from <code>CMDx::Task</code> and define a <code>work</code> method:</p>
+<p>Every task needs two things: inherit from <code>CMDx::Task</code> and implement <code>work</code>. That’s it.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ValidateDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Without a <code>work</code> method, execution raises <code>CMDx::ImplementationError</code> from both <code>execute</code> and <code>execute!</code>.</p>
+<p>If you skip <code>work</code>, CMDx doesn’t know what to run. Both <code>execute</code> and <code>execute!</code> raise <code>CMDx::ImplementationError</code> in that case — a friendly nudge to finish the job.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">IncompleteTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="c1"># No `work` method defined</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">end</span>
@@ -2292,7 +2292,7 @@
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="no">IncompleteTask</span><span class="o">.</span><span class="n">execute!</span><span class="w"> </span><span class="c1">#=&gt; raises CMDx::ImplementationError</span>
 </span></code></pre></div>
 <h2 id="rollback">Rollback<a class="headerlink" href="#rollback" title="Permanent link">&para;</a></h2>
-<p>Define a <code>rollback</code> method to undo side effects when the task fails. Runtime calls it after <code>work</code> (and before completion callbacks) when the signal is <code>failed</code>, flags <code>result.rolled_back?</code>, and emits the <code>:task_rolled_back</code> telemetry event.</p>
+<p>Sometimes <code>work</code> does real-world stuff you need to undo if things go wrong (charges, locks, temp files). Add a <code>rollback</code> method for that. CMDx calls it <strong>after</strong> <code>work</code> when the outcome is a real failure — before the “we’re done” callbacks — sets a flag on the result, and emits a <code>:task_rolled_back</code> telemetry ping so you can see it in your dashboards.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChargeCard</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Stripe</span><span class="o">::</span><span class="no">Charge</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">amount</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="ss">source</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
@@ -2306,10 +2306,10 @@
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Rollback fires only on <code>failed?</code>. To undo on skip, halt with <code>fail!</code> instead of <code>skip!</code>, or invoke your cleanup explicitly from a callback.</p>
+<p>Rollback only runs when the task <strong>failed</strong>. If you skipped on purpose, rollback won’t fire. Need cleanup on skip? Either fail with <code>fail!</code> instead of <code>skip!</code>, or run your cleanup from a callback you control.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Share configuration through inheritance. Every inheritable surface — <code>settings</code>, <code>retry_on</code>, <code>deprecation</code>, and the registries (<code>middlewares</code>, <code>callbacks</code>, <code>coercions</code>, <code>validators</code>, <code>executors</code>, <code>mergers</code>, <code>telemetry</code>, <code>inputs</code>, <code>outputs</code>) — lazily clones from the superclass on first access, so subclasses extend rather than replace.</p>
+<p>Got shared behavior? Put it on a base class. Subclasses <strong>inherit</strong> settings instead of starting from zero: things like <code>settings</code>, <code>retry_on</code>, <code>deprecation</code>, and the big registries (<code>middlewares</code>, <code>callbacks</code>, <code>coercions</code>, <code>validators</code>, <code>executors</code>, <code>mergers</code>, <code>telemetry</code>, <code>inputs</code>, <code>outputs</code>) are copied lazily from the parent the first time the child touches them — so you <strong>add</strong> on top, you don’t accidentally wipe the parent’s config.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">SecurityMiddleware</span><span class="o">.</span><span class="n">new</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -2331,64 +2331,64 @@
 </span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="lifecycle">Lifecycle<a class="headerlink" href="#lifecycle" title="Permanent link">&para;</a></h2>
-<p>Tasks follow a predictable execution pattern. Halt primitives — <code>success!</code>, <code>skip!</code>, <code>fail!</code>, and <code>throw!</code> — are control-flow tokens: they <code>throw</code> a <code>Signal</code> caught by <code>Runtime</code>, so any code after a halt is unreachable. See <a href="../../interruptions/signals/">Signals</a> for the full halt API and <a href="../../getting_started/#task-lifecycle">Getting Started - Task Lifecycle</a> for the full flow diagram.</p>
+<p>Tasks run in the same order every time — easy to reason about. The “halt” helpers (<code>success!</code>, <code>skip!</code>, <code>fail!</code>, <code>throw!</code>) are special: they <strong>stop</strong> the current path by throwing a <code>Signal</code> that the runtime catches. Anything after a halt in <code>work</code> won’t run. For the full menu, see <a href="../../interruptions/signals/">Signals</a>; for a picture of the whole flow, see <a href="../../getting_started/#task-lifecycle">Getting Started - Task Lifecycle</a>.</p>
 <table>
 <thead>
 <tr>
 <th>Stage</th>
-<th>Description</th>
+<th>In plain English</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>Before execution</strong></td>
-<td><code>before_execution</code> callbacks run first</td>
+<td><code>before_execution</code> hooks run first — warm-up time.</td>
 </tr>
 <tr>
 <td><strong>Before validation</strong></td>
-<td><code>before_validation</code> callbacks run next</td>
+<td><code>before_validation</code> hooks run next — last chance before inputs are checked.</td>
 </tr>
 <tr>
 <td><strong>Around execution</strong></td>
-<td><code>around_execution</code> callbacks wrap <code>work</code> (and any <code>rollback</code>); each must yield exactly once. Multiple hooks nest in declaration order (outer-first)</td>
+<td><code>around_execution</code> wraps <code>work</code> (and <code>rollback</code> if it runs). Each hook must <code>yield</code> <strong>once</strong>. Several hooks nest like onions: outer declared first runs outermost.</td>
 </tr>
 <tr>
 <td><strong>Validation</strong></td>
-<td>Inputs are coerced/validated; failures halt with <code>failed</code></td>
+<td>Inputs get coerced and validated. Bad input → failed halt.</td>
 </tr>
 <tr>
 <td><strong>Work</strong></td>
-<td><code>work</code> runs inside <code>catch(:cmdx_signal)</code>, wrapped in retries</td>
+<td>Your <code>work</code> runs, inside retry logic and a <code>catch</code> for signals.</td>
 </tr>
 <tr>
 <td><strong>Output verification</strong></td>
-<td>Declared <code>output</code> keys are checked on <code>context</code> when <code>work</code> returned without halting; <code>:default</code> fills nils, missing keys fail the task. Skipped when <code>work</code> halts via <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code></td>
+<td>If you declared <code>output</code> keys, CMDx checks they’re on <code>context</code> when <code>work</code> returns normally. <code>:default</code> can fill nils; missing keys fail the task. Skipped if you halted with <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code>.</td>
 </tr>
 <tr>
 <td><strong>Rollback</strong></td>
-<td><code>rollback</code> runs when the signal is <code>failed</code> (before completion callbacks)</td>
+<td>If we failed, <code>rollback</code> runs before the completion party.</td>
 </tr>
 <tr>
 <td><strong>After execution</strong></td>
-<td><code>after_execution</code> callbacks run after the around-block completes</td>
+<td><code>after_execution</code> runs after the around-block finishes.</td>
 </tr>
 <tr>
 <td><strong>Completion callbacks</strong></td>
-<td><code>on_&lt;state&gt;</code>, <code>on_&lt;status&gt;</code>, <code>on_ok</code>/<code>on_ko</code> fire in that order</td>
+<td><code>on_&lt;state&gt;</code>, <code>on_&lt;status&gt;</code>, then <code>on_ok</code> / <code>on_ko</code> — in that order.</td>
 </tr>
 <tr>
 <td><strong>Result finalization</strong></td>
-<td><code>Result</code> built and added to <code>Chain</code> (root is <code>unshift</code>ed; children are <code>push</code>ed)</td>
+<td>Build the <code>Result</code> and attach it to the <code>Chain</code> (root goes in front; children append).</td>
 </tr>
 <tr>
 <td><strong>Teardown</strong></td>
-<td>Task, root context, errors, and chain are frozen; chain reference cleared from the fiber</td>
+<td>Freeze task, root context, errors, and chain; clear the chain off the fiber. We’re done.</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition danger">
 <p class="admonition-title">Caution</p>
-<p>Tasks are single-use objects. After execution, the task, its root context, and its errors are frozen by <code>Runtime</code> teardown.</p>
+<p>One task instance, one ride. After execution, the runtime <strong>freezes</strong> the task, its root context, and its errors. Don’t reuse that object for another run — make a fresh instance.</p>
 </div>
 
 

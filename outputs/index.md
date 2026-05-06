@@ -1,10 +1,14 @@
 # Outputs
 
-Outputs declare keys the task is expected to write to `context`. Every declared output is implicitly required: after `work` succeeds, the runtime checks each declared key on `task.context`, applies a default when the value is absent or `nil`, and fails the task if the key is still missing. Outputs are intentionally minimal — for coercion, transformation, validation, or nested resolution use [Inputs](https://drexed.github.io/cmdx/inputs/definitions/index.md) (or post-`work` code).
+Outputs answer a simple question: **“When this task succeeds, what keys must exist on `context`?”**
+
+You declare those keys up front. After `work` finishes happily, CMDx walks the list: read each key from `context`, apply a default if you configured one and the value is missing or `nil`, and fail the task if something is still missing.
+
+Outputs stay intentionally small. If you need coercion, fancy validation, or nested resolution, use [Inputs](https://drexed.github.io/cmdx/inputs/definitions/index.md) (or plain Ruby after `work`).
 
 ## Declaration
 
-Use `output` (singular) or `outputs` (they're aliases) to declare one or more keys:
+`output` and `outputs` are aliases — pick whichever reads nicer in your file.
 
 ```ruby
 class AuthenticateUser < CMDx::Task
@@ -23,21 +27,23 @@ end
 
 ### Options
 
-| Option                         | Default | Description                                                                                                     |
-| ------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------- |
-| `default:`                     | —       | Fallback value, Symbol, Proc, or `#call(task)`-able; applied when `context[name]` is `nil` or the key is absent |
-| `if:` / `unless:`              | —       | Skip verification entirely when the predicate isn't satisfied                                                   |
-| `description:` (alias `desc:`) | —       | Documentation surfaced via `outputs_schema`                                                                     |
+| Option                         | Default | What it does                                                                                                                       |
+| ------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `default:`                     | —       | Used when `context[name]` is missing or `nil`. Can be a literal, Symbol (method on task), Proc / callable — same shapes as inputs. |
+| `if:` / `unless:`              | —       | Skip checking this output when the predicate says so.                                                                              |
+| `description:` (alias `desc:`) | —       | Shows up in `outputs_schema` for docs / introspection.                                                                             |
 
 ```ruby
 output :report_path
-output :exported_at, if: -> { context.persist? }    # Proc/Lambda is instance_exec'd (no args)
-output :tracked, if: :persist?                       # Symbol calls task.persist?
+output :exported_at, if: -> { context.persist? }    # Proc: instance_exec on task, no args
+output :tracked, if: :persist?                       # Symbol: calls task.persist?
 ```
 
 ### Defaults
 
-Defaults let you declare constants or derived values alongside the output instead of computing them inside `work`. A default fires during verification whenever the resolved value is `nil` — both "key absent" and "task wrote nil" — and satisfies the implicit required check.
+Defaults are a nice way to say “if the task did not set this, fill it in for me” without extra noise in `work`.
+
+They run **during verification**, after `work`, whenever the resolved value is `nil` — whether the key was never written or the task explicitly set `nil`.
 
 ```ruby
 class ComputeRecommendations < CMDx::Task
@@ -57,11 +63,11 @@ class ComputeRecommendations < CMDx::Task
 end
 ```
 
-See [Inputs - Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md) for the long-form treatment of each shape — the resolution rules are identical.
+Curious about every default shape in detail? [Inputs - Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md) spells it out — **same rules** as here.
 
 ## Removals
 
-Outputs inherit through subclasses. Remove inherited declarations with `deregister` — pass one or more keys per call:
+Subclasses inherit outputs like everything else. `deregister` drops keys you do not want anymore:
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -80,7 +86,7 @@ end
 
 ## Verification Behavior
 
-Verification runs **after** `work` completes successfully. If `work` threw a `skip!`, `fail!`, or `throw!` signal, outputs are not verified.
+Verification is the “did we leave the kitchen clean?” step. It runs **after** `work` completes **without** throwing `skip!`, `fail!`, or `throw!`.
 
 ```
 flowchart LR
@@ -92,9 +98,15 @@ flowchart LR
     E -->|yes| F[Signal.failed reason=errors.to_s]
 ```
 
-For each output, in declaration order: if `:if`/`:unless` excludes it, skip entirely; otherwise read `context[name]`, fall back to `:default` when `nil`, fail with `cmdx.outputs.missing` when the key was never written and no default produced a value, otherwise write the resolved value back to `context[name]`.
+For each output, in declaration order:
 
-Verification errors fold into the same failed signal that input/validation failures use — `result.reason` is `task.errors.to_s` and `result.errors` exposes the structured map. Under `execute!`, the same failure raises `CMDx::Fault`.
+1. If `:if` / `:unless` says “skip,” done with this one.
+1. Otherwise read `context[name]`.
+1. If it is `nil`, try `:default`.
+1. Still nothing? That is a missing output (`cmdx.outputs.missing`).
+1. Otherwise write the resolved value back to `context[name]`.
+
+Those errors show up like any other validation failure: `result.reason`, `result.errors`, and under `execute!` they become `CMDx::Fault`.
 
 ### Missing Output
 
@@ -115,7 +127,7 @@ result.errors.to_h     #=> { user: ["must be set in the context"] }
 
 ### With Bang Execution
 
-A failing output verification raises `CMDx::Fault`:
+`execute!` turns the same failure into an exception you can rescue:
 
 ```ruby
 begin
@@ -129,7 +141,7 @@ end
 
 ## Schema Introspection
 
-`Task.outputs_schema` returns a serialized definition of every declared output, useful for documentation generation or runtime introspection:
+`Task.outputs_schema` is your machine-readable cheat sheet — handy for docs generators or admin UIs:
 
 ```ruby
 class CreateUser < CMDx::Task

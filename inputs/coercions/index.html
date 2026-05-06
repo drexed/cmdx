@@ -1185,7 +1185,7 @@
   <a href="#built-in-coercions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in Coercions
+        Built-in coercions
       
     </span>
   </a>
@@ -1257,7 +1257,7 @@
   <a href="#error-handling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Error Handling
+        Error handling
       
     </span>
   </a>
@@ -2208,7 +2208,7 @@
   <a href="#built-in-coercions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in Coercions
+        Built-in coercions
       
     </span>
   </a>
@@ -2280,7 +2280,7 @@
   <a href="#error-handling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Error Handling
+        Error handling
       
     </span>
   </a>
@@ -2374,44 +2374,41 @@
 
 
 <h1 id="inputs-coercions">Inputs - Coercions<a class="headerlink" href="#inputs-coercions" title="Permanent link">&para;</a></h1>
-<p>Automatically convert inputs to expected types using <code>coerce:</code>.</p>
-<p>See <a href="../../configuration/#coercions">Global Configuration</a> for custom coercion setup.</p>
+<p>Coercion is CMDx’s way of saying: <strong>“You gave me a string; I need an integer — let me fix that for you.”</strong> Use <code>coerce:</code> on an input to turn messy external data into the shape your task expects.</p>
+<p>App-wide custom coercers live in <a href="../../configuration/#coercions">Global Configuration</a>.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>Use <code>coerce:</code> to enable automatic coercion on a declared input:</p>
+<p>Add <code>coerce:</code> to a declaration. CMDx runs it early in the pipeline (before transforms and validators):</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ParseMetrics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="c1"># Coerce into a symbol</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:measurement_type</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:symbol</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="c1"># Coerce into a rational, fall back to big decimal</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="o">%</span><span class="n">i</span><span class="o">[</span><span class="n">rational</span><span class="w"> </span><span class="n">big_decimal</span><span class="o">]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:measurement_type</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:symbol</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="o">%</span><span class="n">i</span><span class="o">[</span><span class="n">rational</span><span class="w"> </span><span class="n">big_decimal</span><span class="o">]</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:recorded_at</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">date</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">strptime</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;%m-%d-%Y&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="c1"># Coerce with options</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:recorded_at</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">date</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">strptime</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;%m-%d-%Y&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">measurement_type</span><span class="w"> </span><span class="c1">#=&gt; :temperature</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="n">recorded_at</span><span class="w">      </span><span class="c1">#=&gt; #&lt;Date 2024-01-23&gt;</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="n">value</span><span class="w">            </span><span class="c1">#=&gt; Rational(493, 5)</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">end</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="no">ParseMetrics</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="ss">measurement_type</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="ss">recorded_at</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;01-23-2024&quot;</span><span class="p">,</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="ss">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;98.6&quot;</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">measurement_type</span><span class="w"> </span><span class="c1">#=&gt; :temperature</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">recorded_at</span><span class="w">      </span><span class="c1">#=&gt; #&lt;Date 2024-01-23&gt;</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">value</span><span class="w">            </span><span class="c1">#=&gt; Rational(493, 5)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">end</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="no">ParseMetrics</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="ss">measurement_type</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="ss">recorded_at</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;01-23-2024&quot;</span><span class="p">,</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="ss">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;98.6&quot;</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Pass an array to <code>coerce:</code> to attempt multiple types in order. CMDx returns the first successful coercion.</p>
+<p>Pass an <strong>array</strong> of coercers to try them in order. First one that succeeds wins — handy when input might be a string <strong>or</strong> already the right type.</p>
 </div>
-<h2 id="built-in-coercions">Built-in Coercions<a class="headerlink" href="#built-in-coercions" title="Permanent link">&para;</a></h2>
+<h2 id="built-in-coercions">Built-in coercions<a class="headerlink" href="#built-in-coercions" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Type</th>
 <th>Options</th>
-<th>Description</th>
+<th>In plain English</th>
 <th>Examples</th>
 </tr>
 </thead>
@@ -2419,114 +2416,112 @@
 <tr>
 <td><code>:array</code></td>
 <td></td>
-<td>Array conversion with JSON support; non-array JSON results fall back to wrapping</td>
+<td>Turn into an array; JSON strings become real arrays; lone values get wrapped</td>
 <td><code>"val"</code> → <code>["val"]</code><br><code>"[1,2,3]"</code> → <code>[1, 2, 3]</code></td>
 </tr>
 <tr>
 <td><code>:big_decimal</code></td>
 <td><code>:precision</code> (default <code>14</code>)</td>
-<td>High-precision decimal</td>
+<td>Decimal math without float weirdness</td>
 <td><code>"123.456"</code> → <code>BigDecimal("123.456")</code></td>
 </tr>
 <tr>
 <td><code>:boolean</code></td>
 <td></td>
-<td>Match text form against truthy/falsey sets; <code>nil</code> and unknown strings fail</td>
+<td>Recognize common yes/no strings; <code>nil</code> / unknown strings fail</td>
 <td><code>"yes"</code> → <code>true</code>, <code>"no"</code> → <code>false</code></td>
 </tr>
 <tr>
 <td><code>:complex</code></td>
 <td><code>:imaginary</code> (default <code>0</code>)</td>
-<td>Complex numbers</td>
+<td>Complex numbers from strings</td>
 <td><code>"1+2i"</code> → <code>Complex(1, 2)</code></td>
 </tr>
 <tr>
 <td><code>:date</code></td>
 <td><code>:strptime</code></td>
-<td><code>Date.parse</code> on strings, <code>#to_date</code> on anything else that responds</td>
+<td>Parse strings or call <code>#to_date</code> when available</td>
 <td><code>"2024-01-23"</code> → <code>Date.new(2024, 1, 23)</code></td>
 </tr>
 <tr>
 <td><code>:date_time</code></td>
 <td><code>:strptime</code></td>
-<td><code>DateTime.parse</code> on strings, <code>#to_datetime</code> on anything else that responds</td>
-<td><code>"2024-01-23 10:30"</code> → <code>DateTime.new(2024, 1, 23, 10, 30)</code></td>
+<td>Like <code>:date</code>, but <code>DateTime</code></td>
+<td><code>"2024-01-23 10:30"</code> → <code>DateTime.new(...)</code></td>
 </tr>
 <tr>
 <td><code>:float</code></td>
 <td></td>
-<td>Floating-point numbers</td>
+<td>String → float</td>
 <td><code>"123.45"</code> → <code>123.45</code></td>
 </tr>
 <tr>
 <td><code>:hash</code></td>
 <td></td>
-<td><code>nil</code> → <code>{}</code>; strings are JSON-decoded (must decode to a Hash); falls back to <code>#to_hash</code>/<code>#to_h</code></td>
+<td><code>nil</code> → <code>{}</code>; JSON strings must decode to a Hash; else <code>#to_hash</code> / <code>#to_h</code></td>
 <td><code>'{"a":1}'</code> → <code>{"a" =&gt; 1}</code></td>
 </tr>
 <tr>
 <td><code>:integer</code></td>
 <td></td>
-<td>Integer via <code>Kernel#Integer</code> (hex/octal with explicit prefix)</td>
-<td><code>"0xFF"</code> → <code>255</code>, <code>"0o77"</code> → <code>63</code></td>
+<td><code>Kernel#Integer</code> rules (hex/oct with prefixes)</td>
+<td><code>"0xFF"</code> → <code>255</code></td>
 </tr>
 <tr>
 <td><code>:rational</code></td>
 <td><code>:denominator</code> (default <code>1</code>)</td>
-<td>Rational numbers</td>
+<td>Fractions from strings</td>
 <td><code>"1/2"</code> → <code>Rational(1, 2)</code></td>
 </tr>
 <tr>
 <td><code>:string</code></td>
 <td></td>
-<td>String conversion</td>
+<td>Call <code>#to_s</code></td>
 <td><code>123</code> → <code>"123"</code></td>
 </tr>
 <tr>
 <td><code>:symbol</code></td>
 <td></td>
-<td><code>#to_s.to_sym</code>; fails when <code>value</code> has no <code>#to_s</code> (<code>BasicObject</code>)</td>
+<td><code>#to_s.to_sym</code>; fails if there’s no <code>#to_s</code></td>
 <td><code>"abc"</code> → <code>:abc</code></td>
 </tr>
 <tr>
 <td><code>:time</code></td>
 <td><code>:strptime</code></td>
-<td>Time objects; <code>Numeric</code> treated as epoch seconds</td>
-<td><code>"2024-01-23 10:30"</code> → <code>Time.new(2024, 1, 23, 10, 30)</code></td>
+<td>Time parsing; numbers = Unix seconds</td>
+<td><code>"2024-01-23 10:30"</code> → <code>Time.new(...)</code></td>
 </tr>
 </tbody>
 </table>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Custom coercions must return the coerced value on success or <code>CMDx::Coercions::Failure.new("message")</code> on failure. Returning a <code>Failure</code> records the message on <code>task.errors</code> keyed by the input's <strong>accessor name</strong> (post-<code>:as</code>/<code>:prefix</code>/<code>:suffix</code>) — not the original declaration name.</p>
+<p class="admonition-title">Success vs failure</p>
+<p>Custom coercions return the <strong>new value</strong> on success, or <code>CMDx::Coercions::Failure.new("message")</code> on failure. Failures land on <code>task.errors</code> under the <strong>accessor</strong> name (after <code>:as</code> / <code>:prefix</code> / <code>:suffix</code>), not the raw declaration name.</p>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Call signatures</p>
-<p>Registered coercions (via <code>register :coercion, ...</code>) receive <code>(value, **options)</code> and pick up per-declaration options like <code>precision:</code> or <code>strptime:</code>. Inline <code>:coerce</code> callables (see below) instead receive <code>(value, task)</code> and have no options hash.</p>
+<p class="admonition-title">Two different call styles</p>
+<p><strong><code>register :coercion</code></strong> handlers get <code>(value, **options)</code> — so <code>precision:</code> and friends flow through. <strong>Inline</strong> <code>coerce:</code> callables (below) get <code>(value, task)</code> and <strong>no</strong> options hash.</p>
 </div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p>Use anonymous functions for simple coercion logic:</p>
+<p>Quick custom logic:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformCoordinates</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:geolocation</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">options</span><span class="o">|</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="no">Geolocation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="k">rescue</span><span class="w"> </span><span class="no">StandardError</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Coercions</span><span class="o">::</span><span class="no">Failure</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;could not convert into a geolocation&quot;</span><span class="p">)</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">end</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">FormatTimeRange</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="c1"># Lambda</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:time_range</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">options</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="no">TimeRange</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="k">rescue</span><span class="w"> </span><span class="no">StandardError</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Coercions</span><span class="o">::</span><span class="no">Failure</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;could not convert into a time range&quot;</span><span class="p">)</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">end</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:geolocation</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">options</span><span class="o">|</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="no">Geolocation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">rescue</span><span class="w"> </span><span class="no">StandardError</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Coercions</span><span class="o">::</span><span class="no">Failure</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;could not convert into a geolocation&quot;</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">end</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">FormatTimeRange</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:time_range</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">options</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="no">TimeRange</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="k">rescue</span><span class="w"> </span><span class="no">StandardError</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Coercions</span><span class="o">::</span><span class="no">Failure</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;could not convert into a time range&quot;</span><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
-<p>Register custom coercion logic for specialized type handling:</p>
+<p>Name it, test it, reuse it:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">GeolocationCoercion</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="no">Geolocation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -2542,11 +2537,11 @@
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="inline-coerce-callable">Inline <code>:coerce</code> callable<a class="headerlink" href="#inline-coerce-callable" title="Permanent link">&para;</a></h3>
-<p>For one-off coercions that don't need a registered name, pass a <code>Symbol</code> (instance method), <code>Proc</code>, or any callable directly to <code>coerce:</code>. Symbols receive <code>(value)</code>, Procs are <code>instance_exec</code>'d with <code>(value)</code> (<code>self</code> is the task), and <code>#call</code>-able objects receive <code>(value, task)</code>:</p>
+<p>Skip <code>register</code> for one-offs: <code>Symbol</code> (instance method), <code>Proc</code>, or <code>#call</code>-able. Symbols get <code>(value)</code>; procs use <code>instance_exec</code> with <code>(value)</code>; callables get <code>(value, task)</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformCoordinates</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:latitude</span><span class="p">,</span><span class="w">  </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:parse_lat</span><span class="w">                       </span><span class="c1"># instance method</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:longitude</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">Float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">      </span><span class="c1"># lambda</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:elevation</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="no">ElevationParser</span><span class="w">                  </span><span class="c1"># callable: call(value, task)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:latitude</span><span class="p">,</span><span class="w">  </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:parse_lat</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:longitude</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">Float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:elevation</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="no">ElevationParser</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="kp">private</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
@@ -2562,17 +2557,17 @@
 </span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
-<p>Remove unwanted coercions:</p>
+<p>Yank a registered coercion when you don’t need it:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Each <code>deregister</code> call removes one coercion. Use multiple calls for batch removals.</p>
+<p>Same as validators: one <code>deregister</code> per name.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformCoordinates</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:geolocation</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
-<p>Coercion failures accumulate on <code>task.errors</code> and surface as a failed result with the joined sentence as <code>result.reason</code>. See <a href="../definitions/#error-handling">Inputs - Error Handling</a> for the full lifecycle.</p>
+<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Failed coercion adds to <code>task.errors</code> and fails the run; <code>result.reason</code> summarizes it. Full lifecycle: <a href="../definitions/#error-handling">Inputs - Error Handling</a>.</p>
 
 
 

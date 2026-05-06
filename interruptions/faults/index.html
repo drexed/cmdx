@@ -2430,7 +2430,8 @@
 
 
 <h1 id="interruptions-faults">Interruptions - Faults<a class="headerlink" href="#interruptions-faults" title="Permanent link">&para;</a></h1>
-<p><code>CMDx::Fault</code> is the exception <code>execute!</code> raises on failure. Skipped and successful results never raise. A Fault wraps the <strong>originating</strong> failed <code>Result</code> — the leaf at the bottom of any propagation chain — and delegates <code>task</code>, <code>context</code>, and <code>chain</code> to it. See <a href="../exceptions/">Exceptions</a> for the full hierarchy.</p>
+<p><code>CMDx::Fault</code> is the exception you get from <code>execute!</code> when a task fails. Skips and successes never become faults.</p>
+<p>A fault wraps the <strong>originating</strong> failed <code>Result</code> — the leaf at the bottom of any <code>throw!</code> chain — and delegates <code>task</code>, <code>context</code>, and <code>chain</code> from that result. For the bigger picture on errors, see <a href="../exceptions/">Exceptions</a>.</p>
 <h2 id="whats-on-a-fault">What's on a Fault<a class="headerlink" href="#whats-on-a-fault" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2444,7 +2445,7 @@
 <tr>
 <td><code>fault.result</code></td>
 <td><code>CMDx::Result</code></td>
-<td>The failed result that originated the failure (after walking <code>origin</code>)</td>
+<td>The failed result that started the problem (after walking <code>origin</code>)</td>
 </tr>
 <tr>
 <td><code>fault.task</code></td>
@@ -2459,26 +2460,27 @@
 <tr>
 <td><code>fault.chain</code></td>
 <td><code>CMDx::Chain</code></td>
-<td>The chain of every result produced during the run</td>
+<td>Every result produced during the run</td>
 </tr>
 <tr>
 <td><code>fault.message</code></td>
 <td><code>String</code></td>
-<td><code>I18nProxy.tr(result.reason)</code> — translates when the reason is an i18n key, otherwise passes through; falls back to the localized <code>cmdx.reasons.unspecified</code> when reason is <code>nil</code></td>
+<td><code>I18nProxy.tr(result.reason)</code> — translates i18n keys, otherwise uses the string as-is; falls back to localized <code>cmdx.reasons.unspecified</code> when reason is <code>nil</code></td>
 </tr>
 <tr>
 <td><code>fault.backtrace</code></td>
 <td><code>Array&lt;String&gt;</code></td>
-<td>From <code>result.backtrace</code> or <code>result.cause&amp;.backtrace_locations</code>, cleaned via <code>task.settings.backtrace_cleaner</code> when configured</td>
+<td>From <code>result.backtrace</code> or <code>result.cause&amp;.backtrace_locations</code>, cleaned with <code>task.settings.backtrace_cleaner</code> when set</td>
 </tr>
 </tbody>
 </table>
-<p>Use <code>fault.result</code> to read the failed outcome's <code>reason</code>, <code>metadata</code>, <code>cause</code>, <code>origin</code>, <code>state</code>, and <code>status</code>.</p>
+<p>For day-to-day debugging, read <code>fault.result</code> for <code>reason</code>, <code>metadata</code>, <code>cause</code>, <code>origin</code>, <code>state</code>, and <code>status</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>Fault</code> wraps failures from <code>fail!</code>, <code>throw!</code>, or <code>errors.add</code>. If Runtime rescued an ordinary <code>StandardError</code> (<code>result.cause</code> is non-<code>Fault</code>), <code>execute!</code> re-raises that original exception instead. In workflows, <code>fault.task</code> always points at the leaf that failed, so <code>Fault.for?(LeafTask)</code> works the same flat or nested.</p>
+<p>Faults cover failures from <code>fail!</code>, <code>throw!</code>, or <code>errors.add</code>. If the runtime rescued a plain <code>StandardError</code> and stored it on the result, <code>execute!</code> re-raises that original exception instead of a <code>Fault</code>. In workflows, <code>fault.task</code> always points at the leaf that failed, so <code>Fault.for?(LeafTask)</code> behaves the same for simple and nested runs.</p>
 </div>
 <h2 id="fault-handling">Fault Handling<a class="headerlink" href="#fault-handling" title="Permanent link">&para;</a></h2>
+<p>Bang form: rescue and log or notify.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="no">ProcessTicket</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">ticket_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -2487,7 +2489,7 @@
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="n">notify_admin</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>When you need to keep working with the result rather than rescuing, use <code>execute</code> and inspect it directly:</p>
+<p>Non-bang form: keep the <code>Result</code> and branch on it.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessTicket</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">ticket_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">result</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="ss">:failed</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span>
@@ -2495,19 +2497,19 @@
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="n">notify_admin</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">context</span><span class="p">:</span><span class="w"> </span><span class="n">r</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Either form gives you the same data: with <code>execute!</code>, reach for <code>fault.result</code> / <code>fault.context</code> / <code>fault.chain</code>; with <code>execute</code>, work with the returned <code>result</code> directly.</p>
+<p>Same facts, two doors: <code>execute!</code> gives you <code>fault.result</code> / <code>fault.context</code> / <code>fault.chain</code>; <code>execute</code> gives you the <code>result</code> directly.</p>
 <h2 id="advanced-matching">Advanced Matching<a class="headerlink" href="#advanced-matching" title="Permanent link">&para;</a></h2>
 <h3 id="task-specific-matching">Task-Specific Matching<a class="headerlink" href="#task-specific-matching" title="Permanent link">&para;</a></h3>
-<p><code>Fault.for?(*task_classes)</code> returns an anonymous matcher subclass suitable for <code>rescue</code>. It matches any fault whose <code>task</code> is (or inherits from) one of the given classes:</p>
+<p><code>Fault.for?(*task_classes)</code> builds a tiny matcher class you can use in <code>rescue</code>. It matches when <code>fault.task</code> is one of the listed classes (or inherits from one).</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">begin</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">FormatValidator</span><span class="p">,</span><span class="w"> </span><span class="no">ContentProcessor</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="c1"># Handle only document-related failures</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="c1"># Only document pipeline failures land here</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="n">retry_with_alternate_parser</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="reason-specific-matching">Reason-Specific Matching<a class="headerlink" href="#reason-specific-matching" title="Permanent link">&para;</a></h3>
-<p><code>Fault.reason?(reason)</code> returns an anonymous matcher subclass that matches any fault whose <code>result.reason</code> equals the given string:</p>
+<p><code>Fault.reason?(reason)</code> matches when <code>result.reason</code> equals the string you passed.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">begin</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="no">ProcessPayment</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">payment_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">reason?</span><span class="p">(</span><span class="s2">&quot;Payment declined&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -2515,7 +2517,7 @@
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="custom-logic-matching">Custom Logic Matching<a class="headerlink" href="#custom-logic-matching" title="Permanent link">&para;</a></h3>
-<p><code>Fault.matches?</code> takes a block returning <code>true</code>/<code>false</code> against the fault. Use it for arbitrary predicates — metadata, status, cause class, etc.:</p>
+<p><code>Fault.matches?</code> runs your block on the fault. Use it for metadata, status, cause class, anything you can express in Ruby.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">begin</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="no">ReportGenerator</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">report</span><span class="p">:</span><span class="w"> </span><span class="n">report_data</span><span class="p">)</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">matches?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">f</span><span class="o">|</span><span class="w"> </span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:attempt_count</span><span class="o">].</span><span class="n">to_i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -2526,10 +2528,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Each call to <code>for?</code> / <code>matches?</code> returns a fresh anonymous matcher subclass, so they can be stacked across multiple <code>rescue</code> clauses but cannot be combined into a single matcher.</p>
+<p>Each <code>for?</code> / <code>matches?</code> call returns a fresh anonymous class. Great for stacking <code>rescue</code> lines; not great for merging into one mega-matcher.</p>
 </div>
 <h2 id="fault-propagation">Fault Propagation<a class="headerlink" href="#fault-propagation" title="Permanent link">&para;</a></h2>
-<p>Use <code>throw!</code> to re-raise an upstream failed result through the current task. The propagated signal mirrors the original's state, status, and reason and attaches the current <code>caller_locations</code> as the backtrace. It's a no-op when the argument isn't <code>failed?</code> — skipped or successful results are never converted into failures.</p>
+<p><code>throw!</code> forwards another task's failed result through the current task. The signal copies state, status, and reason, and attaches the current <code>caller_locations</code> as the backtrace. If the argument is not failed, <code>throw!</code> does nothing — it never turns a skip or success into a failure.</p>
 <h3 id="basic-propagation">Basic Propagation<a class="headerlink" href="#basic-propagation" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReportGenerator</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -2545,7 +2547,7 @@
 </span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="additional-metadata">Additional Metadata<a class="headerlink" href="#additional-metadata" title="Permanent link">&para;</a></h3>
-<p>Pass keyword args to attach extra metadata to the propagated signal:</p>
+<p>Keyword arguments merge into this task's result metadata on top of the propagated failure.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BatchProcessor</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">step_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FileValidation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
@@ -2564,7 +2566,7 @@
 </span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="chain-analysis">Chain Analysis<a class="headerlink" href="#chain-analysis" title="Permanent link">&para;</a></h2>
-<p><code>Fault</code> exposes the originating <code>Result</code> via <code>fault.result</code>, plus the full <code>chain</code> it belongs to. From either, you can walk failure propagation with <code>origin</code>, <code>caused_failure</code>, and <code>threw_failure</code>. See <a href="../../outcomes/result/#chain-analysis">Result - Chain Analysis</a> for the full API.</p>
+<p><code>fault.result</code> is the originating failure; <code>fault.chain</code> is the whole story. Walk propagation with <code>origin</code>, <code>caused_failure</code>, and <code>threw_failure</code>. Full tour in <a href="../../outcomes/result/#chain-analysis">Result - Chain Analysis</a>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>

@@ -1,45 +1,49 @@
 # Configuration
 
-Configure CMDx to register components, control logging, and customize framework behavior. Configuration lives at two levels: global defaults and per-class overrides.
+This page is about **telling CMDx how to behave**: loggers, telemetry, middleware, custom coercers — the whole backstage crew.
 
-## Configuration Hierarchy
+There are two “floors” to the building:
 
-CMDx uses a two-tier configuration system:
+1. **Global** — `CMDx.configure { … }` sets defaults for the whole process.
+1. **Per task class** — `settings`, `register`, `retry_on`, and friends tweak one family of tasks.
 
-1. **Global Configuration** — Framework-wide defaults via `CMDx.configure`
-1. **Class-level overrides** — On the task class via `settings`, `register`, `deregister`, `retry_on`, `deprecation`
+If that sounds like inheritance, you’re on the right track — just read the warning below so tests don’t surprise you.
 
-Important
+## Configuration hierarchy
 
-Class-level registries are **lazily duplicated** from the parent on first access. Configure globals before any task touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate cached copies on `Task`.
+CMDx keeps **global** defaults and lets each **task class** override or extend them (loggers, tags, strict context, etc.).
 
-## Global Configuration
+Order matters (especially in tests)
 
-### Default Values
+Class-level registries **copy lazily** from the parent the first time you touch them. Rule of thumb: run `CMDx.configure` **before** tasks start using registries, or call `CMDx.reset_configuration!` in test setup so stale copies don’t stick around.
 
-| Setting             | Default                                                                   | Description                                                                                         |
-| ------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `logger`            | `Logger.new($stdout, progname: "cmdx", formatter: Line.new, level: INFO)` | Logger instance                                                                                     |
-| `log_level`         | `nil`                                                                     | Optional override applied on top of `logger.level` (nil = use the logger's own level)               |
-| `log_formatter`     | `nil`                                                                     | Optional override applied on top of `logger.formatter` (nil = use the logger's own formatter)       |
-| `log_exclusions`    | `[]`                                                                      | `Result#to_h` keys stripped from the lifecycle log entry (e.g. `[:context]`)                        |
-| `default_locale`    | `"en"`                                                                    | Locale for built-in translation fallbacks                                                           |
-| `backtrace_cleaner` | `nil`                                                                     | Callable to clean fault backtraces                                                                  |
-| `strict_context`    | `false`                                                                   | Raise `NoMethodError` on unknown `context.foo` reads                                                |
-| `correlation_id`    | `nil`                                                                     | Callable resolved once per root execution; surfaced as `xid` on `Chain`/`Result`/`Telemetry::Event` |
-| `middlewares`       | `Middlewares.new` (empty)                                                 | Middleware registry                                                                                 |
-| `callbacks`         | `Callbacks.new` (empty)                                                   | Callback registry                                                                                   |
-| `coercions`         | `Coercions.new` (13 built-ins)                                            | Coercion registry                                                                                   |
-| `validators`        | `Validators.new` (7 built-ins)                                            | Validator registry                                                                                  |
-| `executors`         | `Executors.new` (`:threads`, `:fibers`)                                   | Parallel-group executor registry                                                                    |
-| `mergers`           | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`)            | Parallel-group merge-strategy registry                                                              |
-| `retriers`          | `Retriers.new` (7 built-ins)                                              | Retry/jitter strategy registry                                                                      |
-| `deprecators`       | `Deprecators.new` (`:log`, `:warn`, `:error`)                             | Deprecation handler registry                                                                        |
-| `telemetry`         | `Telemetry.new` (empty)                                                   | Telemetry pub/sub                                                                                   |
+## Global configuration
 
-### Default Locale
+### Defaults
 
-Set the locale used for built-in translation fallbacks when the `I18n` gem isn't loaded. See [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md) for the full locale list.
+| Setting             | Default                                                                   | In plain English                                                                |
+| ------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `logger`            | `Logger.new($stdout, progname: "cmdx", formatter: Line.new, level: INFO)` | Where INFO-ish lines go                                                         |
+| `log_level`         | `nil`                                                                     | Optional override; `nil` means “trust the logger’s level”                       |
+| `log_formatter`     | `nil`                                                                     | Optional override; `nil` means “trust the logger’s formatter”                   |
+| `log_exclusions`    | `[]`                                                                      | Keys to strip from the **log line** of `Result#to_h` (e.g. hide fat `:context`) |
+| `default_locale`    | `"en"`                                                                    | Fallback language for built-in messages when I18n isn’t in play                 |
+| `backtrace_cleaner` | `nil`                                                                     | Optional `Fault` backtrace scrubber                                             |
+| `strict_context`    | `false`                                                                   | Typo on `context.foo` → `NoMethodError` instead of `nil`                        |
+| `correlation_id`    | `nil`                                                                     | Callable → one id per root run, exposed as `xid`                                |
+| `middlewares`       | `Middlewares.new` (empty)                                                 | Global middleware stack                                                         |
+| `callbacks`         | `Callbacks.new` (empty)                                                   | Global callbacks                                                                |
+| `coercions`         | `Coercions.new` (13 built-ins)                                            | Input coercers                                                                  |
+| `validators`        | `Validators.new` (7 built-ins)                                            | Input validators                                                                |
+| `executors`         | `Executors.new` (`:threads`, `:fibers`)                                   | Parallel workflow backends                                                      |
+| `mergers`           | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`)            | How parallel branches merge into context                                        |
+| `retriers`          | `Retriers.new` (7 built-ins)                                              | Named retry / jitter strategies                                                 |
+| `deprecators`       | `Deprecators.new` (`:log`, `:warn`, `:error`)                             | How deprecations surface                                                        |
+| `telemetry`         | `Telemetry.new` (empty)                                                   | Pub/sub bus for runtime events                                                  |
+
+### Default locale
+
+When the `I18n` gem **isn’t** loaded, CMDx uses `default_locale` for its own strings (validation errors, coercion errors, …). Full list: [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md).
 
 ```ruby
 CMDx.configure do |config|
@@ -49,11 +53,11 @@ end
 
 Note
 
-When `I18n` is loaded, CMDx delegates to `I18n.translate` and `default_locale` is unused — locale comes from `I18n.locale`. Without `I18n`, all built-in messages (validation errors, coercion errors, etc.) resolve from this setting.
+If `I18n` **is** loaded, CMDx delegates translations to it and follows `I18n.locale` — `default_locale` sits this one out.
 
-### Backtrace Cleaner
+### Backtrace cleaner
 
-Trim noise from `Fault` backtraces with any callable that takes `Array<String>` and returns a cleaned array.
+Faults can dump huge stack traces. A **backtrace cleaner** is any callable: `Array<String> in → Array<String> out`.
 
 ```ruby
 CMDx.configure do |config|
@@ -66,11 +70,11 @@ end
 
 Note
 
-Rails apps wire this automatically via `CMDx::Railtie`.
+In Rails, the Railtie wires a sensible default so you often don’t touch this.
 
-### Strict Context
+### Strict context
 
-Raise `NoMethodError` for unknown dynamic context reads instead of returning `nil`. Applies to the `ctx.foo` reader only — `[]`, `fetch`, `dig`, `key?`, and predicate `ctx.foo?` keep their lenient behavior. See [Context - Strict Mode](https://drexed.github.io/cmdx/basics/context/#strict-mode) for usage.
+With `strict_context: true`, a bad dynamic read like `context.typo` raises **`NoMethodError`** instead of quietly returning `nil`. Hash-style access (`[]`, `fetch`, `dig`, …) stays forgiving. More examples: [Context - Strict Mode](https://drexed.github.io/cmdx/basics/context/#strict-mode).
 
 ```ruby
 CMDx.configure do |config|
@@ -78,11 +82,11 @@ CMDx.configure do |config|
 end
 ```
 
-Override per-task via `settings(strict_context: true)`.
+Per-class override: `settings(strict_context: true)`.
 
-### Correlation ID (xid)
+### Correlation ID (`xid`)
 
-Thread an external correlation id (e.g. Rails `request_id`) through every task in a chain so they can be filtered together in logs and telemetry. Provide a callable; Runtime invokes it **once per root execution** when it builds the chain. The resolved value is stored on the `Chain` and surfaced as `xid` on every `Result#to_h` and `Telemetry::Event`.
+Want every task in a chain to share one **request id** (or trace id) for logs and metrics? Set `correlation_id` to a callable. CMDx calls it **once** when the root chain starts; every `Result` and telemetry event in that run gets the same `xid`.
 
 ```ruby
 CMDx.configure do |config|
@@ -91,14 +95,14 @@ end
 
 result = ProcessOrder.execute(order_id: 42)
 result.xid                            #=> "abc-123-..."
-result.chain.map(&:xid).uniq          #=> ["abc-123-..."] (every task in the chain shares it)
+result.chain.map(&:xid).uniq          #=> ["abc-123-..."]  # whole chain matches
 ```
 
-Override per-task via `settings(correlation_id: ->{ ... })` to give a specific task family its own resolver. Returning `nil` from the callable leaves `xid` as `nil`. Resolver exceptions propagate (so misconfigured resolvers fail loudly).
+You can also set `settings(correlation_id: -> { … })` on a base task class if one subtree needs different rules. `nil` from the callable → `xid` stays `nil`. If the callable blows up, you’ll see it — that’s on purpose so misconfigurations don’t hide.
 
 Note
 
-The resolver fires only on the **root** chain creation. Nested subtasks inherit the same xid via the shared chain — even if the underlying thread-local mutates mid-flight, every result in the same execution sees a stable value.
+Only the **root** run resolves the id; nested tasks reuse the chain’s value so `xid` stays stable for the whole execution.
 
 ### Logging
 
@@ -111,23 +115,23 @@ CMDx.configure do |config|
 end
 ```
 
-Built-in formatters live under `CMDx::LogFormatters`: `Line` (default), `JSON`, `KeyValue`, `Logstash`, `Raw`. See [Logging](https://drexed.github.io/cmdx/logging/index.md) for the emitted fields and sample output.
+Built-in formatters live under `CMDx::LogFormatters`: `Line` (default), `JSON`, `KeyValue`, `Logstash`, `Raw`. See [Logging](https://drexed.github.io/cmdx/logging/index.md) for fields and samples.
 
-`log_exclusions` trims noisy keys from the logged `Result#to_h` (common targets: `:context`, `:metadata`, `:tags`). The returned `Result` and telemetry payloads still carry the full data — only the log line is filtered.
+`log_exclusions` only affects the **log line** built from `Result#to_h` — handy to drop giant `:context` blobs. The in-memory `Result` and telemetry payloads stay full.
 
 ### Middlewares
 
-Middlewares wrap the entire task lifecycle. The signature is `call(task) { ... }` — call `yield` (or `next_link.call` from a Proc) to invoke the next link.
+Middleware wraps the **entire** task lifecycle. Signature: `call(task) { … }` — you must `yield` (or `next_link.call` from a Proc) or the task never runs.
 
 ```ruby
 CMDx.configure do |config|
   # Class with #call(task)
   config.middlewares.register CustomMiddleware
 
-  # Instance
+  # Instance with captured options
   config.middlewares.register CustomMiddleware.new(threshold: 1000)
 
-  # Proc / Lambda — must declare &next_link to pass the block
+  # Proc / Lambda — capture &next_link to forward the chain
   config.middlewares.register(proc do |task, &next_link|
     locale = Current.user.locale || I18n.default_locale
     I18n.with_locale(locale) do
@@ -136,72 +140,64 @@ CMDx.configure do |config|
     end
   end)
 
-  # Insert at a specific position
+  # Pin order: 0 = outermost
   config.middlewares.register MyOuterMiddleware, at: 0
 
-  # Remove
   config.middlewares.deregister CustomMiddleware
 end
 ```
 
 Caution
 
-A middleware that forgets to yield raises `CMDx::MiddlewareError` — the task body is never invoked, so silent skips are caught immediately.
+If middleware never calls the next link, CMDx raises `CMDx::MiddlewareError` — so you don’t silently “skip” tasks.
 
-See the [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md) docs for class-level configuration.
+More patterns: [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md).
 
 ### Callbacks
 
-Callbacks fire at specific lifecycle points. Valid events:
+Global callbacks use the same **event names** as on a class. Quick map:
 
-| Event                | When                                                          |
-| -------------------- | ------------------------------------------------------------- |
-| `:before_execution`  | Before any `work` is executed                                 |
-| `:before_validation` | Right after `:before_execution`, before input resolution      |
-| `:around_execution`  | Wraps `work` and any `rollback`; must invoke its continuation |
-| `:after_execution`   | After `work` and `rollback` is executed                       |
-| `:on_complete`       | When `state == "complete"` (success path)                     |
-| `:on_interrupted`    | When `state == "interrupted"` (skip or fail)                  |
-| `:on_success`        | When `status == "success"`                                    |
-| `:on_skipped`        | When `status == "skipped"`                                    |
-| `:on_failed`         | When `status == "failed"`                                     |
-| `:on_ok`             | Success or skipped (`signal.ok?` — not failed)                |
-| `:on_ko`             | Skipped or failed (`signal.ko?` — not success)                |
+| Event                | Roughly when                                             |
+| -------------------- | -------------------------------------------------------- |
+| `:before_execution`  | Before `work`                                            |
+| `:before_validation` | After `:before_execution`, before inputs are resolved    |
+| `:around_execution`  | Wraps `work` and `rollback` — must run continuation once |
+| `:after_execution`   | After `work` / `rollback`                                |
+| `:on_complete`       | State is `"complete"` (happy path finished)              |
+| `:on_interrupted`    | State is `"interrupted"` (skip or fail)                  |
+| `:on_success`        | Status is `"success"`                                    |
+| `:on_skipped`        | Status is `"skipped"`                                    |
+| `:on_failed`         | Status is `"failed"`                                     |
+| `:on_ok`             | Signal says “not failed” (success or skip)               |
+| `:on_ko`             | Signal says “not pure success” (skip or fail)            |
 
 ```ruby
 CMDx.configure do |config|
-  # Symbol — dispatched as task.send(:method)
+  # Symbol → `task.send(:method)`
   config.callbacks.register :before_execution, :initialize_session
 
   # Class / instance with #call(task)
   config.callbacks.register :on_success, LogUserActivity
 
-  # Proc / Lambda — instance_exec'd on the task; receives task as block arg.
-  # The Result isn't built yet during callbacks; subscribe to Telemetry's
-  # :task_executed event when you need result data like duration.
+  # Proc — runs in the task’s context; still no `result` yet; use `:task_executed` for duration, etc.
   config.callbacks.register(:on_complete, proc do |task|
     StatsD.increment("task.completed", tags: ["task:#{task.class}"])
   end)
 
-  # Remove every callback for an event
-  config.callbacks.deregister :on_success
-
-  # Or remove a specific entry — match by `==` (Procs/Lambdas by identity)
-  config.callbacks.deregister :on_success, LogUserActivity
+  config.callbacks.deregister :on_success                  # all :on_success hooks
+  config.callbacks.deregister :on_success, LogUserActivity # just this match (`==`)
 end
 ```
 
-Note
+`deregister(event)` alone clears **everything** for that event; add a second arg to remove one entry. Unknown event → `ArgumentError`. No matching callable → no-op.
 
-`deregister(event)` drops every callback for that event; pass a second arg to remove only matching entries (`==`). Unknown events raise `ArgumentError`; unmatched callables are silent no-ops.
-
-See [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md) for class-level usage.
+Class-level recipes: [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md).
 
 ### Telemetry
 
-Pub/sub for runtime lifecycle events. Subscribers receive a `Telemetry::Event` data object with `cid`, `xid`, `root`, `type`, `task`, `tid`, `name`, `payload`, and `timestamp`.
+Simple mental model: **publish events, subscribe with lambdas**. Each event delivers a `Telemetry::Event` (`cid`, `xid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`).
 
-| Event               | Payload                |
+| Event               | Payload (extra)        |
 | ------------------- | ---------------------- |
 | `:task_started`     | empty                  |
 | `:task_deprecated`  | empty                  |
@@ -228,11 +224,11 @@ end
 
 Tip
 
-Runtime emits events **only** when subscribers exist for them, so unused events have zero overhead.
+Events are only emitted if **someone subscribed** — so unused event types cost nothing.
 
 ### Coercions
 
-Custom coercions are callables receiving `(value, **options)` and returning the coerced value or `CMDx::Coercions::Failure.new(message)` on failure.
+A coercion is `(value, **options) → coerced value` or `CMDx::Coercions::Failure.new("message")` on failure.
 
 ```ruby
 CMDx.configure do |config|
@@ -248,11 +244,11 @@ CMDx.configure do |config|
 end
 ```
 
-See [Inputs - Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md) for usage.
+Usage from inputs: [Inputs - Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md).
 
 ### Validators
 
-Custom validators are callables receiving `(value, options)` (options is a positional hash). Return `CMDx::Validators::Failure.new(message)` to mark the value invalid; any other return value (including `nil`) is treated as success.
+A validator is `(value, options)` with `options` as a positional Hash. Return `CMDx::Validators::Failure.new(message)` to fail; anything else (even `nil`) counts as pass.
 
 ```ruby
 CMDx.configure do |config|
@@ -271,18 +267,16 @@ CMDx.configure do |config|
 end
 ```
 
-See [Inputs - Validations](https://drexed.github.io/cmdx/inputs/validations/index.md) for usage.
+More: [Inputs - Validations](https://drexed.github.io/cmdx/inputs/validations/index.md).
 
 ### Executors
 
-Named concurrency backends used by `Workflow` `:parallel` groups. An executor is any callable with signature `call(jobs:, concurrency:, on_job:)` that invokes `on_job.call(job)` for each job and blocks until all jobs complete. Built-ins: `:threads` (default), `:fibers`.
+Executors power **parallel** workflow groups. Contract: `call(jobs:, concurrency:, on_job:)` — call `on_job.call(job)` for each job, wait until all finish. Built-ins: `:threads` (default), `:fibers`.
 
 ```ruby
 CMDx.configure do |config|
-  # Class or instance with #call(jobs:, concurrency:, on_job:)
   config.executors.register :ractor, RactorExecutor
 
-  # Proc / Lambda
   config.executors.register(:inline, proc do |jobs:, concurrency:, on_job:|
     jobs.each { |job| on_job.call(job) }
   end)
@@ -291,15 +285,14 @@ CMDx.configure do |config|
 end
 ```
 
-See [Workflows - Parallel Groups](https://drexed.github.io/cmdx/workflows/#parallel-execution) for usage.
+See [Workflows - Parallel Groups](https://drexed.github.io/cmdx/workflows/#parallel-execution).
 
 ### Mergers
 
-Named strategies for folding successful parallel task results back into the workflow context. A merger is any callable with signature `call(workflow_context, result)`. Built-ins: `:last_write_wins` (default), `:deep_merge`, `:no_merge`.
+After parallel branches succeed, a **merger** folds their outputs into the workflow context: `call(workflow_context, result)`. Built-ins: `:last_write_wins` (default), `:deep_merge`, `:no_merge`.
 
 ```ruby
 CMDx.configure do |config|
-  # Only merge specific keys
   config.mergers.register(:whitelist, proc do |ctx, result|
     result.context.to_h.slice(:user_id, :tenant_id).each { |k, v| ctx[k] = v }
   end)
@@ -308,13 +301,13 @@ CMDx.configure do |config|
 end
 ```
 
-See [Workflows - Parallel Groups](https://drexed.github.io/cmdx/workflows/#parallel-execution) for usage.
+Same workflow doc: [Workflows - Parallel Groups](https://drexed.github.io/cmdx/workflows/#parallel-execution).
 
-## Class-Level Configuration
+## Class-level configuration
 
 ### Settings
 
-`Settings` exposes a small set of per-class overrides for logger and tagging:
+`settings` is the small set of per-class knobs that mirror globals: logger-ish things, tags, `strict_context`, `correlation_id`, etc.
 
 ```ruby
 class GenerateInvoice < CMDx::Task
@@ -334,7 +327,7 @@ class GenerateInvoice < CMDx::Task
 end
 ```
 
-Every getter falls back to the global configuration when an option isn't set. Subclasses inherit and may layer on top — multiple `settings(...)` calls compose (each merges on top of the previous).
+Anything you omit falls back to `CMDx.configuration`. Subclasses inherit and merge — later `settings` calls layer on top (last merge wins per key).
 
 ```ruby
 class BaseTask < CMDx::Task
@@ -343,17 +336,17 @@ end
 
 class ChildTask < BaseTask
   settings(tags: ["billing"], log_level: Logger::DEBUG)
-  # tags = ["billing"] (child wins; settings.build does Hash#merge)
+  # tags => ["billing"]  (child overrides)
 end
 ```
 
 Note
 
-`Settings` only stores logging/tracing options (`:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, `:correlation_id`). Other config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
+`settings` only stores logging / tracing-ish keys (`:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, `:correlation_id`). Retries and deprecations use their own DSLs.
 
 ### Retry
 
-Configure exception-based retries with `retry_on`. Accumulates across inheritance.
+`retry_on` stacks across inheritance — list the exceptions, cap attempts, pick jitter. Full menu of options: [Retries](https://drexed.github.io/cmdx/retries/index.md).
 
 ```ruby
 class FetchInvoice < CMDx::Task
@@ -364,18 +357,18 @@ class FetchInvoice < CMDx::Task
     jitter: :exponential   # :exponential, :half_random, :full_random, :bounded_random, :linear, :fibonacci, :decorrelated_jitter
 
   retry_on External::ApiError, limit: 5 do |attempt, delay|
-    delay * (attempt + 1)  # custom jitter block
+    delay * (attempt + 1)  # custom backoff
   end
 end
 ```
 
 Note
 
-`jitter:` takes precedence over a custom block — pass one or the other, not both, or the block is silently ignored.
+If you pass both `jitter:` and a custom block, **`jitter:` wins** — the block is ignored. Pick one story.
 
 ### Deprecation
 
-See [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md). Declared via the class-level `deprecation` DSL — **not** via `settings`.
+Handled with the class-level `deprecation` DSL (not `settings`). Full guide: [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md).
 
 ```ruby
 class LegacyTask < CMDx::Task
@@ -383,69 +376,60 @@ class LegacyTask < CMDx::Task
 end
 ```
 
-### Registrations
+### Registrations (`register` / `deregister`)
 
-Register or deregister middlewares, callbacks, coercions, and validators on a specific task class.
+Attach middleware, callbacks, coercions, validators — or inputs/outputs — to **one** task class.
 
 ```ruby
 class SendCampaignEmail < CMDx::Task
-  # Middlewares
   register :middleware, AuditTrailMiddleware
   deregister :middleware, GlobalLoggingMiddleware
 
-  # Callbacks (use the dedicated DSL OR register :callback explicitly)
   before_execution :find_campaign
   on_complete proc { |task| Analytics.track("email_sent", task.context.recipient) }
   register :callback, :on_failed, :send_alert
 
-  # Coercions
   register :coercion, :currency, CurrencyCoercion
-
-  # Validators
   register :validator, :uuid, UuidValidator
 
-  # Inputs / outputs (per-class schemas)
   register :input, :recipient_id, coerce: :integer, presence: true
   register :output, :delivered_at
 end
 ```
 
-See [Inputs - Definitions](https://drexed.github.io/cmdx/inputs/definitions/index.md) and [Outputs](https://drexed.github.io/cmdx/outputs/index.md) for the full schema DSL — the dedicated `required` / `optional` / `output` helpers are usually preferred over `register :input` / `register :output`.
+For day-to-day input/output definitions, the `required` / `optional` / `output` helpers are usually nicer than raw `register :input` — see [Inputs - Definitions](https://drexed.github.io/cmdx/inputs/definitions/index.md) and [Outputs](https://drexed.github.io/cmdx/outputs/index.md).
 
 Note
 
-`deregister` mirrors `register`'s arity. Callbacks: `deregister :callback, event[, callable]` (event clear, or matched by `==`). Middlewares: `deregister :middleware, callable_or_class` (or `at:` index).
+`deregister` mirrors `register`. Callbacks: `deregister :callback, event[, callable]`. Middlewares: `deregister :middleware, thing` or `at:` index.
 
-## Configuration Management
+## Reading and resetting config
 
 ### Access
 
 ```ruby
-# Global
-CMDx.configuration.logger              #=> <Logger instance>
-CMDx.configuration.middlewares.size    #=> 0
-CMDx.configuration.coercions.registry  #=> { array: ..., big_decimal: ..., ... }
+CMDx.configuration.logger
+CMDx.configuration.middlewares.size
+CMDx.configuration.coercions.registry
 
-# Class-level
 class ProcessUpload < CMDx::Task
   settings(tags: ["files"])
 
   def work
     self.class.settings.tags        #=> ["files"]
-    self.class.settings.logger      #=> falls back to CMDx.configuration.logger
-    self.class.middlewares.size     #=> inherited count
+    self.class.settings.logger      #=> falls back to global
+    self.class.middlewares.size
   end
 end
 ```
 
-### Resetting
+### Reset
 
-`CMDx.reset_configuration!` replaces the global config with a fresh instance and invalidates the cached registries on `Task` so subclasses rebuild from the new config on next access.
+`CMDx.reset_configuration!` swaps in a fresh global config and clears cached registries on `Task` so the next access rebuilds from scratch — **super common in specs**.
 
 ```ruby
 CMDx.reset_configuration!
 
-# Test setup (RSpec)
 RSpec.configure do |config|
   config.before(:each) do
     CMDx.reset_configuration!
@@ -453,6 +437,6 @@ RSpec.configure do |config|
 end
 ```
 
-Important
+Warning
 
-`reset_configuration!` clears registry caches on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer freshly defined task classes per example (e.g. `stub_const` or anonymous classes).
+Reset clears caches on `Task`, but subclasses that already copied registries might still hold old data. In tests, anonymous task classes or `stub_const` per example keep life simple.

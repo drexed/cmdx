@@ -980,7 +980,7 @@
   <a href="#predicates-and-handlers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Predicates and Handlers
+        Predicates and handlers
       
     </span>
   </a>
@@ -2136,7 +2136,7 @@
   <a href="#predicates-and-handlers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Predicates and Handlers
+        Predicates and handlers
       
     </span>
   </a>
@@ -2230,59 +2230,59 @@
 
 
 <h1 id="outcomes-states">Outcomes - States<a class="headerlink" href="#outcomes-states" title="Permanent link">&para;</a></h1>
-<p>States track the lifecycle dimension of a result: did <code>work</code> run end-to-end, or did something interrupt it? There are exactly two states. Transient stages (<code>initialized</code>/<code>executing</code>) aren't modeled — <code>Result</code> is constructed once, after <code>Runtime</code> has finalized the task.</p>
+<p><strong>State</strong> answers a different question than status: <em>did <code>work</code> run all the way through, or did something cut it short?</em> There are only <strong>two</strong> states. You will not see half-built labels like <code>initialized</code> or <code>executing</code> on a <code>Result</code>—by the time you hold a result, Runtime has already wrapped things up.</p>
 <h2 id="definitions">Definitions<a class="headerlink" href="#definitions" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>State</th>
-<th>Description</th>
+<th>In plain English</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>complete</code></td>
-<td>Task finished <code>work</code> (and output verification) without interruption. Includes both the implicit success path and an explicit <code>success!</code> halt.</td>
+<td><code>work</code> finished without interruption (outputs verified too). Includes the normal path <strong>and</strong> an early exit via <code>success!</code>.</td>
 </tr>
 <tr>
 <td><code>interrupted</code></td>
-<td>Task halted via <code>skip!</code>, <code>fail!</code>, <code>throw!</code>, accumulated <code>task.errors</code>, or a <code>StandardError</code> raised from <code>work</code> (Runtime captures it on <code>result.cause</code> and converts the outcome to failed).</td>
+<td>Something stopped the train: <code>skip!</code>, <code>fail!</code>, <code>throw!</code>, stacked <code>task.errors</code>, or an exception from <code>work</code> (Runtime puts it on <code>result.cause</code> and the outcome goes failed).</td>
 </tr>
 </tbody>
 </table>
-<p>State-Status combinations:</p>
+<p>How state and status pair up:</p>
 <table>
 <thead>
 <tr>
 <th>State</th>
 <th>Status</th>
-<th>Meaning</th>
+<th>What it feels like</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>complete</code></td>
 <td><code>success</code></td>
-<td>Task finished successfully</td>
+<td>We ran the play and scored.</td>
 </tr>
 <tr>
 <td><code>interrupted</code></td>
 <td><code>skipped</code></td>
-<td>Task halted via <code>skip!</code></td>
+<td>We tapped out on purpose (<code>skip!</code>).</td>
 </tr>
 <tr>
 <td><code>interrupted</code></td>
 <td><code>failed</code></td>
-<td>Task halted via <code>fail!</code>, <code>throw!</code>, an exception, or validation/coercion errors</td>
+<td>We tapped out with fire (<code>fail!</code>, <code>throw!</code>, errors, exception).</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>complete</code> only ever pairs with <code>success</code>, and <code>interrupted</code> only ever pairs with <code>skipped</code> or <code>failed</code>. There is no <code>complete</code> + <code>skipped</code> or <code>interrupted</code> + <code>success</code> combination.</p>
+<p>Real talk: <code>complete</code> <strong>only</strong> hangs out with <code>success</code>. <code>interrupted</code> <strong>only</strong> hangs out with <code>skipped</code> or <code>failed</code>. No mixing and matching—you will not see <code>complete</code> + <code>skipped</code> or <code>interrupted</code> + <code>success</code>.</p>
 </div>
-<h2 id="predicates-and-handlers">Predicates and Handlers<a class="headerlink" href="#predicates-and-handlers" title="Permanent link">&para;</a></h2>
-<p><code>result.complete?</code> / <code>result.interrupted?</code> are the state predicates; <code>result.on(:complete)</code> / <code>result.on(:interrupted)</code> dispatch on them. See <a href="../result/#lifecycle-predicates">Result - Lifecycle Predicates</a> and <a href="../result/#predicate-dispatch">Result - Predicate Dispatch</a> for the canonical list.</p>
+<h2 id="predicates-and-handlers">Predicates and handlers<a class="headerlink" href="#predicates-and-handlers" title="Permanent link">&para;</a></h2>
+<p>Use <code>result.complete?</code> and <code>result.interrupted?</code> for state. Use <code>result.on(:complete)</code> and <code>result.on(:interrupted)</code> when you want a tiny dispatch table. Full cheat sheet: <a href="../result/#lifecycle-predicates">Result — lifecycle predicates</a> and <a href="../result/#predicate-dispatch">Result — predicate dispatch</a>.</p>
 
 
 

@@ -1,10 +1,10 @@
 # Basics - Setup
 
-Tasks are the unit of work in CMDx: self-contained business logic with built-in input validation, error handling, and execution tracking.
+Hey there. In CMDx, a **task** is just a tidy box for one piece of business logic. You get input checks, errors that behave predictably, and a clear story of what ran — without building all of that wiring by hand.
 
 ## Structure
 
-Tasks need only two things: inherit from `CMDx::Task` and define a `work` method:
+Every task needs two things: inherit from `CMDx::Task` and implement `work`. That’s it.
 
 ```ruby
 class ValidateDocument < CMDx::Task
@@ -14,7 +14,7 @@ class ValidateDocument < CMDx::Task
 end
 ```
 
-Without a `work` method, execution raises `CMDx::ImplementationError` from both `execute` and `execute!`.
+If you skip `work`, CMDx doesn’t know what to run. Both `execute` and `execute!` raise `CMDx::ImplementationError` in that case — a friendly nudge to finish the job.
 
 ```ruby
 class IncompleteTask < CMDx::Task
@@ -27,7 +27,7 @@ IncompleteTask.execute! #=> raises CMDx::ImplementationError
 
 ## Rollback
 
-Define a `rollback` method to undo side effects when the task fails. Runtime calls it after `work` (and before completion callbacks) when the signal is `failed`, flags `result.rolled_back?`, and emits the `:task_rolled_back` telemetry event.
+Sometimes `work` does real-world stuff you need to undo if things go wrong (charges, locks, temp files). Add a `rollback` method for that. CMDx calls it **after** `work` when the outcome is a real failure — before the “we’re done” callbacks — sets a flag on the result, and emits a `:task_rolled_back` telemetry ping so you can see it in your dashboards.
 
 ```ruby
 class ChargeCard < CMDx::Task
@@ -44,11 +44,11 @@ end
 
 Tip
 
-Rollback fires only on `failed?`. To undo on skip, halt with `fail!` instead of `skip!`, or invoke your cleanup explicitly from a callback.
+Rollback only runs when the task **failed**. If you skipped on purpose, rollback won’t fire. Need cleanup on skip? Either fail with `fail!` instead of `skip!`, or run your cleanup from a callback you control.
 
 ## Inheritance
 
-Share configuration through inheritance. Every inheritable surface — `settings`, `retry_on`, `deprecation`, and the registries (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`, `inputs`, `outputs`) — lazily clones from the superclass on first access, so subclasses extend rather than replace.
+Got shared behavior? Put it on a base class. Subclasses **inherit** settings instead of starting from zero: things like `settings`, `retry_on`, `deprecation`, and the big registries (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`, `inputs`, `outputs`) are copied lazily from the parent the first time the child touches them — so you **add** on top, you don’t accidentally wipe the parent’s config.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -74,22 +74,22 @@ end
 
 ## Lifecycle
 
-Tasks follow a predictable execution pattern. Halt primitives — `success!`, `skip!`, `fail!`, and `throw!` — are control-flow tokens: they `throw` a `Signal` caught by `Runtime`, so any code after a halt is unreachable. See [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md) for the full halt API and [Getting Started - Task Lifecycle](https://drexed.github.io/cmdx/getting_started/#task-lifecycle) for the full flow diagram.
+Tasks run in the same order every time — easy to reason about. The “halt” helpers (`success!`, `skip!`, `fail!`, `throw!`) are special: they **stop** the current path by throwing a `Signal` that the runtime catches. Anything after a halt in `work` won’t run. For the full menu, see [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md); for a picture of the whole flow, see [Getting Started - Task Lifecycle](https://drexed.github.io/cmdx/getting_started/#task-lifecycle).
 
-| Stage                    | Description                                                                                                                                                                                                      |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Before execution**     | `before_execution` callbacks run first                                                                                                                                                                           |
-| **Before validation**    | `before_validation` callbacks run next                                                                                                                                                                           |
-| **Around execution**     | `around_execution` callbacks wrap `work` (and any `rollback`); each must yield exactly once. Multiple hooks nest in declaration order (outer-first)                                                              |
-| **Validation**           | Inputs are coerced/validated; failures halt with `failed`                                                                                                                                                        |
-| **Work**                 | `work` runs inside `catch(:cmdx_signal)`, wrapped in retries                                                                                                                                                     |
-| **Output verification**  | Declared `output` keys are checked on `context` when `work` returned without halting; `:default` fills nils, missing keys fail the task. Skipped when `work` halts via `success!` / `skip!` / `fail!` / `throw!` |
-| **Rollback**             | `rollback` runs when the signal is `failed` (before completion callbacks)                                                                                                                                        |
-| **After execution**      | `after_execution` callbacks run after the around-block completes                                                                                                                                                 |
-| **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order                                                                                                                                                  |
-| **Result finalization**  | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed)                                                                                                                                 |
-| **Teardown**             | Task, root context, errors, and chain are frozen; chain reference cleared from the fiber                                                                                                                         |
+| Stage                    | In plain English                                                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Before execution**     | `before_execution` hooks run first — warm-up time.                                                                                                                                                                        |
+| **Before validation**    | `before_validation` hooks run next — last chance before inputs are checked.                                                                                                                                               |
+| **Around execution**     | `around_execution` wraps `work` (and `rollback` if it runs). Each hook must `yield` **once**. Several hooks nest like onions: outer declared first runs outermost.                                                        |
+| **Validation**           | Inputs get coerced and validated. Bad input → failed halt.                                                                                                                                                                |
+| **Work**                 | Your `work` runs, inside retry logic and a `catch` for signals.                                                                                                                                                           |
+| **Output verification**  | If you declared `output` keys, CMDx checks they’re on `context` when `work` returns normally. `:default` can fill nils; missing keys fail the task. Skipped if you halted with `success!` / `skip!` / `fail!` / `throw!`. |
+| **Rollback**             | If we failed, `rollback` runs before the completion party.                                                                                                                                                                |
+| **After execution**      | `after_execution` runs after the around-block finishes.                                                                                                                                                                   |
+| **Completion callbacks** | `on_<state>`, `on_<status>`, then `on_ok` / `on_ko` — in that order.                                                                                                                                                      |
+| **Result finalization**  | Build the `Result` and attach it to the `Chain` (root goes in front; children append).                                                                                                                                    |
+| **Teardown**             | Freeze task, root context, errors, and chain; clear the chain off the fiber. We’re done.                                                                                                                                  |
 
 Caution
 
-Tasks are single-use objects. After execution, the task, its root context, and its errors are frozen by `Runtime` teardown.
+One task instance, one ride. After execution, the runtime **freezes** the task, its root context, and its errors. Don’t reuse that object for another run — make a fresh instance.

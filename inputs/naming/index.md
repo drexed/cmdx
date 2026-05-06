@@ -1,24 +1,19 @@
 # Inputs - Naming
 
-Customize accessor method names to avoid conflicts and improve clarity. Affixing changes only the generated reader methods — not the original input names used by callers.
+Sometimes the **keyword** your callers use (`:template`) and the **method** you want inside `work` (`context_template`) shouldn’t be the same word. Naming options tweak the reader — **not** what goes in `execute(...)`.
 
 Note
 
-Use naming when inputs conflict with existing methods or need better clarity in your code.
+Reach for this when a name would collide with Ruby/CMDx methods, or when `context_foo` reads clearer than plain `foo`.
 
 ## Prefix
 
-Adds a prefix to the generated accessor method name.
+Stick text **in front** of the accessor.
 
 ```ruby
 class GenerateReport < CMDx::Task
-  # Dynamic from input source (defaults to :context)
-  input :template, prefix: true
-
-  # Static
+  input :template, prefix: true              # derives from source name (default :context)
   input :format, prefix: "report_"
-
-  # Combined with a custom :source — prefix derives from the source name
   input :owner, source: :account, prefix: true
 
   def work
@@ -28,20 +23,16 @@ class GenerateReport < CMDx::Task
   end
 end
 
-# Inputs passed under their original names
 GenerateReport.execute(template: "monthly_sales", format: "pdf")
 ```
 
 ## Suffix
 
-Adds a suffix to the generated accessor method name.
+Stick text **after** the accessor.
 
 ```ruby
 class DeployApplication < CMDx::Task
-  # Dynamic from input source (defaults to :context)
   input :branch, suffix: true
-
-  # Static
   input :version, suffix: "_tag"
 
   def work
@@ -50,13 +41,12 @@ class DeployApplication < CMDx::Task
   end
 end
 
-# Inputs passed under their original names
 DeployApplication.execute(branch: "main", version: "v1.2.3")
 ```
 
 ## As
 
-Completely renames the generated accessor method. Useful when the natural input name collides with a reserved word or an existing method:
+Rename the reader completely — great for reserved words or collisions:
 
 ```ruby
 class ScheduleMaintenance < CMDx::Task
@@ -67,10 +57,9 @@ class ScheduleMaintenance < CMDx::Task
   end
 end
 
-# Input still passed under its original name
 ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
 ```
 
 Important
 
-`:as` overrides `:prefix` and `:suffix` — when all three are given, `:as` wins and the affixes are ignored.
+If you pass `:as` together with `:prefix` / `:suffix`, `:as` wins — affixes are ignored.

@@ -2384,17 +2384,17 @@
 
 
 <h1 id="interruptions-signals">Interruptions - Signals<a class="headerlink" href="#interruptions-signals" title="Permanent link">&para;</a></h1>
-<p>Halt <code>work</code> intentionally with <code>success!</code>, <code>skip!</code>, <code>fail!</code>, or <code>throw!</code>. Each signals a clear intent and can carry a reason and metadata.</p>
-<p>Internally these methods <code>throw</code> a <code>CMDx::Signal</code> that Runtime catches around <code>work</code>, breaking out of the current call stack the moment they fire — nothing after them runs.</p>
+<p>Sometimes you already know how a task should end before you finish the method. CMDx gives you four friendly "stop here" helpers: <code>success!</code>, <code>skip!</code>, <code>fail!</code>, and <code>throw!</code>. Each one says what you mean, and you can attach a human-readable reason plus extra data for logs or APIs.</p>
+<p>Under the hood they <code>throw</code> a <code>CMDx::Signal</code>. The runtime catches that around <code>work</code>, so execution jumps out right away — nothing below the halt line runs.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>success!</code> is the third halt method; it produces a <code>complete</code>/<code>success</code> result with a custom reason and metadata. See <a href="../../outcomes/result/#annotating-a-successful-result">Annotating a Successful Result</a>.</p>
+<p><code>success!</code> is the "happy stop" with a custom reason and metadata. For the full picture, see <a href="../../outcomes/result/#annotating-a-successful-result">Annotating a Successful Result</a>.</p>
 </div>
 <h2 id="skipping">Skipping<a class="headerlink" href="#skipping" title="Permanent link">&para;</a></h2>
-<p>Use <code>skip!</code> when the task doesn't need to run. It's a controlled no-op, not an error.</p>
+<p>Use <code>skip!</code> when the task does not need to do anything useful right now. That is a deliberate choice, not a bug.</p>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Skipped tasks are considered "ok" outcomes (<code>result.ok? #=&gt; true</code>). <code>execute!</code> does <strong>not</strong> raise on a skip — only on a failure.</p>
+<p class="admonition-title">Heads up</p>
+<p>A skip still counts as an OK outcome (<code>result.ok?</code> is true). <code>execute!</code> only raises on a real failure — it stays quiet on skips.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -2426,7 +2426,7 @@
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w"> </span><span class="c1">#=&gt; &quot;Warehouse closed&quot;</span>
 </span></code></pre></div>
 <h2 id="failing">Failing<a class="headerlink" href="#failing" title="Permanent link">&para;</a></h2>
-<p>Use <code>fail!</code> when the task can't complete successfully. It signals controlled, intentional failure:</p>
+<p>Use <code>fail!</code> when the task cannot honestly finish as a success. You stay in control: you chose to stop, you pick the message.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRefund</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># Without a reason</span>
@@ -2458,10 +2458,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>result.reason</code> is exactly what you passed (or <code>nil</code>). The localized <code>cmdx.reasons.unspecified</code> fallback only appears on <code>Fault#message</code> when <code>execute!</code> raises with no reason.</p>
+<p><code>result.reason</code> is whatever string you passed (or <code>nil</code>). The generic "unspecified" text only shows up on <code>Fault#message</code> when <code>execute!</code> raises and you never gave a reason.</p>
 </div>
 <h2 id="metadata-enrichment">Metadata Enrichment<a class="headerlink" href="#metadata-enrichment" title="Permanent link">&para;</a></h2>
-<p>Enrich halt calls with metadata for better debugging and error handling. Keyword args passed to <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> are merged into <code>Task#metadata</code> first, then the resulting hash is attached to the thrown <code>Signal</code> — so middlewares that pre-populated <code>task.metadata</code> (e.g. a request id) show up on the same result without the caller having to forward them.</p>
+<p>Want more than a string? Pass keyword arguments. They merge into <code>Task#metadata</code>, then ride along on the signal. If middleware already stuffed a request id into <code>task.metadata</code>, it still shows up — you do not have to copy it by hand.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">License</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">license_id</span><span class="p">)</span>
@@ -2496,21 +2496,21 @@
 </span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">                </span><span class="c1">#   }</span>
 </span></code></pre></div>
 <h2 id="short-circuit-behavior">Short-Circuit Behavior<a class="headerlink" href="#short-circuit-behavior" title="Permanent link">&para;</a></h2>
-<p>Halt methods always <code>throw</code> — they never return. The first one to fire ends <code>work</code> immediately, so any subsequent halt calls are unreachable:</p>
+<p>Halt helpers always <code>throw</code>. They never "return" to the next line in <code>work</code>. The first one that runs wins; anything after it is dead code until the method ends.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOrder</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Out of stock&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">out_of_stock?</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Insufficient funds&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">insufficient_funds?</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="c1"># If both conditions are true, only the first fail! ever runs.</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="c1"># If both are true, only the first fail! runs.</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Halt methods only work inside <code>work</code> (and anything it calls). Throwing from rollback, callbacks, or middlewares raises <code>UncaughtThrowError</code>; on a frozen task (post-teardown) they raise <code>FrozenError</code>.</p>
+<p class="admonition-title">Where they work</p>
+<p>These helpers only work inside <code>work</code> (or code <code>work</code> calls). If you try them from rollback, callbacks, or middleware you get <code>UncaughtThrowError</code>. On a frozen task after teardown you get <code>FrozenError</code>. Stay inside the story.</p>
 </div>
 <h2 id="state-transitions">State Transitions<a class="headerlink" href="#state-transitions" title="Permanent link">&para;</a></h2>
-<p>Halt methods trigger specific state and status transitions:</p>
+<p>Each halt maps to a simple combo of state, status, and how <code>ok?</code> / <code>ko?</code> read:</p>
 <table>
 <thead>
 <tr>
@@ -2560,40 +2560,39 @@
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">result</span><span class="o">.</span><span class="n">ko?</span><span class="w">          </span><span class="c1">#=&gt; true for both skipped and failed</span>
 </span></code></pre></div>
 <h2 id="execution-behavior">Execution Behavior<a class="headerlink" href="#execution-behavior" title="Permanent link">&para;</a></h2>
-<p><code>execute</code> always returns a <code>Result</code>, regardless of whether <code>work</code> finished normally or halted via a signal. <code>execute!</code> only raises on <code>failed?</code> — <code>skip!</code> and <code>success!</code> return normally. See <a href="../../basics/execution/">Basics - Execution</a> for the full entry-point contract and <a href="../faults/">Interruptions - Faults</a> for the rescued exception hierarchy.</p>
+<p><code>execute</code> always hands you a <code>Result</code>, whether <code>work</code> ran to the end or stopped on a signal. <code>execute!</code> only raises when the outcome is a failure; skips and custom successes return normally. For the full contract see <a href="../../basics/execution/">Basics - Execution</a>. For what actually gets raised, see <a href="../faults/">Interruptions - Faults</a>.</p>
 <h2 id="rethrowing-a-peer-failure">Rethrowing a Peer Failure<a class="headerlink" href="#rethrowing-a-peer-failure" title="Permanent link">&para;</a></h2>
-<p>Use <code>throw!</code> to halt the current task by echoing another task's failed result. It's a no-op when the other result isn't <code>failed?</code>:</p>
+<p><code>throw!</code> is your "echo this other task's failure" button. If the other result is not failed, nothing happens and you keep going.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReportMonthlyMetrics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildReport</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="c1"># echoes the peer&#39;s state/status/reason; the upstream</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">                   </span><span class="c1"># result is exposed via `origin`. Metadata on this task&#39;s</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">                   </span><span class="c1"># result is this task&#39;s `metadata` (merged with any kwargs</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">                   </span><span class="c1"># passed to throw!), not a copy of the peer&#39;s metadata.</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="c1"># ...happy path continues here when result isn&#39;t failed</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">end</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="c1"># Copies the peer&#39;s state/status/reason; see `origin` for upstream.</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">                   </span><span class="c1"># Metadata on *this* result is this task&#39;s metadata (plus any kwargs</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">                   </span><span class="c1"># you pass to throw!), not a copy of the peer&#39;s hash.</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="c1"># Happy path continues here when result isn&#39;t failed</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>The resulting <code>Result</code> carries the upstream failure in <code>result.origin</code>; <code>result.thrown_failure?</code> is <code>true</code>. See <a href="../../outcomes/result/#chain-analysis">Result - Chain Analysis</a>.</p>
+<p>The <code>Result</code> you get back keeps the upstream failure in <code>result.origin</code>, and <code>result.thrown_failure?</code> is true when you echoed a failure. More detail in <a href="../../outcomes/result/#chain-analysis">Result - Chain Analysis</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>throw!</code> accepts a <code>Result</code> or a raw <code>CMDx::Signal</code>. Non-failed inputs are a no-op (caller continues past the <code>throw!</code>). Use it to forward another task's halt state without unwrapping.</p>
+<p><code>throw!</code> accepts a <code>Result</code> or a raw <code>CMDx::Signal</code>. If the input is not failed, it is a no-op. Handy when you want to forward a halt without unpacking it yourself.</p>
 </div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
-<p>Prefer specific reasons — they become <code>result.reason</code>, <code>Fault#message</code>, and end up in logs and telemetry:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Best: Specific reason + structured metadata</span>
+<p>Specific reasons make everyone's life easier: they land on <code>result.reason</code>, in <code>Fault#message</code>, and in logs.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Best: specific reason + structured metadata</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;File format not supported by processor&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORMAT_UNSUPPORTED&quot;</span><span class="p">)</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Good: Clear reason</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Good: clear reason</span>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;Document processing paused for compliance review&quot;</span><span class="p">)</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Avoid: nil reason (Fault#message falls back to the localized cmdx.reasons.unspecified)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Avoid: nil reason (Fault#message falls back to localized cmdx.reasons.unspecified)</span>
 </span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">skip!</span>
 </span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nb">fail</span><span class="o">!</span>
 </span></code></pre></div>
 <h2 id="manual-errors">Manual Errors<a class="headerlink" href="#manual-errors" title="Permanent link">&para;</a></h2>
-<p>Accumulate structured errors on <code>task.errors</code> during <code>work</code>; if any are present when <code>work</code> returns, Runtime throws a failed signal whose reason is the joined messages — no explicit <code>fail!</code> required.</p>
+<p>You can also push errors onto <code>task.errors</code> as you go. If any are still there when <code>work</code> returns, the runtime turns that into a failed signal for you — no explicit <code>fail!</code> needed.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>

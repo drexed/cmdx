@@ -1,21 +1,21 @@
 # Basics - Chain
 
-A `Chain` is the ordered trace of every `Result` produced by a top-level task and the subtasks it triggered. It's assembled automatically and gives you one id to correlate an entire execution.
+A **`Chain`** is the playlist of every `Result` from one top-level task run — the parent plus every subtask it kicked off — in order. CMDx builds it for you so you get **one id** to grep in logs and tie the whole story together.
 
 ## Structure
 
-A `Chain` is an ordered, mutex-guarded collection of `Result`s. Subtasks `push` onto the chain as they finalize; the root `unshift`s itself last, so the root ends up at index 0 and children follow in completion order.
+Under the hood it’s an ordered list (thread-safe). Subtasks **append** as they finish; the root **prepends** itself at the end, so index `0` is always the root task and the rest follow in completion order.
 
-From a result, reach the chain via:
+Handy accessors from any `Result`:
 
-| Method                | Returns                                                                     |
-| --------------------- | --------------------------------------------------------------------------- |
-| `result.chain`        | The owning `CMDx::Chain` (Enumerable; `id`, `size`, `first`, `last`, etc.)  |
-| `result.cid`          | The chain's UUID v7 (`String`)                                              |
-| `result.xid`          | External correlation id (`String`, `nil` when no resolver is configured)    |
-| `result.index`        | This result's zero-based position in the chain (`Integer`, `nil` if absent) |
-| `result.root?`        | `true` when this result is the chain's root                                 |
-| `CMDx::Chain.current` | The live `Chain` object (only inside execution)                             |
+| Method                | What it is                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| `result.chain`        | The `CMDx::Chain` (Enumerable — `id`, `size`, `first`, `last`, …)                                        |
+| `result.cid`          | This chain’s UUID v7 (`String`)                                                                          |
+| `result.xid`          | External correlation id (`String`, or `nil` if you didn’t configure a resolver)                          |
+| `result.index`        | This result’s position in the chain (`Integer`, or `nil` if it never joined — rare outside test doubles) |
+| `result.root?`        | `true` if this result is the root                                                                        |
+| `CMDx::Chain.current` | The live chain **during** execution only                                                                 |
 
 ```ruby
 result = ImportDataset.execute(dataset_id: 456)
@@ -32,17 +32,17 @@ result.chain.each_with_index do |r, idx|
 end
 ```
 
-The `Chain` instance exposes `id`, `xid`, `results`, `push` (aliased `<<`), `unshift`, `index`, `size`, `empty?`, `each`, `last`, plus root delegators:
+On the `Chain` object itself you’ll also see `id`, `xid`, `results`, `push` (aka `<<`), `unshift`, `index`, `size`, `empty?`, `each`, `last`, plus shortcuts:
 
-| Method         | Returns                                                               |
+| Method         | What it is                                                            |
 | -------------- | --------------------------------------------------------------------- |
-| `chain.root`   | The result flagged with `root: true`, or `nil`                        |
+| `chain.root`   | The result marked `root: true`, or `nil`                              |
 | `chain.state`  | `chain.root&.state` — `"complete"` / `"interrupted"` / `nil`          |
 | `chain.status` | `chain.root&.status` — `"success"` / `"skipped"` / `"failed"` / `nil` |
 
 ## Subtasks
 
-Subtasks automatically join the current chain, building a unified execution trail:
+Call another task from inside `work`? Its result joins **the same chain** automatically — one trace end to end.
 
 ```ruby
 class ImportDataset < CMDx::Task
@@ -71,11 +71,13 @@ result.chain.map(&:task)
 
 Note
 
-Chain lifecycle is automatic: Runtime installs a fresh chain when the top-level task starts, freezes it (and its results array) on root teardown, and clears the fiber-local reference. `result.index` is `nil` on a result that was never appended to the chain — every finalized `Result` is always on its chain, so this only happens in test doubles.
+You don’t manage chain lifecycle by hand: a fresh chain starts with the root task, everything freezes on teardown, and the fiber-local pointer clears. `result.index` is only `nil` for results that never made it onto a chain — in real runs, finalized results are always on theirs.
 
 ## Correlation ID (xid)
 
-`Chain#xid` is an optional external correlation id (e.g. Rails `request_id`) — distinct from `cid` (the per-execution chain UUID). It's resolved **once** per root chain creation from `CMDx.configuration.correlation_id` (a callable; per-task override via `settings(correlation_id: ->{ ... })`). Every nested subtask inherits the same `xid` via the shared chain, so a single request id ties together every task it touches in logs and telemetry.
+`cid` = “this execution.” `xid` = “this **external** request / trace id” (think Rails `request_id`). They’re different on purpose.
+
+`xid` is resolved **once** when the root chain is created, from `CMDx.configuration.correlation_id` (a proc), or per-task via `settings(correlation_id: -> { ... })`. Every nested task shares that same `xid` through the chain — one id in logs for the whole tree.
 
 ```ruby
 CMDx.configure do |config|
@@ -88,11 +90,11 @@ result.chain.xid                        #=> "abc-123-..."
 result.chain.map(&:xid).uniq            #=> ["abc-123-..."]
 ```
 
-See [Configuration - Correlation ID](https://drexed.github.io/cmdx/configuration/#correlation-id-xid) for resolver semantics.
+Details: [Configuration - Correlation ID](https://drexed.github.io/cmdx/configuration/#correlation-id-xid).
 
 ## Fiber Storage
 
-The active chain lives on `Fiber[]` (fiber-local), so each `Thread`'s root fiber and every explicit `Fiber.new` sees its own chain. `Workflow` parallel groups intentionally propagate the parent chain into their worker threads so their results roll up under the same trace; the chain's internal mutex makes concurrent pushes safe.
+The “current” chain lives on the current **Fiber** — so each thread’s default fiber (and each `Fiber.new`) gets its own chain. CMDx’s `Workflow` parallel bits copy the parent chain into worker threads on purpose so everything still rolls up under one trace; a mutex inside the chain keeps concurrent `push`es safe.
 
 ```ruby
 # Thread A — its root fiber gets a fresh chain
@@ -114,4 +116,4 @@ CMDx::Chain.clear    #=> Clears current fiber's chain (Runtime does this on tear
 
 Warning
 
-Runtime freezes the chain on root teardown, so `CMDx::Chain.clear` is really only useful in test setup before the next execution. Mutating a frozen chain raises `FrozenError`.
+After the root task tears down, the chain is **frozen**. `CMDx::Chain.clear` is mostly for test setup. Try to mutate a frozen chain and Ruby will hand you a `FrozenError`.

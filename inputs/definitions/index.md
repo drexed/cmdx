@@ -1,41 +1,41 @@
 # Inputs - Definitions
 
-Inputs declare the task's interface. Each declaration generates an accessor and wires up coercion, validation, defaults, transforms, and `:if`/`:unless` gates.
+Inputs are your task’s **public contract**: “Here’s what you can pass in, and here’s how we’ll clean it up.” Each line builds a reader method and wires coercion, validation, defaults, transforms, and conditional `:if` / `:unless` gates.
 
 ## Declarations
 
-Important
+Order matters
 
-Inputs are order-dependent. If one input references another as a source or condition, the referenced input must be defined first.
+Inputs are resolved **top to bottom**. If input B reads from input A (as a `source:` or inside a gate), define **A first**.
 
 ```ruby
-# Correct: credentials defined before connection_string
+# Good: credentials exists before connection_string looks at it
 required :credentials, source: :database_config
 input :connection_string, source: :credentials
 
-# Wrong: connection_string references credentials before it exists
+# Bad: connection_string runs before credentials exists
 input :connection_string, source: :credentials
 required :credentials, source: :database_config
 ```
 
-Important
+Name clashes
 
-Input names that conflict with existing Ruby or CMDx methods raise `CMDx::DefinitionError` at class-load time. Use `:as`, `:prefix`, or `:suffix` to resolve naming conflicts. See [Naming](https://drexed.github.io/cmdx/inputs/naming/index.md).
+If an input name would stomp on a Ruby or CMDx method, class loading blows up with `CMDx::DefinitionError`. Rename with `:as`, `:prefix`, or `:suffix` — see [Naming](https://drexed.github.io/cmdx/inputs/naming/index.md).
 
 Tip
 
-Prefer the `required` and `optional` shorthands over `inputs(..., required: …)` — they read better and make intent obvious at a glance.
+`required` and `optional` read nicer than `inputs(..., required: …)` — they broadcast intent in one word.
 
 ### Optional
 
-Optional inputs return `nil` when not provided.
+Caller doesn’t have to pass these. If they skip one, you see `nil` (unless you add a `default:` elsewhere).
 
 ```ruby
 class ScheduleEvent < CMDx::Task
   input :title
   inputs :duration, :location
 
-  # Shorthand for inputs ..., required: false (preferred)
+  # Same as inputs ..., required: false — usually nicer to read
   optional :description
   optional :visibility, :attendees
 
@@ -49,7 +49,6 @@ class ScheduleEvent < CMDx::Task
   end
 end
 
-# Inputs passed as keyword arguments
 ScheduleEvent.execute(
   title: "Team Standup",
   duration: 30,
@@ -59,18 +58,17 @@ ScheduleEvent.execute(
 
 ### Required
 
-Required inputs must be provided in call arguments or task execution will fail.
+These **must** show up in the keyword args (or whatever you’re executing with), or the task fails fast.
 
 ```ruby
 class PublishArticle < CMDx::Task
   input :title, required: true
   inputs :content, :author_id, required: true
 
-  # Shorthand for inputs ..., required: true (preferred)
   required :category
   required :status, :tags
 
-  # Conditionally required
+  # Sometimes required only in certain situations
   required :publisher, if: :magazine?
   input :approver, required: true, unless: proc { status == :published }
 
@@ -95,37 +93,37 @@ end
 
 Note
 
-A required input with a falsy `:if`/`:unless` gate behaves as optional. Coercions, validations, defaults, and transformations still apply.
+A “required” input behind a falsy `:if` / `:unless` behaves like optional for that run. Coercion, validation, defaults, and transforms still apply when it **does** run.
 
 ## Removals
 
-Remove inherited or previously defined inputs and their accessor methods via `deregister`. The lookup key is always the **original input name** — `:as`, `:prefix`, and `:suffix` only affect the generated accessor, not the registry key:
+Subclass inherited inputs you don’t want? `deregister` strips them (and nested children). Always use the **original** declaration name — not the accessor after `:as` / `:prefix` / `:suffix`:
 
 ```ruby
 class ApplicationTask < CMDx::Task
   required :tenant_id
   optional :debug_mode
-  required :user_id, as: :customer_id   # accessor: customer_id
+  required :user_id, as: :customer_id   # reader is customer_id
 end
 
 class PublicTask < ApplicationTask
   deregister :input, :tenant_id
   deregister :input, :debug_mode
-  deregister :input, :user_id           # deregister by original name, NOT :customer_id
+  deregister :input, :user_id           # still :user_id, not :customer_id
 
   def work
-    # tenant_id, debug_mode, and user_id (customer_id) are no longer defined
+    # tenant_id, debug_mode, and customer_id are gone
   end
 end
 ```
 
-Important
+Warning
 
-`deregister :input, *names` removes inputs (and any nested children). Unknown names raise `NoMethodError`.
+`deregister :input, *names` removes real inputs only. Typos raise `NoMethodError`.
 
 ## Introspection
 
-Inspect the full input schema for tooling, documentation generation, or debugging:
+Want to generate docs or debug? `inputs_schema` hands back everything CMDx knows:
 
 ```ruby
 class CreateUser < CMDx::Task
@@ -142,30 +140,30 @@ CreateUser.inputs_schema
 #   }
 ```
 
-Each entry exposes `:name` (the accessor name, post-`:as`/`:prefix`/`:suffix`), `:description`, `:required`, the raw declaration `:options`, and any nested `:children` recursively.
+Each key includes `:name` (accessor after renaming), `:description`, `:required`, raw `:options`, and nested `:children`.
 
 Note
 
-`:required` in the schema is the static flag — `:if` / `:unless` gates aren't evaluated at schema time. Inspect `options[:if]` / `options[:unless]` directly when generating docs.
+`:required` in the schema is the **static** flag. Dynamic `:if` / `:unless` isn’t evaluated here — read `options[:if]` / `options[:unless]` yourself if you document conditionals.
 
 Note
 
-Failed coercion/validation leaves the backing ivar at `nil`, records the message on `task.errors` under the accessor name, skips nested children, and throws a failed signal before `work` runs.
+Coercion or validation failure leaves the backing ivar `nil`, records errors under the accessor name, skips nested children, and fails the run **before** `work`.
 
 ## Sources
 
-Inputs read from any accessible object — not just context. The default source is `:context`; override with `source:` to pull data from a method, proc, callable class, or another already-defined input:
+By default values come from **context**. `source:` lets you read from a method, proc, callable class, or another input you already declared.
 
 ### Context
 
+The everyday path: fields mirror `context`:
+
 ```ruby
 class BackupDatabase < CMDx::Task
-  # Default source is :context
   required :database_name
   optional :compression_level
 
-  # Explicitly specify context source
-  input :backup_path, source: :context
+  input :backup_path, source: :context   # explicit, same default behavior
 
   def work
     database_name     #=> context.database_name
@@ -175,19 +173,18 @@ class BackupDatabase < CMDx::Task
 end
 ```
 
-### Symbol References
+### Symbol references
 
-Reference instance methods by symbol for dynamic source values:
+Point at an instance method — nice when the value needs a little lookup:
 
 ```ruby
 class BackupDatabase < CMDx::Task
   inputs :host, :credentials, source: :database_config
 
-  # Access from declared inputs
   input :connection_string, source: :credentials
 
   def work
-    # Your logic here...
+    # ...
   end
 
   private
@@ -200,21 +197,18 @@ end
 
 ### Proc or Lambda
 
-Use anonymous functions for dynamic source values:
+Inline “go get this” logic:
 
 ```ruby
 class BackupDatabase < CMDx::Task
-  # Proc
   input :timestamp, source: proc { Time.current }
-
-  # Lambda
   input :server, source: -> { Current.server }
 end
 ```
 
 ### Class or Module
 
-For complex source logic, use classes or modules:
+Heavy lifting in a dedicated object:
 
 ```ruby
 class DatabaseResolver
@@ -224,54 +218,46 @@ class DatabaseResolver
 end
 
 class BackupDatabase < CMDx::Task
-  # Class or Module
   input :schema, source: DatabaseResolver
-
-  # Instance
   input :metadata, source: DatabaseResolver.new
 end
 ```
 
 ## Description
 
-Add metadata to inputs for documentation or introspection purposes.
+Pure metadata for humans and tools — doesn’t change behavior:
 
 ```ruby
 class CreateUser < CMDx::Task
   required :email, description: "The user's primary email address"
 
-  # Alias :desc
-  optional :phone, desc: "Primary contact number"
+  optional :phone, desc: "Primary contact number"   # alias :desc
 
-  # Bulk definition - description applies to all
   inputs :first_name, :last_name, desc: "Part of user's legal name"
 end
 ```
 
 ## Nesting
 
-Build complex structures with nested inputs. Children resolve from the parent's value (via `respond_to?`, `#[]`, or `#key?`) and support all input options except `:source` — nested children always read from the parent and ignore any `:source` on their own declaration.
+Got a hash-shaped blob? Nest inputs under a parent. Kids read from the parent value (`#[]`, `#key?`, or methods). They support the usual options **except** `source:` — nested fields always come from the parent.
 
 Note
 
-Nested inputs support all features: naming, coercions, validations, defaults, and more.
+Nested inputs get the full toolkit: renaming, coercion, validation, defaults, and more.
 
 ```ruby
 class ConfigureServer < CMDx::Task
-  # Required parent with required children
   required :network_config do
     required :hostname, :port, :protocol, :subnet
     optional :load_balancer
     input :firewall_rules
   end
 
-  # Optional parent with conditional children
   optional :ssl_config do
-    required :certificate_path, :private_key # Only required if ssl_config provided
+    required :certificate_path, :private_key
     optional :enable_http2, prefix: true
   end
 
-  # Multi-level nesting
   input :monitoring do
     required :provider
 
@@ -307,17 +293,17 @@ ConfigureServer.execute(
 )
 ```
 
-Important
+Warning
 
-Child requirements only apply when the parent is provided, which is what you want for optional structures.
+Rules inside an optional parent only fire **when that parent is actually provided**. That’s usually what you want.
 
-## Error Handling
+## Error handling
 
-Resolution failures (missing required inputs, coercion failures, validator failures) accumulate on `task.errors`. When resolution finishes and errors exist, Runtime throws a failed signal: the joined sentence becomes `result.reason`; the structured map is exposed on `result.errors`.
+Problems (missing required fields, bad coercion, failed validation) collect on `task.errors`. When resolution finishes with any errors, the run fails: `result.reason` is a sentence; `result.errors` has the structured map.
 
 Note
 
-Nested inputs are only resolved when their parent is present and non-`nil`.
+Nested children resolve only when the parent exists and isn’t `nil`.
 
 ```ruby
 class ConfigureServer < CMDx::Task
@@ -327,11 +313,10 @@ class ConfigureServer < CMDx::Task
   end
 
   def work
-    # Your logic here...
+    # ...
   end
 end
 
-# Missing required top-level inputs
 result = ConfigureServer.execute(server_id: "srv-001")
 
 result.state              #=> "interrupted"
@@ -348,11 +333,10 @@ result.errors.full_messages
 #     network_config: ["network_config is required"]
 #   }
 
-# Missing required nested inputs
 result = ConfigureServer.execute(
   server_id: "srv-001",
   environment: "production",
-  network_config: { hostname: "api.company.com" } # Missing port
+  network_config: { hostname: "api.company.com" }
 )
 
 result.state       #=> "interrupted"

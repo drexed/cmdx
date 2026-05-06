@@ -1,22 +1,19 @@
 # Inputs - Coercions
 
-Automatically convert inputs to expected types using `coerce:`.
+Coercion is CMDx’s way of saying: **“You gave me a string; I need an integer — let me fix that for you.”** Use `coerce:` on an input to turn messy external data into the shape your task expects.
 
-See [Global Configuration](https://drexed.github.io/cmdx/configuration/#coercions) for custom coercion setup.
+App-wide custom coercers live in [Global Configuration](https://drexed.github.io/cmdx/configuration/#coercions).
 
 ## Usage
 
-Use `coerce:` to enable automatic coercion on a declared input:
+Add `coerce:` to a declaration. CMDx runs it early in the pipeline (before transforms and validators):
 
 ```ruby
 class ParseMetrics < CMDx::Task
-  # Coerce into a symbol
   input :measurement_type, coerce: :symbol
 
-  # Coerce into a rational, fall back to big decimal
   input :value, coerce: %i[rational big_decimal]
 
-  # Coerce with options
   input :recorded_at, coerce: { date: { strptime: "%m-%d-%Y" } }
 
   def work
@@ -35,43 +32,42 @@ ParseMetrics.execute(
 
 Tip
 
-Pass an array to `coerce:` to attempt multiple types in order. CMDx returns the first successful coercion.
+Pass an **array** of coercers to try them in order. First one that succeeds wins — handy when input might be a string **or** already the right type.
 
-## Built-in Coercions
+## Built-in coercions
 
-| Type           | Options                      | Description                                                                                      | Examples                                                   |
-| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| `:array`       |                              | Array conversion with JSON support; non-array JSON results fall back to wrapping                 | `"val"` → `["val"]` `"[1,2,3]"` → `[1, 2, 3]`              |
-| `:big_decimal` | `:precision` (default `14`)  | High-precision decimal                                                                           | `"123.456"` → `BigDecimal("123.456")`                      |
-| `:boolean`     |                              | Match text form against truthy/falsey sets; `nil` and unknown strings fail                       | `"yes"` → `true`, `"no"` → `false`                         |
-| `:complex`     | `:imaginary` (default `0`)   | Complex numbers                                                                                  | `"1+2i"` → `Complex(1, 2)`                                 |
-| `:date`        | `:strptime`                  | `Date.parse` on strings, `#to_date` on anything else that responds                               | `"2024-01-23"` → `Date.new(2024, 1, 23)`                   |
-| `:date_time`   | `:strptime`                  | `DateTime.parse` on strings, `#to_datetime` on anything else that responds                       | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
-| `:float`       |                              | Floating-point numbers                                                                           | `"123.45"` → `123.45`                                      |
-| `:hash`        |                              | `nil` → `{}`; strings are JSON-decoded (must decode to a Hash); falls back to `#to_hash`/`#to_h` | `'{"a":1}'` → `{"a" => 1}`                                 |
-| `:integer`     |                              | Integer via `Kernel#Integer` (hex/octal with explicit prefix)                                    | `"0xFF"` → `255`, `"0o77"` → `63`                          |
-| `:rational`    | `:denominator` (default `1`) | Rational numbers                                                                                 | `"1/2"` → `Rational(1, 2)`                                 |
-| `:string`      |                              | String conversion                                                                                | `123` → `"123"`                                            |
-| `:symbol`      |                              | `#to_s.to_sym`; fails when `value` has no `#to_s` (`BasicObject`)                                | `"abc"` → `:abc`                                           |
-| `:time`        | `:strptime`                  | Time objects; `Numeric` treated as epoch seconds                                                 | `"2024-01-23 10:30"` → `Time.new(2024, 1, 23, 10, 30)`     |
+| Type           | Options                      | In plain English                                                             | Examples                                      |
+| -------------- | ---------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------- |
+| `:array`       |                              | Turn into an array; JSON strings become real arrays; lone values get wrapped | `"val"` → `["val"]` `"[1,2,3]"` → `[1, 2, 3]` |
+| `:big_decimal` | `:precision` (default `14`)  | Decimal math without float weirdness                                         | `"123.456"` → `BigDecimal("123.456")`         |
+| `:boolean`     |                              | Recognize common yes/no strings; `nil` / unknown strings fail                | `"yes"` → `true`, `"no"` → `false`            |
+| `:complex`     | `:imaginary` (default `0`)   | Complex numbers from strings                                                 | `"1+2i"` → `Complex(1, 2)`                    |
+| `:date`        | `:strptime`                  | Parse strings or call `#to_date` when available                              | `"2024-01-23"` → `Date.new(2024, 1, 23)`      |
+| `:date_time`   | `:strptime`                  | Like `:date`, but `DateTime`                                                 | `"2024-01-23 10:30"` → `DateTime.new(...)`    |
+| `:float`       |                              | String → float                                                               | `"123.45"` → `123.45`                         |
+| `:hash`        |                              | `nil` → `{}`; JSON strings must decode to a Hash; else `#to_hash` / `#to_h`  | `'{"a":1}'` → `{"a" => 1}`                    |
+| `:integer`     |                              | `Kernel#Integer` rules (hex/oct with prefixes)                               | `"0xFF"` → `255`                              |
+| `:rational`    | `:denominator` (default `1`) | Fractions from strings                                                       | `"1/2"` → `Rational(1, 2)`                    |
+| `:string`      |                              | Call `#to_s`                                                                 | `123` → `"123"`                               |
+| `:symbol`      |                              | `#to_s.to_sym`; fails if there’s no `#to_s`                                  | `"abc"` → `:abc`                              |
+| `:time`        | `:strptime`                  | Time parsing; numbers = Unix seconds                                         | `"2024-01-23 10:30"` → `Time.new(...)`        |
 
 ## Declarations
 
-Important
+Success vs failure
 
-Custom coercions must return the coerced value on success or `CMDx::Coercions::Failure.new("message")` on failure. Returning a `Failure` records the message on `task.errors` keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`) — not the original declaration name.
+Custom coercions return the **new value** on success, or `CMDx::Coercions::Failure.new("message")` on failure. Failures land on `task.errors` under the **accessor** name (after `:as` / `:prefix` / `:suffix`), not the raw declaration name.
 
-Call signatures
+Two different call styles
 
-Registered coercions (via `register :coercion, ...`) receive `(value, **options)` and pick up per-declaration options like `precision:` or `strptime:`. Inline `:coerce` callables (see below) instead receive `(value, task)` and have no options hash.
+**`register :coercion`** handlers get `(value, **options)` — so `precision:` and friends flow through. **Inline** `coerce:` callables (below) get `(value, task)` and **no** options hash.
 
 ### Proc or Lambda
 
-Use anonymous functions for simple coercion logic:
+Quick custom logic:
 
 ```ruby
 class TransformCoordinates < CMDx::Task
-  # Proc
   register :coercion, :geolocation, proc do |value, **options|
     Geolocation(value)
   rescue StandardError
@@ -80,7 +76,6 @@ class TransformCoordinates < CMDx::Task
 end
 
 class FormatTimeRange < CMDx::Task
-  # Lambda
   register :coercion, :time_range, ->(value, **options) {
     TimeRange(value)
   rescue StandardError
@@ -91,7 +86,7 @@ end
 
 ### Class or Module
 
-Register custom coercion logic for specialized type handling:
+Name it, test it, reuse it:
 
 ```ruby
 class GeolocationCoercion
@@ -111,13 +106,13 @@ end
 
 ### Inline `:coerce` callable
 
-For one-off coercions that don't need a registered name, pass a `Symbol` (instance method), `Proc`, or any callable directly to `coerce:`. Symbols receive `(value)`, Procs are `instance_exec`'d with `(value)` (`self` is the task), and `#call`-able objects receive `(value, task)`:
+Skip `register` for one-offs: `Symbol` (instance method), `Proc`, or `#call`-able. Symbols get `(value)`; procs use `instance_exec` with `(value)`; callables get `(value, task)`:
 
 ```ruby
 class TransformCoordinates < CMDx::Task
-  input :latitude,  coerce: :parse_lat                       # instance method
-  input :longitude, coerce: ->(v) { Float(v).round(6) }      # lambda
-  input :elevation, coerce: ElevationParser                  # callable: call(value, task)
+  input :latitude,  coerce: :parse_lat
+  input :longitude, coerce: ->(v) { Float(v).round(6) }
+  input :elevation, coerce: ElevationParser
 
   private
 
@@ -135,11 +130,11 @@ end
 
 ## Removals
 
-Remove unwanted coercions:
+Yank a registered coercion when you don’t need it:
 
 Warning
 
-Each `deregister` call removes one coercion. Use multiple calls for batch removals.
+Same as validators: one `deregister` per name.
 
 ```ruby
 class TransformCoordinates < CMDx::Task
@@ -147,6 +142,6 @@ class TransformCoordinates < CMDx::Task
 end
 ```
 
-## Error Handling
+## Error handling
 
-Coercion failures accumulate on `task.errors` and surface as a failed result with the joined sentence as `result.reason`. See [Inputs - Error Handling](https://drexed.github.io/cmdx/inputs/definitions/#error-handling) for the full lifecycle.
+Failed coercion adds to `task.errors` and fails the run; `result.reason` summarizes it. Full lifecycle: [Inputs - Error Handling](https://drexed.github.io/cmdx/inputs/definitions/#error-handling).

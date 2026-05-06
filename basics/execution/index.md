@@ -1,19 +1,19 @@
 # Basics - Execution
 
-CMDx offers two execution methods with different error handling approaches. Choose based on your needs: safe result handling or exception-based control flow.
+CMDx gives you two front doors: one that **always** hands you a result object, and one that **raises** when something actually failed. Pick the style that fits the calling code — no shame either way.
 
 ## Execution Methods
 
-Both methods return results, but handle failures differently:
+Same task, two vibes:
 
-| Method     | Returns                                     | Exceptions                                                                                                                                                                                            | Use Case                                             |
-| ---------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `execute`  | Returns `CMDx::Result` for any task outcome | Never raises for ordinary failures; framework errors (`CMDx::Error` subclasses like `ImplementationError`, `MiddlewareError`, `CallbackError`, `DefinitionError`, `DeprecationError`) still propagate | Branch on `result.success?` / `failed?` / `skipped?` |
-| `execute!` | Returns `CMDx::Result` on success or skip   | Raises `CMDx::Fault` on failed outcomes, or the underlying exception when `work` raised a non-`Fault` `StandardError`                                                                                 | Exception-based control flow                         |
+| Method     | What you get                                         | Exceptions                                                                                                                                                                                                                                                                       | When to use it                                                           |
+| ---------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `execute`  | A `CMDx::Result` every time — success, skip, or fail | Ordinary failures don’t raise; you inspect the result. **Framework** mistakes (`CMDx::Error` subclasses: `ImplementationError`, `MiddlewareError`, `CallbackError`, `DefinitionError`, `DeprecationError`) still bubble up — those are “fix your app” problems, not user errors. | `if result.success?` … else …                                            |
+| `execute!` | A `Result` on success or skip                        | Raises `CMDx::Fault` when the task **failed**, or re-raises the original `StandardError` from `work` when that’s what happened                                                                                                                                                   | `rescue` blocks, “let it blow” controllers, jobs that retry on exception |
 
-`call` / `call!` are aliases. `execute` / `execute!` also accept a block — when given, the block receives the `Result` and its return value is returned instead of the result.
+`call` / `call!` are aliases — same behavior. You can also pass a block to `execute` / `execute!`: the block gets the `Result`, and **whatever the block returns** becomes the return value of the call (instead of the raw `Result`).
 
-Both class-level entry points forward to `Task#execute(strict:)`, which is also public — useful when you already have a task instance:
+Already holding a task instance? `Task#execute(strict:)` is public too:
 
 ```ruby
 task   = CreateAccount.new(email: "user@example.com")
@@ -47,11 +47,11 @@ flowchart LR
     EB --> Fault
 ```
 
-`Skipped` is **not** a failure — `execute!` returns the skipped `Result` rather than raising. Only `failed?` results raise.
+**Skip is not fail.** `execute!` is happy to return a skipped `Result`; it only raises when `failed?` is true.
 
 ## Non-bang Execution
 
-Returns a `CMDx::Result` for every task outcome (success, skip, fail). Default choice for most call sites. Framework errors (`CMDx::Error` subclasses) still propagate — they signal misconfiguration that should never be silently swallowed.
+The default for most app code: you always get a `Result`. Check `.success?`, `.failed?`, or `.skipped?` and branch. Framework errors still raise — that’s intentional so misconfigurations don’t vanish into a “failed” result.
 
 ```ruby
 result = CreateAccount.execute(email: "user@example.com")
@@ -65,7 +65,7 @@ end
 
 ## Bang Execution
 
-Raises `CMDx::Fault` on failure (or the originating `StandardError` if one was captured as the cause). Returns the result on success or skip.
+`execute!` says: “If this failed, wake me up with an exception.” On success or skip you still get the `Result`. On failure you get `CMDx::Fault` (or the original error in strict scenarios — see the note below).
 
 ```ruby
 begin
@@ -81,8 +81,8 @@ end
 
 Strict re-raise order
 
-When `work` raises a non-framework `StandardError`, Runtime captures it on `result.cause` **and** re-raises the **original** exception under strict mode — not a `Fault`. Put `rescue CMDx::Fault` before `rescue StandardError` (Fault is a `StandardError` subclass). A `fail!` / `throw!` / validation / output failure has no captured `cause`, so it raises `Fault` carrying the caused-failure leaf as `fault.result`.
+If `work` raises a normal app `StandardError`, the runtime stores it on `result.cause` **and**, in strict mode, re-raises the **original** exception — not always wrapped as `Fault`. Put `rescue CMDx::Fault` **before** `rescue StandardError` because `Fault` inherits from `StandardError`. Halts from `fail!` / `throw!` / validation / output checks don’t set that cause the same way; you’ll see `Fault` with failure details on `fault.result`.
 
 Teardown ordering
 
-Result finalization runs **before** the strict re-raise, and teardown (freeze + chain clear) runs in an `ensure` after. This means `fault.result`, `fault.context`, and `fault.chain` are all safe to read inside any `rescue` — and a lifecycle log line / `:task_executed` telemetry event still fires on strict failures.
+The `Result` is finalized **before** a strict re-raise, and teardown (freeze + chain cleanup) runs in `ensure`. So inside `rescue`, `fault.result`, `fault.context`, and `fault.chain` are safe to read — and you still get lifecycle logging / `:task_executed` telemetry even when strict mode raises.

@@ -1,12 +1,14 @@
 # Inputs - Defaults
 
-Provide fallback values for optional inputs. Defaults kick in when values aren't provided or are `nil`.
+Defaults answer: **“If nobody passed this (or they passed `nil`), what should we use instead?”** They run in the normal pipeline with coercion and validation, so a default isn’t a free pass — it still has to pass your rules.
 
 ## Declarations
 
-Defaults compose with coercions, validations, and nested inputs:
+Defaults play nicely with coercion, validation, and nested inputs.
 
-### Static Values
+### Static values
+
+The boring (good!) kind: literals and empty collections.
 
 ```ruby
 class OptimizeDatabase < CMDx::Task
@@ -28,16 +30,16 @@ class OptimizeDatabase < CMDx::Task
 end
 ```
 
-### Symbol References
+### Symbol references
 
-Reference instance methods by symbol for dynamic default values:
+Delegate to an instance method when the fallback depends on context:
 
 ```ruby
 class ProcessAnalytics < CMDx::Task
   input :granularity, default: :default_granularity
 
   def work
-    # Your logic here...
+    # ...
   end
 
   private
@@ -50,21 +52,18 @@ end
 
 ### Proc or Lambda
 
-Use anonymous functions for dynamic default values:
+Tiny bits of logic without naming a method:
 
 ```ruby
 class CacheContent < CMDx::Task
-  # Proc
   input :expire_hours, default: proc { Current.tenant.cache_duration || 24 }
-
-  # Lambda
   input :compression, default: -> { Current.tenant.premium? ? "gzip" : "none" }
 end
 ```
 
 ### Class or Module
 
-Any object responding to `#call(task)` works as a default:
+Anything with `#call(task)` can compute the fallback:
 
 ```ruby
 class TenantDefaults
@@ -78,24 +77,21 @@ class CacheContent < CMDx::Task
 end
 ```
 
-## Coercions and Validations
+## Coercions and validations
 
-Defaults flow through the same pipeline as provided values — coercion, transform, then validation:
+After a default applies, the value walks the same path as user input: coerce → transform → validate.
 
 ```ruby
 class ScheduleBackup < CMDx::Task
-  # Default is coerced through :integer
   input :retention_days, default: "7", coerce: :integer
-
-  # Default is validated against the inclusion list
   input :frequency, default: "daily", inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
 
 Note
 
-Defaults only apply when the resolved value is `nil`. An explicitly provided `nil` is treated as missing and the default fires. This applies equally whether the key was absent from `context` or the caller sent `nil` explicitly — both are "not provided".
+Defaults trigger when the resolved value is **`nil`**. That includes “key missing” **and** “caller explicitly sent `nil`” — both count as “not really provided.”
 
-Required + default
+Required + default = awkward
 
-Defaults **do not** satisfy `required:`. A required input whose key is absent fails with `is required` before the default is consulted — so `required: true, default: ...` is effectively a contradiction. Use `optional ..., default:` instead when you want a fallback, and reserve `required:` for keys the caller must explicitly supply.
+**`required:` does not wait for defaults.** If the key is missing, you get `is required` before defaults run. So `required: true, default: ...` fights itself: use `optional ..., default:` when you want a fallback, and `required:` when the caller must **name** the key.

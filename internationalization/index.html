@@ -1480,7 +1480,7 @@
   <a href="#default-locale-plain-ruby" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default Locale (plain Ruby)
+        Default locale (plain Ruby)
       
     </span>
   </a>
@@ -1491,7 +1491,7 @@
   <a href="#custom-locale-paths" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Custom Locale Paths
+        Custom locale paths
       
     </span>
   </a>
@@ -1507,7 +1507,7 @@
   <a href="#available-locales" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Locales
+        Available locales
       
     </span>
   </a>
@@ -2231,7 +2231,7 @@
   <a href="#default-locale-plain-ruby" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default Locale (plain Ruby)
+        Default locale (plain Ruby)
       
     </span>
   </a>
@@ -2242,7 +2242,7 @@
   <a href="#custom-locale-paths" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Custom Locale Paths
+        Custom locale paths
       
     </span>
   </a>
@@ -2258,7 +2258,7 @@
   <a href="#available-locales" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Locales
+        Available locales
       
     </span>
   </a>
@@ -2352,10 +2352,12 @@
 
 
 <h1 id="internationalization-i18n">Internationalization (i18n)<a class="headerlink" href="#internationalization-i18n" title="Permanent link">&para;</a></h1>
-<p>All built-in messages — coercion errors, validation errors, output verification, required-input errors, and the fallback fault reason — are routed through <code>CMDx::I18nProxy</code>. When the <code>i18n</code> gem is loaded, CMDx delegates to <code>I18n.translate</code> and messages adapt automatically to the current <code>I18n.locale</code>. Otherwise, CMDx loads the YAML for <code>config.default_locale</code> in-process and percent-interpolates.</p>
-<p>CMDx itself ships only <code>en</code>. Install <a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> for 85+ additional translations, or register your own locale directory (see <a href="#custom-locale-paths">Custom Locale Paths</a>).</p>
+<p>CMDx talks to users through messages: coercion errors, validation errors, missing outputs, missing required inputs, and the default fault reason. <strong>All of that</strong> goes through <code>CMDx::I18nProxy</code>.</p>
+<p><strong>If the <code>i18n</code> gem is loaded</strong>, CMDx uses <code>I18n.translate</code>, so messages follow whatever <code>I18n.locale</code> is set to—just like the rest of your app.</p>
+<p><strong>If <code>i18n</code> isn’t there</strong>, CMDx loads YAML for <code>config.default_locale</code> and does simple <code>%{key}</code> interpolation itself.</p>
+<p>Out of the box, CMDx ships <strong>English only</strong> (<code>en</code>). Want dozens more languages? Add <a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a>, or drop in your own YAML (see <a href="#custom-locale-paths">Custom locale paths</a>).</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>All built-in messages are localized via the current locale:</p>
+<p>Flip the locale and built-in messages follow:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessQuote</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:price</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:float</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -2373,10 +2375,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Coercion and validation failures accumulate on <code>task.errors</code> (a <code>CMDx::Errors</code> instance). <code>result.reason</code> is built from <code>errors.to_s</code> (<code>Errors#full_messages</code> joined with <code>". "</code>).</p>
+<p>Failures pile up on <code>task.errors</code> (<code>CMDx::Errors</code>). <code>result.reason</code> is basically the friendly string built from those errors (<code>Errors#full_messages</code>, joined with <code>". "</code>).</p>
 </div>
 <h2 id="translation-keys">Translation Keys<a class="headerlink" href="#translation-keys" title="Permanent link">&para;</a></h2>
-<p>All CMDx built-ins live under the <code>cmdx.*</code> namespace. Override any key in your own locale files to customize messages app-wide:</p>
+<p>Everything lives under <code>cmdx.*</code>. Override a key in <strong>your</strong> locale file to change wording app-wide:</p>
 <table>
 <thead>
 <tr>
@@ -2433,23 +2435,23 @@
 </table>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Prefer the per-input <code>:message</code> / <code>:&lt;rule&gt;_message</code> option (see <a href="../inputs/validations/#common-options">Validations</a>) when you only need to customize one attribute. Overriding the <code>cmdx.*</code> key changes the message everywhere.</p>
+<p>Tweaking <strong>one</strong> field? Use <code>:message</code> or <code>:&lt;rule&gt;_message</code> on the input (see <a href="../inputs/validations/#common-options">Validations</a>). Overriding <code>cmdx.*</code> changes the text <strong>everywhere</strong> that key is used.</p>
 </div>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <h3 id="rails">Rails<a class="headerlink" href="#rails" title="Permanent link">&para;</a></h3>
-<p>The CMDx railtie appends its bundled locale files to <code>I18n.load_path</code> on boot — but only for locales listed in <code>config.i18n.available_locales</code>, so you don't pay for translations you don't ship:</p>
+<p>The CMDx railtie adds its locale files to <code>I18n.load_path</code> on boot—but <strong>only</strong> for locales you list in <code>config.i18n.available_locales</code>. So you don’t load YAML for languages you never ship.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># config/application.rb</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">config</span><span class="o">.</span><span class="n">i18n</span><span class="o">.</span><span class="n">available_locales</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="ss">:en</span><span class="p">,</span><span class="w"> </span><span class="ss">:fr</span><span class="p">,</span><span class="w"> </span><span class="ss">:es</span><span class="o">]</span>
 </span></code></pre></div>
-<h3 id="default-locale-plain-ruby">Default Locale (plain Ruby)<a class="headerlink" href="#default-locale-plain-ruby" title="Permanent link">&para;</a></h3>
-<p>Without the <code>i18n</code> gem (e.g. scripts, CLIs, background workers with no Rails), CMDx loads the YAML for <code>config.default_locale</code> directly:</p>
+<h3 id="default-locale-plain-ruby">Default locale (plain Ruby)<a class="headerlink" href="#default-locale-plain-ruby" title="Permanent link">&para;</a></h3>
+<p>No <code>i18n</code> gem? (Scripts, CLIs, tiny workers.) Set <code>default_locale</code> and CMDx reads that locale’s YAML directly.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">default_locale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;es&quot;</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Only one locale is active at a time in this mode — there is no <code>I18n.with_locale</code> equivalent. If the key is absent, <code>I18nProxy#translate</code> returns <code>"Translation missing: &lt;key&gt;"</code>. See <a href="../configuration/#default-locale">Configuration</a> for more details.</p>
-<h3 id="custom-locale-paths">Custom Locale Paths<a class="headerlink" href="#custom-locale-paths" title="Permanent link">&para;</a></h3>
-<p>Register additional directories of <code>&lt;locale&gt;.yml</code> files with <code>I18nProxy.register</code>. Later registrations take precedence during deep-merge, so you can override individual keys without copying the whole file:</p>
+<p>In this mode there’s <strong>one</strong> active locale—no <code>I18n.with_locale</code> equivalent. If a key is missing, you’ll see <code>"Translation missing: &lt;key&gt;"</code>. More detail: <a href="../configuration/#default-locale">Configuration – default locale</a>.</p>
+<h3 id="custom-locale-paths">Custom locale paths<a class="headerlink" href="#custom-locale-paths" title="Permanent link">&para;</a></h3>
+<p>Point CMDx at extra folders of <code>&lt;locale&gt;.yml</code> files with <code>I18nProxy.register</code>. <strong>Later</strong> registrations win on merge, so you can override a few keys without copying entire files.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># lib/locales/en.yml</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="ss">en</span><span class="p">:</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="ss">cmdx</span><span class="p">:</span>
@@ -2460,10 +2462,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>register</code> only affects the plain-Ruby fallback. When the <code>i18n</code> gem is loaded, CMDx delegates to <code>I18n.translate</code> and these paths are ignored — add your directories to <code>I18n.load_path</code> instead.</p>
+<p><code>register</code> only affects the <strong>no-i18n-gem</strong> path. When <code>i18n</code> is loaded, CMDx delegates to <code>I18n.translate</code>—add your paths to <code>I18n.load_path</code> instead.</p>
 </div>
-<h2 id="available-locales">Available Locales<a class="headerlink" href="#available-locales" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> companion gem provides community-maintained translations for 85+ locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your <code>Gemfile</code> and the locales become available to <code>I18n.translate</code> wherever CMDx is used; see the gem's README for the authoritative list.</p>
+<h2 id="available-locales">Available locales<a class="headerlink" href="#available-locales" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> gem bundles community translations for <strong>85+</strong> locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your <code>Gemfile</code> and those locales show up wherever CMDx calls <code>I18n.translate</code>. The gem’s README lists the exact set.</p>
 
 
 

@@ -2496,18 +2496,19 @@
 
 
 <h1 id="task-deprecation">Task Deprecation<a class="headerlink" href="#task-deprecation" title="Permanent link">&para;</a></h1>
-<p>Mark legacy tasks for graceful migration. Choose how to handle deprecated execution—log warnings for awareness, emit Ruby warnings during development, or block execution entirely.</p>
-<p>Deprecation is declared at the <strong>class level</strong> with <code>deprecation</code>, <strong>not</strong> through <code>settings(...)</code>. Subclasses inherit their parent's deprecation declaration unless they override it. When the action fires, <code>result.deprecated?</code> is <code>true</code> and a <code>:task_deprecated</code> telemetry event is emitted.</p>
+<p>Sometimes a task has to stick around for a while—even though you wish it would retire. Deprecation lets you <strong>flag old tasks</strong> so teams migrate gently instead of everything blowing up at once.</p>
+<p>You pick what happens when someone runs a deprecated task: <strong>block it</strong>, <strong>log a heads-up</strong>, or <strong>print a Ruby warning</strong> (great in dev, quieter in prod).</p>
+<p>Put deprecation on the <strong>class</strong> with <code>deprecation</code>, <strong>not</strong> inside <code>settings(...)</code>. Subclasses copy the parent’s rule unless they define their own. When deprecation actually runs, <code>result.deprecated?</code> is <code>true</code> and CMDx emits a <code>:task_deprecated</code> telemetry ping—handy for dashboards or metrics.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Deprecation runs after middlewares (and the <code>:task_started</code> telemetry event) but <strong>before</strong> callbacks, input resolution, and <code>work</code>. Conditional gates (<code>:if</code> / <code>:unless</code>) therefore can't read inputs — only the raw <code>context</code> and the task instance.</p>
+<p>Deprecation fires <strong>after</strong> middleware (and the <code>:task_started</code> event) but <strong>before</strong> callbacks, input resolution, and <code>work</code>. That means <code>:if</code> / <code>:unless</code> gates only see the raw <code>context</code> and the task instance—not resolved inputs yet.</p>
 </div>
 <h2 id="modes">Modes<a class="headerlink" href="#modes" title="Permanent link">&para;</a></h2>
 <h3 id="error">Error<a class="headerlink" href="#error" title="Permanent link">&para;</a></h3>
-<p>Prevent the task from executing. Use for tasks that must no longer run.</p>
+<p><strong>Stop the task cold.</strong> Use this when running the task would be wrong or dangerous.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><code>:error</code> breaks every caller of the task immediately. Roll out behind a feature flag (via <code>:if</code>) when in doubt.</p>
+<p><code>:error</code> breaks <strong>every</strong> caller immediately. If you’re not 100% sure, roll it out behind a feature flag with <code>:if</code> so you can flip it off fast.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessObsoleteAPI</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
@@ -2521,7 +2522,7 @@
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">#=&gt; raises CMDx::DeprecationError: &quot;ProcessObsoleteAPI usage prohibited&quot;</span>
 </span></code></pre></div>
 <h3 id="log">Log<a class="headerlink" href="#log" title="Permanent link">&para;</a></h3>
-<p>Allow execution and log a warning. Ideal for gradual migrations.</p>
+<p><strong>Let the task run</strong>, but write a warning to the task logger. Nice when you’re sunsetting something and want logs to tell the story.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessLegacyFormat</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:log</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -2535,7 +2536,7 @@
 </span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># logger.warn: &quot;DEPRECATED: ProcessLegacyFormat - migrate to a replacement or discontinue use&quot;</span>
 </span></code></pre></div>
 <h3 id="warn">Warn<a class="headerlink" href="#warn" title="Permanent link">&para;</a></h3>
-<p>Emit a Ruby warning to stderr. Visible during development and testing without polluting production logs.</p>
+<p><strong>Emit a Ruby warning</strong> to stderr—developers and tests see it; production logs stay calmer than with <code>:log</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOldData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:warn</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
@@ -2550,13 +2551,14 @@
 </span></code></pre></div>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <h3 id="symbol">Symbol<a class="headerlink" href="#symbol" title="Permanent link">&para;</a></h3>
+<p>The quick path: pass <code>:error</code>, <code>:log</code>, or <code>:warn</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="c1"># or :log, :warn</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="method-reference">Method Reference<a class="headerlink" href="#method-reference" title="Permanent link">&para;</a></h3>
-<p>Dispatched as <code>task.send(name)</code>. The method must perform the action itself (raise, log, warn, or no-op); its return value is discarded:</p>
+<p>CMDx calls <code>task.send(name)</code>. <strong>Your method</strong> does the real work—raise, log, warn, or nothing. Whatever it returns is ignored.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:handle_deprecation</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
@@ -2574,7 +2576,7 @@
 </span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p><code>instance_exec</code>'d on the task with the task as the sole block argument:</p>
+<p>Runs with <code>instance_exec</code> on the task; the block gets the task as its argument.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">development?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="k">raise</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">DeprecationError</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> retired&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;legacy&quot;</span><span class="p">)</span>
@@ -2587,10 +2589,10 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Only one <code>deprecation</code> declaration is honored per class — repeated calls overwrite the previous declaration. To express multi-modal behavior, branch inside a single callable.</p>
+<p>You only get <strong>one</strong> <code>deprecation</code> per class—each new call <strong>replaces</strong> the last. Need several behaviors? Branch inside a single Proc or callable.</p>
 </div>
 <h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
-<p>Anything that responds to <code>#call(task)</code>:</p>
+<p>Anything that responds to <code>call(task)</code> works—class or instance.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedTaskDeprecator</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">unless</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Outdated&quot;</span><span class="p">)</span>
@@ -2608,7 +2610,7 @@
 </span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="conditional-gating">Conditional Gating<a class="headerlink" href="#conditional-gating" title="Permanent link">&para;</a></h2>
-<p>Pass <code>:if</code> / <code>:unless</code> to skip the deprecation action when the gate fails. Both accept a Symbol (method name), Proc/Lambda, or any callable, and are evaluated against the task instance via <code>Util.satisfied?</code>:</p>
+<p>Use <code>:if</code> or <code>:unless</code> to <strong>skip</strong> the deprecation action when the condition fails. You can pass a symbol (method name), a Proc, or any callable; CMDx checks it with <code>Util.satisfied?</code> on the task.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">end</span>
@@ -2625,10 +2627,11 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Only the <strong>most recent</strong> <code>deprecation</code> call wins — there's a single <code>@deprecation</code> per class. Combine modes with conditions inside a single Proc when you need branching.</p>
+<p>Again: only the <strong>latest</strong> <code>deprecation</code> call wins (one slot per class). Fancy branching? Do it inside one Proc.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subclasses inherit the parent's deprecation. Re-declare to override. <code>deprecation nil</code> is a read (returns the inherited value rather than clearing it), so opt out by passing a no-op callable — note that this still marks the result as <code>deprecated?</code> and emits <code>:task_deprecated</code>, it just suppresses the visible log/warn/raise:</p>
+<p>Child tasks <strong>inherit</strong> the parent’s deprecation. Redefine <code>deprecation</code> on the child to override.</p>
+<p><code>deprecation nil</code> <strong>does not clear</strong> inheritance—it reads the inherited value. To “turn off” the visible behavior, use a no-op callable. Heads-up: the result can still be <code>deprecated?</code> and still emit <code>:task_deprecated</code>; you’re just not logging, warning, or raising.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseLegacyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:log</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">end</span>
@@ -2646,10 +2649,7 @@
 </span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="custom-actions-via-the-deprecators-registry">Custom Actions via the <code>Deprecators</code> Registry<a class="headerlink" href="#custom-actions-via-the-deprecators-registry" title="Permanent link">&para;</a></h2>
-<p>Built-in actions (<code>:log</code>, <code>:warn</code>, <code>:error</code>) live in the <code>CMDx::Deprecators</code>
-registry, mirroring <code>Retriers</code> and <code>Mergers</code>. Actions are any callable matching
-<code>call(task)</code>; the return value is discarded. Register custom actions globally
-on the configuration or per-task:</p>
+<p>Built-ins (<code>:log</code>, <code>:warn</code>, <code>:error</code>) live in <code>CMDx::Deprecators</code>—same idea as <code>Retriers</code> and <code>Mergers</code>. Each action is a callable <code>call(task)</code>; return values are ignored. Register yours globally or on a single task:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">deprecators</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:bugsnag</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="no">Bugsnag</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DEPRECATED: </span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">severity</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">)</span>
@@ -2663,10 +2663,9 @@ on the configuration or per-task:</p>
 </span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:deprecator</span><span class="p">,</span><span class="w"> </span><span class="ss">:slack</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Slack</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> fired&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Symbols not present in the registry fall through to a task instance method, so
-existing <code>deprecation :handle_deprecation</code> declarations keep working.</p>
+<p>If a symbol isn’t in the registry, CMDx falls back to a <strong>method on the task</strong>—so <code>deprecation :handle_deprecation</code> keeps working the way you expect.</p>
 <h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
-<p>When deprecation fires (and conditions pass), Runtime emits the <code>:task_deprecated</code> telemetry event before the action runs, and the resulting <code>Result</code> reports <code>deprecated?</code> as <code>true</code>:</p>
+<p>When deprecation runs (and any <code>:if</code> / <code>:unless</code> passes), Runtime fires <code>:task_deprecated</code> <strong>before</strong> the action. The returned <code>Result</code> has <code>deprecated? == true</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:task_deprecated</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">&quot;cmdx.deprecated&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">]</span><span class="p">)</span>

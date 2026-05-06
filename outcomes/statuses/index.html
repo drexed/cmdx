@@ -1005,10 +1005,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#single-final-status" class="md-nav__link">
+  <a href="#one-shot-one-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Single Final Status
+        One shot, one status
       
     </span>
   </a>
@@ -1019,7 +1019,7 @@
   <a href="#predicates-and-handlers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Predicates and Handlers
+        Predicates and handlers
       
     </span>
   </a>
@@ -2144,10 +2144,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#single-final-status" class="md-nav__link">
+  <a href="#one-shot-one-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Single Final Status
+        One shot, one status
       
     </span>
   </a>
@@ -2158,7 +2158,7 @@
   <a href="#predicates-and-handlers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Predicates and Handlers
+        Predicates and handlers
       
     </span>
   </a>
@@ -2252,50 +2252,56 @@
 
 
 <h1 id="outcomes-statuses">Outcomes - Statuses<a class="headerlink" href="#outcomes-statuses" title="Permanent link">&para;</a></h1>
-<p>Statuses represent the business outcome — did the task succeed, skip, or fail? This is independent of state, which only tracks whether the lifecycle ran to completion or was interrupted.</p>
+<p><strong>Status</strong> answers the question everyone cares about first: <em>did this task win, bail out gracefully, or blow up?</em> It is all about the <strong>business outcome</strong>. It does not tell you whether the lifecycle ran start-to-finish—that job belongs to <a href="../states/">state</a>.</p>
 <h2 id="definitions">Definitions<a class="headerlink" href="#definitions" title="Permanent link">&para;</a></h2>
+<p>Think of status as the label on your report card:</p>
 <table>
 <thead>
 <tr>
 <th>Status</th>
-<th>Description</th>
+<th>In plain English</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>success</code></td>
-<td>Task <code>work</code> ran to completion (and any declared outputs verified), or halted via <code>success!</code>. Default outcome.</td>
+<td><code>work</code> finished happily (outputs checked out too), or you stopped early with <code>success!</code>. This is the happy path most of the time.</td>
 </tr>
 <tr>
 <td><code>skipped</code></td>
-<td>Task halted via <code>skip!</code>. Treated as a non-failure outcome.</td>
+<td>You called <code>skip!</code>. Nothing crashed—it is just “we are not doing this.” Still counts as a non-failure.</td>
 </tr>
 <tr>
 <td><code>failed</code></td>
-<td>Task halted via <code>fail!</code>, <code>throw!</code>, accumulated <code>task.errors</code>, or a <code>StandardError</code> raised from <code>work</code> (Runtime captures it on <code>result.cause</code>).</td>
+<td>You called <code>fail!</code> or <code>throw!</code>, errors piled up on the task, or <code>work</code> raised a normal Ruby exception (Runtime stashes it on <code>result.cause</code>).</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>throw!</code> isn't a primitive halt — it re-throws a peer's already-<code>failed?</code> result through the current task. See <a href="../../interruptions/faults/#fault-propagation">Fault Propagation</a>.</p>
+<p><code>throw!</code> is special: it forwards another task’s already-failed result through yours. For the full story, see <a href="../../interruptions/faults/#fault-propagation">Fault propagation</a>.</p>
 </div>
-<h2 id="single-final-status">Single Final Status<a class="headerlink" href="#single-final-status" title="Permanent link">&para;</a></h2>
-<p>Statuses don't transition. The first <code>skip!</code> / <code>fail!</code> inside <code>work</code> throws out of the call stack, so the result is built once with a single, final status:</p>
+<h2 id="one-shot-one-status">One shot, one status<a class="headerlink" href="#one-shot-one-status" title="Permanent link">&para;</a></h2>
+<p>Statuses do not morph over time. The moment <code>skip!</code> or <code>fail!</code> runs inside <code>work</code>, execution unwinds and the result is built <strong>once</strong> with a single final status:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1"># Runtime catches this and finalizes the result</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1"># Unreachable</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1"># Unreachable—game over after fail!</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Calling <code>skip!</code> or <code>fail!</code> on a frozen task (after <code>Runtime</code> teardown) raises <code>FrozenError</code> — they can't mutate a finalized result.</p>
+<p>If you try <code>skip!</code> or <code>fail!</code> after Runtime has torn everything down (frozen task), you get <code>FrozenError</code>. The story is already written—you cannot rewrite it.</p>
 </div>
-<h2 id="predicates-and-handlers">Predicates and Handlers<a class="headerlink" href="#predicates-and-handlers" title="Permanent link">&para;</a></h2>
-<p><code>result.success?</code> / <code>result.skipped?</code> / <code>result.failed?</code> check status; <code>result.ok?</code> (success or skipped) and <code>result.ko?</code> (skipped or failed) categorize the outcome. Dispatch with <code>result.on(:success | :skipped | :failed | :ok | :ko)</code>. See <a href="../result/#lifecycle-predicates">Result - Lifecycle Predicates</a> and <a href="../result/#predicate-dispatch">Result - Predicate Dispatch</a>.</p>
+<h2 id="predicates-and-handlers">Predicates and handlers<a class="headerlink" href="#predicates-and-handlers" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>result.success?</code>, <code>result.skipped?</code>, <code>result.failed?</code> mirror those three labels.</li>
+<li><code>result.ok?</code> means success <strong>or</strong> skipped (fine enough to move on).</li>
+<li><code>result.ko?</code> means skipped <strong>or</strong> failed (work did not fully succeed).</li>
+</ul>
+<p>Hook them up with <code>result.on(:success | :skipped | :failed | :ok | :ko)</code>. More detail lives in <a href="../result/#lifecycle-predicates">Result — lifecycle predicates</a> and <a href="../result/#predicate-dispatch">Result — predicate dispatch</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>skipped</code> is intentionally both <code>ok?</code> and <code>ko?</code>. It's a valid outcome (<code>ok</code> — nothing broke) and a non-success (<code>ko</code> — work wasn't done). Use <code>success?</code> when you need a strict success check.</p>
+<p><code>skipped</code> is the quirky one: it is both <code>ok?</code> and <code>ko?</code>. Valid outcome (<code>ok</code>) but not the gold star (<code>ko</code>). When you truly need “we shipped it,” use <code>success?</code>.</p>
 </div>
 
 

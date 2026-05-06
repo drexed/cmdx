@@ -1,12 +1,12 @@
 # Testing
 
-Patterns for testing CMDx tasks and workflows with RSpec.
+Hey — if you can read RSpec, you can test CMDx. This page is a cheat sheet for checking that your tasks and workflows do what you expect.
 
 ## Testing Tasks
 
-### Basic Execution
+### Basic execution
 
-Call `execute` and assert on the returned `Result`. Predicates like `success?`, `skipped?`, and `failed?` map to RSpec matchers automatically.
+Call `execute` on your task. You get back a `Result` object. Treat it like a little report card: `success?`, `skipped?`, and `failed?` tell you how it went, and RSpec matchers understand them out of the box.
 
 ```ruby
 RSpec.describe CreateUser do
@@ -28,7 +28,7 @@ RSpec.describe CreateUser do
 end
 ```
 
-For multi-branch assertions, `Result#on` keeps each path scoped:
+When one example needs to branch on the outcome, `Result#on` keeps each branch tidy — no giant `if` soup.
 
 ```ruby
 it "branches on outcome" do
@@ -38,9 +38,9 @@ it "branches on outcome" do
 end
 ```
 
-### Testing Skip and Fail
+### Testing skip and fail
 
-`reason` and `metadata` come straight from the `skip!` / `fail!` arguments.
+When your task calls `skip!` or `fail!`, whatever you pass in shows up on the result as `reason` and `metadata`. Assert those like any other value.
 
 ```ruby
 RSpec.describe ProcessRefund do
@@ -64,9 +64,9 @@ RSpec.describe ProcessRefund do
 end
 ```
 
-### Testing Bang Execution
+### Testing bang execution (`execute!`)
 
-`execute!` raises `CMDx::Fault` for any failed path (validation, output verification, `fail!`, or echoed peer failure). The fault carries the failing task class and the originating `Result`.
+`execute!` is the loud version: if anything goes wrong (validation, bad outputs, `fail!`, or a bubbled-up failure from another task), it raises `CMDx::Fault`. That exception carries which task blew up and the `Result` that explains why.
 
 ```ruby
 RSpec.describe ProcessPayment do
@@ -82,7 +82,7 @@ RSpec.describe ProcessPayment do
 end
 ```
 
-For paths that re-raise the original exception (an unhandled `StandardError` inside `work`), match the original class instead:
+If your task re-raises the *original* exception (say, a bare `JSON::ParserError` from `work`), expect that class — not `Fault`.
 
 ```ruby
 expect { Importer.execute!(payload: bad_payload) }.to raise_error(JSON::ParserError)
@@ -90,11 +90,11 @@ expect { Importer.execute!(payload: bad_payload) }.to raise_error(JSON::ParserEr
 
 Note
 
-`Fault` exposes the originating `Result` (`fault.result`), `context`, and `chain` so post-mortem inspection works either way. `execute` is still handy when you want to assert on `skipped?`, `success?`, *and* `failed?` results in the same example.
+Peek at `fault.result`, `fault.context`, and `fault.chain` when you need a full post-mortem. When you care about **all** three outcomes — success, skip, *and* failure — in one example, stick with quiet `execute` instead of `execute!`.
 
-### Testing Input Validation
+### Testing input validation
 
-Errors from input resolution are surfaced through `result.errors` and folded into `result.reason`.
+Bad inputs land in `result.errors`. The human-readable summary is usually in `result.reason` too.
 
 ```ruby
 RSpec.describe CreateProject do
@@ -110,11 +110,11 @@ end
 
 Note
 
-Coerced input values live on the task instance (via the generated reader), not on `context`. `result.context.budget` returns whatever the caller passed in — to assert on the coerced value, write it back to `context` inside `work` (e.g. `context.budget = budget`).
+After coercion, the *nice* typed values often live on the task instance (the reader CMDx generates), not on `context`. `result.context` still reflects what the caller passed unless **you** copy coerced values onto `context` inside `work` (for example `context.budget = budget`).
 
-### Testing Outputs
+### Testing outputs
 
-Missing or invalid declared outputs fail the task with the same `errors` API.
+If you declared an `output` and it is missing or invalid, the task fails — same `errors` API as inputs.
 
 ```ruby
 RSpec.describe AuthenticateUser do
@@ -129,9 +129,9 @@ RSpec.describe AuthenticateUser do
 end
 ```
 
-### Testing Retries
+### Testing retries
 
-`result.retries` and `result.retried?` expose retry activity.
+Retries are boring to watch in real life; in tests they are easy. `result.retries` counts attempts beyond the first, and `result.retried?` is just `retries > 0`.
 
 ```ruby
 RSpec.describe FetchExternalData do
@@ -152,11 +152,11 @@ RSpec.describe FetchExternalData do
 end
 ```
 
-## Testing Workflows
+## Testing workflows
 
-### Sequential Workflow
+### Sequential workflow
 
-The chain holds every result in execution order, with the workflow result as the root.
+A workflow's `chain` is the story of everything that ran, in order. The root entry is the workflow itself.
 
 ```ruby
 RSpec.describe OnboardingWorkflow do
@@ -172,9 +172,9 @@ RSpec.describe OnboardingWorkflow do
 end
 ```
 
-### Failure Propagation
+### Failure propagation
 
-A failed leaf halts the workflow and its `reason` echoes onto `result.reason`. The failing leaf is reachable directly via `result.origin` / `result.caused_failure` — they point at the originating task without needing to scan the chain.
+First failure wins: the pipeline stops, and the workflow's `reason` echoes the unhappy task. You do not have to hunt through the chain — `result.origin` and `result.caused_failure` point at the task that started the trouble.
 
 ```ruby
 RSpec.describe PaymentWorkflow do
@@ -191,11 +191,11 @@ end
 
 Note
 
-`caused_failure` walks `origin` recursively, so it returns the deepest leaf even across nested workflows. `threw_failure` returns the immediate upstream (`origin || self`). For a locally-failing task both helpers return `self`. See [Result — Chain Analysis](https://drexed.github.io/cmdx/outcomes/result/#chain-analysis).
+`caused_failure` digs to the deepest failing leaf, even inside nested workflows. `threw_failure` is the immediate upstream (`origin` or the result itself). When the failing task *is* the leaf you are looking at, both helpers return `self`. More detail: [Result — Chain Analysis](https://drexed.github.io/cmdx/outcomes/result/#chain-analysis).
 
-## Testing Callbacks
+## Testing callbacks
 
-Callbacks are best verified through their observable side effects.
+Callbacks are easiest to trust when you watch something happen — mailers sent, flags flipped, jobs enqueued. Stub or spy on the collaborator and assert it was called.
 
 ```ruby
 RSpec.describe ProcessBooking do
@@ -210,9 +210,9 @@ RSpec.describe ProcessBooking do
 end
 ```
 
-## Testing Middlewares
+## Testing middlewares
 
-Middlewares run inside Runtime, so test them through a real task lifecycle (see [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)).
+Middleware wraps the real task lifecycle, so the friendliest test is a tiny task that exercises your middleware end-to-end. See [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md) for the big picture.
 
 ```ruby
 class TaggingMiddleware
@@ -236,9 +236,9 @@ RSpec.describe TaggingMiddleware do
 end
 ```
 
-## Direct Instantiation
+## Direct instantiation
 
-Instantiate a task directly when you need to inspect its `context` or `errors` before invoking the runtime.
+Sometimes you want to peek before you run. `Task.new(...)` builds the context and error bucket but **does not** execute anything. Handy for cheap sanity checks.
 
 ```ruby
 RSpec.describe CalculateShipping do
@@ -253,11 +253,11 @@ end
 
 Note
 
-`Task#new` only builds the context and errors registry — it does **not** run the lifecycle. To execute, use `Klass.execute(context_or_hash)`. There is no per-instance `task.execute`.
+There is no `task.execute` on the instance. To actually run the lifecycle, call `YourTask.execute(...)` (with a hash or a context). `new` is setup only.
 
-## Pattern Matching in Tests
+## Pattern matching in tests
 
-`Result` supports both array and hash deconstruction.
+Feeling fancy? `Result` supports Ruby pattern matching — both array-style and hash-style.
 
 ```ruby
 RSpec.describe BuildApplication do
@@ -291,4 +291,4 @@ end
 
 Note
 
-`Result#deconstruct` returns `to_h.to_a` — an array of `[key, value]` pairs in insertion order, not a fixed-arity tuple. Use find patterns (`in [*, [:status, "success"], *]`) rather than positional arrays.
+`Result#deconstruct` is `to_h.to_a` — a list of `[key, value]` pairs in hash insertion order, not a fixed-size tuple. Prefer "find" patterns like `in [*, [:status, "success"], *]` instead of counting positions by hand.

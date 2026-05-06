@@ -2496,10 +2496,17 @@
 
 
 <h1 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">&para;</a></h1>
-<p>Wrap task execution with middleware for cross-cutting concerns like authentication, caching, telemetry, and timeouts. Think Rack middleware, but for your business logic.</p>
-<p>See <a href="../configuration/#middlewares">Global Configuration</a> for framework-wide setup.</p>
+<p>Middlewares are little wrappers around your task. They are the right place for cross-cutting stuff you do not want to copy-paste into every <code>work</code> method: auth checks, caching, logging, timeouts, “set this thread-local for the duration of the call,” and so on.</p>
+<p>If you have used Rack middleware, you already get the idea: same onion, different layer.</p>
+<p>For wiring middleware everywhere at once, see <a href="../configuration/#middlewares">Global Configuration</a>.</p>
 <h2 id="signature">Signature<a class="headerlink" href="#signature" title="Permanent link">&para;</a></h2>
-<p>Every middleware receives the task and a block: <code>call(task) { ... }</code>. Invoke <code>yield</code> (or <code>next_link.call</code> from a Proc) to run the next link; skipping it raises <code>CMDx::MiddlewareError</code>. Middlewares see only the <code>task</code> — <code>Result</code> is built after the chain unwinds, so read <code>task.context</code> / <code>task.errors</code> from inside, or subscribe to Telemetry's <code>:task_executed</code> event when you need the finalized result.</p>
+<p>Each middleware gets the <strong>task</strong> and a <strong>block</strong> that means “run the rest of the chain.” Your job is to call that block when it is time to continue.</p>
+<ul>
+<li><strong>Class style:</strong> <code>def call(task) ... yield ... end</code></li>
+<li><strong>Proc style:</strong> capture the block as <code>&amp;next_link</code> and call <code>next_link.call</code> (Procs cannot <code>yield</code> the outer block the same way)</li>
+</ul>
+<p>If you never call <code>yield</code> / <code>next_link.call</code>, CMDx raises <code>CMDx::MiddlewareError</code> on purpose so you do not accidentally skip the task body.</p>
+<p><strong>Heads up:</strong> middleware runs while the task is still “in flight.” The final <code>Result</code> object is assembled <em>after</em> the chain unwinds. Inside middleware, peek at <code>task.context</code> and <code>task.errors</code>. If you need the finished result every time, Telemetry’s <code>:task_executed</code> event is a better hook.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TelemetryMiddleware</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Process</span><span class="o">.</span><span class="n">clock_gettime</span><span class="p">(</span><span class="no">Process</span><span class="o">::</span><span class="no">CLOCK_MONOTONIC</span><span class="p">)</span>
@@ -2511,7 +2518,7 @@
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="execution-order">Execution Order<a class="headerlink" href="#execution-order" title="Permanent link">&para;</a></h2>
-<p>Middleware wraps task execution in layers, like an onion. <strong>First registered = outermost wrapper</strong>, executing in registration order:</p>
+<p>Think of an onion. The <strong>first</strong> middleware you register sits on the <strong>outside</strong>. It runs first on the way in and last on the way out.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditMiddleware</span><span class="w">         </span><span class="c1"># 1st: outermost wrapper</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuthorizationMiddleware</span><span class="w"> </span><span class="c1"># 2nd: middle wrapper</span>
@@ -2534,7 +2541,7 @@
 </span></code></pre></div>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <h3 id="class-or-instance">Class or Instance<a class="headerlink" href="#class-or-instance" title="Permanent link">&para;</a></h3>
-<p>For reusable middleware logic, use classes (or pass an instance for stateful middleware):</p>
+<p>Use a class when the middleware is reusable. Use an instance when you want to inject config or keep a little state.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TelemetryMiddleware</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TelemetryMiddleware</span><span class="o">.</span><span class="n">new</span>
@@ -2543,7 +2550,7 @@
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p>Procs and lambdas need an explicit <code>&amp;next_link</code> parameter to capture the block (Procs can't <code>yield</code> directly):</p>
+<p>Procs and lambdas need <code>&amp;next_link</code> so they can forward the chain explicitly:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="o">|</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="w"> </span><span class="s2">&quot;[middleware] starting </span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2563,7 +2570,7 @@
 </span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="inline-block">Inline Block<a class="headerlink" href="#inline-block" title="Permanent link">&para;</a></h3>
-<p><code>register :middleware</code> accepts a block directly:</p>
+<p>You can also pass a block straight to <code>register :middleware</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="o">|</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="no">Tenant</span><span class="o">.</span><span class="n">with_id</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span><span class="w"> </span><span class="p">}</span>
@@ -2571,7 +2578,8 @@
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="ordering">Ordering<a class="headerlink" href="#ordering" title="Permanent link">&para;</a></h2>
-<p>Control insertion position with <code>at:</code>. With no <code>at:</code>, middlewares append (innermost). The index supports negative values and is clamped to the registry size:</p>
+<p>By default, new middlewares <strong>append</strong> (they move closer to the task, so they run later on the way “in”).</p>
+<p>Use <code>at:</code> when you care about insertion order. Indexes can be negative and get clamped to the registry size so you do not shoot yourself in the foot.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditMiddleware</span><span class="w">              </span><span class="c1"># appended at position 0</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CacheMiddleware</span><span class="w">              </span><span class="c1"># appended at position 1</span>
@@ -2580,7 +2588,7 @@
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Execution order: PriorityMiddleware → AuditMiddleware → CacheMiddleware → [task] → ...</span>
 </span></code></pre></div>
-<p>Remove by reference or by index:</p>
+<p>To remove middleware, pass the same object you registered, or remove by index:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TelemetryMiddleware</span><span class="w">     </span><span class="c1"># by reference</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="ss">at</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">                   </span><span class="c1"># by index</span>
@@ -2588,10 +2596,11 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>register</code> requires either a callable or a block (not both). <code>deregister</code> requires either a <code>middleware</code> argument or <code>at:</code> (not both). Both raise <code>ArgumentError</code> otherwise.</p>
+<p><code>register</code> wants <strong>either</strong> a callable <strong>or</strong> a block — not both at once. <code>deregister</code> wants <strong>either</strong> a middleware reference <strong>or</strong> <code>at:</code> — not both. Mixing those raises <code>ArgumentError</code>.</p>
 </div>
 <h2 id="conditional-registration">Conditional Registration<a class="headerlink" href="#conditional-registration" title="Permanent link">&para;</a></h2>
-<p><code>:if</code> / <code>:unless</code> gate a middleware at <code>#process</code> time (per task, per execution) without changing the registry. Symbol, Proc, and any <code>#call</code>-able resolve against the task — same semantics as callback gates.</p>
+<p>Sometimes you want a middleware registered, but only <strong>sometimes</strong> active. <code>:if</code> and <code>:unless</code> do that at <strong>run time</strong> (each <code>#process</code>), without ripping entries out of the registry.</p>
+<p>You can pass a Symbol (method on the task), a Proc, or anything that responds to <code>#call</code> with the task — same idea as callback gates.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditMiddleware</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:audited?</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CacheMiddleware</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">skip_cache</span><span class="w"> </span><span class="p">}</span>
@@ -2608,15 +2617,15 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Procs are <code>instance_exec</code>'d on the task with zero args (<code>self</code> is the task) — a 1-arity lambda raises <code>ArgumentError</code>. Classes dispatch to <code>Klass.call(task)</code>, instances to <code>instance.call(task)</code>.</p>
+<p>Procs run with <code>instance_exec</code> on the task and <strong>no</strong> arguments (<code>self</code> is the task). A lambda that insists on one argument will blow up with <code>ArgumentError</code>. Classes call <code>Klass.call(task)</code>; instances call <code>instance.call(task)</code>.</p>
 </div>
-<p>When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.</p>
+<p>When a gate says “skip this middleware,” the chain just walks past it. Inner middlewares still run. You do not implement the gate by yielding — only the middleware body forwards the chain.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Use <code>:if</code>/<code>:unless</code> to skip the middleware entirely; use inline "Conditional wrapping" when the middleware should wrap but only some side-effects are gated.</p>
+<p>Rule of thumb: <code>:if</code> / <code>:unless</code> skips the whole middleware. If you still want the wrapper but only sometimes do extra work, see “Conditional wrapping” under Common Patterns.</p>
 </div>
 <h2 id="safety">Safety<a class="headerlink" href="#safety" title="Permanent link">&para;</a></h2>
-<p>If a middleware forgets to call <code>yield</code> (or <code>next_link.call</code>), the chain raises <code>CMDx::MiddlewareError</code> instead of silently bypassing the task body:</p>
+<p>Forgetting to forward the chain is a bug, not a silent “no-op task.” CMDx raises <code>CMDx::MiddlewareError</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BrokenMiddleware</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="c1"># forgot to yield</span>
@@ -2633,17 +2642,15 @@
 </span></code></pre></div>
 <div class="admonition danger">
 <p class="admonition-title">Caution</p>
-<p><code>MiddlewareError</code> propagates from both <code>execute</code> and <code>execute!</code> — it's raised <em>outside</em> the signal <code>catch</code> boundary and never becomes a failed result. Always yield in every code path (including <code>rescue</code>/<code>ensure</code>).</p>
+<p>That error is <strong>not</strong> swallowed into a failed <code>Result</code> like a normal task failure. It bubbles out of the <code>catch</code> boundary for signals. So treat “always forward the chain” as non-negotiable — including inside <code>rescue</code> / <code>ensure</code> paths.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Other exceptions propagate out — outer middlewares' after-yield code is skipped unless wrapped in <code>ensure</code>. Treat middlewares like Rack: put cleanup in <code>ensure</code>.</p>
+<p>Any other exception behaves like Ruby: it unwinds the stack. Code <em>after</em> <code>yield</code> in outer middlewares might not run unless you used <code>ensure</code>. Same mental model as Rack: cleanup belongs in <code>ensure</code>.</p>
 </div>
 <h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="conditional-wrapping">Conditional wrapping<a class="headerlink" href="#conditional-wrapping" title="Permanent link">&para;</a></h3>
-<p>Middlewares <strong>must</strong> yield on every code path — skipping <code>yield</code> raises
-<code>CMDx::MiddlewareError</code>. To gate side-effects on a condition, branch around the
-extra work but always invoke the next link:</p>
+<p>You <strong>must</strong> still call <code>yield</code> / <code>next_link.call</code> on every path. Branch the <em>extra</em> work, not the chain:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FeatureFlag</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="vi">@flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">flag</span>
@@ -2662,9 +2669,7 @@ extra work but always invoke the next link:</p>
 </span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">FeatureFlag</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:experimental_path</span><span class="p">)</span>
 </span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>If you actually need to short-circuit <code>work</code> itself (skip the body but still
-produce a result), do it from inside the task with <code>skip!</code> / <code>success!</code> — not
-from a middleware.</p>
+<p>If you truly need to skip <code>work</code> but still finish with a result, do that <strong>inside</strong> the task with <code>skip!</code> / <code>success!</code> — not from middleware.</p>
 <h3 id="wrapping-with-thread-local-state">Wrapping with thread-local state<a class="headerlink" href="#wrapping-with-thread-local-state" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="no">Thread</span><span class="o">.</span><span class="n">current</span><span class="o">[</span><span class="ss">:current_user_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user_id</span>
@@ -2674,7 +2679,7 @@ from a middleware.</p>
 </span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="enriching-result-metadata">Enriching result metadata<a class="headerlink" href="#enriching-result-metadata" title="Permanent link">&para;</a></h3>
-<p>Mutate <code>task.metadata</code> to attach request-scoped data (e.g. a Rails <code>request_id</code>) without polluting <code>context</code>. The hash is merged into every <code>Signal</code> the task throws, so it surfaces on <code>result.metadata</code> and the default JSON log line — regardless of whether the task succeeds, skips, or fails:</p>
+<p><code>task.metadata</code> is a small hash you can mutate for “stuff about this run” that should ride along on signals and default logging — without stuffing everything into <code>context</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">RequestIdMiddleware</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:request_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">request_id</span>
@@ -2689,7 +2694,7 @@ from a middleware.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:request_id</span><span class="o">]</span><span class="w"> </span><span class="c1">#=&gt; &quot;req-abc123&quot;</span>
 </span></code></pre></div>
-<p>Explicit <code>success!/skip!/fail!/throw!(metadata: {...})</code> keys are merged on top, so user code can always override middleware-supplied values.</p>
+<p>If the task later calls <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> with its own <code>metadata:</code> keys, those win on merge — user code always gets the last word.</p>
 
 
 

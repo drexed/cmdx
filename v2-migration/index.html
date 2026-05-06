@@ -3616,26 +3616,31 @@
 
 
 <h1 id="upgrading-from-v1x-to-v20">Upgrading from v1.x to v2.0<a class="headerlink" href="#upgrading-from-v1x-to-v20" title="Permanent link">&para;</a></h1>
-<p>CMDx 2.0 is a full runtime rewrite. The public DSL — <code>required</code>, <code>optional</code>, callbacks, middlewares, <code>retry_on</code>, <code>settings</code>, <code>Workflow</code> / <code>task</code> — largely survives, but halt semantics, attribute/return declarations, middleware signatures, and most internal classes have changed.</p>
+<p>Welcome to CMDx 2.0. Under the hood, almost everything was rebuilt for speed and clarity. The good news: the Ruby you already write — <code>required</code>, <code>optional</code>, callbacks, middleware, <code>retry_on</code>, <code>settings</code>, <code>Workflow</code> / <code>task</code> — still looks mostly familiar.</p>
+<p>The catch: a few big ideas changed. Halts no longer poke at a mutable <code>Result</code>. Task inputs used to be called attributes; now they are inputs with <code>coerce:</code> instead of <code>type:</code>. “Returns” are now outputs with a bit more power. Middleware has a simpler signature. Some old built-ins and internal classes went away.</p>
+<p>Take a breath. You are not expected to memorize this page in one sitting.</p>
 <div class="admonition warning">
-<p class="admonition-title">Not a drop-in upgrade</p>
-<p>Plan to touch every task class. Halt is now <code>throw</code>/<code>catch</code> (not <code>Result</code> mutation), attributes became inputs (<code>type:</code> → <code>coerce:</code>), returns became outputs, middleware takes one arg and <code>yield</code>s, and the built-in middleware trio (<code>Correlate</code>, <code>Runtime</code>, <code>Timeout</code>) is gone. The <a href="#automated-migration-prompt">Automated Migration Prompt</a> below mechanizes most of the rewrite — paste it into your agent before hand-editing.</p>
+<p class="admonition-title">This is not a drop-in upgrade</p>
+<p>Expect to open most of your task files at least once. In v2, halts use Ruby’s <code>throw</code> / <code>catch</code> instead of mutating <code>Result</code>. <code>attribute</code> → <code>input</code>, <code>type:</code> → <code>coerce:</code>, <code>returns</code> → <code>output</code>. Middleware is <code>call(task) { yield }</code> — one argument, always yield. The old built-in middleware helpers (<code>Correlate</code>, <code>Runtime</code>, <code>Timeout</code>) are removed; you wire your own or use Telemetry.</p>
+<p>Want a robot to do the boring parts? Scroll to <a href="#automated-migration-prompt">Automated Migration Prompt</a>, paste it into your AI tool, then tidy whatever it misses by hand.</p>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">Benchmarks</p>
-<p>Halts are ~2.5× faster, workflow failures ~3×, allocations down 50–80%. See <a href="https://github.com/drexed/cmdx/blob/main/benchmark/RESULTS.md"><code>benchmark/RESULTS.md</code></a>.</p>
+<p class="admonition-title">Faster and lighter</p>
+<p>Halts are roughly 2.5× faster, workflow failures about 3×, and allocations dropped ~50-80% (depending on usecase). Numbers live in <a href="https://github.com/drexed/cmdx/blob/main/benchmark/RESULTS.md"><code>benchmark/RESULTS.md</code></a>.</p>
 </div>
 <hr />
 <h2 id="before-you-begin">Before You Begin<a class="headerlink" href="#before-you-begin" title="Permanent link">&para;</a></h2>
+<p>Treat this like moving apartments: pack before you lift the couch.</p>
 <ol>
-<li><strong>Check requirements.</strong> Ruby 3.3+ (MRI, JRuby, or TruffleRuby). See <a href="../getting_started/#requirements">Getting Started</a>.</li>
-<li><strong>Pin your current version.</strong> <code>gem "cmdx", "~&gt; 1.21"</code> in the <code>Gemfile</code> — a quick rollback path if the upgrade stalls.</li>
-<li><strong>Baseline the suite.</strong> Run <code>bundle exec rspec</code> on v1.x once and save the output; a green suite is your "before" snapshot.</li>
-<li><strong>Skim the changelog.</strong> The <code>[2.0.0]</code> section of <a href="https://github.com/drexed/cmdx/blob/main/CHANGELOG.md"><code>CHANGELOG.md</code></a> lists every breaking change by category.</li>
-<li><strong>Read this page top-to-bottom.</strong> Each section is a recipe you can apply independently.</li>
+<li><strong>Confirm Ruby.</strong> You need Ruby 3.3+ (MRI, JRuby, or TruffleRuby). Details: <a href="../getting_started/#requirements">Getting Started</a>.</li>
+<li><strong>Keep an escape hatch.</strong> Pin v1 in your <code>Gemfile</code> first, e.g. <code>gem "cmdx", "~&gt; 1.21"</code>, so you can roll back if the upgrade needs more time.</li>
+<li><strong>Save a green baseline.</strong> On v1, run <code>bundle exec rspec</code> once and keep the output. That is your “before” photo.</li>
+<li><strong>Peek at the changelog.</strong> The <code>[2.0.0]</code> section in <a href="https://github.com/drexed/cmdx/blob/main/CHANGELOG.md"><code>CHANGELOG.md</code></a> lists breaks grouped by topic.</li>
+<li><strong>Skim this page in order.</strong> Each section stands alone, but reading top to bottom matches how most teams migrate.</li>
 </ol>
 <hr />
 <h2 id="tldr-cheat-sheet">TL;DR Cheat Sheet<a class="headerlink" href="#tldr-cheat-sheet" title="Permanent link">&para;</a></h2>
+<p>One screen of “what moved where”:</p>
 <table>
 <thead>
 <tr>
@@ -3729,18 +3734,19 @@
 </table>
 <hr />
 <h2 id="upgrade-workflow">Upgrade Workflow<a class="headerlink" href="#upgrade-workflow" title="Permanent link">&para;</a></h2>
+<p>A practical order that keeps surprises small:</p>
 <ol>
-<li><strong>Bump the gem.</strong> <code>bundle update cmdx</code> and run the suite to surface breakage.</li>
-<li><strong>Fix configuration.</strong> Drop removed keys (see <a href="#configuration">Configuration</a>). <code>rails generate cmdx:install</code> regenerates the v2 initializer as a reference.</li>
-<li><strong>Fix tasks category-by-category.</strong> Inputs → Outputs → Callbacks → Middlewares → Result consumers. The <a href="#automated-migration-prompt">Automated Migration Prompt</a> mechanizes most of this.</li>
-<li><strong>Audit result-handling code</strong> for state-machine assumptions (<code>result.executing?</code>, <code>result.metadata[:x] = ...</code>, <code>result.cid</code>, <code>result.good?</code> / <code>bad?</code>) and any breakpoint / strict-mode configuration.</li>
-<li><strong>Move observability</strong> (correlation IDs, runtime metrics, timeouts) to <a href="#telemetry">Telemetry</a> subscribers or hand-rolled middlewares.</li>
-<li><strong>Re-run the suite.</strong> When green, delete dead helpers that papered over v1's rough edges (manual rollbacks, <code>dry_run:</code> flags, <code>SKIP_CMDX_FREEZING</code> toggles).</li>
-<li><strong>Validate.</strong> Run the grep list in <a href="#validating-the-migration">Validating the Migration</a> to catch stragglers.</li>
+<li><strong>Bump the gem.</strong> <code>bundle update cmdx</code>, then run tests. Red is normal; it tells you what to fix next.</li>
+<li><strong>Fix configuration first.</strong> Remove keys that no longer exist (<a href="#configuration">Configuration</a>). <code>rails generate cmdx:install</code> prints a fresh v2 initializer you can copy ideas from.</li>
+<li><strong>Fix tasks in layers.</strong> Inputs, then outputs, then callbacks, then middleware, then anything that reads <code>Result</code>. The <a href="#automated-migration-prompt">Automated Migration Prompt</a> automates a big chunk of that if you want help.</li>
+<li><strong>Hunt old <code>Result</code> habits.</strong> Look for <code>result.executing?</code>, writes to <code>result.metadata</code>, <code>result.good?</code> / <code>bad?</code>, and breakpoint-style config. v2’s <code>Result</code> is calmer and stricter.</li>
+<li><strong>Recreate observability.</strong> Correlation IDs, timing, timeouts — use <a href="#telemetry">Telemetry</a> and/or your own middleware instead of the removed built-ins.</li>
+<li><strong>Green tests, then cleanup.</strong> Once the suite passes, delete v1-only shims (<code>dry_run:</code>, <code>SKIP_CMDX_FREEZING</code>, manual rollback hacks you no longer need).</li>
+<li><strong>Run the straggler grep.</strong> <a href="#validating-the-migration">Validating the Migration</a> has a copy-paste command to catch leftovers.</li>
 </ol>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>The <code>CMDx::Configuration</code> surface shrank. Breakpoints, rollback config, freezing, and exception handlers are gone; what remains is registries plus logging/locale.</p>
+<p>v2 exposes less on <code>CMDx::Configuration</code>. Gone: breakpoints, rollback toggles, result freezing knobs, and the old exception-handler hooks. Still there: registries (middleware, callbacks, coercions, and friends) plus logging and locale.</p>
 <h3 id="removed-keys">Removed Keys<a class="headerlink" href="#removed-keys" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3789,10 +3795,10 @@
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_exclusions</span><span class="w">    </span><span class="c1"># [] (Result#to_h keys stripped from the lifecycle log entry)</span>
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>See <a href="../configuration/">Configuration</a> for the full surface.</p>
+<p>See <a href="../configuration/">Configuration</a> for every option explained in one place.</p>
 <hr />
 <h2 id="task-definition">Task Definition<a class="headerlink" href="#task-definition" title="Permanent link">&para;</a></h2>
-<p><code>def work</code> is unchanged. v2 raises <code>ImplementationError</code> (was <code>UndefinedMethodError</code>) if you don't override it.</p>
+<p>You still implement <code>def work</code>. If you forget, v2 raises <code>ImplementationError</code> (v1 called that <code>UndefinedMethodError</code>).</p>
 <h3 id="execution-entry-points">Execution Entry Points<a class="headerlink" href="#execution-entry-points" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="no">MyTask</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="w">       </span><span class="c1"># unchanged</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="no">MyTask</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1"># unchanged</span>
@@ -3803,9 +3809,9 @@
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">strict</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span><span class="w">      </span><span class="c1"># unchanged</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">task</span><span class="o">.</span><span class="n">call</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="ss">strict</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span><span class="w"> </span><span class="c1"># still aliases of execute / execute!</span>
 </span></code></pre></div>
-<p><code>MyTask.new(ctx).execute</code> runs an already-built task instance through <code>Runtime</code>. The class-level <code>MyTask.execute</code> / <code>MyTask.execute!</code> simply forward to it. <code>Runtime.execute(task)</code> is still available for callers that need to drive the lifecycle directly without going through <code>Task</code>.</p>
+<p><strong>How the pieces fit:</strong> <code>MyTask.new(ctx).execute</code> hands a ready-made task instance to <code>Runtime</code>. Class methods <code>MyTask.execute</code> / <code>MyTask.execute!</code> are thin wrappers around that same path. If you are doing something custom, <code>Runtime.execute(task)</code> still exists for driving the lifecycle without the <code>Task</code> sugar.</p>
 <h3 id="removed-instance-accessors">Removed Instance Accessors<a class="headerlink" href="#removed-instance-accessors" title="Permanent link">&para;</a></h3>
-<p>Read task-level data off the returned <code>Result</code> instead.</p>
+<p>Some things you used to read off the task instance after a run now live on the <code>Result</code>. That keeps one object as the “answer” from a run.</p>
 <table>
 <thead>
 <tr>
@@ -3836,22 +3842,22 @@
 </tr>
 </tbody>
 </table>
-<p><code>task.context</code>, <code>task.errors</code>, and <code>task.logger</code> still exist on the instance during <code>work</code>.</p>
+<p>During <code>work</code>, you still have <code>task.context</code>, <code>task.errors</code>, and <code>task.logger</code> on the instance.</p>
 <hr />
 <h2 id="halts">Halts<a class="headerlink" href="#halts" title="Permanent link">&para;</a></h2>
-<p><code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> are private instance methods on <code>Task</code> that <code>throw(Signal::TAG, signal)</code>. Runtime's <code>catch</code> intercepts the signal and constructs the result once at the end.</p>
-<p>Breaking changes:</p>
+<p>Halts are how you stop <code>work</code> early: success, skip, fail, or re-throw someone else’s failure. In v2 they are private methods on <code>Task</code> (<code>success!</code>, <code>skip!</code>, <code>fail!</code>, <code>throw!</code>) that <code>throw</code> a small frozen <code>Signal</code>. <code>Runtime</code> uses <code>catch</code> around your task, turns that throw into a single finished <code>Result</code> at the end.</p>
+<p><strong>Heads-up compared to v1:</strong></p>
 <ul>
-<li><code>result.fail!</code> / <code>result.skip!</code> are gone — halts live on <code>Task</code>, not delegated through <code>Result</code>.</li>
-<li><code>success!</code> is new — halt <code>work</code> early while staying successful.</li>
-<li>Only <code>fail!</code> and <code>throw!</code> capture <code>caller_locations(1)</code> as the signal backtrace; <code>success!</code> and <code>skip!</code> do not. <code>Fault#backtrace</code> points at your call site, cleaned through <code>Settings#backtrace_cleaner</code> when present.</li>
-<li><code>throw!(other_result)</code> is a no-op when <code>other_result</code> didn't fail (same as v1; now implemented as a <code>Signal.echoed</code> throw).</li>
-<li>Calling any halt method on a frozen task raises <code>FrozenError</code>.</li>
+<li>You cannot call <code>result.fail!</code> or <code>result.skip!</code> anymore. Halts belong to the task while <code>work</code> runs, not to <code>Result</code> afterward.</li>
+<li><code>success!</code> is new: exit early but count as a success (handy for “nothing to do” paths).</li>
+<li><code>fail!</code> and <code>throw!</code> record a backtrace from where you called them. <code>success!</code> and <code>skip!</code> do not. <code>Fault#backtrace</code> still reflects your call site when a cleaner is configured in <code>Settings</code>.</li>
+<li><code>throw!(other_result)</code> still does nothing useful if that result did not fail (same idea as v1; internally it is an echoed signal).</li>
+<li>If the task is already frozen, calling any halt raises <code>FrozenError</code> — usually a sign you are halting too late in the lifecycle.</li>
 </ul>
-<p>See <a href="../interruptions/signals/">Interruptions - Signals</a> for the full semantics.</p>
+<p>Full story: <a href="../interruptions/signals/">Interruptions - Signals</a>.</p>
 <hr />
 <h2 id="inputs-was-attributes">Inputs (was Attributes)<a class="headerlink" href="#inputs-was-attributes" title="Permanent link">&para;</a></h2>
-<p>Rename <code>attribute</code> / <code>attributes</code> to <code>input</code> / <code>inputs</code>, and <code>type:</code> to <code>coerce:</code>. <code>required</code> / <code>optional</code> aliases are unchanged.</p>
+<p>Think “arguments to the task,” not database columns. Rename <code>attribute</code> / <code>attributes</code> → <code>input</code> / <code>inputs</code>, and rename the option <code>type:</code> → <code>coerce:</code>. <code>required</code> / <code>optional</code> work the same as before.</p>
 <table>
 <thead>
 <tr>
@@ -3892,11 +3898,9 @@
 </table>
 <p><code>source:</code> (<code>:context</code>, method name, Proc, lambda) and nested-input blocks are unchanged.</p>
 <h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>Attribute</code>, <code>AttributeRegistry</code>, <code>AttributeValue</code>, <code>Resolver</code>, <code>Identifier</code> classes</li>
-</ul>
+<p>These internal types went away or moved: <code>Attribute</code>, <code>AttributeRegistry</code>, <code>AttributeValue</code>, <code>Resolver</code>, <code>Identifier</code>. You should not need to reference them in app code.</p>
 <h3 id="bridge">Bridge<a class="headerlink" href="#bridge" title="Permanent link">&para;</a></h3>
-<p>Want to keep using <code>attribute</code> and <code>attributes</code>?</p>
+<p>Prefer not to touch every file today? You can alias the old names in a base class:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>class ApplicationTask
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  class &lt;&lt; self
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    alias attribute input
@@ -3907,7 +3911,7 @@
 <p>See <a href="../inputs/definitions/">Inputs - Definitions</a>.</p>
 <hr />
 <h2 id="outputs-was-returns">Outputs (was Returns)<a class="headerlink" href="#outputs-was-returns" title="Permanent link">&para;</a></h2>
-<p><code>returns</code> was a presence check. <code>output</code> keeps the same implicit-required semantics and adds optional <code>:default</code> and <code>:if</code>/<code>:unless</code> gates. Outputs are intentionally minimal — for coercion, transformation, or validation use <a href="../inputs/definitions/">Inputs</a> (or compute in <code>work</code>).</p>
+<p>In v1, <code>returns</code> mostly meant “these keys must end up set on the context after <code>work</code>.” v2’s <code>output</code> keeps that idea — every declared output is expected unless you give a default or a guard — and adds optional <code>:default</code> and <code>:if</code> / <code>:unless</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># v1</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">returns</span><span class="w"> </span><span class="ss">:user</span><span class="p">,</span><span class="w"> </span><span class="ss">:token</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -3915,7 +3919,7 @@
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">output</span><span class="w"> </span><span class="ss">:user</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">output</span><span class="w"> </span><span class="ss">:token</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">JwtService</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="ss">user_id</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Outputs run <strong>after</strong> <code>work</code> returns successfully (skipped if the task halted). Every declared output is implicitly required: a missing key adds <code>outputs.missing</code> to <code>task.errors</code>, which Runtime converts into a failed signal. <code>:default</code> satisfies the check when it produces a non-nil value.</p>
+<p>Outputs are checked <strong>after</strong> <code>work</code> finishes successfully (if you halted, outputs are skipped). If a required output is missing, you get <code>outputs.missing</code> in <code>task.errors</code>, and the run fails. A <code>:default</code> counts as “present” when it returns something other than <code>nil</code>.</p>
 <h3 id="removed_1">Removed<a class="headerlink" href="#removed_1" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3940,7 +3944,7 @@
 </tbody>
 </table>
 <h3 id="bridge_1">Bridge<a class="headerlink" href="#bridge_1" title="Permanent link">&para;</a></h3>
-<p>Want to keep using <code>returns</code>?</p>
+<p>Same trick as inputs — alias in a base class if you want the old word:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>class ApplicationTask
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  class &lt;&lt; self
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    alias returns outputs
@@ -3950,6 +3954,7 @@
 <p>See <a href="../outputs/">Outputs</a> for the full surface.</p>
 <hr />
 <h2 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h2>
+<p>Callbacks still fire around validation, execution, and completion. Only a few names changed so we do not sound like a noir film.</p>
 <h3 id="event-renames">Event Renames<a class="headerlink" href="#event-renames" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3978,7 +3983,7 @@
 </tbody>
 </table>
 <h3 id="registration">Registration<a class="headerlink" href="#registration" title="Permanent link">&para;</a></h3>
-<p>Every event has an auto-defined DSL method; <code>register :callback, ...</code> still works.</p>
+<p>Each event has a friendly DSL method (<code>on_success</code>, <code>on_failed</code>, …). The lower-level <code>register :callback, ...</code> form still works if you like spelling things out.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">on_failed</span><span class="w">  </span><span class="ss">:alert_team</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">on_success</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Stats</span><span class="o">.</span><span class="n">bump</span><span class="p">(</span><span class="ss">:ok</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
@@ -3986,7 +3991,7 @@
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_failed</span><span class="p">,</span><span class="w"> </span><span class="ss">:alert_team</span><span class="w">     </span><span class="c1"># still supported</span>
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Handlers may be a <code>Symbol</code> (dispatched via <code>task.send</code>), a <code>Proc</code> (<code>instance_exec</code>'d with the task), or any <code>#call</code>-able (invoked with the task). Unknown events and unsupported handlers raise <code>ArgumentError</code>.</p>
+<p>A handler can be a <code>Symbol</code> (method on the task), a <code>Proc</code> (runs with <code>instance_exec</code> on the task), or anything that responds to <code>#call</code> (called with the task). Typos in the event name or a weird handler shape raise <code>ArgumentError</code> early.</p>
 <h3 id="deregistration">Deregistration<a class="headerlink" href="#deregistration" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_failed</span><span class="w">                 </span><span class="c1"># drops every callback for :on_failed</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_failed</span><span class="p">,</span><span class="w"> </span><span class="ss">:alert_team</span><span class="w">    </span><span class="c1"># drops only this entry (matched by ==)</span>
@@ -3994,6 +3999,7 @@
 <p>See <a href="../callbacks/">Callbacks</a> for Proc-identity caveats and conditional gates.</p>
 <hr />
 <h2 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">&para;</a></h2>
+<p>Middleware is still “wrap the task run,” but the method signature got simpler so the runtime can stay fast and predictable.</p>
 <h3 id="new-signature">New Signature<a class="headerlink" href="#new-signature" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># v1</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Timing</span>
@@ -4015,19 +4021,19 @@
 </span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Procs and lambdas must capture the next link explicitly — <code>yield</code> in a lambda targets the enclosing method:</p>
+<p><strong>Lambdas are picky:</strong> <code>yield</code> inside a <code>lambda</code> refers to the <em>outer</em> method, not the next middleware link. Pass the next link as a block argument instead:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="o">|</span><span class="w"> </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Differences:</p>
+<p><strong>Rules of the road:</strong></p>
 <ul>
-<li><strong>No <code>options</code> parameter.</strong> Carry config on the middleware instance.</li>
-<li><strong>No return-value contract.</strong> Middlewares wrap; Runtime builds the result after the chain unwinds.</li>
-<li><strong>Must yield.</strong> Skipping <code>yield</code> raises <code>CMDx::MiddlewareError</code>. The task body never runs, and the error propagates out of both <code>execute</code> and <code>execute!</code>.</li>
-<li><strong>Result data isn't visible inside the chain.</strong> Read <code>task.context</code> / <code>task.errors</code> while wrapping; subscribe to Telemetry's <code>:task_executed</code> when you need the finalized <code>Result</code>.</li>
+<li><strong>No <code>options</code> hash</strong> passed into <code>call</code>. Put options on <code>initialize</code> and keep them on the instance.</li>
+<li><strong>Do not return the <code>Result</code> yourself.</strong> Wrap, <code>yield</code>, unwind — <code>Runtime</code> builds the result when the chain finishes.</li>
+<li><strong>Always <code>yield</code>.</strong> If a path skips <code>yield</code>, you get <code>CMDx::MiddlewareError</code> and the task never runs.</li>
+<li><strong>You do not see the finished <code>Result</code> inside the chain.</strong> Use <code>task.context</code> / <code>task.errors</code> while wrapping, or subscribe to Telemetry <code>:task_executed</code> for the full <code>Result</code>.</li>
 </ul>
 <h3 id="registration_1">Registration<a class="headerlink" href="#registration_1" title="Permanent link">&para;</a></h3>
-<p>The registry no longer auto-instantiates classes or forwards <code>**options</code>. Pass a <code>#call</code>-able (class instance, proc, lambda) or a block.</p>
+<p>You register something that already responds to <code>#call</code> — usually an <strong>instance</strong> (<code>MyMiddleware.new(...)</code>), not the class name alone. The registry no longer magically calls <code>.new</code> or forwards <code>**options</code> for you.</p>
 <table>
 <thead>
 <tr>
@@ -4051,6 +4057,7 @@
 </tbody>
 </table>
 <h3 id="built-ins-removed">Built-ins Removed<a class="headerlink" href="#built-ins-removed" title="Permanent link">&para;</a></h3>
+<p>The gem used to ship three opinionated middlewares. They are gone so you pick exactly what “correlation id,” “timing,” and “timeout” mean for your app:</p>
 <table>
 <thead>
 <tr>
@@ -4074,14 +4081,14 @@
 </tbody>
 </table>
 <h3 id="deregistration_1">Deregistration<a class="headerlink" href="#deregistration_1" title="Permanent link">&para;</a></h3>
-<p>Middleware identity is by-reference — deregister with the exact instance you registered, or by index:</p>
+<p>Middleware is matched by <strong>object identity</strong> (same instance you registered) or by stack <strong>index</strong>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="n">audit_instance</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="ss">at</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 </span></code></pre></div>
 <p>See <a href="../middlewares/">Middlewares</a> for the full surface.</p>
 <hr />
 <h2 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
-<p><code>Settings</code> is a frozen value object. Per-task overrides cover logger, log formatter, log level, log exclusions, backtrace cleaner, tags, and strict context — nothing else. Registries live on the <code>Task</code> class itself.</p>
+<p><code>Settings</code> is a small frozen object: think “overrides for this task class.” You can override logger, formatter, level, log exclusions, backtrace cleaner, tags, and strict-context behavior. Everything else (middleware registries, coercions, …) hangs off the <strong>task class</strong>, not <code>settings</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># v1</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">settings</span><span class="w"> </span><span class="ss">logger</span><span class="p">:</span><span class="w">           </span><span class="no">MyLogger</span><span class="o">.</span><span class="n">new</span><span class="p">,</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">         </span><span class="ss">tags</span><span class="p">:</span><span class="w">             </span><span class="o">%</span><span class="n">i</span><span class="o">[</span><span class="n">critical</span><span class="o">]</span><span class="p">,</span>
@@ -4096,10 +4103,11 @@
 </span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">         </span><span class="ss">backtrace_cleaner</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">bt</span><span class="o">.</span><span class="n">reject</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">l</span><span class="o">|</span><span class="w"> </span><span class="n">l</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;gems/&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
 </span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">         </span><span class="ss">tags</span><span class="p">:</span><span class="w">              </span><span class="o">%</span><span class="n">i</span><span class="o">[</span><span class="n">critical</span><span class="o">]</span>
 </span></code></pre></div>
-<p><code>Settings#build(opts)</code> returns a new instance and does a flat <code>Hash#merge</code> — a subclass that overrides <code>tags:</code> <strong>replaces</strong> (not concatenates) the parent's. Every getter falls back to <code>CMDx.configuration</code> when the key is absent.</p>
-<p><code>MyTask.middlewares</code>, <code>.callbacks</code>, <code>.coercions</code>, <code>.validators</code>, <code>.telemetry</code>, <code>.inputs</code>, <code>.outputs</code> are class-level accessors that lazy-clone from the superclass (or global config) on first read. Subclasses extend — they never replace.</p>
+<p><code>Settings#build(opts)</code> shallow-merges a hash into a copy. If a subclass sets <code>tags:</code>, it <strong>replaces</strong> the parent list — it does not append. Any setting you omit falls back to <code>CMDx.configuration</code>.</p>
+<p>Class-level helpers like <code>MyTask.middlewares</code>, <code>.callbacks</code>, <code>.coercions</code>, <code>.validators</code>, <code>.telemetry</code>, <code>.inputs</code>, <code>.outputs</code> lazy-clone from the superclass (or global config) the first time you touch them. Subclasses <strong>add</strong>; they do not wipe the parent’s registries.</p>
 <hr />
 <h2 id="result-consumers">Result Consumers<a class="headerlink" href="#result-consumers" title="Permanent link">&para;</a></h2>
+<p>When <code>execute</code> returns, you hold a <code>Result</code>. In v2 it behaves more like a receipt: frozen fields, no sneaky writes after the fact.</p>
 <h3 id="mutability">Mutability<a class="headerlink" href="#mutability" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">MyTask</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
@@ -4112,9 +4120,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>User-supplied <code>metadata:</code> hashes (passed to <code>success!</code> / <code>skip!</code> / <code>fail!</code>) are <strong>not</strong> deep-frozen — freeze them yourself before throwing if you need that guarantee.</p>
+<p>If you pass a <code>metadata:</code> hash into <code>success!</code> / <code>skip!</code> / <code>fail!</code>, CMDx does <strong>not</strong> deep-freeze it for you. Freeze it yourself first if you rely on immutability.</p>
 </div>
 <h3 id="predicate-renames">Predicate Renames<a class="headerlink" href="#predicate-renames" title="Permanent link">&para;</a></h3>
+<p>v2 only builds a <code>Result</code> when the run is <strong>done</strong>, so the old “halfway through” predicates disappear. Use the table below as a straight v1 → v2 map:</p>
 <table>
 <thead>
 <tr>
@@ -4157,11 +4166,12 @@
 </tr>
 <tr>
 <td><code>result.threw_failure?</code></td>
-<td><code>result.thrown_failure?</code> (semantics flipped: true only when this result re-threw an upstream failure)</td>
+<td><code>result.thrown_failure?</code> (<strong>meaning changed:</strong> <code>true</code> only when <em>this</em> result re-threw an upstream failure)</td>
 </tr>
 </tbody>
 </table>
 <h3 id="new-surface">New Surface<a class="headerlink" href="#new-surface" title="Permanent link">&para;</a></h3>
+<p>A few quality-of-life APIs landed in v2 — chaining with <code>.on</code>, pattern matching on <code>Result</code>, and extra fields like <code>duration</code> / <code>retries</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">result</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="ss">:success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="n">deliver</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1"># predicate dispatch</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">      </span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="ss">:failed</span><span class="p">)</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="n">alert</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1"># Accepted keys: :complete :interrupted :success :skipped :failed :ok :ko</span>
@@ -4186,15 +4196,17 @@
 </span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="n">result</span><span class="o">.</span><span class="n">tags</span><span class="w">            </span><span class="c1"># settings.tags</span>
 </span></code></pre></div>
 <h3 id="failure-references">Failure References<a class="headerlink" href="#failure-references" title="Permanent link">&para;</a></h3>
+<p>When tasks call other tasks, failures can chain. These helpers answer “who started the fire?” vs “who passed the bucket?”</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">result</span><span class="o">.</span><span class="n">threw_failure</span><span class="w">   </span><span class="c1"># origin || self (nearest upstream failed, or self when originator)</span>
 </span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">result</span><span class="o">.</span><span class="n">thrown_failure?</span><span class="w"> </span><span class="c1"># true only when this result re-threw an upstream failure</span>
 </span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">result</span><span class="o">.</span><span class="n">caused_failure</span><span class="w">  </span><span class="c1"># walks `origin` to the root-cause leaf</span>
 </span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="n">result</span><span class="o">.</span><span class="n">caused_failure?</span><span class="w"> </span><span class="c1"># true when this result originated the failure</span>
 </span></code></pre></div>
-<p><code>Result#to_h</code> no longer recursively serializes failure chains. <code>origin</code>, <code>threw_failure</code>, and <code>caused_failure</code> render as <code>{ task: Class, tid: uuid }</code>, and <code>to_s</code> formats them as <code>&lt;TaskClass uuid&gt;</code>.</p>
-<p>See <a href="../outcomes/result/">Outcomes - Result</a> for the full surface.</p>
+<p><code>Result#to_h</code> is simpler: it no longer walks nested failure objects forever. <code>origin</code>, <code>threw_failure</code>, and <code>caused_failure</code> show up as <code>{ task: Class, tid: uuid }</code>, and <code>to_s</code> prints a short <code>&lt;TaskClass uuid&gt;</code> style string.</p>
+<p>More detail: <a href="../outcomes/result/">Outcomes - Result</a>.</p>
 <hr />
 <h2 id="workflows">Workflows<a class="headerlink" href="#workflows" title="Permanent link">&para;</a></h2>
+<p>Workflows still declare steps with <code>task</code> / <code>tasks</code>. The headline feature in v2 is <strong>parallel groups</strong> — run several child tasks at once and merge their context back safely.</p>
 <h3 id="parallel-groups-new">Parallel Groups (NEW)<a class="headerlink" href="#parallel-groups-new" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FanOutWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
@@ -4205,20 +4217,22 @@
 </span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="k">end</span>
 </span></code></pre></div>
 <ul>
-<li>Each parallel worker <code>deep_dup</code>s the workflow context, runs its task, then merges its successful child context back into the workflow (on the parent thread, after all workers join).</li>
-<li>All workers share the parent's fiber-local <code>Chain</code> — each worker sets <code>Fiber[Chain::STORAGE_KEY]</code> on thread entry, and each result is pushed under a <code>Mutex</code>.</li>
-<li>By default (<code>continue_on_failure: false</code>), pending workers are drained as soon as any sibling fails (in-flight tasks still finish, successful contexts still merge), and the first failure <strong>by declaration index</strong> is propagated. With <code>continue_on_failure: true</code>, every worker runs to completion and all failures are aggregated into the workflow's <code>errors</code> (keyed <code>:"TaskClass.&lt;input&gt;"</code> for input/validation errors and <code>:"TaskClass.&lt;status&gt;"</code> for bare <code>fail!</code> reasons); the first failure <strong>by declaration index</strong> is still the one propagated via <code>throw!</code>.</li>
-<li>Additional knobs: <code>:executor</code> (<code>:threads</code> default, <code>:fibers</code>, or a callable), <code>:merger</code> (<code>:last_write_wins</code> default, <code>:deep_merge</code>, <code>:no_merge</code>, or a callable), and <code>:continue_on_failure</code>. See <a href="../workflows/#parallel-execution">Workflows - Parallel Execution</a>.</li>
+<li>Each worker gets its <strong>own copy</strong> of the workflow context (<code>deep_dup</code>), runs one child task, then hands successful writes back to the parent after everyone finishes.</li>
+<li>Everyone still belongs to the <strong>same logical chain</strong>, stored in <strong>fiber-local</strong> storage so parallel threads do not step on each other. Results are appended under a <code>Mutex</code>.</li>
+<li><strong><code>continue_on_failure: false</code> (default):</strong> as soon as one sibling fails, the workflow stops scheduling new work. Tasks already running still finish; successful merges still apply. The failure that “wins” for halting is the first one <strong>in the order you declared the tasks</strong>.</li>
+<li><strong><code>continue_on_failure: true</code>:</strong> every scheduled task runs to the end. Failures collect in the workflow’s <code>errors</code> hash (keys look like <code>:"TaskClass.field"</code> for validation issues or <code>:"TaskClass.status"</code> for plain <code>fail!</code> reasons). The halt you bubble out is still the first failure <strong>by declaration order</strong>.</li>
+<li>Fine tuning: pick an <code>:executor</code> (<code>:threads</code> by default, <code>:fibers</code>, or your own callable), a <code>:merger</code> (<code>:last_write_wins</code>, <code>:deep_merge</code>, <code>:no_merge</code>, or custom), and whether to <code>continue_on_failure</code>. <a href="../workflows/#parallel-execution">Workflows - Parallel Execution</a> has examples.</li>
 </ul>
 <h3 id="behavioral-changes">Behavioral Changes<a class="headerlink" href="#behavioral-changes" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Defining <code>#work</code> on a workflow raises <code>ImplementationError</code> — the check fires only for methods defined <strong>on the workflow subclass itself</strong>, so <code>Workflow#work</code> (the delegator) is fine.</li>
-<li><code>:if</code> / <code>:unless</code> gate the entire group.</li>
-<li><code>workflow_breakpoints</code> is gone — failure always halts the pipeline. To keep going on a skip, branch explicitly in a wrapping task or middleware.</li>
+<li>Do <strong>not</strong> define <code>#work</code> on your workflow subclass — that now raises <code>ImplementationError</code>. (The built-in <code>Workflow#work</code> that delegates to the pipeline is still fine; only <strong>your</strong> subclass is forbidden.)</li>
+<li><code>:if</code> / <code>:unless</code> on a group wraps the <strong>whole</strong> group.</li>
+<li><code>workflow_breakpoints</code> is gone: a failure stops the train. If you want “keep going after a skip,” wrap the workflow in another task or middleware and branch yourself.</li>
 </ul>
-<p>See <a href="../workflows/">Workflows</a>.</p>
+<p>Full guide: <a href="../workflows/">Workflows</a>.</p>
 <hr />
 <h2 id="chain">Chain<a class="headerlink" href="#chain" title="Permanent link">&para;</a></h2>
+<p>The chain is the ordered list of results for nested calls. v1 stashed it on the thread; v2 uses <strong>fibers</strong> so parallel work stays honest.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># v1</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="no">Thread</span><span class="o">.</span><span class="n">current</span><span class="o">[</span><span class="ss">:cmdx_chain</span><span class="o">]</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">chain</span><span class="o">.</span><span class="n">dry_run?</span><span class="w"> </span><span class="c1"># gone in v2</span>
@@ -4229,20 +4243,21 @@
 </span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="no">Chain</span><span class="o">.</span><span class="n">current</span><span class="o">=</span>
 </span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="no">Chain</span><span class="o">.</span><span class="n">clear</span>
 </span></code></pre></div>
-<p><code>Chain</code> is fiber-local so parallel workers each see the same underlying chain. <code>push</code> and <code>unshift</code> are <code>Mutex</code>-synchronized. Runtime <code>unshift</code>s the root result and <code>push</code>es children, so <code>chain[0]</code> (and <code>chain.root</code>) is always the outermost task regardless of finalization order.</p>
-<p>New in v2:</p>
+<p>Fibers let parallel branches share one logical chain without corrupting each other. <code>push</code> / <code>unshift</code> are mutex-protected. <code>Runtime</code> unshifts the root result and pushes children, so index <code>0</code> is always the outermost caller — even if inner tasks finish first.</p>
+<p><strong>New helpers:</strong></p>
 <ul>
-<li><code>Chain#root</code>, <code>Chain#state</code>, <code>Chain#status</code> — delegate to the root result (<code>nil</code> when absent).</li>
-<li><code>Chain#last</code> — most recently appended result.</li>
-<li><code>Chain#freeze</code> — Runtime freezes the chain (and its results array) on root teardown; later mutations raise <code>FrozenError</code>.</li>
-<li><code>Chain</code> <code>include</code>s <code>Enumerable</code>, so <code>chain.map(&amp;:status)</code>, <code>chain.find(&amp;:failed?)</code>, <code>chain.first(3)</code>, <code>chain.to_a</code> all work.</li>
+<li><code>Chain#root</code>, <code>#state</code>, <code>#status</code> — read-through to the root <code>Result</code> (or <code>nil</code> if empty).</li>
+<li><code>Chain#last</code> — newest child.</li>
+<li><code>Chain#freeze</code> — after the root finishes, the chain freezes; mutating it raises <code>FrozenError</code>.</li>
+<li><code>Chain</code> includes <code>Enumerable</code>, so <code>map</code>, <code>find</code>, <code>first</code>, <code>to_a</code>, etc. all work.</li>
 </ul>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p><code>Result#chain</code> now returns the <code>Chain</code> itself, not its results array. Call <code>chain.id</code> for the uuid, <code>chain.to_a</code> for a plain array, or iterate directly via Enumerable.</p>
+<p class="admonition-title">Heads-up: <code>result.chain</code> type changed</p>
+<p><code>result.chain</code> is a <code>Chain</code> object now, not a raw <code>Array</code>. Use <code>chain.id</code> for the UUID, <code>chain.to_a</code> if you truly need an array, or iterate the chain directly — it behaves like a collection.</p>
 </div>
 <hr />
 <h2 id="faults-exceptions">Faults &amp; Exceptions<a class="headerlink" href="#faults-exceptions" title="Permanent link">&para;</a></h2>
+<p>CMDx raises normal Ruby exceptions you can rescue. A few names moved; a few new ones describe mistakes in definitions or middleware.</p>
 <h3 id="hierarchy">Hierarchy<a class="headerlink" href="#hierarchy" title="Permanent link">&para;</a></h3>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>CMDx::Error = CMDx::Exception    (StandardError)
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>├── CMDx::Fault
@@ -4251,8 +4266,9 @@
 </span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>├── CMDx::ImplementationError    (NEW — Task#work unoverridden, or Workflow#work defined)
 </span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>└── CMDx::MiddlewareError        (NEW — middleware didn&#39;t yield)
 </span></code></pre></div>
-<p><code>CMDx::UndefinedMethodError</code> is gone. Exception classes are now declared inline in <code>lib/cmdx.rb</code> (was <code>lib/cmdx/exception.rb</code>).</p>
+<p><code>CMDx::UndefinedMethodError</code> retired; use <code>ImplementationError</code> when a task forgot to implement <code>work</code>. Exception classes now live in <code>lib/cmdx.rb</code> instead of a separate <code>exception.rb</code> file.</p>
 <h3 id="matcher-api">Matcher API<a class="headerlink" href="#matcher-api" title="Permanent link">&para;</a></h3>
+<p><code>Fault</code> ships little helpers so your <code>rescue</code> lines read like English:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Fault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">ProcessOrder</span><span class="p">,</span><span class="w"> </span><span class="no">ChargeCard</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fault</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="no">Alert</span><span class="o">.</span><span class="n">for</span><span class="p">(</span><span class="n">fault</span><span class="o">.</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">fault</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="k">end</span>
@@ -4266,15 +4282,15 @@
 </span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="construction">Construction<a class="headerlink" href="#construction" title="Permanent link">&para;</a></h3>
-<p><code>fault.task</code>, <code>fault.context</code>, <code>fault.chain</code>, and <code>fault.result</code> are all exposed.</p>
+<p><code>Fault</code> exposes <code>task</code>, <code>context</code>, <code>chain</code>, and <code>result</code> so you can log or retry with full context.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>SkipFault</code> / <code>FailFault</code> (v1) are gone. There's just <code>Fault</code> — distinguish via <code>fault.result.skipped?</code> / <code>fault.result.failed?</code>.</p>
+<p>v1 had <code>SkipFault</code> and <code>FailFault</code>. v2 has one <code>Fault</code> type — ask <code>fault.result.skipped?</code> or <code>fault.result.failed?</code> when you need to branch.</p>
 </div>
 <hr />
 <h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
-<p><code>Errors</code> <code>include</code>s <code>Enumerable</code>, iterating <code>[key, Set&lt;String&gt;]</code> pairs (not <code>Array</code>).</p>
-<p>New in v2:</p>
+<p><code>Errors</code> is still the bag of validation messages, but it now behaves like a tiny collection (<code>Enumerable</code>). Each pair is <code>[key, Set&lt;String&gt;]</code> — sets dedupe messages automatically.</p>
+<p><strong>New helpers:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">errors</span><span class="o">.</span><span class="n">added?</span><span class="p">(</span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;is invalid&quot;</span><span class="p">)</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">errors</span><span class="o">.</span><span class="n">full_messages</span><span class="w">      </span><span class="c1">#=&gt; { email: [&quot;email is invalid&quot;] }</span>
 </span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">errors</span><span class="o">.</span><span class="n">to_hash</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span><span class="w">      </span><span class="c1"># full_messages</span>
@@ -4282,9 +4298,10 @@
 </span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">errors</span><span class="o">.</span><span class="n">each_key</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="n">errors</span><span class="o">.</span><span class="n">each_value</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p><code>errors[:email]</code> returns <code>Array&lt;String&gt;</code> (deduped via the backing Set).</p>
+<p><code>errors[:email]</code> still returns an <code>Array&lt;String&gt;</code> built from the internal set.</p>
 <hr />
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p><code>Context</code> grew a few small utilities for merging, memoized reads, and cleanup — handy when workflows pass big blobs around.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">context</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="w">               </span><span class="c1"># accepts Context, Hash, or anything to_h-able</span>
 </span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="n">context</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="ss">:foo</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">compute</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1"># fetch-or-store</span>
 </span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">context</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="ss">:foo</span><span class="p">)</span>
@@ -4292,10 +4309,10 @@
 </span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="n">context</span><span class="o">.</span><span class="n">deep_dup</span>
 </span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="n">context</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="p">}</span><span class="w">         </span><span class="c1"># Enumerable</span>
 </span></code></pre></div>
-<p>Dynamic accessors (<code>context.foo</code>, <code>context.foo = 1</code>) are unchanged. An accessor predicted has been added, eg: <code>context.foo?</code></p>
+<p>Dynamic readers/writers (<code>context.user</code>, <code>context.user = value</code>) work like before. Predicate readers (<code>context.foo?</code>) were added so you can ask “is this set?” without remembering internal keys.</p>
 <hr />
 <h2 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h2>
-<p>Shape unchanged; implementation is now a value object that accumulates across inheritance.</p>
+<p><code>retry_on</code> looks the same in your task files. Behind the scenes it is now a tidy value object that stacks cleanly across subclasses (child classes add more exception types instead of fighting the parent).</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FlakyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">ConnectionPool</span><span class="o">::</span><span class="no">TimeoutError</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">max_delay</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span>
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">end</span>
@@ -4307,7 +4324,7 @@
 <p>See <a href="../retries/">Retries</a> for full options.</p>
 <hr />
 <h2 id="deprecation">Deprecation<a class="headerlink" href="#deprecation" title="Permanent link">&para;</a></h2>
-<p>v1's <code>Deprecator</code> class is replaced by a class-level <code>deprecation</code> DSL.</p>
+<p>Instead of a standalone <code>Deprecator</code> object, you declare behavior right on the task with <code>deprecation</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LegacyImporter</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:warn</span><span class="w"> </span><span class="c1"># :log, :warn, :error, Symbol, Proc, or any #call-able</span>
 </span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="c1"># deprecation :error, if: -&gt; { Rails.env.production? }</span>
@@ -4318,10 +4335,11 @@
 </span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Runtime invokes the deprecation right before the task body runs, sets <code>result.deprecated?</code> to <code>true</code>, and emits <code>:task_deprecated</code>. With <code>:error</code>, it raises <code>DeprecationError</code> and the task never runs. See <a href="../deprecation/">Deprecation</a>.</p>
+<p>Runtime checks this right before <code>work</code> runs, marks <code>result.deprecated?</code>, and emits <code>:task_deprecated</code>. Severity <code>:error</code> raises <code>DeprecationError</code> and skips the body — handy when you want CI or staging to fail loudly on legacy tasks.</p>
+<p>More patterns: <a href="../deprecation/">Deprecation</a>.</p>
 <hr />
 <h2 id="rollback">Rollback<a class="headerlink" href="#rollback" title="Permanent link">&para;</a></h2>
-<p><code>Task#rollback</code> is now a first-class lifecycle hook. When <code>work</code> fails, Runtime calls <code>rollback</code> if defined (after <code>work</code>, before result finalization), sets <code>result.rolled_back?</code> to <code>true</code>, and emits <code>:task_rolled_back</code>.</p>
+<p><code>rollback</code> is no longer something you wire by hand in middleware for the common case. If <code>work</code> blows up, <code>Runtime</code> calls <code>rollback</code> (when you define it), sets <code>result.rolled_back?</code>, and fires <code>:task_rolled_back</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChargeCard</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:order_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:amount</span>
 </span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
@@ -4336,7 +4354,7 @@
 </span></code></pre></div>
 <hr />
 <h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
-<p>v1's pattern for observing the runtime was to write a middleware. v2 ships a dedicated pub/sub with five events that fire <strong>only when subscribers exist</strong> (zero cost otherwise).</p>
+<p>In v1, “watch the runtime” often meant writing middleware that wrapped every task. v2 adds <strong>Telemetry</strong>: a tiny pub/sub bus with five events. Nothing runs if nobody is listening, so the default cost is basically free.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:task_executed</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">event</span><span class="o">|</span>
 </span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s2">&quot;cmdx.</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:result</span><span class="o">].</span><span class="n">duration</span><span class="p">)</span>
@@ -4377,10 +4395,10 @@
 </tr>
 </tbody>
 </table>
-<p>Every event carries a <code>Telemetry::Event</code> with <code>cid</code>, <code>root</code>, <code>type</code>, <code>task</code>, <code>tid</code>, <code>name</code>, <code>payload</code>, <code>timestamp</code>. Subscribe per-task via <code>MyTask.telemetry.subscribe(...)</code>. See <a href="../configuration/#telemetry">Configuration - Telemetry</a>.</p>
+<p>Each event is a <code>Telemetry::Event</code> (<code>cid</code>, <code>root</code>, <code>type</code>, <code>task</code>, <code>tid</code>, <code>name</code>, <code>payload</code>, <code>timestamp</code>). You can also subscribe on a single task class with <code>MyTask.telemetry.subscribe(...)</code>. <a href="../configuration/#telemetry">Configuration - Telemetry</a> lists everything you can tweak.</p>
 <hr />
 <h2 id="locale-i18n">Locale &amp; I18n<a class="headerlink" href="#locale-i18n" title="Permanent link">&para;</a></h2>
-<p>CMDx now ships <code>CMDx::I18nProxy</code>, which delegates to the <code>i18n</code> gem when loaded and falls back to bundled YAML otherwise. Default locale is <code>en</code>; override with <code>config.default_locale</code>.</p>
+<p>Translations now go through <code>CMDx::I18nProxy</code>: if the <code>i18n</code> gem is loaded, messages flow through it; otherwise CMDx falls back to its built-in YAML. Set <code>config.default_locale</code> if you are not <code>"en"</code>.</p>
 <h3 id="key-renames">Key Renames<a class="headerlink" href="#key-renames" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -4456,21 +4474,22 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>All 86+ internalization files have been moved to the <a href="https://github.com/drexed/cmdx-i18n"><code>cmdx-i18n</code></a> gem.</p>
+<p>Most locale files moved out of this gem into <a href="https://github.com/drexed/cmdx-i18n"><code>cmdx-i18n</code></a> so translations can ship on their own cadence.</p>
 </div>
-<p>See <a href="../internationalization/">Internationalization</a>.</p>
+<p>More: <a href="../internationalization/">Internationalization</a>.</p>
 <hr />
 <h2 id="generators">Generators<a class="headerlink" href="#generators" title="Permanent link">&para;</a></h2>
-<p><code>cmdx:install</code>, <code>cmdx:task</code>, and <code>cmdx:workflow</code> emit the v2 template shape:</p>
+<p><code>rails g cmdx:install</code>, <code>cmdx:task</code>, and <code>cmdx:workflow</code> now scaffold the v2 shape — plain <code>def work</code> bodies without v1-only boilerplate.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
 </span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
 </span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Regenerate <code>cmdx:install</code> as a reference when migrating an initializer — it documents the v2 middleware / callback / telemetry / coercion / validator registration shapes.</p>
+<p>Regenerate <code>cmdx:install</code> when you want a fresh cheat sheet for initializer wiring (middleware, callbacks, telemetry, coercions, validators).</p>
 <hr />
 <h2 id="removed-modules-classes">Removed Modules &amp; Classes<a class="headerlink" href="#removed-modules-classes" title="Permanent link">&para;</a></h2>
+<p>If grep says “uninitialized constant …,” this table is your map from old names to new homes:</p>
 <table>
 <thead>
 <tr>
@@ -4551,22 +4570,23 @@
 </table>
 <hr />
 <h2 id="validating-the-migration">Validating the Migration<a class="headerlink" href="#validating-the-migration" title="Permanent link">&para;</a></h2>
-<p>Before you call it done:</p>
-<p><strong>1. Run the suite.</strong> <code>bundle exec rspec</code> must be green. For Rails projects, reset the global config between examples so registry caching on <code>Task</code> doesn't leak across tests:</p>
+<p>Before you merge the upgrade branch, do three quick checks:</p>
+<p><strong>1. Tests.</strong> <code>bundle exec rspec</code> (or your runner) should be green. In Rails apps, reset CMDx config between examples so class-level registries do not leak:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">c</span><span class="o">|</span>
 </span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="n">c</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">CMDx</span><span class="o">.</span><span class="n">reset_configuration!</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="k">end</span>
 </span></code></pre></div>
-<p><strong>2. Grep for v1 symbols.</strong> Any hit indicates missed migration:</p>
+<p><strong>2. Grep for ghosts.</strong> Any match below usually means “unfinished v1 → v2 edit”:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>rg<span class="w"> </span>--hidden<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">  </span><span class="s1">&#39;task_breakpoints|workflow_breakpoints|rollback_on|dump_context|freeze_results|SKIP_CMDX_FREEZING|\.good\?|\.bad\?|cid[^=]|threw_failure\?|dry_run|attributes_schema|remove_attribute|remove_return|on_executed|on_good|on_bad|cmdx\.returns\.missing|cmdx\.faults\.(invalid|unspecified)|CMDx::Executor|CMDx::Middlewares::(Correlate|Runtime|Timeout)|CMDx::(SkipFault|FailFault|UndefinedMethodError)|register\s+:attribute|attribute\s+:&#39;</span>
 </span></code></pre></div>
-<p><strong>3. Check one log line.</strong> A successful task logs a v2-shaped record with <code>cid</code>, <code>index</code>, <code>root</code>, <code>type</code>, <code>task</code>, <code>id</code>, <code>state</code>, <code>status</code>, <code>duration</code>:</p>
+<p><strong>3. Read one log line.</strong> Successful runs print a compact hash with <code>cid</code>, <code>index</code>, <code>root</code>, <code>type</code>, <code>task</code>, <code>id</code>, <code>state</code>, <code>status</code>, <code>duration</code>. If you still see <code>initialized</code> or <code>executing</code>, something is logging a half-baked v1-shaped object.</p>
+<p>Example shape (values will differ):</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>cmdx: cid=&quot;0190...&quot; index=0 root=true type=&quot;Task&quot; task=MyTask tid=&quot;0190...&quot; state=&quot;complete&quot; status=&quot;success&quot; reason=nil metadata={} duration=12.34 ...
 </span></code></pre></div>
-<p>If you see <code>initialized</code> or <code>executing</code> in the output, something is serializing a v1 result.</p>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<p>Quick fixes for the errors people hit first:</p>
 <table>
 <thead>
 <tr>
@@ -4619,22 +4639,22 @@
 </table>
 <hr />
 <h2 id="rollback-plan">Rollback Plan<a class="headerlink" href="#rollback-plan" title="Permanent link">&para;</a></h2>
-<p>If the upgrade stalls:</p>
+<p>Sometimes you need to pause halfway. That is fine.</p>
 <ol>
-<li><code>git revert</code> the migration branch.</li>
-<li>Pin the gem: <code>gem "cmdx", "~&gt; 1.21"</code>.</li>
-<li>Restore any helpers you deleted (manual rollback dispatchers, breakpoint config, <code>dry_run</code> branches).</li>
+<li>Revert the migration commit(s) or branch (<code>git revert</code> / <code>git checkout</code> — whatever your team uses).</li>
+<li>Pin CMDx again, e.g. <code>gem "cmdx", "~&gt; 1.21"</code>.</li>
+<li>Bring back any small helpers you deleted (manual rollback wiring, breakpoint YAML, <code>dry_run</code> branches).</li>
 </ol>
-<p>A handful of patterns are hard to shim under v1 once you've rewritten them — keep them in git history rather than trying to forward-port:</p>
+<p>A few v2-only ideas do not map cleanly back to v1. Keep the v2 version in git history instead of trying to polyfill:</p>
 <ul>
-<li>Read-only <code>Result</code> access patterns (v1 <code>Result</code> is mutable, so nothing breaks if you leave guards in).</li>
-<li><code>success!</code> calls (no v1 equivalent — replace with <code>return</code> or custom metadata).</li>
-<li>Parallel workflow groups (v1 has no first-class parallel strategy — fall back to running groups sequentially).</li>
-<li>Telemetry subscribers (wrap as v1 middlewares calling the same sinks).</li>
+<li>Treating <code>Result</code> as read-only (extra guards on v1 do not hurt).</li>
+<li><code>success!</code> (no twin in v1 — use early <code>return</code> or stash data on <code>context</code>).</li>
+<li>Parallel workflow groups (run those steps one-by-one under v1, or wrap them yourself).</li>
+<li>Telemetry subscribers (re-express the same sinks as v1 middleware if you must roll back).</li>
 </ul>
 <hr />
 <h2 id="automated-migration-prompt">Automated Migration Prompt<a class="headerlink" href="#automated-migration-prompt" title="Permanent link">&para;</a></h2>
-<p>Paste the block below into your agent (Cursor, Claude Code, etc.) with your project open. It's written to be idempotent — running it twice won't double-rewrite already-migrated code.</p>
+<p>This block is written for an AI assistant, not humans — stiff voice on purpose. Paste it into Cursor, Claude Code, or similar <strong>with your repo open</strong>. It is idempotent: running it twice should not double-apply the same rewrite.</p>
 <div class="language-markdown highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>You are upgrading a Ruby project from CMDx v1.x to v2.0.
 </span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
 </span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>Context:
@@ -4792,31 +4812,32 @@
 </span><span id="__span-29-155"><a id="__codelineno-29-155" name="__codelineno-29-155" href="#__codelineno-29-155"></a>report the failing file:line with a one-line diagnosis.
 </span></code></pre></div>
 <h2 id="future">Future<a class="headerlink" href="#future" title="Permanent link">&para;</a></h2>
-<p>The v2 internals open the door to a number of additions that didn't fit the rewrite. The list below is <strong>planned, not committed</strong> — semantics may shift before they ship.</p>
+<p>Everything below is <strong>ideas on the roadmap</strong>, not shipped promises. Names and APIs may move.</p>
 <h3 id="infrastructure-primitives">Infrastructure primitives<a class="headerlink" href="#infrastructure-primitives" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>CMDx::Stores</code></strong> — pluggable KV with <code>get</code> / <code>set</code> / <code>incr</code> / <code>del</code> + TTL. Memory and Redis adapters substrate <code>idempotent_by</code>, rate limiting, circuit breakers, checkpoints, and result caching.</li>
-<li><strong><code>CMDx::Cache</code></strong> — <code>cache_result key: -&gt;(t) { … }, ttl: 60</code> memoizes a successful result per-input on the configured store.</li>
-<li><strong><code>CMDx::Locks</code></strong> — <code>lock_with key: …, ttl: …, wait: …</code> serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".</li>
+<li><strong><code>CMDx::Stores</code></strong> — a tiny key/value abstraction (<code>get</code> / <code>set</code> / <code>incr</code> / <code>del</code> + TTL) with in-memory and Redis-style adapters. Think shared scratch space for idempotency keys, rate limits, circuit breakers, checkpoints, and cached results.</li>
+<li><strong><code>CMDx::Cache</code></strong> — <code>cache_result key: -&gt;(t) { ... }, ttl: 60</code> memoizes a successful run keyed by inputs.</li>
+<li><strong><code>CMDx::Locks</code></strong> — <code>lock_with key: ..., ttl: ..., wait: ...</code> prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.</li>
 </ul>
 <h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>idempotent_by</code></strong> — declarative idempotency keyed off context: <code>idempotent_by :payment_id, ttl: 5.minutes</code>. Backed by <code>CMDx::Stores</code>.</li>
-<li><strong><code>circuit_break</code></strong> — <code>circuit_break threshold: 5, cool_off: 30.seconds</code> without bolting on Stoplight per task.</li>
-<li><strong><code>concurrency_limit</code></strong> — global bulkhead capping simultaneous executions of a task class.</li>
-<li><strong><code>execute_async</code></strong> — returns a <code>Concurrent::Promise</code>-shaped future without forcing the caller to wrap in <code>Async { }</code>.</li>
-<li><strong>Background-job adapter</strong> — <code>Task.perform_async</code> / <code>perform_in</code> / <code>perform_at</code> over Sidekiq, ActiveJob, or GoodJob, with JSON-safety enforced at enqueue time. Replaces the per-app Sidekiq mixin recipe.</li>
+<li><strong><code>idempotent_by</code></strong> — declare a stable key from context so retries short-circuit safely.</li>
+<li><strong><code>circuit_break</code></strong> — flip a task open/closed after repeated failures without bolting Stoplight into every class.</li>
+<li><strong><code>concurrency_limit</code></strong> — cap how many instances of a task may run at once across the process.</li>
+<li><strong><code>execute_async</code></strong> — return a future-like object instead of always blocking the caller.</li>
+<li><strong>Background-job adapter</strong> — <code>perform_async</code> / <code>perform_in</code> / <code>perform_at</code> helpers for Sidekiq, ActiveJob, GoodJob, etc., with JSON-safe payloads at enqueue time.</li>
 </ul>
 <h3 id="workflows_1">Workflows<a class="headerlink" href="#workflows_1" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Checkpoint/resume</strong> — persist <code>context</code> after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with <code>idempotent_by</code>.</li>
+<li><strong>Checkpoint / resume</strong> — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with <code>idempotent_by</code>).</li>
 </ul>
 <h3 id="observability-tooling">Observability / tooling<a class="headerlink" href="#observability-tooling" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>Chain#to_mermaid</code> / <code>#to_dot</code></strong> — render a chain (with result statuses) for debugging deeply nested executions.</li>
-<li><strong><code>Chain#timeline</code></strong> — Gantt-shaped <code>(task, start, end, status)</code> rows usable directly in dashboards. The data exists; only the assembly is missing.</li>
-<li><strong><code>Result#pretty_print</code></strong> — REPL-friendly multi-line formatter with color and child indentation; the current single-line <code>to_s</code> gets noisy at depth.</li>
+<li><strong><code>Chain#to_mermaid</code> / <code>#to_dot</code></strong> — pretty diagrams for gnarly chains.</li>
+<li><strong><code>Chain#timeline</code></strong> — rows of <code>(task, start, end, status)</code> for dashboards.</li>
+<li><strong><code>Result#pretty_print</code></strong> — multi-line REPL output with indentation and optional color.</li>
 </ul>
+<p>None of the above exists in the gem yet; treat it as a peek at where maintainers are thinking, not a contract.</p>
 
 
 

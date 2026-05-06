@@ -1,12 +1,16 @@
 # Internationalization (i18n)
 
-All built-in messages — coercion errors, validation errors, output verification, required-input errors, and the fallback fault reason — are routed through `CMDx::I18nProxy`. When the `i18n` gem is loaded, CMDx delegates to `I18n.translate` and messages adapt automatically to the current `I18n.locale`. Otherwise, CMDx loads the YAML for `config.default_locale` in-process and percent-interpolates.
+CMDx talks to users through messages: coercion errors, validation errors, missing outputs, missing required inputs, and the default fault reason. **All of that** goes through `CMDx::I18nProxy`.
 
-CMDx itself ships only `en`. Install [cmdx-i18n](https://github.com/drexed/cmdx-i18n) for 85+ additional translations, or register your own locale directory (see [Custom Locale Paths](#custom-locale-paths)).
+**If the `i18n` gem is loaded**, CMDx uses `I18n.translate`, so messages follow whatever `I18n.locale` is set to—just like the rest of your app.
+
+**If `i18n` isn’t there**, CMDx loads YAML for `config.default_locale` and does simple `%{key}` interpolation itself.
+
+Out of the box, CMDx ships **English only** (`en`). Want dozens more languages? Add [cmdx-i18n](https://github.com/drexed/cmdx-i18n), or drop in your own YAML (see [Custom locale paths](#custom-locale-paths)).
 
 ## Usage
 
-All built-in messages are localized via the current locale:
+Flip the locale and built-in messages follow:
 
 ```ruby
 class ProcessQuote < CMDx::Task
@@ -27,11 +31,11 @@ end
 
 Note
 
-Coercion and validation failures accumulate on `task.errors` (a `CMDx::Errors` instance). `result.reason` is built from `errors.to_s` (`Errors#full_messages` joined with `". "`).
+Failures pile up on `task.errors` (`CMDx::Errors`). `result.reason` is basically the friendly string built from those errors (`Errors#full_messages`, joined with `". "`).
 
 ## Translation Keys
 
-All CMDx built-ins live under the `cmdx.*` namespace. Override any key in your own locale files to customize messages app-wide:
+Everything lives under `cmdx.*`. Override a key in **your** locale file to change wording app-wide:
 
 | Key                                                                             | Used by                                                                                                                                                                    |
 | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -49,22 +53,22 @@ All CMDx built-ins live under the `cmdx.*` namespace. Override any key in your o
 
 Tip
 
-Prefer the per-input `:message` / `:<rule>_message` option (see [Validations](https://drexed.github.io/cmdx/inputs/validations/#common-options)) when you only need to customize one attribute. Overriding the `cmdx.*` key changes the message everywhere.
+Tweaking **one** field? Use `:message` or `:<rule>_message` on the input (see [Validations](https://drexed.github.io/cmdx/inputs/validations/#common-options)). Overriding `cmdx.*` changes the text **everywhere** that key is used.
 
 ## Configuration
 
 ### Rails
 
-The CMDx railtie appends its bundled locale files to `I18n.load_path` on boot — but only for locales listed in `config.i18n.available_locales`, so you don't pay for translations you don't ship:
+The CMDx railtie adds its locale files to `I18n.load_path` on boot—but **only** for locales you list in `config.i18n.available_locales`. So you don’t load YAML for languages you never ship.
 
 ```ruby
 # config/application.rb
 config.i18n.available_locales = [:en, :fr, :es]
 ```
 
-### Default Locale (plain Ruby)
+### Default locale (plain Ruby)
 
-Without the `i18n` gem (e.g. scripts, CLIs, background workers with no Rails), CMDx loads the YAML for `config.default_locale` directly:
+No `i18n` gem? (Scripts, CLIs, tiny workers.) Set `default_locale` and CMDx reads that locale’s YAML directly.
 
 ```ruby
 CMDx.configure do |config|
@@ -72,11 +76,11 @@ CMDx.configure do |config|
 end
 ```
 
-Only one locale is active at a time in this mode — there is no `I18n.with_locale` equivalent. If the key is absent, `I18nProxy#translate` returns `"Translation missing: <key>"`. See [Configuration](https://drexed.github.io/cmdx/configuration/#default-locale) for more details.
+In this mode there’s **one** active locale—no `I18n.with_locale` equivalent. If a key is missing, you’ll see `"Translation missing: <key>"`. More detail: [Configuration – default locale](https://drexed.github.io/cmdx/configuration/#default-locale).
 
-### Custom Locale Paths
+### Custom locale paths
 
-Register additional directories of `<locale>.yml` files with `I18nProxy.register`. Later registrations take precedence during deep-merge, so you can override individual keys without copying the whole file:
+Point CMDx at extra folders of `<locale>.yml` files with `I18nProxy.register`. **Later** registrations win on merge, so you can override a few keys without copying entire files.
 
 ```ruby
 # lib/locales/en.yml
@@ -90,8 +94,8 @@ CMDx::I18nProxy.register(File.expand_path("lib/locales", __dir__))
 
 Note
 
-`register` only affects the plain-Ruby fallback. When the `i18n` gem is loaded, CMDx delegates to `I18n.translate` and these paths are ignored — add your directories to `I18n.load_path` instead.
+`register` only affects the **no-i18n-gem** path. When `i18n` is loaded, CMDx delegates to `I18n.translate`—add your paths to `I18n.load_path` instead.
 
-## Available Locales
+## Available locales
 
-The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) companion gem provides community-maintained translations for 85+ locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your `Gemfile` and the locales become available to `I18n.translate` wherever CMDx is used; see the gem's README for the authoritative list.
+The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem bundles community translations for **85+** locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your `Gemfile` and those locales show up wherever CMDx calls `I18n.translate`. The gem’s README lists the exact set.

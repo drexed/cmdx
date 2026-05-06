@@ -2274,41 +2274,41 @@
 
 
 <h1 id="basics-chain">Basics - Chain<a class="headerlink" href="#basics-chain" title="Permanent link">&para;</a></h1>
-<p>A <code>Chain</code> is the ordered trace of every <code>Result</code> produced by a top-level task and the subtasks it triggered. It's assembled automatically and gives you one id to correlate an entire execution.</p>
+<p>A <strong><code>Chain</code></strong> is the playlist of every <code>Result</code> from one top-level task run — the parent plus every subtask it kicked off — in order. CMDx builds it for you so you get <strong>one id</strong> to grep in logs and tie the whole story together.</p>
 <h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>A <code>Chain</code> is an ordered, mutex-guarded collection of <code>Result</code>s. Subtasks <code>push</code> onto the chain as they finalize; the root <code>unshift</code>s itself last, so the root ends up at index 0 and children follow in completion order.</p>
-<p>From a result, reach the chain via:</p>
+<p>Under the hood it’s an ordered list (thread-safe). Subtasks <strong>append</strong> as they finish; the root <strong>prepends</strong> itself at the end, so index <code>0</code> is always the root task and the rest follow in completion order.</p>
+<p>Handy accessors from any <code>Result</code>:</p>
 <table>
 <thead>
 <tr>
 <th>Method</th>
-<th>Returns</th>
+<th>What it is</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>result.chain</code></td>
-<td>The owning <code>CMDx::Chain</code> (Enumerable; <code>id</code>, <code>size</code>, <code>first</code>, <code>last</code>, etc.)</td>
+<td>The <code>CMDx::Chain</code> (Enumerable — <code>id</code>, <code>size</code>, <code>first</code>, <code>last</code>, …)</td>
 </tr>
 <tr>
 <td><code>result.cid</code></td>
-<td>The chain's UUID v7 (<code>String</code>)</td>
+<td>This chain’s UUID v7 (<code>String</code>)</td>
 </tr>
 <tr>
 <td><code>result.xid</code></td>
-<td>External correlation id (<code>String</code>, <code>nil</code> when no resolver is configured)</td>
+<td>External correlation id (<code>String</code>, or <code>nil</code> if you didn’t configure a resolver)</td>
 </tr>
 <tr>
 <td><code>result.index</code></td>
-<td>This result's zero-based position in the chain (<code>Integer</code>, <code>nil</code> if absent)</td>
+<td>This result’s position in the chain (<code>Integer</code>, or <code>nil</code> if it never joined — rare outside test doubles)</td>
 </tr>
 <tr>
 <td><code>result.root?</code></td>
-<td><code>true</code> when this result is the chain's root</td>
+<td><code>true</code> if this result is the root</td>
 </tr>
 <tr>
 <td><code>CMDx::Chain.current</code></td>
-<td>The live <code>Chain</code> object (only inside execution)</td>
+<td>The live chain <strong>during</strong> execution only</td>
 </tr>
 </tbody>
 </table>
@@ -2325,18 +2325,18 @@
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">r</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2"> - </span><span class="si">#{</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>The <code>Chain</code> instance exposes <code>id</code>, <code>xid</code>, <code>results</code>, <code>push</code> (aliased <code>&lt;&lt;</code>), <code>unshift</code>, <code>index</code>, <code>size</code>, <code>empty?</code>, <code>each</code>, <code>last</code>, plus root delegators:</p>
+<p>On the <code>Chain</code> object itself you’ll also see <code>id</code>, <code>xid</code>, <code>results</code>, <code>push</code> (aka <code>&lt;&lt;</code>), <code>unshift</code>, <code>index</code>, <code>size</code>, <code>empty?</code>, <code>each</code>, <code>last</code>, plus shortcuts:</p>
 <table>
 <thead>
 <tr>
 <th>Method</th>
-<th>Returns</th>
+<th>What it is</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>chain.root</code></td>
-<td>The result flagged with <code>root: true</code>, or <code>nil</code></td>
+<td>The result marked <code>root: true</code>, or <code>nil</code></td>
 </tr>
 <tr>
 <td><code>chain.state</code></td>
@@ -2349,7 +2349,7 @@
 </tbody>
 </table>
 <h2 id="subtasks">Subtasks<a class="headerlink" href="#subtasks" title="Permanent link">&para;</a></h2>
-<p>Subtasks automatically join the current chain, building a unified execution trail:</p>
+<p>Call another task from inside <code>work</code>? Its result joins <strong>the same chain</strong> automatically — one trace end to end.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">dataset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Dataset</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
@@ -2375,10 +2375,11 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Chain lifecycle is automatic: Runtime installs a fresh chain when the top-level task starts, freezes it (and its results array) on root teardown, and clears the fiber-local reference. <code>result.index</code> is <code>nil</code> on a result that was never appended to the chain — every finalized <code>Result</code> is always on its chain, so this only happens in test doubles.</p>
+<p>You don’t manage chain lifecycle by hand: a fresh chain starts with the root task, everything freezes on teardown, and the fiber-local pointer clears. <code>result.index</code> is only <code>nil</code> for results that never made it onto a chain — in real runs, finalized results are always on theirs.</p>
 </div>
 <h2 id="correlation-id-xid">Correlation ID (xid)<a class="headerlink" href="#correlation-id-xid" title="Permanent link">&para;</a></h2>
-<p><code>Chain#xid</code> is an optional external correlation id (e.g. Rails <code>request_id</code>) — distinct from <code>cid</code> (the per-execution chain UUID). It's resolved <strong>once</strong> per root chain creation from <code>CMDx.configuration.correlation_id</code> (a callable; per-task override via <code>settings(correlation_id: -&gt;{ ... })</code>). Every nested subtask inherits the same <code>xid</code> via the shared chain, so a single request id ties together every task it touches in logs and telemetry.</p>
+<p><code>cid</code> = “this execution.” <code>xid</code> = “this <strong>external</strong> request / trace id” (think Rails <code>request_id</code>). They’re different on purpose.</p>
+<p><code>xid</code> is resolved <strong>once</strong> when the root chain is created, from <code>CMDx.configuration.correlation_id</code> (a proc), or per-task via <code>settings(correlation_id: -&gt; { ... })</code>. Every nested task shares that same <code>xid</code> through the chain — one id in logs for the whole tree.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">request_id</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1"># e.g. Rails ActionDispatch::RequestId</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
@@ -2388,9 +2389,9 @@
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">xid</span><span class="w">                        </span><span class="c1">#=&gt; &quot;abc-123-...&quot;</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:xid</span><span class="p">)</span><span class="o">.</span><span class="n">uniq</span><span class="w">            </span><span class="c1">#=&gt; [&quot;abc-123-...&quot;]</span>
 </span></code></pre></div>
-<p>See <a href="../../configuration/#correlation-id-xid">Configuration - Correlation ID</a> for resolver semantics.</p>
+<p>Details: <a href="../../configuration/#correlation-id-xid">Configuration - Correlation ID</a>.</p>
 <h2 id="fiber-storage">Fiber Storage<a class="headerlink" href="#fiber-storage" title="Permanent link">&para;</a></h2>
-<p>The active chain lives on <code>Fiber[]</code> (fiber-local), so each <code>Thread</code>'s root fiber and every explicit <code>Fiber.new</code> sees its own chain. <code>Workflow</code> parallel groups intentionally propagate the parent chain into their worker threads so their results roll up under the same trace; the chain's internal mutex makes concurrent pushes safe.</p>
+<p>The “current” chain lives on the current <strong>Fiber</strong> — so each thread’s default fiber (and each <code>Fiber.new</code>) gets its own chain. CMDx’s <code>Workflow</code> parallel bits copy the parent chain into worker threads on purpose so everything still rolls up under one trace; a mutex inside the chain keeps concurrent <code>push</code>es safe.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Thread A — its root fiber gets a fresh chain</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch1.csv&quot;</span><span class="p">)</span>
@@ -2409,7 +2410,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Runtime freezes the chain on root teardown, so <code>CMDx::Chain.clear</code> is really only useful in test setup before the next execution. Mutating a frozen chain raises <code>FrozenError</code>.</p>
+<p>After the root task tears down, the chain is <strong>frozen</strong>. <code>CMDx::Chain.clear</code> is mostly for test setup. Try to mutate a frozen chain and Ruby will hand you a <code>FrozenError</code>.</p>
 </div>
 
 

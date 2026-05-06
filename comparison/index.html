@@ -1693,10 +1693,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#alternative-frameworks" class="md-nav__link">
+  <a href="#the-short-story" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alternative Frameworks
+        The short story
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-matrix-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature matrix (at a glance)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-get-for-free-with-cmdx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you get “for free” with CMDx
       
     </span>
   </a>
@@ -2111,10 +2133,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#alternative-frameworks" class="md-nav__link">
+  <a href="#the-short-story" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alternative Frameworks
+        The short story
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-matrix-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature matrix (at a glance)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-get-for-free-with-cmdx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you get “for free” with CMDx
       
     </span>
   </a>
@@ -2208,8 +2252,12 @@
 
 
 <h1 id="comparison">Comparison<a class="headerlink" href="#comparison" title="Permanent link">&para;</a></h1>
-<h2 id="alternative-frameworks">Alternative Frameworks<a class="headerlink" href="#alternative-frameworks" title="Permanent link">&para;</a></h2>
-<p>CMDx bundles structured logging, telemetry hooks, type coercion, middleware, and retry/fault primitives into a single package with a stdlib-only runtime footprint. The table below maps feature coverage across the common service-object gems — use it to pick based on what you actually need, not on marketing.</p>
+<p>So you’re shopping for a “service object” style gem — nice. This page is a cheat sheet: <strong>what CMDx packs in one box</strong> versus a few popular friends, without the marketing fluff.</p>
+<h2 id="the-short-story">The short story<a class="headerlink" href="#the-short-story" title="Permanent link">&para;</a></h2>
+<p>CMDx tries to be the toolkit you reach for when you want <strong>one place</strong> for logging, telemetry, typed inputs, middleware, retries, and workflow-y execution — while keeping the runtime dependency list boring (mostly stdlib). Other gems are awesome too; they just optimize for different slices of that pie.</p>
+<h2 id="feature-matrix-at-a-glance">Feature matrix (at a glance)<a class="headerlink" href="#feature-matrix-at-a-glance" title="Permanent link">&para;</a></h2>
+<p>✅ = “ships with this idea.” ❌ = “not really a first-class thing here.”<br />
+Use the table to answer: <em>“Do I care about this capability out of the box?”</em></p>
 <table>
 <thead>
 <tr>
@@ -2304,33 +2352,34 @@
 </tr>
 </tbody>
 </table>
-<p><strong>In the box:</strong></p>
+<h2 id="what-you-get-for-free-with-cmdx">What you get “for free” with CMDx<a class="headerlink" href="#what-you-get-for-free-with-cmdx" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p><strong>Observability</strong> — structured logging, telemetry events, and chain-aware result tracking, no extra instrumentation required.</p>
+<p><strong>Observability</strong> — Structured logs and telemetry hooks are part of the design, not something you bolt on later after the third outage.</p>
 </li>
 <li>
-<p><strong>Per-execution timing</strong> — every <code>Result</code> carries <code>duration</code> (milliseconds) and is emitted on the <code>:task_executed</code> telemetry event, so attaching a metrics exporter is a few lines.</p>
+<p><strong>Timing on every run</strong> — Each <code>Result</code> knows how long the task took (<code>duration</code>, in ms). The <code>:task_executed</code> telemetry event carries that too, so wiring metrics is usually a small subscriber — not a science project.</p>
 </li>
 <li>
-<p><strong>Type system</strong> — 13 built-in coercers (primitives, dates, arrays, hashes, etc.) and 7 validators (<code>absence</code>, <code>exclusion</code>, <code>format</code>, <code>inclusion</code>, <code>length</code>, <code>numeric</code>, <code>presence</code>), both pluggable.</p>
+<p><strong>Inputs that behave</strong> — Built-in coercers (think “string → integer”, dates, arrays, …) and validators (presence, length, format, …). Both are extensible if you outgrow the defaults.</p>
 </li>
 <li>
-<p><strong>Middleware</strong> — wrap the task lifecycle for auth, caching, telemetry, etc., without touching <code>work</code>.</p>
+<p><strong>Middleware</strong> — Wrap the whole lifecycle (auth, caching, extra logging) without cramming everything into <code>work</code>.</p>
 </li>
 <li>
-<p><strong>Retries and faults</strong> — declarative <code>retry_on</code> with configurable jitter, halt primitives (<code>success!</code> / <code>skip!</code> / <code>fail!</code>), and <code>throw!</code> for propagating peer failures.</p>
+<p><strong>Retries and faults</strong> — Say <code>retry_on</code> with jitter when the network wobbles; use <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> for clear outcomes instead of scattering magic return values.</p>
 </li>
 <li>
-<p><strong>Pluggable parallelism</strong> — workflow groups can run tasks concurrently using registered executors (<code>:threads</code>, <code>:fibers</code>, or custom) and fold results with registered mergers (<code>:last_write_wins</code>, <code>:deep_merge</code>, <code>:no_merge</code>, or custom). See <a href="../workflows/#parallel-execution">Workflows - Parallel Groups</a>.</p>
+<p><strong>Parallel workflows (when you need them)</strong> — Workflow groups can run work in parallel using registered executors (<code>:threads</code>, <code>:fibers</code>, or your own) and merge context with registered mergers (<code>:last_write_wins</code>, <code>:deep_merge</code>, <code>:no_merge</code>, or custom). Details: <a href="../workflows/#parallel-execution">Workflows - Parallel Groups</a>.</p>
 </li>
 <li>
-<p><strong>Full telemetry surface</strong> — <code>:task_started</code>, <code>:task_deprecated</code>, <code>:task_retried</code>, <code>:task_rolled_back</code>, and <code>:task_executed</code> events are emitted only when subscribers exist; subscribe from a single <code>CMDx.configure</code> block.</p>
+<p><strong>Telemetry you can actually subscribe to</strong> — Events like <code>:task_started</code>, <code>:task_deprecated</code>, <code>:task_retried</code>, <code>:task_rolled_back</code>, <code>:task_executed</code> only fire if someone is listening — no subscriber, no overhead.</p>
 </li>
 <li>
-<p><strong>Framework agnostic</strong> — runs under Rails, Hanami, Sinatra, or plain Ruby. Runtime deps are limited to <code>bigdecimal</code> and <code>logger</code>; no ActiveSupport requirement.</p>
+<p><strong>No framework lock-in</strong> — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (<code>bigdecimal</code>, <code>logger</code>); you don’t need ActiveSupport just to exist.</p>
 </li>
 </ul>
+<p>If a row in the table made you go “wait, I need that,” follow the link to the gem that fits — and if several rows are ✅ for CMDx for <em>your</em> app, you might enjoy staying in one ecosystem.</p>
 
 
 

@@ -1,38 +1,38 @@
 # Callbacks
 
-Run custom logic at specific points during task execution. Callbacks have full access to the task and its context — perfect for logging, notifications, and cleanup.
+Callbacks are little hooks CMDx runs for you at fixed moments while a task runs. Want to log something, ping Slack, or tidy up after `work`? That’s what they’re for. You get the task and its context, so you can read inputs and side effects — just remember you’re still *inside* the run, not after the final `Result` exists yet.
 
 Note
 
-`task.result` isn't available inside callbacks (the `Result` isn't built yet). Use `on_success` / `on_failed` / `on_skipped`, or subscribe to the `:task_executed` telemetry event for the finalized result.
+Inside a callback, `task.result` is not a thing yet (CMDx hasn’t finished building the `Result`). For “after we know how it went,” use `on_success`, `on_failed`, `on_skipped`, or listen to the `:task_executed` telemetry event — that one carries the finished result.
 
-See [Global Configuration](https://drexed.github.io/cmdx/configuration/#callbacks) for framework-wide callback setup.
+Want defaults for every task? See [Global Configuration](https://drexed.github.io/cmdx/configuration/#callbacks).
 
-Important
+Heads up
 
-Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.
+Callbacks run in the order you declare them (first in, first out). If you register three `before_execution` hooks, they run one after another — no magic reordering.
 
-## Available Callbacks
+## What callbacks exist?
 
-Callbacks execute in a predictable lifecycle order:
+Picture the lifecycle like a sandwich:
 
 ```ruby
-1. before_execution            # Prepare for execution
-2. before_validation           # Pre-validation setup
-3. around_execution            # Wraps work/rollback; must invoke its continuation
+1. before_execution            # “We’re about to start.”
+2. before_validation           # “Inputs are next; do any prep.”
+3. around_execution            # Wraps the real work (and rollback). You *must* call the continuation once.
 
-# --- inputs resolved, Task#work runs (with retries), outputs verified ---
-# --- #rollback runs here when failed ---
+# --- CMDx resolves inputs, runs Task#work (retries if configured), checks outputs ---
+# --- If something fails, #rollback runs in here too ---
 
-4. after_execution             # Execution teardown
-5. on_[complete|interrupted]   # State-based (execution lifecycle)
-6. on_[success|skipped|failed] # Status-based (business outcome)
-7. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
+4. after_execution             # “Work (and maybe rollback) is done.”
+5. on_[complete|interrupted]   # About *how* execution ended (lifecycle state)
+6. on_[success|skipped|failed] # About *business* outcome (status)
+7. on_[ok|ko]                  # Coarse “good vs not purely success” buckets
 ```
 
-Callbacks are additive, not exclusive
+Two families, both can fire
 
-Status and outcome callbacks dispatch independently — defining both fires both. A skipped task fires `on_ok` **and** `on_ko`:
+“Status” callbacks (`on_success`, …) and “outcome” callbacks (`on_ok`, `on_ko`) are **separate channels**. If you define both, both can run for the same task. A **skipped** task is the quirky one: it hits `on_skipped`, `on_ok`, **and** `on_ko` (skipped is “ok-ish” but also “not a clean success”).
 
 | Status  | Fires                          |
 | ------- | ------------------------------ |
@@ -40,17 +40,17 @@ Status and outcome callbacks dispatch independently — defining both fires both
 | skipped | `on_skipped`, `on_ok`, `on_ko` |
 | failed  | `on_failed`, `on_ko`           |
 
-## Declarations
+## How do I register one?
 
-### Symbol References
+### Point at a method (symbol)
 
-Reference instance methods by symbol for simple callback logic:
+The classic move: name a private method, keep the class readable.
 
 ```ruby
 class ProcessBooking < CMDx::Task
   before_execution :find_reservation
 
-  # Batch declarations (works for any type)
+  # You can pass several symbols at once for any callback type
   on_complete :notify_guest, :update_availability
 
   def work
@@ -73,9 +73,9 @@ class ProcessBooking < CMDx::Task
 end
 ```
 
-### Proc or Lambda
+### Inline with a Proc or Lambda
 
-Use anonymous functions for inline callback logic:
+Great for one-liners you don’t want as named methods.
 
 ```ruby
 class ProcessBooking < CMDx::Task
@@ -87,9 +87,9 @@ class ProcessBooking < CMDx::Task
 end
 ```
 
-### Class or Module
+### A class or module with `#call(task)`
 
-Implement reusable callback logic in dedicated modules and classes:
+Extract shared behavior so several tasks can reuse it.
 
 ```ruby
 class BookingConfirmationCallback
@@ -105,17 +105,16 @@ class BookingIssueCallback
 end
 
 class ProcessBooking < CMDx::Task
-  # Class or Module
+  # Pass the class (CMDx will instantiate as needed) or an instance
   on_success BookingConfirmationCallback
 
-  # Instance
   on_interrupted BookingIssueCallback.new
 end
 ```
 
-### Conditional Execution
+### Only sometimes? Use `if` / `unless`
 
-Control callback execution with conditional logic:
+Same shapes you already saw (symbol, proc, class) — just add a guard.
 
 ```ruby
 class MessagingPermissionCheck
@@ -125,19 +124,16 @@ class MessagingPermissionCheck
 end
 
 class ProcessBooking < CMDx::Task
-  # If and/or Unless
+  # Symbol guards call methods on the task
   before_execution :notify_guest, if: :messaging_enabled?, unless: :messaging_blocked?
 
-  # Proc
+  # Proc / lambda / class all work too
   on_failed :increment_failure, if: -> { Rails.env.production? && self.class.name.include?("Legacy") }
 
-  # Lambda
   on_success :ping_housekeeping, if: proc { context.rooms_need_cleaning? }
 
-  # Class or Module
   on_complete :send_confirmation, unless: MessagingPermissionCheck
 
-  # Instance
   on_complete :send_confirmation, if: MessagingPermissionCheck.new
 
   def work
@@ -156,13 +152,15 @@ class ProcessBooking < CMDx::Task
 end
 ```
 
-## Around Callbacks
+## `around_execution` — the “wrap the whole thing” hook
 
-`around_execution` wraps `Task#work` and any `#rollback` in a single hook. `before_validation` runs *before* the around-block; `after_execution` runs *after* it. Each callback **must invoke its continuation exactly once** — failure to do so raises `CMDx::CallbackError`. Multiple `around_execution` hooks nest in declaration order (outer-first).
+`around_execution` sits around `Task#work` **and** any `#rollback`, in one place. Think **database transaction** or **timer**: open before, `yield` / `continuation.call` for the real work, close after.
 
-The continuation surface differs by callback form:
+Order-wise: `before_validation` runs before the around-block; `after_execution` runs after the around-block finishes. Each around callback **must** run the continuation **exactly once** — forget that and you get `CMDx::CallbackError`. Several `around_execution` hooks **nest** like Russian dolls: outermost declared first runs outermost.
 
-- **Symbol** — the instance method receives the continuation as its block; use `yield` (or capture `&blk` and call it):
+How you call the continuation depends on how you registered the callback:
+
+- **Symbol method** — Ruby passes the continuation as a block; use `yield` (or `&blk` and `blk.call`):
 
   ```ruby
   class ProcessBooking < CMDx::Task
@@ -179,7 +177,7 @@ The continuation surface differs by callback form:
   end
   ```
 
-- **Proc / Lambda / block** — receives `(task, continuation)`; call `continuation.call`:
+- **Proc / lambda / literal block** — you get `(task, continuation)`; call `continuation.call`:
 
   ```ruby
   class ProcessBooking < CMDx::Task
@@ -189,7 +187,7 @@ The continuation surface differs by callback form:
   end
   ```
 
-- **Class or instance callable** — `#call(task, continuation)`:
+- **Callable class** — implement `call(task, continuation)`:
 
   ```ruby
   class WithRequestStore
@@ -206,28 +204,30 @@ The continuation surface differs by callback form:
   end
   ```
 
-`around_execution` runs **inside** registered middlewares but **outside** the state/status callbacks (`on_complete`, `on_success`, etc.), so its "after"-portion still observes the result-producing signal but cannot affect which `on_*` callbacks fire. Use it for symmetric concerns like transactions, instrumentation, and per-task logging context. Use a middleware when the wrapping logic must also straddle telemetry/deprecation events.
+**Where this sits in the stack:** `around_execution` runs **inside** global middleware, but **outside** the `on_complete` / `on_success` / … family. So you can observe timing and errors, but you don’t get to “vote” on which `on_*` fires — use middleware if you need to wrap telemetry or deprecation too.
 
-## Callback Removal
+## Removing callbacks (`deregister`)
 
-`deregister :callback, event` drops **every** callback for the event. Pass an optional callable to drop only matching entries — matched by `==`, which works for Symbol method names and classes/modules (Procs/Lambdas match by identity, so you must hold the original reference). Unknown events raise `ArgumentError`; unknown callables are a silent no-op.
+`deregister :callback, event` wipes **every** callback for that event on the class (including inherited ones). Pass a second argument to remove only one “match” — matching uses `==` (works great for symbols and classes; for Procs/Lambdas you need the **same object** you registered).
+
+Unknown event → `ArgumentError`. Unknown callable → quietly does nothing (nothing to remove).
 
 ```ruby
 class ProcessBooking < CMDx::Task
-  # Drops every :before_execution callback (inherited or local)
+  # Drop all :before_execution hooks
   deregister :callback, :before_execution
 
-  # Drops only the :notify_guest method callback for :before_execution
+  # Drop only the :notify_guest method hook
   deregister :callback, :before_execution, :notify_guest
 
-  # Drops only the BookingConfirmationCallback class for :on_complete
+  # Drop only this class-based callback
   deregister :callback, :on_complete, BookingConfirmationCallback
 end
 ```
 
 Note
 
-Procs and Lambdas are matched by identity, so removing them requires holding the original reference:
+Procs and lambdas match by **identity**. Keep a constant if you want to remove them later:
 
 ```ruby
 HOOK = ->(task) { Audit.log(task) }
@@ -235,6 +235,6 @@ HOOK = ->(task) { Audit.log(task) }
 class ProcessBooking < CMDx::Task
   on_success HOOK
   deregister :callback, :on_success, HOOK   # works
-  # deregister :callback, :on_success, ->(task) { Audit.log(task) }  # would NOT match
+  # deregister :callback, :on_success, ->(task) { Audit.log(task) }  # new lambda — won’t match
 end
 ```

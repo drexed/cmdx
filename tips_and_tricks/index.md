@@ -1,12 +1,12 @@
-# Tips and Tricks
+# Tips and tricks
 
-Patterns and conventions for building maintainable CMDx applications.
+Welcome to the "make CMDx feel good in a real app" page. None of this is required — it is the stuff that keeps teams smiling when the codebase grows.
 
-## Project Organization
+## Project organization
 
-### Directory Structure
+### Directory structure
 
-A predictable layout keeps tasks discoverable as a project grows:
+Give tasks a home that matches how you think about the product. When someone opens `app/tasks`, they should nod instead of squint.
 
 ```text
 /app/
@@ -26,9 +26,9 @@ A predictable layout keeps tasks discoverable as a project grows:
     └── activate_account.rb
 ```
 
-### Naming Conventions
+### Naming conventions
 
-Follow consistent naming patterns for clarity:
+Name tasks like actions: verb + noun, present tense. Your future self reads class names more than comments.
 
 ```ruby
 # Verb + Noun
@@ -42,9 +42,9 @@ class GeneratingToken < CMDx::Task; end    # ❌ Avoid
 class TokenGeneration < CMDx::Task; end    # ❌ Avoid
 ```
 
-### Story Telling
+### Story telling
 
-Break complex logic into descriptively named methods so `work` reads like a narrative:
+Let `work` read like a short story: small private methods with honest names. If you can read it aloud and it makes sense, you have won.
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -74,9 +74,9 @@ class ProcessOrder < CMDx::Task
 end
 ```
 
-### Style Guide
+### Style guide
 
-Follow this order for consistent, readable tasks:
+Stack declarations in the same order every time — your eyes learn the rhythm. Rough recipe below; tweak if your team agrees on something else, but stay consistent.
 
 ```ruby
 class ExportReport < CMDx::Task
@@ -124,13 +124,13 @@ class ExportReport < CMDx::Task
 end
 ```
 
-## Sharing Input Options
+## Sharing input options
 
-Use `with_options` to factor out repeated options across input declarations.
+Tired of repeating `coerce:` and `presence:` on every line? `with_options` is your DRY friend — one block, many fields.
 
 Note
 
-`with_options` is provided by ActiveSupport and is available automatically in Rails. For plain Ruby projects, add `require "active_support/core_ext/object/with_options"` or apply shared options manually.
+`with_options` comes from ActiveSupport, so Rails apps get it for free. Plain Ruby? Add `require "active_support/core_ext/object/with_options"` or duplicate the options by hand — both are fine.
 
 ```ruby
 class ConfigureCompany < CMDx::Task
@@ -154,11 +154,11 @@ class ConfigureCompany < CMDx::Task
 end
 ```
 
-`with_options` works inside nested-input blocks too because the child DSL is evaluated with `instance_eval`.
+Nested input blocks work too — the inner DSL runs with `instance_eval`, so `with_options` nest cleanly.
 
-## Sharing Behavior via a Base Class
+## Sharing behavior via a base class
 
-Pull cross-cutting concerns onto a base task. Subclasses inherit `settings`, `callbacks`, `middlewares`, `coercions`, `validators`, `executors`, `mergers`, `retriers`, `deprecators`, `telemetry`, `inputs`, `outputs`, `retry_on`, and `deprecation` automatically.
+Got cross-cutting stuff every task needs? Put it on `ApplicationTask` (or whatever you call it) and inherit. Subclasses pick up settings, retries, callbacks, middleware, validators, coercions, executors, mergers, retriers, deprecators, telemetry, inputs, and outputs — the whole toolkit.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -184,9 +184,11 @@ class ProcessInvoice < ApplicationTask
 end
 ```
 
-Inherited registries (callbacks, middlewares, validators, coercions, executors, mergers, retriers, deprecators, inputs, outputs) accumulate — declaring more in a subclass appends to (or overwrites by name in) the parent's list. To opt out of an inherited entry, use `deregister` (e.g. `deregister :callback, :before_execution, :ensure_current_tenant!`). `retry_on` and `settings` likewise accumulate via merge: a subclass `retry_on` adds exception classes and overrides individual options (`limit:`, `delay:`, …) without dropping the parent's, and `settings` merges new keys on top.
+**How stacking works (without the scary words):** lists generally **grow** as you go down the inheritance chain — new entries append (or replace by name where that applies). `retry_on` and `settings` **merge**: the child adds or overrides keys without throwing away the parent. Need to drop something from mom or dad? `deregister` is the escape hatch — for example `deregister :callback, :before_execution, :ensure_current_tenant!`.
 
-## Useful Examples
+## Useful examples
+
+Real-world recipes live in the repo — grab the one closest to what you are building:
 
 - [Active Job Durability](https://github.com/drexed/cmdx/blob/main/examples/active_job_durability.md)
 - [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)

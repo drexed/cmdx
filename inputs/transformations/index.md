@@ -1,55 +1,52 @@
 # Inputs - Transformations
 
-Modify input values after coercion but before validation — e.g. normalization, formatting, and data cleanup.
+Transforms are the **tidy-up step**: trim strings, normalize emails, clamp numbers — whatever polish you want **after** coercion but **before** validation. Validators always see the cleaned-up value.
 
-## Processing Pipeline
+## Processing pipeline
 
-Each input flows through a fixed pipeline:
+Every input walks the same line:
 
 ```
 flowchart LR
     Source --> Default --> Coerce --> Transform --> Validate
 ```
 
-| Stage         | Description                                                |
-| ------------- | ---------------------------------------------------------- |
-| **Source**    | Resolve value from context, method, proc, or callable      |
-| **Default**   | Apply `default:` when the resolved value is `nil`          |
-| **Coerce**    | Convert via `coerce:` (e.g., string → integer)             |
-| **Transform** | Apply `transform:` to the coerced value                    |
-| **Validate**  | Run validators (presence, format, etc.) on the final value |
+| Stage         | What happens                                           |
+| ------------- | ------------------------------------------------------ |
+| **Source**    | Pull raw value from context, method, proc, or callable |
+| **Default**   | If still `nil`, apply `default:`                       |
+| **Coerce**    | Turn into the target type (`coerce:`)                  |
+| **Transform** | Massage the coerced value (`transform:`)               |
+| **Validate**  | Run presence, format, inclusion, etc.                  |
 
-This means transformations receive already-coerced values, and validators see the final transformed output.
+So: coerce first, then transform, then validate. Plan rules accordingly.
 
 ## Declarations
 
-### Symbol References
+### Symbol references
 
-Reference a method by symbol. The value's own method takes precedence (called as `value.send(symbol)` with no arguments); if the value doesn't respond to it, CMDx falls back to `task.send(symbol, value)`:
+Call a method on the **value** if it exists (`value.send(symbol)`); otherwise CMDx tries `task.send(symbol, value)`:
 
 ```ruby
 class ProcessAnalytics < CMDx::Task
-  input :options, transform: :compact_blank   # value.compact_blank or task#compact_blank(value)
+  input :options, transform: :compact_blank
 end
 ```
 
 ### Proc or Lambda
 
-Use anonymous functions for inline transformations:
+Inline tweaks without extra classes:
 
 ```ruby
 class CacheContent < CMDx::Task
-  # Proc
   input :expire_hours, transform: proc { |v| v * 2 }
-
-  # Lambda
   input :compression, transform: ->(v) { v.to_s.upcase.strip[0..2] }
 end
 ```
 
 ### Class or Module
 
-Use any object that responds to `#call(value, task)` for reusable transformation logic:
+Share logic with `#call(value, task)`:
 
 ```ruby
 class EmailNormalizer
@@ -65,28 +62,22 @@ class PhoneNormalizer
 end
 
 class ProcessContacts < CMDx::Task
-  # Class with a class-level `.call` — pass the class itself
   input :email, transform: EmailNormalizer
-
-  # Instance with `#call` — instantiate when registering
   input :phone, transform: PhoneNormalizer.new
 end
 ```
 
-## Pipeline Position
+## Pipeline position
 
-Validations run on transformed values, ensuring data consistency:
+Because validation runs last, you can coerce → fix → then check:
 
 ```ruby
 class ScheduleBackup < CMDx::Task
-  # Coerce then clamp
   input :retention_days, coerce: :integer, transform: proc { |v| v.clamp(1, 5) }
-
-  # Downcase then validate inclusion
   optional :frequency, transform: :downcase, inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
 
-Optional + nil value
+Optional + nil
 
-Transforms run only when the coerced value is non-`nil`. When an optional input's key is absent from `context` and no default is declared, the pipeline short-circuits after the default step — transforms (and validators) don't fire. Declare a `default:` or `required` if you need the transform to always run.
+Transforms only run when the coerced value is **non-`nil`**. If the key is missing, there’s no default, and the input is optional, the pipeline stops early — no transform, no validator. Need the transform every time? Add a `default:` or make the input `required`.

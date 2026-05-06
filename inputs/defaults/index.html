@@ -1242,7 +1242,7 @@
   <a href="#static-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Static Values
+        Static values
       
     </span>
   </a>
@@ -1253,7 +1253,7 @@
   <a href="#symbol-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol References
+        Symbol references
       
     </span>
   </a>
@@ -1291,7 +1291,7 @@
   <a href="#coercions-and-validations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coercions and Validations
+        Coercions and validations
       
     </span>
   </a>
@@ -2187,7 +2187,7 @@
   <a href="#static-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Static Values
+        Static values
       
     </span>
   </a>
@@ -2198,7 +2198,7 @@
   <a href="#symbol-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol References
+        Symbol references
       
     </span>
   </a>
@@ -2236,7 +2236,7 @@
   <a href="#coercions-and-validations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coercions and Validations
+        Coercions and validations
       
     </span>
   </a>
@@ -2330,10 +2330,11 @@
 
 
 <h1 id="inputs-defaults">Inputs - Defaults<a class="headerlink" href="#inputs-defaults" title="Permanent link">&para;</a></h1>
-<p>Provide fallback values for optional inputs. Defaults kick in when values aren't provided or are <code>nil</code>.</p>
+<p>Defaults answer: <strong>“If nobody passed this (or they passed <code>nil</code>), what should we use instead?”</strong> They run in the normal pipeline with coercion and validation, so a default isn’t a free pass — it still has to pass your rules.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<p>Defaults compose with coercions, validations, and nested inputs:</p>
-<h3 id="static-values">Static Values<a class="headerlink" href="#static-values" title="Permanent link">&para;</a></h3>
+<p>Defaults play nicely with coercion, validation, and nested inputs.</p>
+<h3 id="static-values">Static values<a class="headerlink" href="#static-values" title="Permanent link">&para;</a></h3>
+<p>The boring (good!) kind: literals and empty collections.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OptimizeDatabase</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:strategy</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="ss">:incremental</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:level</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;basic&quot;</span>
@@ -2352,13 +2353,13 @@
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
-<p>Reference instance methods by symbol for dynamic default values:</p>
+<h3 id="symbol-references">Symbol references<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
+<p>Delegate to an instance method when the fallback depends on context:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessAnalytics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:granularity</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="ss">:default_granularity</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="c1"># ...</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="kp">private</span>
@@ -2369,17 +2370,14 @@
 </span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p>Use anonymous functions for dynamic default values:</p>
+<p>Tiny bits of logic without naming a method:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CacheContent</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:expire_hours</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">cache_duration</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">24</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="c1"># Lambda</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:compression</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">premium?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="s2">&quot;gzip&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">end</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:expire_hours</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">cache_duration</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">24</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:compression</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">premium?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="s2">&quot;gzip&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
-<p>Any object responding to <code>#call(task)</code> works as a default:</p>
+<p>Anything with <code>#call(task)</code> can compute the fallback:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TenantDefaults</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">cache_duration</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">24</span>
@@ -2390,23 +2388,20 @@
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:expire_hours</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="no">TenantDefaults</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="coercions-and-validations">Coercions and Validations<a class="headerlink" href="#coercions-and-validations" title="Permanent link">&para;</a></h2>
-<p>Defaults flow through the same pipeline as provided values — coercion, transform, then validation:</p>
+<h2 id="coercions-and-validations">Coercions and validations<a class="headerlink" href="#coercions-and-validations" title="Permanent link">&para;</a></h2>
+<p>After a default applies, the value walks the same path as user input: coerce → transform → validate.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ScheduleBackup</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Default is coerced through :integer</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:retention_days</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="c1"># Default is validated against the inclusion list</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:frequency</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;daily&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="sx">%w[hourly daily weekly monthly]</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">end</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:retention_days</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="ss">:frequency</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;daily&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="sx">%w[hourly daily weekly monthly]</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Defaults only apply when the resolved value is <code>nil</code>. An explicitly provided <code>nil</code> is treated as missing and the default fires. This applies equally whether the key was absent from <code>context</code> or the caller sent <code>nil</code> explicitly — both are "not provided".</p>
+<p>Defaults trigger when the resolved value is <strong><code>nil</code></strong>. That includes “key missing” <strong>and</strong> “caller explicitly sent <code>nil</code>” — both count as “not really provided.”</p>
 </div>
 <div class="admonition warning">
-<p class="admonition-title">Required + default</p>
-<p>Defaults <strong>do not</strong> satisfy <code>required:</code>. A required input whose key is absent fails with <code>is required</code> before the default is consulted — so <code>required: true, default: ...</code> is effectively a contradiction. Use <code>optional ..., default:</code> instead when you want a fallback, and reserve <code>required:</code> for keys the caller must explicitly supply.</p>
+<p class="admonition-title">Required + default = awkward</p>
+<p><strong><code>required:</code> does not wait for defaults.</strong> If the key is missing, you get <code>is required</code> before defaults run. So <code>required: true, default: ...</code> fights itself: use <code>optional ..., default:</code> when you want a fallback, and <code>required:</code> when the caller must <strong>name</strong> the key.</p>
 </div>
 
 

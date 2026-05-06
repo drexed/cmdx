@@ -4,34 +4,36 @@ ______________________________________________________________________
 
 Note
 
-These docs track `main`. For version-specific docs, see the `docs/` directory in that version's tag.
+These docs follow `main`. If you are on an older gem version, open the `docs/` folder from that release’s tag so examples match what you run.
 
-CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
+Welcome. **CMDx** is a small Ruby framework that helps you write business logic as clear, reusable **tasks**—think “one job per class,” with inputs checked for you, errors handled in a predictable way, and logs that tell a story when things go wrong.
 
-**Common challenges:**
+If you have ever opened a “service object” file and wondered *what actually runs, in what order, and what happens on error*, CMDx is meant to calm that chaos.
 
-- Inconsistent service object patterns across the codebase
-- Opaque control flow makes debugging hard
-- Fragile error handling erodes confidence
+**Sound familiar?**
 
-**What you get:**
+- Every team invents its own “service” pattern, so nothing feels the same from file to file.
+- When something breaks, it is hard to follow the path the code took.
+- Error handling is inconsistent, so you stop trusting the happy path.
 
-- A standardized task contract
-- Built-in flow control and error handling
-- Composable, reusable workflows
-- Structured logging for observability
-- Input validation with type coercions
+**What CMDx gives you instead:**
+
+- One clear contract: how you declare inputs, run work, and read the outcome.
+- Built-in flow control (success, skip, fail) so branches are explicit, not hidden.
+- Workflows that chain tasks without spaghetti.
+- Structured logging so you can see what ran, how long it took, and why it stopped.
+- Input validation and type coercion so bad data fails fast with useful messages.
 
 ## Requirements
 
-- Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release
-- Runtime dependencies: `bigdecimal` and `logger` (both stdlib gems on most distributions)
+- **Ruby:** MRI 3.3+ (or a recent JRuby / TruffleRuby that matches)
+- **Gems:** `bigdecimal` and `logger` (stdlib gems on most setups)
 
-No ActiveSupport or Rails required — Rails integration is opt-in via `CMDx::Railtie`.
+You do **not** need Rails. If you use Rails, there is an optional hook (`CMDx::Railtie`) so integration is a choice, not a requirement.
 
 ## Installation
 
-Add CMDx to your Gemfile:
+Pick one:
 
 ```sh
 gem install cmdx
@@ -43,17 +45,19 @@ bundle add cmdx
 
 ## Configuration
 
-For Rails applications, run the following command to generate a global configuration file in `config/initializers/cmdx.rb`.
+**Rails:** generate an initializer so you have one place for global settings:
 
 ```bash
 rails generate cmdx:install
 ```
 
-If not using Rails, manually copy the [configuration file](https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb).
+That drops `config/initializers/cmdx.rb` into your app.
+
+**Not on Rails:** copy the same template by hand from the repo: [install.rb template](https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb).
 
 ## Quick Start
 
-A self-contained example you can run in `irb` or a plain Ruby script — no Rails required:
+Below is a tiny task you can paste into `irb` or a scratch Ruby file—no framework required. It says hello when the name is present, and complains politely when it is not.
 
 ```ruby
 require "cmdx"
@@ -76,23 +80,28 @@ result.reason            #=> "name cannot be empty"
 result.errors.to_h       #=> { name: ["cannot be empty"] }
 ```
 
-From here, layer in features as you need them:
+When you are ready to go deeper, this map points you at the right doc:
 
-| Need                   | Feature                                                                  | Example                               |
-| ---------------------- | ------------------------------------------------------------------------ | ------------------------------------- |
-| Type safety on inputs  | [Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md)     | `coerce: :integer`                    |
-| Input constraints      | [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md) | `numeric: { min: 1 }`                 |
-| Conditional stops      | [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md)  | `skip!`, `fail!`                      |
-| Multi-task pipelines   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)            | `include CMDx::Workflow`              |
-| Cross-cutting concerns | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)        | `register :middleware`                |
-| Lifecycle hooks        | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)            | `on_success`, `before_execution`      |
-| Output contracts       | [Outputs](https://drexed.github.io/cmdx/outputs/index.md)                | `output :user, :token`                |
-| Retry policies         | [Retries](https://drexed.github.io/cmdx/retries/index.md)                | `retry_on Net::OpenTimeout, limit: 3` |
-| Structured logs        | [Logging](https://drexed.github.io/cmdx/logging/index.md)                | Automatic                             |
+| You want…                                | Read…                                                                    | Quick idea                            |
+| ---------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------- |
+| Safer input types                        | [Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md)     | `coerce: :integer`                    |
+| Rules on values                          | [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md) | `numeric: { min: 1 }`                 |
+| Stop early on purpose                    | [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md)  | `skip!`, `fail!`                      |
+| Several tasks in a row                   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)            | `include CMDx::Workflow`              |
+| Cross-cutting stuff (timing, auth, etc.) | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)        | `register :middleware`                |
+| Hooks around run                         | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)            | `on_success`, `before_execution`      |
+| Declared outputs                         | [Outputs](https://drexed.github.io/cmdx/outputs/index.md)                | `output :user, :token`                |
+| Automatic retries                        | [Retries](https://drexed.github.io/cmdx/retries/index.md)                | `retry_on Net::OpenTimeout, limit: 3` |
+| What got logged                          | [Logging](https://drexed.github.io/cmdx/logging/index.md)                | Built-in structured lines             |
 
-## The CERO Pattern
+## The CERO Pattern (say it like “zero”)
 
-CMDx organizes business logic around the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern.
+CMDx lines up with a simple mental model: **CERO** — **C**ompose, **E**xecute, **R**eact, **O**bserve.
+
+- **Compose:** write small tasks with clear inputs and outputs; plug them together.
+- **Execute:** call `.execute` and let CMDx validate, run `work`, and wrap errors.
+- **React:** branch on the result (`success?`, `skipped?`, `failed?`) in your app.
+- **Observe:** read structured logs to debug production without guesswork.
 
 ```
 flowchart LR
@@ -103,7 +112,7 @@ flowchart LR
 
 ### Compose
 
-Build single-responsibility tasks with typed inputs, validation, and callbacks. Compose them into workflows to assemble larger processes from small, reusable pieces.
+Start with one task that does one thing. Give it typed inputs, optional defaults, and callbacks if you need them. When a process grows, compose several tasks into a workflow instead of growing one giant class.
 
 ```ruby
 class AnalyzeMetrics < CMDx::Task
@@ -153,7 +162,7 @@ end
 
 ### Execute
 
-Every task invocation returns a `Result`. Runtime coerces and validates inputs, runs your `work`, handles exceptions, verifies declared outputs, and logs the outcome — automatically.
+Calling `YourTask.execute(...)` gives you a **`Result`** object. Under the hood CMDx coerces and validates arguments, runs `work`, rescues surprises, checks declared outputs, and logs—all in one predictable path.
 
 ```ruby
 result = AnalyzeMetrics.execute(dataset_id: 42, analysis_type: "bayesian")
@@ -165,7 +174,7 @@ result = AnalyzeMetrics.execute
 
 ### React
 
-Branch on the result's status (`success?`, `skipped?`, `failed?`) and read values, reasons, or metadata from it. See [Outcomes](https://drexed.github.io/cmdx/outcomes/result/index.md) for the full surface.
+The `Result` is your public API for “what happened?” Use the status helpers and read `reason`, errors, and metadata. For every field and edge case, see [Outcomes](https://drexed.github.io/cmdx/outcomes/result/index.md).
 
 ```ruby
 if result.success?
@@ -179,7 +188,7 @@ end
 
 ### Observe
 
-Every execution emits a structured log line with the chain id, task identity, state, status, reason, metadata, duration, and tags — enough to correlate nested tasks and reconstruct what happened. See [Logging](https://drexed.github.io/cmdx/logging/index.md) for the full field reference.
+Each run writes a structured log line: chain id, task name, status, reason, timing, tags—handy when tasks call other tasks and you need to replay the story. Full field list: [Logging](https://drexed.github.io/cmdx/logging/index.md).
 
 ```text
 I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d2-..." index=1 root=false type="Task" task=SendAnalyzedEmail tid="018c2b95-c091-..." state="complete" status="success" reason=nil metadata={} duration=347.21 ...
@@ -189,11 +198,11 @@ I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d
 
 Note
 
-With a durable log sink, these lines double as event sourcing — a time-ordered history of every task execution.
+If you ship logs to durable storage, these entries become a time-ordered trail of “who did what, when”—great for audits and spooky production mysteries.
 
-## Task Lifecycle
+## Task lifecycle (the big picture)
 
-Every `Task.execute` runs the same orchestrated lifecycle. The diagram below traces the path from invocation to a frozen `Result`, including how signals (`success!` / `skip!` / `fail!` / `throw!`) and exceptions interleave with middlewares, callbacks, retries, and rollback.
+Every `Task.execute` walks the same path: setup, optional retries around `work`, output checks, callbacks, then a frozen `Result`. The diagram below is dense on purpose; bookmark it when you are debugging middleware, signals (`success!`, `skip!`, `fail!`, `throw!`), or rollbacks.
 
 ```
 flowchart TD
@@ -211,24 +220,24 @@ flowchart TD
     Finalize --> Out([Frozen Result])
 ```
 
-Key invariants:
+**Rules of thumb (memorize these four):**
 
-- **Middlewares wrap everything inside `execute`** — telemetry, deprecation, callbacks, work, rollback, and result finalization all happen inside the middleware chain.
-- **Retry only wraps `work`** — input resolution and output verification run exactly once, outside the retry loop.
-- **Rollback only runs on failure**, before result finalization, so `Result#rolled_back?` is already known when `on_failed` callbacks and `:task_executed` telemetry fire.
-- **Teardown always runs** (via `ensure`), freezing the context/errors and clearing the fiber-local chain even when `execute!` re-raises.
+- **Middleware wraps the whole `execute` trip** — everything from callbacks through finalization runs inside that chain.
+- **Retries only wrap `work`** — validating inputs and verifying outputs happen once per invocation, not on every retry attempt.
+- **Rollback runs only on failure**, before the result is finalized, so callbacks and telemetry already know whether rollback happened.
+- **Teardown always runs** (via `ensure`): the context is frozen, errors are captured, and fiber-local chain state is cleared—even when `execute!` re-raises.
 
-## Domain Driven Design
+## Domain-driven design (without the buzzword fatigue)
 
-CMDx makes business processes explicit and structural — a natural fit for Domain Driven Design (DDD).
+You do not have to read a thick DDD book to benefit. CMDx nudges you toward three ideas that keep big apps sane:
 
-- **Ubiquitous Language:** Task names like `ApproveLoan` or `ShipOrder` mirror the language of domain experts.
-- **Bounded Contexts:** Namespaces enforce boundaries — `Billing::GenerateInvoice` and `Shipping::GenerateLabel` keep logic within their domains.
-- **Rich Domain Layer:** Move orchestration out of Controllers and ActiveRecord models. Entities hold state; tasks hold behavior. Business logic stays testable and isolated.
+- **Speak the same words as the business.** Name tasks like the team names workflows: `ApproveLoan`, `ShipOrder`, not `DoStuffService`.
+- **Draw boundaries.** Use namespaces so `Billing::GenerateInvoice` and `Shipping::GenerateLabel` do not step on each other’s toes.
+- **Keep controllers thin.** Let models hold data; let tasks hold orchestration and rules. That split makes tests smaller and failures easier to find.
 
-## Task Generator
+## Task generator
 
-Generate new CMDx tasks quickly using the built-in generator:
+Rails ships generators so you are not copy-pasting boilerplate:
 
 ```bash
 # Task
@@ -242,7 +251,7 @@ rails generate cmdx:task Admin::AuditUser
 # => Creates app/tasks/admin/audit_user.rb
 ```
 
-This creates a new task file with the basic structure:
+You get a starter file like:
 
 ```ruby
 # app/tasks/moderate_blog_post.rb
@@ -253,7 +262,7 @@ class ModerateBlogPost < CMDx::Task
 end
 ```
 
-The generator inherits from `ApplicationTask` if defined, falling back to `CMDx::Task`. Define an `ApplicationTask` base class to share configuration across all tasks:
+If you define `ApplicationTask`, new files inherit from it; otherwise they inherit `CMDx::Task`. Handy for shared retries, logging, or request context:
 
 ```ruby
 # app/tasks/application_task.rb
@@ -272,12 +281,14 @@ end
 
 Tip
 
-Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
+Name tasks like **verb + thing**: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`. Your future self will thank you in `grep`.
 
-## Documentation & Editor Support
+## Documentation and editor help
 
-The codebase ships with comprehensive YARD annotations on every public class, method, and option. Combined with the structured DSL (`required`, `optional`, `output`, `coerce:`, `validate:`, `on_success`, ...), this gives you:
+Public APIs in the gem are documented with YARD. Together with the DSL (`required`, `optional`, `output`, `coerce:`, `validate:`, `on_success`, …) you get:
 
-- **Self-documenting tasks** — declared inputs and outputs read like a contract
-- **IDE awareness** — autocomplete and inline docs in editors that consume YARD (Solargraph, RubyMine, etc.)
-- **Generated reference** — run `bundle exec yard doc` (or browse [the published docs](https://drexed.github.io/cmdx/api/index.html))
+- **Readable task definitions** — the top of a class lists its contract at a glance.
+- **Editor hints** — Solargraph, RubyMine, and friends can show docs inline.
+- **A generated book** — run `bundle exec yard doc` locally or browse [the published API docs](https://drexed.github.io/cmdx/api/index.html).
+
+If something in this guide felt fast, pick a link from the table above and read that page next—you are already on the right track.
