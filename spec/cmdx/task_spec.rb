@@ -257,14 +257,14 @@ RSpec.describe CMDx::Task do
       expect(result).to eq(:not_thrown)
     end
 
-    it "raises FrozenError when the task is frozen" do
+    it "raises FrozenTaskError when the task is frozen" do
       task = klass.new
       task.freeze
 
-      expect { task.send(:success!) }.to raise_error(FrozenError, "cannot throw signals")
-      expect { task.send(:fail!) }.to raise_error(FrozenError)
-      expect { task.send(:skip!) }.to raise_error(FrozenError)
-      expect { task.send(:throw!, CMDx::Signal.failed) }.to raise_error(FrozenError)
+      expect { task.send(:success!) }.to raise_error(CMDx::FrozenTaskError, "cannot call :success! after the task has been frozen")
+      expect { task.send(:fail!) }.to raise_error(CMDx::FrozenTaskError, "cannot call :fail! after the task has been frozen")
+      expect { task.send(:skip!) }.to raise_error(CMDx::FrozenTaskError, "cannot call :skip! after the task has been frozen")
+      expect { task.send(:throw!, CMDx::Signal.failed) }.to raise_error(CMDx::FrozenTaskError, "cannot call :throw! after the task has been frozen")
     end
   end
 

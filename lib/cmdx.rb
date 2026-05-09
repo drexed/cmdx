@@ -51,6 +51,11 @@ module CMDx
   # before continuing.
   DeprecationError = Class.new(Error)
 
+  # Raised when a control-flow signal (e.g. `skip!`, `fail!`) is thrown against
+  # a task that has already completed and been frozen, making further state
+  # transitions impossible.
+  FrozenTaskError = Class.new(Error)
+
   # Raised when a subclass fails to fulfill an abstract contract — most
   # commonly when {Task} is invoked without overriding `#work`, or when a
   # {Workflow} attempts to define `#work` itself.
@@ -59,6 +64,18 @@ module CMDx
   # Raised by the middleware chain when a registered middleware fails to
   # yield to `next_link`, which would otherwise silently skip the task body.
   MiddlewareError = Class.new(Error)
+
+  # Raised by {Context} in strict mode when accessing a key that was never
+  # assigned, preventing silent `nil` propagation across task boundaries.
+  UnknownAccessorError = Class.new(Error)
+
+  # Raised when a registry lookup (coercion, validator, middleware, etc.) is
+  # performed against a name that has not been registered.
+  UnknownEntryError = Class.new(Error)
+
+  # Raised when the configured locale cannot be resolved to a translation
+  # file on the i18n load path.
+  UnknownLocaleError = Class.new(Error)
 
 end
 

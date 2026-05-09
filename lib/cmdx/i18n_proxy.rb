@@ -79,8 +79,6 @@ module CMDx
 
     private
 
-    # @param key [String, Symbol] lookup key (without locale prefix)
-    # @return [Object, nil] message template from bundled YAML, when present
     def translation_default(key)
       default_locale  = CMDx.configuration.default_locale || "en"
       translation_key = "#{default_locale}.#{key}"
@@ -92,7 +90,7 @@ module CMDx
       @translations[default_locale] ||= begin
         file = "#{default_locale}.yml"
         paths = self.class.locale_paths.map { |dir| File.join(dir, file) }.select { |p| File.exist?(p) }
-        raise LoadError, "unable to load #{default_locale} translations" if paths.empty?
+        raise UnknownLocaleError, "unable to load #{default_locale} translations" if paths.empty?
 
         paths.reduce({}) { |hash, path| hash.merge(YAML.safe_load_file(path)) }.freeze
       end

@@ -463,7 +463,7 @@ module CMDx
     # @raise [FrozenError] when the task has already been frozen (post-execution)
     # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
     def success!(reason = nil, **sigdata)
-      raise FrozenError, "cannot throw signals" if frozen?
+      raise FrozenTaskError, "cannot call :success! after the task has been frozen" if frozen?
 
       metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.success(reason, metadata:))
@@ -477,7 +477,7 @@ module CMDx
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError]
     def skip!(reason = nil, **sigdata)
-      raise FrozenError, "cannot throw signals" if frozen?
+      raise FrozenTaskError, "cannot call :skip! after the task has been frozen" if frozen?
 
       metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.skipped(reason, metadata:))
@@ -492,7 +492,7 @@ module CMDx
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError]
     def fail!(reason = nil, **sigdata)
-      raise FrozenError, "cannot throw signals" if frozen?
+      raise FrozenTaskError, "cannot call :fail! after the task has been frozen" if frozen?
 
       metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.failed(reason, metadata:, backtrace: caller_locations(1)))
@@ -507,7 +507,7 @@ module CMDx
     # @return [void]
     # @raise [FrozenError]
     def throw!(other, **sigdata)
-      raise FrozenError, "cannot throw signals" if frozen?
+      raise FrozenTaskError, "cannot call :throw! after the task has been frozen" if frozen?
 
       return unless other.failed?
 

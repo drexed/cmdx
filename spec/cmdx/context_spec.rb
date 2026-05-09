@@ -328,9 +328,9 @@ RSpec.describe CMDx::Context do
     context "when strict is enabled" do
       before { ctx.strict = true }
 
-      it "raises NoMethodError for unknown dynamic reads" do
+      it "raises UnknownAccessorError for unknown dynamic reads" do
         expect { ctx.missing }
-          .to raise_error(NoMethodError, /unknown context key :missing \(strict mode\)/)
+          .to raise_error(CMDx::UnknownAccessorError, /unknown context key :missing \(strict mode\)/)
       end
 
       it "still returns existing keys via dynamic reader" do

@@ -60,10 +60,10 @@ module CMDx
 
     # @param name [Symbol]
     # @return [#call] the registered deprecator
-    # @raise [ArgumentError] when `name` isn't registered
+    # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise ArgumentError, "unknown deprecator: #{name.inspect}"
+        raise UnknownEntryError, "unknown deprecator: #{name.inspect}"
       end
     end
 
@@ -73,7 +73,7 @@ module CMDx
     #
     # @param spec [Symbol, #call, nil]
     # @return [#call, nil]
-    # @raise [ArgumentError] when `spec` is an unknown symbol or not callable
+    # @raise [UnknownEntryError] when `spec` is an unknown symbol or not callable
     def resolve(spec)
       case spec
       when NilClass
@@ -83,7 +83,7 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise ArgumentError, "unknown deprecator: #{spec.inspect}"
+        raise UnknownEntryError, "unknown deprecator: #{spec.inspect}"
       end
     end
 

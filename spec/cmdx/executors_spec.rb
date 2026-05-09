@@ -61,7 +61,7 @@ RSpec.describe CMDx::Executors do
 
   describe "#lookup" do
     it "raises on unknown keys" do
-      expect { executors.lookup(:bogus) }.to raise_error(ArgumentError, "unknown executor: :bogus")
+      expect { executors.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown executor: :bogus")
     end
   end
 
@@ -81,12 +81,12 @@ RSpec.describe CMDx::Executors do
 
     it "raises on unknown symbols" do
       expect { executors.resolve(:bogus) }
-        .to raise_error(ArgumentError, "unknown executor: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, "unknown executor: :bogus")
     end
 
     it "raises on non-callable, non-symbol values" do
       expect { executors.resolve(Object.new) }
-        .to raise_error(ArgumentError, /unknown executor/)
+        .to raise_error(CMDx::UnknownEntryError, /unknown executor/)
     end
   end
 

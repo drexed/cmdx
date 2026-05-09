@@ -63,7 +63,7 @@ RSpec.describe CMDx::Coercions do
 
   describe "#lookup" do
     it "raises on unknown keys" do
-      expect { coercions.lookup(:bogus) }.to raise_error(ArgumentError, "unknown coercion: bogus")
+      expect { coercions.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown coercion: bogus")
     end
   end
 

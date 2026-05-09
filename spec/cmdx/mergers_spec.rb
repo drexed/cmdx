@@ -59,7 +59,7 @@ RSpec.describe CMDx::Mergers do
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { mergers.lookup(:bogus) }
-        .to raise_error(ArgumentError, "unknown merger: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, "unknown merger: :bogus")
     end
   end
 
@@ -79,7 +79,7 @@ RSpec.describe CMDx::Mergers do
 
     it "raises on unknown symbols" do
       expect { mergers.resolve(:bogus) }
-        .to raise_error(ArgumentError, "unknown merger: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, "unknown merger: :bogus")
     end
   end
 

@@ -74,9 +74,9 @@ module CMDx
     # @param event [Symbol] one of {EVENTS}
     # @param callable [#call] the subscriber to remove
     # @return [Telemetry] self for chaining
-    # @raise [ArgumentError] when `event` is unknown
+    # @raise [UnknownEntryError] when `event` is unknown
     def unsubscribe(event, callable)
-      raise ArgumentError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}" unless EVENTS.include?(event)
+      raise UnknownEntryError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}" unless EVENTS.include?(event)
 
       return self unless subscribed?(event)
 

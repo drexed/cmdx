@@ -64,7 +64,7 @@ RSpec.describe CMDx::Deprecators do
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { deprecators.lookup(:bogus) }
-        .to raise_error(ArgumentError, "unknown deprecator: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, "unknown deprecator: :bogus")
     end
   end
 
@@ -84,12 +84,12 @@ RSpec.describe CMDx::Deprecators do
 
     it "raises on unknown symbols" do
       expect { deprecators.resolve(:bogus) }
-        .to raise_error(ArgumentError, "unknown deprecator: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, "unknown deprecator: :bogus")
     end
 
     it "raises on non-callable specs" do
       expect { deprecators.resolve(Object.new) }
-        .to raise_error(ArgumentError, /unknown deprecator/)
+        .to raise_error(CMDx::UnknownEntryError, /unknown deprecator/)
     end
   end
 

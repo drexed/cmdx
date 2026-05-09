@@ -56,7 +56,7 @@ RSpec.describe CMDx::Validators do
 
   describe "#lookup" do
     it "raises on unknown keys" do
-      expect { validators.lookup(:bogus) }.to raise_error(ArgumentError, "unknown validator: bogus")
+      expect { validators.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown validator: bogus")
     end
   end
 

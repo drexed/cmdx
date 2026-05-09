@@ -54,10 +54,10 @@ module CMDx
 
     # @param name [Symbol]
     # @return [#call] the registered merger
-    # @raise [ArgumentError] when `name` isn't registered
+    # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise ArgumentError, "unknown merger: #{name.inspect}"
+        raise UnknownEntryError, "unknown merger: #{name.inspect}"
       end
     end
 
@@ -67,7 +67,7 @@ module CMDx
     #
     # @param spec [Symbol, #call, nil]
     # @return [#call]
-    # @raise [ArgumentError] when `spec` is an unknown symbol or not callable
+    # @raise [UnknownEntryError] when `spec` is an unknown symbol or not callable
     def resolve(spec)
       case spec
       when NilClass
@@ -77,7 +77,7 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise ArgumentError, "unknown merger: #{spec.inspect}"
+        raise UnknownEntryError, "unknown merger: #{spec.inspect}"
       end
     end
 

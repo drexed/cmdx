@@ -151,13 +151,13 @@ RSpec.describe "Task settings", type: :feature do
       expect(instance.context.strict?).to be(true)
     end
 
-    it "raises NoMethodError inside #work when a dynamic read hits an unknown key" do
+    it "raises UnknownAccessorError inside #work when a dynamic read hits an unknown key" do
       task = create_task_class(name: "StrictReader") do
         settings(strict_context: true)
         define_method(:work) { context.missing }
       end
 
-      expect { task.execute! }.to raise_error(NoMethodError, /unknown context key :missing/)
+      expect { task.execute! }.to raise_error(CMDx::UnknownAccessorError, /unknown context key :missing/)
     end
 
     it "does not affect [] reads or fetch with defaults" do

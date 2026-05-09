@@ -270,7 +270,7 @@ module CMDx
     # Provides dynamic read/write/predicate access to context keys.
     #
     # - `ctx.name` — reads `@table[name]`, `nil` when absent (raises
-    #   `NoMethodError` when {#strict?} is true and the key is absent).
+    #   `UnknownAccessorError` when {#strict?} is true and the key is absent).
     # - `ctx.name = val` — stores `val` under `:name`.
     # - `ctx.name?` — truthy check for `@table[:name]`.
     #
@@ -278,7 +278,7 @@ module CMDx
     # @param args [Array<Object>] stores RHS for writers (`name=` → `[value]`)
     # @param _kwargs [Hash{Symbol => Object}] ignored (accepted for Ruby keyword forwarding)
     # @option _kwargs [Object] ignored
-    # @raise [NoMethodError] when {#strict?} is true and the key is missing
+    # @raise [UnknownAccessorError] when {#strict?} is true and the key is missing
     # @api private
     def method_missing(method_name, *args, **_kwargs, &)
       if @table.key?(method_name)
@@ -288,7 +288,7 @@ module CMDx
       elsif method_name.end_with?("?")
         !!@table[method_name[..-2].to_sym]
       elsif strict?
-        raise NoMethodError, "unknown context key #{method_name.inspect} (strict mode)"
+        raise UnknownAccessorError, "unknown context key #{method_name.inspect} (strict mode)"
       end
     end
 

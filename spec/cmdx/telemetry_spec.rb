@@ -91,7 +91,7 @@ RSpec.describe CMDx::Telemetry do
 
     it "raises for an unknown event" do
       expect { telemetry.unsubscribe(:bogus, sub1) }
-        .to raise_error(ArgumentError, /unknown event :bogus/)
+        .to raise_error(CMDx::UnknownEntryError, /unknown event :bogus/)
     end
   end
 

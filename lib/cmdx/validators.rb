@@ -63,10 +63,10 @@ module CMDx
 
     # @param name [Symbol]
     # @return [#call]
-    # @raise [ArgumentError] when `name` isn't registered
+    # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise ArgumentError, "unknown validator: #{name}"
+        raise UnknownEntryError, "unknown validator: #{name}"
       end
     end
 

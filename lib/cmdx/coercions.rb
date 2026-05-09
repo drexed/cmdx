@@ -70,10 +70,10 @@ module CMDx
 
     # @param name [Symbol]
     # @return [#call] the registered coercion
-    # @raise [ArgumentError] when `name` isn't registered
+    # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise ArgumentError, "unknown coercion: #{name}"
+        raise UnknownEntryError, "unknown coercion: #{name}"
       end
     end
 
