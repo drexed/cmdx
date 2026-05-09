@@ -78,11 +78,18 @@ module CMDx
     def unsubscribe(event, callable)
       raise UnknownEntryError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}" unless EVENTS.include?(event)
 
-      return self unless subscribed?(event)
+      if (subscribers = registry[event])
+        subscribers.delete(callable)
+        registry.delete(event) if subscribers.empty?
+      end
 
-      registry[event].delete(callable)
-      registry.delete(event) if registry[event].empty?
       self
+    end
+
+    # @param name [Symbol]
+    # @return [Boolean] whether a subscriber is registered under `event`
+    def key?(event)
+      registry.key?(event)
     end
 
     # @param event [Symbol]
@@ -113,9 +120,10 @@ module CMDx
     # @param payload [Event]
     # @return [void]
     def emit(event, payload)
-      return unless (subscribers = registry[event])
+      subscribers = registry[event]
+      return if subscribers.nil? || subscribers.empty?
 
-      subscribers.each { |s| s.call(payload) }
+      subscribers.each { |callable| callable.call(payload) }
     end
 
   end

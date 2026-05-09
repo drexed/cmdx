@@ -87,6 +87,12 @@ module CMDx
       self
     end
 
+    # @param name [Symbol]
+    # @return [Boolean] whether a callback is registered under `name`
+    def key?(event)
+      registry.key?(event)
+    end
+
     # @return [Boolean]
     def empty?
       registry.empty?

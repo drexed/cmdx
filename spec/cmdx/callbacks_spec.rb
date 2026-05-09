@@ -205,6 +205,17 @@ RSpec.describe CMDx::Callbacks do
     end
   end
 
+  describe "#key?" do
+    it "reports membership" do
+      expect(callbacks.key?(:on_success)).to be(false)
+
+      callbacks.register(:on_success, :hook)
+
+      expect(callbacks.key?(:on_success)).to be(true)
+      expect(callbacks.key?(:on_failed)).to be(false)
+    end
+  end
+
   describe "#empty?" do
     it "is true when nothing is registered" do
       expect(callbacks).to be_empty

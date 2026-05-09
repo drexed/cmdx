@@ -48,8 +48,14 @@ module CMDx
     # @param name [Symbol]
     # @return [Executors] self for chaining
     def deregister(name)
-      registry.delete(name.to_sym)
+      registry.delete(name)
       self
+    end
+
+    # @param name [Symbol]
+    # @return [Boolean] whether an executor is registered under `name`
+    def key?(name)
+      registry.key?(name)
     end
 
     # @param name [Symbol]

@@ -57,8 +57,14 @@ module CMDx
     # @param name [Symbol]
     # @return [Validators] self for chaining
     def deregister(name)
-      registry.delete(name.to_sym)
+      registry.delete(name)
       self
+    end
+
+    # @param name [Symbol]
+    # @return [Boolean] whether a validator is registered under `name`
+    def key?(name)
+      registry.key?(name)
     end
 
     # @param name [Symbol]

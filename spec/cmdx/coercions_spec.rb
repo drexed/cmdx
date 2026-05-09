@@ -61,6 +61,13 @@ RSpec.describe CMDx::Coercions do
     end
   end
 
+  describe "#key?" do
+    it "reports membership" do
+      expect(coercions.key?(:integer)).to be(true)
+      expect(coercions.key?(:bogus)).to be(false)
+    end
+  end
+
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { coercions.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown coercion: bogus")

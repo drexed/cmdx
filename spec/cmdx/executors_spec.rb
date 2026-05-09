@@ -59,6 +59,13 @@ RSpec.describe CMDx::Executors do
     end
   end
 
+  describe "#key?" do
+    it "reports membership" do
+      expect(executors.key?(:threads)).to be(true)
+      expect(executors.key?(:bogus)).to be(false)
+    end
+  end
+
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { executors.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown executor: :bogus")

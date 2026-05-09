@@ -54,6 +54,13 @@ RSpec.describe CMDx::Validators do
     end
   end
 
+  describe "#key?" do
+    it "reports membership" do
+      expect(validators.key?(:presence)).to be(true)
+      expect(validators.key?(:bogus)).to be(false)
+    end
+  end
+
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { validators.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown validator: bogus")

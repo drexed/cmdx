@@ -56,6 +56,13 @@ RSpec.describe CMDx::Mergers do
     end
   end
 
+  describe "#key?" do
+    it "reports membership" do
+      expect(mergers.key?(:deep_merge)).to be(true)
+      expect(mergers.key?(:bogus)).to be(false)
+    end
+  end
+
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { mergers.lookup(:bogus) }

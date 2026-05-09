@@ -95,6 +95,17 @@ RSpec.describe CMDx::Telemetry do
     end
   end
 
+  describe "#key?" do
+    it "reports membership" do
+      expect(telemetry.key?(:task_started)).to be(false)
+
+      telemetry.subscribe(:task_started, ->(_p) {})
+
+      expect(telemetry.key?(:task_started)).to be(true)
+      expect(telemetry.key?(:task_executed)).to be(false)
+    end
+  end
+
   describe "#subscribed?" do
     it "is true when at least one subscriber exists" do
       telemetry.subscribe(:task_started, ->(_p) {})

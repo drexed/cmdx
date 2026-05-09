@@ -58,7 +58,7 @@ module CMDx
     # @return [Inputs] self for chaining
     def deregister(klass, *names)
       names.each do |name|
-        input = registry.delete(name.to_sym)
+        input = registry.delete(name)
         klass.send(:undefine_input_reader, input)
       end
 
