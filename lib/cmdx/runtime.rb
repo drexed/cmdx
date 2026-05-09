@@ -109,7 +109,7 @@ module CMDx
       cause = @signal.cause
       raise cause if cause && !cause.is_a?(Fault)
 
-      raise Fault, @result.caused_failure
+      raise Fault, @result.caused_failure, cause:
     end
 
     def finalize_result

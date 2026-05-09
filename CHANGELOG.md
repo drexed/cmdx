@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Changed
+- Link cause of a raised Fault exception
 - Simplify context `method_missing` lookup order (small perf boost)
 - Attempt translation of errors `full_messages`
 - Emit `:task_rolled_back` telemetry event on workflow rollback
