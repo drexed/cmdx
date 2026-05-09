@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [2.x.x] - UNRELEASED
 
+### Added
+- `key?` methods to registry classes
+
+### Changed
+- Custom CMDx based errors instead of generics
+
 ## [2.0.1] - 2026-05-09
 
 ### Changed
