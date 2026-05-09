@@ -349,6 +349,42 @@ RSpec.describe CMDx::Pipeline do
           expect { workflow_class.execute! }.to raise_error(RuntimeError, /Fiber\.scheduler/)
         end
 
+        it "runs tasks via executor: :fibers when a Fiber.scheduler is installed" do
+          scheduler = Class.new do
+            def fiber(&block)
+              fiber = Fiber.new(blocking: false, &block)
+              fiber.resume
+              fiber
+            end
+
+            def close; end
+            def block(*); end
+            def unblock(*); end
+            def kernel_sleep(*); end
+            def io_wait(*); end
+            def process_wait(*); end
+            def fiber_interrupt(*); end
+          end.new
+
+          t1 = create_task_class(name: "F1") { define_method(:work) { context.a = true } }
+          t2 = create_task_class(name: "F2") { define_method(:work) { context.b = true } }
+          workflow_class = create_workflow_class do
+            tasks t1, t2, strategy: :parallel, executor: :fibers
+          end
+
+          result = nil
+          Thread.new do
+            Fiber.set_scheduler(scheduler)
+            result = workflow_class.execute
+          ensure
+            Fiber.set_scheduler(nil)
+          end.join
+
+          expect(result).to be_success
+          expect(result.context.a).to be(true)
+          expect(result.context.b).to be(true)
+        end
+
         it "merges context from tasks that completed before the failure was observed" do
           ok = create_task_class(name: "Ok") do
             define_method(:work) { context.ok = true }
