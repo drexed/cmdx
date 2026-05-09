@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (2.0.0)
+    cmdx (2.0.1)
       bigdecimal
       logger
 
