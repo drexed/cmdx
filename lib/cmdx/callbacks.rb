@@ -124,6 +124,8 @@ module CMDx
     # @return [void]
     # @raise [ArgumentError] when a callback is neither a Symbol nor responds to `#call`
     def process(event, task)
+      return if empty?
+
       callbacks = registry[event]
       return if callbacks.nil? || callbacks.empty?
 

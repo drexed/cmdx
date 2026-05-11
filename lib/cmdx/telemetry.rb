@@ -94,16 +94,21 @@ module CMDx
       self
     end
 
-    # @param name [Symbol]
-    # @return [Boolean] whether a subscriber is registered under `event`
-    def key?(event)
-      registry.key?(event)
-    end
-
     # @param event [Symbol]
     # @return [Boolean] true when at least one subscriber exists for `event`
     def subscribed?(event)
       registry.key?(event)
+    end
+
+    # @param event [Symbol]
+    # @return [#call]
+    # @raise [UnknownEntryError] when `event` isn't registered
+    def lookup(event)
+      registry[event] || begin
+        raise UnknownEntryError,
+          "unknown telemetry event #{event.inspect}; registered: #{registry.keys.inspect}. " \
+          "See https://drexed.github.io/cmdx/configuration/#telemetry"
+      end
     end
 
     # @return [Boolean]
@@ -128,7 +133,9 @@ module CMDx
     # @param payload [Event]
     # @return [void]
     def emit(event, payload)
-      subscribers = registry[event]
+      return if empty?
+
+      subscribers = lookup(event)
       return if subscribers.nil? || subscribers.empty?
 
       subscribers.each { |callable| callable.call(payload) }

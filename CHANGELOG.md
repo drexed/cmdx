@@ -7,7 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
-- `key?` methods to registry classes
+- `key?` methods to registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
+- `Telemetry#lookup` accessor (`lookup` raises `UnknownEntryError` when the event has no subscribers); `Telemetry#emit` short-circuits on an empty registry
+
+### Removed
 - `CMDx::FrozenTaskError` raised when `success!` / `skip!` / `fail!` / `throw!` is called on an already-frozen task (was `FrozenError`)
 - `CMDx::UnknownAccessorError` raised by `Context` strict mode on missing keys (was `NoMethodError`)
 - `CMDx::UnknownEntryError` raised by registry lookups (coercions, validators, executors, mergers, retriers, deprecators) and `Telemetry#unsubscribe` for unknown names (was `ArgumentError`)

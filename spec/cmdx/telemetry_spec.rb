@@ -95,22 +95,31 @@ RSpec.describe CMDx::Telemetry do
     end
   end
 
-  describe "#key?" do
-    it "reports membership" do
-      expect(telemetry.key?(:task_started)).to be(false)
-
-      telemetry.subscribe(:task_started, ->(_p) {})
-
-      expect(telemetry.key?(:task_started)).to be(true)
-      expect(telemetry.key?(:task_executed)).to be(false)
-    end
-  end
-
   describe "#subscribed?" do
     it "is true when at least one subscriber exists" do
       telemetry.subscribe(:task_started, ->(_p) {})
       expect(telemetry.subscribed?(:task_started)).to be(true)
       expect(telemetry.subscribed?(:task_executed)).to be(false)
+    end
+  end
+
+  describe "#lookup" do
+    let(:sub) { ->(_p) {} }
+
+    it "returns the subscriber list for a registered event" do
+      telemetry.subscribe(:task_started, sub)
+      expect(telemetry.lookup(:task_started)).to eq([sub])
+    end
+
+    it "raises when the event has no subscribers" do
+      expect { telemetry.lookup(:task_started) }
+        .to raise_error(CMDx::UnknownEntryError, /unknown telemetry event :task_started; registered: \[\]/)
+    end
+
+    it "lists currently registered events in the error message" do
+      telemetry.subscribe(:task_executed, sub)
+      expect { telemetry.lookup(:task_started) }
+        .to raise_error(CMDx::UnknownEntryError, /registered: \[:task_executed\]/)
     end
   end
 
@@ -131,7 +140,22 @@ RSpec.describe CMDx::Telemetry do
   end
 
   describe "#emit" do
-    it "is a no-op when the event has no subscribers" do
+    it "is a no-op when the registry is empty" do
+      expect { telemetry.emit(:task_started, :payload) }.not_to raise_error
+    end
+
+    it "raises when the registry is non-empty but the event is unregistered" do
+      telemetry.subscribe(:task_executed, ->(_p) {})
+      expect { telemetry.emit(:task_started, :payload) }
+        .to raise_error(CMDx::UnknownEntryError, /unknown telemetry event :task_started/)
+    end
+
+    it "is a no-op when subscribers were unsubscribed leaving an empty list" do
+      sub = ->(_p) {}
+      telemetry.subscribe(:task_started, sub)
+      telemetry.subscribe(:task_executed, ->(_p) {})
+      telemetry.registry[:task_started].clear
+
       expect { telemetry.emit(:task_started, :payload) }.not_to raise_error
     end
 
