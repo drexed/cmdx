@@ -438,7 +438,8 @@ propagate — handling them is the developer's responsibility.</p>
 68
 69
 70
-71</pre>
+71
+72</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 50</span>
@@ -454,10 +455,11 @@ propagate — handling them is the developer's responsibility.</p>
       <span class='kw'>when</span> <span class='symbol'>:parallel</span>
         <span class='id identifier rubyid_run_parallel'>run_parallel</span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='rparen'>)</span>
       <span class='kw'>else</span>
-        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
-          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid pipeline strategy </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; expected one of [:sequential, :parallel]. </span><span class='tstring_end'>&quot;</span></span> \
-          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/workflows/#group-options</span><span class='tstring_end'>&quot;</span></span>
-      <span class='kw'>end</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>          invalid pipeline strategy </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; expected one of [:sequential, :parallel].
+</span><span class='tstring_content'>          See https://drexed.github.io/cmdx/workflows/#group-options
+</span><span class='heredoc_end'>        MSG
+</span>      <span class='kw'>end</span>
 
     <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_halt'>halt</span>
 
@@ -475,7 +477,7 @@ propagate — handling them is the developer's responsibility.</p>
 </div>
 
       <div id="footer">
-  Generated on Mon May 11 03:55:42 2026 by
+  Generated on Mon May 11 10:51:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

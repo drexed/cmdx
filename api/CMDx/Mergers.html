@@ -535,13 +535,13 @@ any callable accepting <code>call(workflow_context, result)</code>.</p>
       <pre class="lines">
 
 
-52
 53
 54
-55</pre>
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 52</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 53</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
@@ -589,12 +589,12 @@ any callable accepting <code>call(workflow_context, result)</code>.</p>
       <pre class="lines">
 
 
-97
-98
-99</pre>
+100
+101
+102</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 97</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 100</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -716,12 +716,12 @@ any callable accepting <code>call(workflow_context, result)</code>.</p>
       <pre class="lines">
 
 
-59
 60
-61</pre>
+61
+62</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 59</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 60</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
@@ -802,23 +802,25 @@ any callable accepting <code>call(workflow_context, result)</code>.</p>
       <pre class="lines">
 
 
-66
 67
 68
 69
 70
 71
-72</pre>
+72
+73
+74</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 66</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown merger </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; registered: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/workflows/#merge-strategies</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      unknown merger </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; registered: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/workflows/#merge-strategies
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -956,7 +958,8 @@ when the resolved merger isn't callable</p></div>
 45
 46
 47
-48</pre>
+48
+49</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 35</span>
@@ -967,10 +970,11 @@ when the resolved merger isn't callable</p></div>
   <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>merger: provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_merger'>merger</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>merger must respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_merger'>merger</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/workflows/#merge-strategies</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      merger must respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_merger'>merger</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>).
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/workflows/#merge-strategies
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
 
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_merger'>merger</span>
   <span class='kw'>self</span>
@@ -1050,8 +1054,6 @@ callable. Accepts <code>nil</code> (default <code>:last_write_wins</code>), a Sy
       <pre class="lines">
 
 
-81
-82
 83
 84
 85
@@ -1063,10 +1065,13 @@ callable. Accepts <code>nil</code> (default <code>:last_write_wins</code>), a Sy
 91
 92
 93
-94</pre>
+94
+95
+96
+97</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 81</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 83</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_spec'>spec</span>
@@ -1077,10 +1082,11 @@ callable. Accepts <code>nil</code> (default <code>:last_write_wins</code>), a Sy
   <span class='kw'>else</span>
     <span class='kw'>return</span> <span class='id identifier rubyid_spec'>spec</span> <span class='kw'>if</span> <span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
 
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown merger </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; expected a Symbol from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> or a callable. </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/workflows/#merge-strategies</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      unknown merger </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; expected a Symbol from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> or a callable.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/workflows/#merge-strategies
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1124,12 +1130,12 @@ callable. Accepts <code>nil</code> (default <code>:last_write_wins</code>), a Sy
       <pre class="lines">
 
 
-102
-103
-104</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 102</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/mergers.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1144,7 +1150,7 @@ callable. Accepts <code>nil</code> (default <code>:last_write_wins</code>), a Sy
 </div>
 
       <div id="footer">
-  Generated on Mon May 11 03:55:42 2026 by
+  Generated on Mon May 11 10:51:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

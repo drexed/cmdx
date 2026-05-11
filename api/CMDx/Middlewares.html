@@ -508,8 +508,6 @@ or when <code>:at</code> isn't an Integer</p></div>
       <pre class="lines">
 
 
-70
-71
 72
 73
 74
@@ -526,10 +524,13 @@ or when <code>:at</code> isn't an Integer</p></div>
 85
 86
 87
-88</pre>
+88
+89
+90
+91</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_middleware'>middleware</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>at:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_middleware'>middleware</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -537,10 +538,11 @@ or when <code>:at</code> isn't an Integer</p></div>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_middleware'>middleware</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>middleware: provide either a middleware or an at: index, not both</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>middleware :at must be an Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/middlewares/#ordering</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      middleware :at must be an Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>).
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/middlewares/#ordering
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_reject!'>reject!</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_mw'>mw</span><span class='comma'>,</span> <span class='id identifier rubyid__opts'>_opts</span><span class='op'>|</span> <span class='id identifier rubyid_mw'>mw</span> <span class='op'>==</span> <span class='id identifier rubyid_middleware'>middleware</span> <span class='rbrace'>}</span>
@@ -592,12 +594,12 @@ or when <code>:at</code> isn't an Integer</p></div>
       <pre class="lines">
 
 
-91
-92
-93</pre>
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 91</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 94</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -737,9 +739,6 @@ which would otherwise silently skip the task</p></div>
       <pre class="lines">
 
 
-108
-109
-110
 111
 112
 113
@@ -765,10 +764,14 @@ which would otherwise silently skip the task</p></div>
 133
 134
 135
-136</pre>
+136
+137
+138
+139
+140</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 108</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 111</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_processed'>processed</span> <span class='op'>=</span> <span class='kw'>false</span>
@@ -794,10 +797,11 @@ which would otherwise silently skip the task</p></div>
 
   <span class='id identifier rubyid_processed'>processed</span> <span class='op'>||</span> <span class='kw'>begin</span>
     <span class='id identifier rubyid_offender'>offender</span> <span class='op'>=</span> <span class='id identifier rubyid_last_invoked'>last_invoked</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Class</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_last_invoked'>last_invoked</span> <span class='op'>:</span> <span class='id identifier rubyid_last_invoked'>last_invoked</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#MiddlewareError-constant" title="CMDx::MiddlewareError (constant)">MiddlewareError</a></span></span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>middleware </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_offender'>offender</span><span class='embexpr_end'>}</span><span class='tstring_content'> did not yield to next_link. </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/middlewares/#safety</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#MiddlewareError-constant" title="CMDx::MiddlewareError (constant)">MiddlewareError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      middleware </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_offender'>offender</span><span class='embexpr_end'>}</span><span class='tstring_content'> did not yield to next_link.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/middlewares/#safety
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -996,7 +1000,9 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
 58
 59
 60
-61</pre>
+61
+62
+63</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 35</span>
@@ -1008,14 +1014,16 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
   <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>middleware: provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_middleware'>middleware</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>middleware must respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_middleware'>middleware</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/middlewares/#signature</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>middleware :at must be an Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/middlewares/#ordering</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      middleware must respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_middleware'>middleware</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>).
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/middlewares/#signature
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      middleware :at must be an Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>).
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/middlewares/#ordering
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
 
   <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_middleware'>middleware</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span><span class='rbracket'>]</span>
 
@@ -1070,12 +1078,12 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
       <pre class="lines">
 
 
-96
-97
-98</pre>
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1090,7 +1098,7 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
 </div>
 
       <div id="footer">
-  Generated on Mon May 11 03:55:43 2026 by
+  Generated on Mon May 11 10:51:24 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

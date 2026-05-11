@@ -217,16 +217,18 @@ tasks that must no longer run.</p>
 17
 18
 19
-20</pre>
+20
+21</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/deprecators/error.rb', line 16</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../CMDx.html#DeprecationError-constant" title="CMDx::DeprecationError (constant)">DeprecationError</a></span></span><span class='comma'>,</span>
-    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> is deprecated and prohibited from execution. </span><span class='tstring_end'>&quot;</span></span> \
-    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/deprecation/#error</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>end</span></pre>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../CMDx.html#DeprecationError-constant" title="CMDx::DeprecationError (constant)">DeprecationError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> is deprecated and prohibited from execution.
+</span><span class='tstring_content'>    See https://drexed.github.io/cmdx/deprecation/#error
+</span><span class='heredoc_end'>  MSG
+</span><span class='kw'>end</span></pre>
     </td>
   </tr>
 </table>
@@ -237,7 +239,7 @@ tasks that must no longer run.</p>
 </div>
 
       <div id="footer">
-  Generated on Mon May 11 03:55:40 2026 by
+  Generated on Mon May 11 10:51:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>
