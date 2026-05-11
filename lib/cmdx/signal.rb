@@ -76,7 +76,7 @@ module CMDx
       # @return [Signal] new instance mirroring `other`
       # @raise [ArgumentError] when `other` is neither a Signal nor a Result
       def echoed(other, **options)
-        raise ArgumentError, "must be a Result or Signal" unless other.is_a?(Result) || other.is_a?(Signal)
+        raise ArgumentError, "Signal.echoed expected a Result or Signal (got #{other.class})" unless other.is_a?(Result) || other.is_a?(Signal)
 
         options[:origin] = other if other.is_a?(Result) && !options.key?(:origin)
         new(other.state, other.status, **options, reason: other.reason)

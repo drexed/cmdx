@@ -19,7 +19,11 @@ module CMDx
       # @raise [ArgumentError] when neither `:in` nor `:within` is given
       def call(value, options = EMPTY_HASH)
         values = options[:in] || options[:within]
-        raise ArgumentError, "exclusion validator requires :in or :within option" if values.nil?
+        if values.nil?
+          raise ArgumentError,
+            "exclusion validator requires :in or :within (got #{options.keys.inspect}). " \
+            "See https://drexed.github.io/cmdx/inputs/validations/"
+        end
 
         if values.is_a?(Range)
           within_failure(values.begin, values.end, options) if values.cover?(value)

@@ -36,9 +36,11 @@ module CMDx
       deprecator = callable || block
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "deprecator: provide either a callable or a block, not both"
       elsif !deprecator.respond_to?(:call)
-        raise ArgumentError, "deprecator must respond to #call"
+        raise ArgumentError,
+          "deprecator must respond to #call (got #{deprecator.class}). " \
+          "See https://drexed.github.io/cmdx/deprecation/"
       end
 
       registry[name.to_sym] = deprecator
@@ -63,7 +65,9 @@ module CMDx
     # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise UnknownEntryError, "unknown deprecator: #{name.inspect}"
+        raise UnknownEntryError,
+          "unknown deprecator #{name.inspect}; registered: #{registry.keys.inspect}. " \
+          "See https://drexed.github.io/cmdx/deprecation/"
       end
     end
 
@@ -83,7 +87,9 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise UnknownEntryError, "unknown deprecator: #{spec.inspect}"
+        raise UnknownEntryError,
+          "unknown deprecator #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
+          "See https://drexed.github.io/cmdx/deprecation/"
       end
     end
 

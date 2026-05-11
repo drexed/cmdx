@@ -57,11 +57,15 @@ module CMDx
       subscriber = callable || block
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "subscriber: provide either a callable or a block, not both"
       elsif !subscriber.respond_to?(:call)
-        raise ArgumentError, "subscriber must respond to #call"
+        raise ArgumentError,
+          "subscriber must respond to #call (got #{subscriber.class}). " \
+          "See https://drexed.github.io/cmdx/logging/"
       elsif !EVENTS.include?(event)
-        raise ArgumentError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}"
+        raise ArgumentError,
+          "unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}. " \
+          "See https://drexed.github.io/cmdx/logging/"
       end
 
       (registry[event] ||= []) << subscriber
@@ -76,7 +80,11 @@ module CMDx
     # @return [Telemetry] self for chaining
     # @raise [UnknownEntryError] when `event` is unknown
     def unsubscribe(event, callable)
-      raise UnknownEntryError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}" unless EVENTS.include?(event)
+      unless EVENTS.include?(event)
+        raise UnknownEntryError,
+          "unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}. " \
+          "See https://drexed.github.io/cmdx/logging/"
+      end
 
       if (subscribers = registry[event])
         subscribers.delete(callable)

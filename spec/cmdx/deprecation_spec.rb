@@ -54,7 +54,7 @@ RSpec.describe CMDx::Deprecation do
 
     context "with :error" do
       it "raises DeprecationError" do
-        expect { run(:error) }.to raise_error(CMDx::DeprecationError, /usage prohibited/)
+        expect { run(:error) }.to raise_error(CMDx::DeprecationError, /is deprecated and prohibited from execution/)
       end
     end
 
@@ -95,7 +95,7 @@ RSpec.describe CMDx::Deprecation do
     context "with an unsupported value" do
       it "raises ArgumentError" do
         expect { described_class.new(123).execute(task) { nil } }
-          .to raise_error(ArgumentError, "deprecation must be a Symbol, Proc, or respond to #call")
+          .to raise_error(ArgumentError, /deprecation must be a Symbol, Proc, or respond to #call/)
       end
     end
   end

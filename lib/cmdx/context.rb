@@ -47,7 +47,9 @@ module CMDx
         elsif context.respond_to?(:to_h)
           context.to_h
         else
-          raise ArgumentError, "must respond to `to_h` or `to_hash`"
+          raise ArgumentError,
+            "Context.build expected a Hash or an object responding to #to_h/#to_hash (got #{context.class}). " \
+            "See https://drexed.github.io/cmdx/basics/context/"
         end.transform_keys(&:to_sym)
     end
 
@@ -288,7 +290,10 @@ module CMDx
       elsif method_name.end_with?("?")
         !!@table[method_name[..-2].to_sym]
       elsif strict?
-        raise UnknownAccessorError, "unknown context key #{method_name.inspect} (strict mode)"
+        raise UnknownAccessorError,
+          "unknown context key #{method_name.inspect} (strict mode); " \
+          "declared keys: #{@table.keys.inspect}. " \
+          "See https://drexed.github.io/cmdx/basics/context/"
       end
     end
 

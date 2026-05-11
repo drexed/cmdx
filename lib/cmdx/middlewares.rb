@@ -37,11 +37,13 @@ module CMDx
       at = options.delete(:at)
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "middleware: provide either a callable or a block, not both"
       elsif !middleware.respond_to?(:call)
-        raise ArgumentError, "middleware must respond to #call"
+        raise ArgumentError,
+          "middleware must respond to #call (got #{middleware.class}). " \
+          "See https://drexed.github.io/cmdx/middlewares/"
       elsif !at.nil? && !at.is_a?(Integer)
-        raise ArgumentError, "at must be an Integer"
+        raise ArgumentError, "middleware :at must be an Integer (got #{at.class})"
       end
 
       entry = [middleware, options.freeze]
@@ -65,11 +67,11 @@ module CMDx
     #   or when `:at` isn't an Integer
     def deregister(middleware = nil, at: nil)
       if at.nil? && middleware.nil?
-        raise ArgumentError, "provide either a middleware or an at: index"
+        raise ArgumentError, "middleware: provide either a middleware or an at: index"
       elsif !at.nil? && !middleware.nil?
-        raise ArgumentError, "provide either a middleware or an at: index, not both"
+        raise ArgumentError, "middleware: provide either a middleware or an at: index, not both"
       elsif !at.nil? && !at.is_a?(Integer)
-        raise ArgumentError, "at must be an Integer"
+        raise ArgumentError, "middleware :at must be an Integer (got #{at.class})"
       end
 
       if at.nil?
@@ -101,6 +103,7 @@ module CMDx
     #   which would otherwise silently skip the task
     def process(task)
       processed = false
+      last_invoked = nil
       count = registry.size
 
       chain = lambda do |i|
@@ -111,6 +114,7 @@ module CMDx
           mw, opts = registry[i]
 
           if Util.satisfied?(opts[:if], opts[:unless], task)
+            last_invoked = mw
             mw.call(task) { chain.call(i + 1) }
           else
             chain.call(i + 1)
@@ -120,7 +124,10 @@ module CMDx
       chain.call(0)
 
       processed || begin
-        raise MiddlewareError, "middleware did not yield the next_link"
+        offender = last_invoked.is_a?(Class) ? last_invoked : last_invoked.class
+        raise MiddlewareError,
+          "middleware #{offender} did not yield to next_link. " \
+          "See https://drexed.github.io/cmdx/middlewares/"
       end
     end
 

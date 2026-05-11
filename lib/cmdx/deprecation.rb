@@ -43,7 +43,9 @@ module CMDx
       else
         return @value.call(task) if @value.respond_to?(:call)
 
-        raise ArgumentError, "deprecation must be a Symbol, Proc, or respond to #call"
+        raise ArgumentError,
+          "deprecation must be a Symbol, Proc, or respond to #call (got #{@value.class}). " \
+          "See https://drexed.github.io/cmdx/deprecation/"
       end
     end
 

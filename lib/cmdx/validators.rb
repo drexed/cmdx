@@ -45,9 +45,11 @@ module CMDx
       validator = callable || block
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "validator: provide either a callable or a block, not both"
       elsif !validator.respond_to?(:call)
-        raise ArgumentError, "validator must respond to #call"
+        raise ArgumentError,
+          "validator must respond to #call (got #{validator.class}). " \
+          "See https://drexed.github.io/cmdx/inputs/validations/"
       end
 
       registry[name.to_sym] = validator
@@ -72,7 +74,9 @@ module CMDx
     # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise UnknownEntryError, "unknown validator: #{name}"
+        raise UnknownEntryError,
+          "unknown validator #{name.inspect}; registered: #{registry.keys.inspect}. " \
+          "See https://drexed.github.io/cmdx/inputs/validations/"
       end
     end
 
@@ -159,7 +163,10 @@ module CMDx
       when Regexp
         { with: raw_options }
       else
-        raise ArgumentError, "unsupported validator option format: #{raw_options.inspect}"
+        raise ArgumentError,
+          "unsupported validator option format #{raw_options.inspect}; " \
+          "expected Boolean, Hash, Array, or Regexp. " \
+          "See https://drexed.github.io/cmdx/inputs/validations/"
       end
     end
 

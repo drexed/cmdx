@@ -25,7 +25,9 @@ module CMDx
           in without:
             !value&.match?(without)
           else
-            raise ArgumentError, "format validator requires :with and/or :without option"
+            raise ArgumentError,
+              "format validator requires :with and/or :without (got #{options.keys.inspect}). " \
+              "See https://drexed.github.io/cmdx/inputs/validations/"
           end
 
         return if match

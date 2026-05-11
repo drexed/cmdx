@@ -99,7 +99,7 @@ RSpec.describe "Task telemetry", type: :feature do
 
     it "rejects unknown events" do
       expect { create_successful_task.telemetry.subscribe(:nope, sub) }
-        .to raise_error(ArgumentError, /unknown event/)
+        .to raise_error(ArgumentError, /unknown telemetry event/)
     end
 
     it "unsubscribe removes a specific subscriber" do

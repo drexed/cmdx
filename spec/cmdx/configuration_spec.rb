@@ -80,7 +80,7 @@ RSpec.describe CMDx do
     end
 
     it "raises without a block" do
-      expect { described_class.configure }.to raise_error(ArgumentError, "block required")
+      expect { described_class.configure }.to raise_error(ArgumentError, /CMDx\.configure requires a block/)
     end
   end
 

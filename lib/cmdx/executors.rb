@@ -36,9 +36,11 @@ module CMDx
       executor = callable || block
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "executor: provide either a callable or a block, not both"
       elsif !executor.respond_to?(:call)
-        raise ArgumentError, "executor must respond to #call"
+        raise ArgumentError,
+          "executor must respond to #call (got #{executor.class}). " \
+          "See https://drexed.github.io/cmdx/workflows/"
       end
 
       registry[name.to_sym] = executor
@@ -63,7 +65,9 @@ module CMDx
     # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise UnknownEntryError, "unknown executor: #{name.inspect}"
+        raise UnknownEntryError,
+          "unknown executor #{name.inspect}; registered: #{registry.keys.inspect}. " \
+          "See https://drexed.github.io/cmdx/workflows/"
       end
     end
 
@@ -83,7 +87,9 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise UnknownEntryError, "unknown executor: #{spec.inspect}"
+        raise UnknownEntryError,
+          "unknown executor #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
+          "See https://drexed.github.io/cmdx/workflows/"
       end
     end
 

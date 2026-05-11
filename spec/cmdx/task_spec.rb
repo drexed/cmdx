@@ -63,8 +63,8 @@ RSpec.describe CMDx::Task do
 
     it "raises on an unknown registry type" do
       klass = create_task_class
-      expect { klass.register(:bogus) }.to raise_error(ArgumentError, "unknown registry type: :bogus")
-      expect { klass.deregister(:bogus) }.to raise_error(ArgumentError, "unknown registry type: :bogus")
+      expect { klass.register(:bogus) }.to raise_error(ArgumentError, /unknown registry type :bogus/)
+      expect { klass.deregister(:bogus) }.to raise_error(ArgumentError, /unknown registry type :bogus/)
     end
   end
 
@@ -207,7 +207,7 @@ RSpec.describe CMDx::Task do
   describe "#work" do
     it "raises ImplementationError for the base definition" do
       task = create_task_class.new
-      expect { task.work }.to raise_error(CMDx::ImplementationError, /undefined method/)
+      expect { task.work }.to raise_error(CMDx::ImplementationError, /must implement #work/)
     end
   end
 
@@ -261,10 +261,10 @@ RSpec.describe CMDx::Task do
       task = klass.new
       task.freeze
 
-      expect { task.send(:success!) }.to raise_error(CMDx::FrozenTaskError, "cannot call :success! after the task has been frozen")
-      expect { task.send(:fail!) }.to raise_error(CMDx::FrozenTaskError, "cannot call :fail! after the task has been frozen")
-      expect { task.send(:skip!) }.to raise_error(CMDx::FrozenTaskError, "cannot call :skip! after the task has been frozen")
-      expect { task.send(:throw!, CMDx::Signal.failed) }.to raise_error(CMDx::FrozenTaskError, "cannot call :throw! after the task has been frozen")
+      expect { task.send(:success!) }.to raise_error(CMDx::FrozenTaskError, /cannot call :success! on/)
+      expect { task.send(:fail!) }.to raise_error(CMDx::FrozenTaskError, /cannot call :fail! on/)
+      expect { task.send(:skip!) }.to raise_error(CMDx::FrozenTaskError, /cannot call :skip! on/)
+      expect { task.send(:throw!, CMDx::Signal.failed) }.to raise_error(CMDx::FrozenTaskError, /cannot call :throw! on/)
     end
   end
 

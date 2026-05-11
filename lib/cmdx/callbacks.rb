@@ -53,11 +53,15 @@ module CMDx
       callback = callable || block
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "callback: provide either a callable or a block, not both"
       elsif !callback.is_a?(Symbol) && !callback.respond_to?(:call)
-        raise ArgumentError, "callback must be a Symbol or respond to #call"
+        raise ArgumentError,
+          "callback must be a Symbol or respond to #call (got #{callback.class}). " \
+          "See https://drexed.github.io/cmdx/callbacks/"
       elsif !EVENTS.include?(event)
-        raise ArgumentError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}"
+        raise ArgumentError,
+          "unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
+          "See https://drexed.github.io/cmdx/callbacks/"
       end
 
       (registry[event] ||= []) << [callback, options.freeze]
@@ -75,7 +79,11 @@ module CMDx
     # @return [Callbacks] self for chaining
     # @raise [ArgumentError] when `event` is unknown
     def deregister(event, callable = nil)
-      raise ArgumentError, "unknown event #{event.inspect}, must be one of #{EVENTS.join(', ')}" unless EVENTS.include?(event)
+      unless EVENTS.include?(event)
+        raise ArgumentError,
+          "unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
+          "See https://drexed.github.io/cmdx/callbacks/"
+      end
 
       if callable.nil?
         registry.delete(event)
@@ -156,7 +164,11 @@ module CMDx
 
           invoke(callable, task, cont, &cont)
 
-          called || raise(CallbackError, "#{event} callback did not invoke its continuation")
+          called || raise(
+            CallbackError,
+            "#{event} callback did not invoke its continuation. " \
+            "See https://drexed.github.io/cmdx/callbacks/"
+          )
         end
       end.call
     end
@@ -177,7 +189,9 @@ module CMDx
       else
         return callable.call(task, *extras) if callable.respond_to?(:call)
 
-        raise ArgumentError, "callback must be a Symbol, Proc, or respond to #call"
+        raise ArgumentError,
+          "callback must be a Symbol, Proc, or respond to #call (got #{callable.class}). " \
+          "See https://drexed.github.io/cmdx/callbacks/"
       end
     end
 

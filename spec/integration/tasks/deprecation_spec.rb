@@ -39,7 +39,7 @@ RSpec.describe "Task deprecation", type: :feature do
     it ":error raises before work runs, under execute" do
       task = deprecated_task(:error)
 
-      expect { task.execute }.to raise_error(CMDx::DeprecationError, /usage prohibited/)
+      expect { task.execute }.to raise_error(CMDx::DeprecationError, /is deprecated and prohibited from execution/)
     end
 
     it ":error raises under execute! as well" do

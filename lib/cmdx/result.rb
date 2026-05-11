@@ -142,12 +142,13 @@ module CMDx
     #     .on(:success) { |r| deliver(r.context) }
     #     .on(:failed)  { |r| alert(r.reason) }
     def on(*keys)
-      raise ArgumentError, "block required" unless block_given?
+      raise ArgumentError, "Result#on requires a block" unless block_given?
 
       yield(self) if keys.any? do |k|
         unless EVENTS.include?(k.to_sym)
           raise ArgumentError,
-            "unknown event #{k.inspect}, must be one of #{EVENTS.join(', ')}"
+            "unknown Result#on event #{k.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
+            "See https://drexed.github.io/cmdx/outcomes/result/"
         end
 
         public_send(:"#{k}?")

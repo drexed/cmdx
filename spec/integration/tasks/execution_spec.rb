@@ -207,12 +207,12 @@ RSpec.describe "Task execution", type: :feature do
 
     it "requires a block" do
       result = create_successful_task.execute
-      expect { result.on(:success) }.to raise_error(ArgumentError, /block required/)
+      expect { result.on(:success) }.to raise_error(ArgumentError, /Result#on requires a block/)
     end
 
     it "rejects unknown events" do
       result = create_successful_task.execute
-      expect { result.on(:bogus) { nil } }.to raise_error(ArgumentError, /unknown event/)
+      expect { result.on(:bogus) { nil } }.to raise_error(ArgumentError, /unknown Result#on event/)
     end
   end
 
@@ -273,11 +273,11 @@ RSpec.describe "Task execution", type: :feature do
     let(:bare) { create_task_class(name: "Bare") }
 
     it "re-raises ImplementationError from execute" do
-      expect { bare.execute }.to raise_error(CMDx::ImplementationError, /undefined method.*#work/)
+      expect { bare.execute }.to raise_error(CMDx::ImplementationError, /must implement #work/)
     end
 
     it "re-raises ImplementationError from execute!" do
-      expect { bare.execute! }.to raise_error(CMDx::ImplementationError, /undefined method.*#work/)
+      expect { bare.execute! }.to raise_error(CMDx::ImplementationError, /must implement #work/)
     end
   end
 end

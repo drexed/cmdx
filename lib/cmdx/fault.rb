@@ -28,7 +28,7 @@ module CMDx
       #   end
       def for?(*tasks)
         tasks = tasks.flatten
-        raise ArgumentError, "at least one task required" if tasks.empty?
+        raise ArgumentError, "Fault.for? requires at least one Task class" if tasks.empty?
 
         matcher do |other|
           tasks.any? { |task| other.task <= task }
@@ -49,7 +49,7 @@ module CMDx
       #     Alert.for_fault(fault)
       #   end
       def reason?(reason)
-        raise ArgumentError, "reason required" unless reason
+        raise ArgumentError, "Fault.reason? requires a reason" unless reason
 
         matcher do |other|
           other.result.reason == reason
@@ -64,7 +64,7 @@ module CMDx
       # @return [Class<Fault>] anonymous matcher subclass
       # @raise [ArgumentError] when no block is given
       def matches?(&block)
-        raise ArgumentError, "block required" unless block
+        raise ArgumentError, "Fault.matches? requires a block" unless block
 
         matcher(&block)
       end

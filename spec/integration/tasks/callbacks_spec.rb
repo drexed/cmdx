@@ -180,7 +180,7 @@ RSpec.describe "Task callbacks", type: :feature do
     it "raises on an unknown event name" do
       expect do
         create_task_class(name: "UnknownCallback") { register :callback, :on_bogus, -> {} }
-      end.to raise_error(ArgumentError, /unknown event/)
+      end.to raise_error(ArgumentError, /unknown callback event/)
     end
   end
 

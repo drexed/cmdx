@@ -218,7 +218,9 @@ module CMDx
       else
         return [source.call(task), true] if source.respond_to?(:call)
 
-        raise ArgumentError, "source must be a Symbol, Proc, or respond to #call"
+        raise ArgumentError,
+          "input source must be a Symbol, Proc, or respond to #call (got #{source.class}). " \
+          "See https://drexed.github.io/cmdx/inputs/definitions/"
       end
     end
 
@@ -286,7 +288,9 @@ module CMDx
       else
         return transform.call(value, task) if transform.respond_to?(:call)
 
-        raise ArgumentError, "transform must be a Symbol, Proc, or respond to #call"
+        raise ArgumentError,
+          "input transform must be a Symbol, Proc, or respond to #call (got #{transform.class}). " \
+          "See https://drexed.github.io/cmdx/inputs/transformations/"
       end
     end
 

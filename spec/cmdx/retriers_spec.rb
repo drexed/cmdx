@@ -71,7 +71,7 @@ RSpec.describe CMDx::Retriers do
   describe "#lookup" do
     it "raises on unknown keys" do
       expect { retriers.lookup(:bogus) }
-        .to raise_error(CMDx::UnknownEntryError, "unknown retrier: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, /unknown retrier :bogus/)
     end
   end
 
@@ -91,7 +91,7 @@ RSpec.describe CMDx::Retriers do
 
     it "raises on unknown symbols" do
       expect { retriers.resolve(:bogus) }
-        .to raise_error(CMDx::UnknownEntryError, "unknown retrier: :bogus")
+        .to raise_error(CMDx::UnknownEntryError, /unknown retrier :bogus/)
     end
 
     it "raises on non-callable specs" do

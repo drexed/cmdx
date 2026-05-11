@@ -51,17 +51,17 @@ RSpec.describe CMDx::Telemetry do
 
     it "raises when both callable and block are given" do
       expect { telemetry.subscribe(:task_started, sub) { |_p| :ok } }
-        .to raise_error(ArgumentError, "provide either a callable or a block, not both")
+        .to raise_error(ArgumentError, /subscriber: provide either a callable or a block, not both/)
     end
 
     it "raises when the subscriber does not respond to call" do
       expect { telemetry.subscribe(:task_started, "not callable") }
-        .to raise_error(ArgumentError, "subscriber must respond to #call")
+        .to raise_error(ArgumentError, /subscriber must respond to #call/)
     end
 
     it "raises when the event is unknown" do
       expect { telemetry.subscribe(:bogus, sub) }
-        .to raise_error(ArgumentError, /unknown event :bogus, must be one of/)
+        .to raise_error(ArgumentError, /unknown telemetry event :bogus, must be one of/)
     end
   end
 
@@ -91,7 +91,7 @@ RSpec.describe CMDx::Telemetry do
 
     it "raises for an unknown event" do
       expect { telemetry.unsubscribe(:bogus, sub1) }
-        .to raise_error(CMDx::UnknownEntryError, /unknown event :bogus/)
+        .to raise_error(CMDx::UnknownEntryError, /unknown telemetry event :bogus/)
     end
   end
 

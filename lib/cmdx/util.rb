@@ -28,7 +28,8 @@ module CMDx
       else
         return condition.call(receiver, *args) if condition.respond_to?(:call)
 
-        raise ArgumentError, "condition must be a Symbol, Proc, or respond to #call"
+        raise ArgumentError,
+          "condition must be a Symbol, Proc, or respond to #call (got #{condition.class})"
       end
     end
 

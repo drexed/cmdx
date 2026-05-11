@@ -97,11 +97,11 @@ RSpec.describe CMDx::Result do
     end
 
     it "raises without a block" do
-      expect { success.on(:success) }.to raise_error(ArgumentError, "block required")
+      expect { success.on(:success) }.to raise_error(ArgumentError, /Result#on requires a block/)
     end
 
     it "raises on an unknown event" do
-      expect { success.on(:bogus) { |_| nil } }.to raise_error(ArgumentError, /unknown event :bogus/)
+      expect { success.on(:bogus) { |_| nil } }.to raise_error(ArgumentError, /unknown Result#on event :bogus/)
     end
   end
 

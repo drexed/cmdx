@@ -110,7 +110,7 @@ RSpec.describe "Task middlewares", type: :feature do
         register :middleware, proc { |_task| }
       end
 
-      expect { task.execute }.to raise_error(CMDx::MiddlewareError, /did not yield the next_link/)
+      expect { task.execute }.to raise_error(CMDx::MiddlewareError, /did not yield to next_link/)
     end
   end
 

@@ -70,7 +70,7 @@ RSpec.describe CMDx::Coercions do
 
   describe "#lookup" do
     it "raises on unknown keys" do
-      expect { coercions.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, "unknown coercion: bogus")
+      expect { coercions.lookup(:bogus) }.to raise_error(CMDx::UnknownEntryError, /unknown coercion :bogus/)
     end
   end
 
@@ -114,7 +114,7 @@ RSpec.describe CMDx::Coercions do
     it "raises for an unsupported scalar" do
       expect do
         coercions.extract(coerce: 42)
-      end.to raise_error(ArgumentError, /unsupported type format/)
+      end.to raise_error(ArgumentError, /unsupported :coerce format/)
     end
 
     it "raises for an unsupported entry inside an array" do

@@ -41,9 +41,11 @@ module CMDx
       retrier = callable || block
 
       if callable && block
-        raise ArgumentError, "provide either a callable or a block, not both"
+        raise ArgumentError, "retrier: provide either a callable or a block, not both"
       elsif !retrier.respond_to?(:call)
-        raise ArgumentError, "retrier must respond to #call"
+        raise ArgumentError,
+          "retrier must respond to #call (got #{retrier.class}). " \
+          "See https://drexed.github.io/cmdx/retries/"
       end
 
       registry[name.to_sym] = retrier
@@ -68,7 +70,9 @@ module CMDx
     # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise UnknownEntryError, "unknown retrier: #{name.inspect}"
+        raise UnknownEntryError,
+          "unknown retrier #{name.inspect}; registered: #{registry.keys.inspect}. " \
+          "See https://drexed.github.io/cmdx/retries/"
       end
     end
 
@@ -88,7 +92,9 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise UnknownEntryError, "unknown retrier: #{spec.inspect}"
+        raise UnknownEntryError,
+          "unknown retrier #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
+          "See https://drexed.github.io/cmdx/retries/"
       end
     end
 

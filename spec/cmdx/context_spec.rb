@@ -52,7 +52,7 @@ RSpec.describe CMDx::Context do
 
     it "raises ArgumentError for objects that respond to neither" do
       expect { described_class.new(Object.new) }
-        .to raise_error(ArgumentError, "must respond to `to_h` or `to_hash`")
+        .to raise_error(ArgumentError, %r{Context\.build expected a Hash or an object responding to \#to_h/\#to_hash})
     end
   end
 

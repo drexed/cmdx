@@ -102,7 +102,7 @@ RSpec.describe CMDx::Fault do
     let(:signal) { CMDx::Signal.failed("boom") }
 
     it "raises when called with no tasks" do
-      expect { described_class.for? }.to raise_error(ArgumentError, "at least one task required")
+      expect { described_class.for? }.to raise_error(ArgumentError, /Fault\.for\? requires at least one Task class/)
     end
 
     it "matches faults whose task is <= one of the given tasks" do
@@ -133,7 +133,7 @@ RSpec.describe CMDx::Fault do
     let(:signal) { CMDx::Signal.failed("boom") }
 
     it "raises when called without a reason" do
-      expect { described_class.reason?(nil) }.to raise_error(ArgumentError, "reason required")
+      expect { described_class.reason?(nil) }.to raise_error(ArgumentError, /Fault\.reason\? requires a reason/)
     end
 
     it "matches faults whose result reason equals the given reason" do
@@ -164,7 +164,7 @@ RSpec.describe CMDx::Fault do
     let(:result) { build_result(signal) }
 
     it "raises when called without a block" do
-      expect { described_class.matches? }.to raise_error(ArgumentError, "block required")
+      expect { described_class.matches? }.to raise_error(ArgumentError, /Fault\.matches\? requires a block/)
     end
 
     it "matches when both the class check and the block return truthy" do

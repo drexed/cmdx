@@ -190,7 +190,11 @@ module CMDx
           inputs.register(self, ...)
         when :output
           outputs.register(...)
-        else raise ArgumentError, "unknown registry type: #{type.inspect}"
+        else
+          raise ArgumentError,
+            "unknown registry type #{type.inspect}; expected one of " \
+            "[:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]. " \
+            "See https://drexed.github.io/cmdx/configuration/"
         end
       end
 
@@ -221,7 +225,11 @@ module CMDx
           inputs.deregister(self, ...)
         when :output
           outputs.deregister(...)
-        else raise ArgumentError, "unknown registry type: #{type.inspect}"
+        else
+          raise ArgumentError,
+            "unknown registry type #{type.inspect}; expected one of " \
+            "[:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]. " \
+            "See https://drexed.github.io/cmdx/configuration/"
         end
       end
 
@@ -449,7 +457,9 @@ module CMDx
     # @return [void]
     # @raise [ImplementationError] when the subclass doesn't override
     def work
-      raise ImplementationError, "undefined method #{self.class}#work"
+      raise ImplementationError,
+        "#{self.class} must implement #work. " \
+        "See https://drexed.github.io/cmdx/basics/setup/"
     end
 
     private
@@ -463,7 +473,11 @@ module CMDx
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
     def success!(reason = nil, **sigdata)
-      raise FrozenTaskError, "cannot call :success! after the task has been frozen" if frozen?
+      if frozen?
+        raise FrozenTaskError,
+          "cannot call :success! on #{self.class}; the task has already been executed and frozen. " \
+          "See https://drexed.github.io/cmdx/outcomes/result/"
+      end
 
       metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.success(reason, metadata:))
@@ -477,7 +491,11 @@ module CMDx
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def skip!(reason = nil, **sigdata)
-      raise FrozenTaskError, "cannot call :skip! after the task has been frozen" if frozen?
+      if frozen?
+        raise FrozenTaskError,
+          "cannot call :skip! on #{self.class}; the task has already been executed and frozen. " \
+          "See https://drexed.github.io/cmdx/outcomes/result/"
+      end
 
       metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.skipped(reason, metadata:))
@@ -492,7 +510,11 @@ module CMDx
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def fail!(reason = nil, **sigdata)
-      raise FrozenTaskError, "cannot call :fail! after the task has been frozen" if frozen?
+      if frozen?
+        raise FrozenTaskError,
+          "cannot call :fail! on #{self.class}; the task has already been executed and frozen. " \
+          "See https://drexed.github.io/cmdx/outcomes/result/"
+      end
 
       metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.failed(reason, metadata:, backtrace: caller_locations(1)))
@@ -507,7 +529,11 @@ module CMDx
     # @return [void]
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def throw!(other, **sigdata)
-      raise FrozenTaskError, "cannot call :throw! after the task has been frozen" if frozen?
+      if frozen?
+        raise FrozenTaskError,
+          "cannot call :throw! on #{self.class}; the task has already been executed and frozen. " \
+          "See https://drexed.github.io/cmdx/outcomes/result/"
+      end
 
       return unless other.failed?
 

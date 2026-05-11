@@ -122,7 +122,7 @@ RSpec.describe "Workflow execution", type: :feature do
 
       expect(workflow.execute).to have_attributes(
         status: CMDx::Signal::FAILED,
-        reason: /invalid strategy/
+        reason: /invalid pipeline strategy/
       )
     end
   end

@@ -80,7 +80,7 @@ RSpec.describe CMDx::Callbacks do
       it "raises ArgumentError" do
         expect do
           callbacks.register(:on_success, :hook) { :block }
-        end.to raise_error(ArgumentError, "provide either a callable or a block, not both")
+        end.to raise_error(ArgumentError, /callback: provide either a callable or a block, not both/)
       end
     end
 
@@ -88,7 +88,7 @@ RSpec.describe CMDx::Callbacks do
       it "raises ArgumentError" do
         expect do
           callbacks.register(:on_success, "not callable")
-        end.to raise_error(ArgumentError, "callback must be a Symbol or respond to #call")
+        end.to raise_error(ArgumentError, /callback must be a Symbol or respond to #call/)
       end
     end
 
@@ -96,7 +96,7 @@ RSpec.describe CMDx::Callbacks do
       it "raises ArgumentError" do
         expect do
           callbacks.register(:on_success)
-        end.to raise_error(ArgumentError, "callback must be a Symbol or respond to #call")
+        end.to raise_error(ArgumentError, /callback must be a Symbol or respond to #call/)
       end
     end
 
@@ -104,7 +104,7 @@ RSpec.describe CMDx::Callbacks do
       it "raises ArgumentError listing valid events" do
         expect do
           callbacks.register(:on_bogus, :hook)
-        end.to raise_error(ArgumentError, /unknown event :on_bogus, must be one of/)
+        end.to raise_error(ArgumentError, /unknown callback event :on_bogus, must be one of/)
       end
     end
   end
@@ -126,7 +126,7 @@ RSpec.describe CMDx::Callbacks do
       it "raises ArgumentError" do
         expect do
           callbacks.deregister(:on_bogus)
-        end.to raise_error(ArgumentError, /unknown event :on_bogus/)
+        end.to raise_error(ArgumentError, /unknown callback event :on_bogus/)
       end
     end
 
@@ -195,7 +195,7 @@ RSpec.describe CMDx::Callbacks do
       it "still raises ArgumentError when the event is unknown" do
         expect do
           callbacks.deregister(:on_bogus, :hook)
-        end.to raise_error(ArgumentError, /unknown event :on_bogus/)
+        end.to raise_error(ArgumentError, /unknown callback event :on_bogus/)
       end
 
       it "returns self for chaining" do

@@ -43,7 +43,7 @@ RSpec.describe CMDx::Pipeline do
           tasks task, strategy: :bogus
         end
 
-        expect { workflow_class.execute! }.to raise_error(ArgumentError, /invalid strategy: :bogus/)
+        expect { workflow_class.execute! }.to raise_error(ArgumentError, /invalid pipeline strategy :bogus/)
       end
     end
 
@@ -337,7 +337,7 @@ RSpec.describe CMDx::Pipeline do
             tasks t1, strategy: :parallel, executor: :bogus
           end
 
-          expect { workflow_class.execute! }.to raise_error(CMDx::UnknownEntryError, /unknown executor: :bogus/)
+          expect { workflow_class.execute! }.to raise_error(CMDx::UnknownEntryError, /unknown executor :bogus/)
         end
 
         it "raises when executor: :fibers has no Fiber.scheduler installed" do
@@ -485,7 +485,7 @@ RSpec.describe CMDx::Pipeline do
             tasks wa, strategy: :parallel, merger: :bogus
           end
 
-          expect { workflow_class.execute! }.to raise_error(CMDx::UnknownEntryError, /unknown merger: :bogus/)
+          expect { workflow_class.execute! }.to raise_error(CMDx::UnknownEntryError, /unknown merger :bogus/)
         end
       end
 

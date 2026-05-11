@@ -63,7 +63,7 @@ RSpec.describe CMDx::Util do
     context "with an unsupported condition" do
       it "raises ArgumentError" do
         expect { described_class.evaluate(123, receiver) }
-          .to raise_error(ArgumentError, "condition must be a Symbol, Proc, or respond to #call")
+          .to raise_error(ArgumentError, /condition must be a Symbol, Proc, or respond to #call/)
       end
     end
   end

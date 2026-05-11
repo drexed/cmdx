@@ -50,17 +50,17 @@ RSpec.describe CMDx::Middlewares do
 
     it "raises when both callable and block are given" do
       expect { middlewares.register(mw) { |_t, &blk| blk.call } }
-        .to raise_error(ArgumentError, "provide either a callable or a block, not both")
+        .to raise_error(ArgumentError, /middleware: provide either a callable or a block, not both/)
     end
 
     it "raises when the middleware does not respond to #call" do
       expect { middlewares.register("not callable") }
-        .to raise_error(ArgumentError, "middleware must respond to #call")
+        .to raise_error(ArgumentError, /middleware must respond to #call/)
     end
 
     it "raises when at is non-integer" do
       expect { middlewares.register(mw, at: "1") }
-        .to raise_error(ArgumentError, "at must be an Integer")
+        .to raise_error(ArgumentError, /middleware :at must be an Integer/)
     end
 
     it "inserts at the given positive index" do
@@ -106,17 +106,17 @@ RSpec.describe CMDx::Middlewares do
 
     it "raises when neither a middleware nor an index is provided" do
       expect { middlewares.deregister }
-        .to raise_error(ArgumentError, "provide either a middleware or an at: index")
+        .to raise_error(ArgumentError, /middleware: provide either a middleware or an at: index/)
     end
 
     it "raises when both a middleware and an index are provided" do
       expect { middlewares.deregister(mw, at: 0) }
-        .to raise_error(ArgumentError, "provide either a middleware or an at: index, not both")
+        .to raise_error(ArgumentError, /middleware: provide either a middleware or an at: index, not both/)
     end
 
     it "raises when at is non-integer" do
       expect { middlewares.deregister(at: "1") }
-        .to raise_error(ArgumentError, "at must be an Integer")
+        .to raise_error(ArgumentError, /middleware :at must be an Integer/)
     end
   end
 
@@ -168,7 +168,7 @@ RSpec.describe CMDx::Middlewares do
       middlewares.register(->(_t, &_blk) { :no_yield })
 
       expect { middlewares.process(task) { :inner } }
-        .to raise_error(CMDx::MiddlewareError, "middleware did not yield the next_link")
+        .to raise_error(CMDx::MiddlewareError, /did not yield to next_link/)
     end
 
     context "with :if/:unless gates" do

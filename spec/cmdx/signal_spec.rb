@@ -73,7 +73,7 @@ RSpec.describe CMDx::Signal do
     context "when given a non-Signal/non-Result" do
       it "raises ArgumentError" do
         expect { described_class.echoed(Object.new) }
-          .to raise_error(ArgumentError, "must be a Result or Signal")
+          .to raise_error(ArgumentError, /Signal\.echoed expected a Result or Signal/)
       end
     end
   end

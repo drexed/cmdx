@@ -22,7 +22,9 @@ module CMDx
         else
           return handler.call(value, task) if handler.respond_to?(:call)
 
-          raise ArgumentError, "validate handler must be a Symbol, Proc, or respond to #call"
+          raise ArgumentError,
+            "validate handler must be a Symbol, Proc, or respond to #call (got #{handler.class}). " \
+            "See https://drexed.github.io/cmdx/inputs/validations/"
         end
       end
 

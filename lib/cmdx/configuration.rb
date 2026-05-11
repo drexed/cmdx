@@ -58,7 +58,7 @@ module CMDx
   # @return [Configuration]
   # @raise [ArgumentError] when no block is given
   def configure
-    raise ArgumentError, "block required" unless block_given?
+    raise ArgumentError, "CMDx.configure requires a block" unless block_given?
 
     config = configuration
     yield(config)
