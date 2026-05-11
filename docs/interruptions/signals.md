@@ -141,7 +141,7 @@ end
 
 !!! warning "Where they work"
 
-    These helpers only work inside `work` (or code `work` calls). If you try them from rollback, callbacks, or middleware you get `UncaughtThrowError`. On a frozen task after teardown you get `FrozenError`. Stay inside the story.
+    These helpers only work inside `work` (or code `work` calls). If you try them from rollback, callbacks, or middleware you get `UncaughtThrowError`. On a frozen task after teardown you get `CMDx::FrozenTaskError`. Stay inside the story.
 
 ## State Transitions
 

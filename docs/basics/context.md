@@ -94,7 +94,7 @@ CreateShippingLabel.execute(result)
 
 ## Strict Mode
 
-By default, `context.unknown_method` is just `nil` — forgiving, sometimes *too* forgiving. Turn on **strict mode** and typos explode as `NoMethodError` so you catch them early.
+By default, `context.unknown_method` is just `nil` — forgiving, sometimes *too* forgiving. Turn on **strict mode** and typos explode as `CMDx::UnknownAccessorError` so you catch them early.
 
 Global or per-task:
 
@@ -108,7 +108,7 @@ class CalculateShipping < CMDx::Task
 
   def work
     context.weight       #=> reads fine when set
-    context.typoed_key   #=> raises NoMethodError: unknown context key :typoed_key (strict mode)
+    context.typoed_key   #=> raises CMDx::UnknownAccessorError: unknown context key :typoed_key (strict mode)
   end
 end
 ```
@@ -117,7 +117,7 @@ Strict mode only changes the **dynamic method reader**. Brackets, `fetch`, `dig`
 
 | How you access | In strict mode |
 |----------------|----------------|
-| `context.missing` | Raises `NoMethodError` |
+| `context.missing` | Raises `CMDx::UnknownAccessorError` |
 | `context[:missing]` | Still `nil` |
 | `context.fetch(:missing, :default)` | Still `:default` |
 | `context.dig(:a, :b)` | Still `nil` |

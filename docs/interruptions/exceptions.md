@@ -16,8 +16,12 @@ StandardError
     ├── CMDx::CallbackError
     ├── CMDx::DefinitionError
     ├── CMDx::DeprecationError
+    ├── CMDx::FrozenTaskError
     ├── CMDx::ImplementationError
     ├── CMDx::MiddlewareError
+    ├── CMDx::UnknownAccessorError
+    ├── CMDx::UnknownEntryError
+    ├── CMDx::UnknownLocaleError
     └── CMDx::Fault
 ```
 
@@ -112,6 +116,62 @@ ForgetfulCallback.execute!
 #=> raises CMDx::CallbackError: "around_execution callback did not invoke its continuation"
 ```
 
+### CMDx::FrozenTaskError
+
+Raised when `success!`, `skip!`, `fail!`, or `throw!` is called on a task that has already completed and been frozen. Halts only make sense **inside** `work` while Runtime's signal `catch` is active.
+
+```ruby
+class LateHalter < CMDx::Task
+  def work; end
+end
+
+task = LateHalter.new
+task.execute
+task.send(:fail!, "too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
+```
+
+### CMDx::UnknownAccessorError
+
+Raised by [`Context`](../basics/context.md) in **strict mode** when reading a key that was never assigned. Replaces the bare `NoMethodError` so you can rescue framework typos without catching unrelated `NoMethodError`s.
+
+```ruby
+class StrictTask < CMDx::Task
+  settings(strict_context: true)
+
+  def work
+    context.typoed_key #=> raises CMDx::UnknownAccessorError: "unknown context key :typoed_key (strict mode)"
+  end
+end
+```
+
+### CMDx::UnknownEntryError
+
+Raised when a registry lookup is performed against a name that has not been registered — coercions, validators, executors, mergers, retriers, deprecators, and telemetry events all funnel through this single type.
+
+```ruby
+class BadCoercion < CMDx::Task
+  required :amount, coerce: :doubloon
+
+  def work; end
+end
+
+BadCoercion.execute!(amount: "10")
+#=> raises CMDx::UnknownEntryError: "unknown coercion: doubloon"
+
+CMDx.configuration.telemetry.unsubscribe(:bogus_event, ->{})
+#=> raises CMDx::UnknownEntryError: "unknown event :bogus_event, must be one of ..."
+```
+
+### CMDx::UnknownLocaleError
+
+Raised when CMDx is running **without** the `i18n` gem and `default_locale` cannot be resolved to a YAML file on the locale load path. See [Internationalization](../internationalization.md).
+
+```ruby
+CMDx.configure { |c| c.default_locale = "xx" }
+ProcessQuote.execute(price: "invalid")
+#=> raises CMDx::UnknownLocaleError: "unable to load xx translations"
+```
+
 ### CMDx::MiddlewareError
 
 Same idea as callbacks, but for middleware: something in the chain forgot to yield to `next_link`.
@@ -198,7 +258,7 @@ end
 | `throw!(failed_result)` | failed result | raises `Fault` |
 | Coercion / validation error on input | failed result | raises `Fault` |
 | Non-framework `StandardError` inside `work` | failed result with `cause` | re-raises the **original** exception |
-| Any `CMDx::Error` subclass inside `work` (`ImplementationError`, `DeprecationError`, `MiddlewareError`, `CallbackError`) | propagates | propagates |
+| Any `CMDx::Error` subclass inside `work` (`ImplementationError`, `DeprecationError`, `MiddlewareError`, `CallbackError`, `FrozenTaskError`, `UnknownAccessorError`, `UnknownEntryError`, `UnknownLocaleError`) | propagates | propagates |
 | `ImplementationError` from `Workflow.method_added` | propagates at class-load time | propagates at class-load time |
 | `DefinitionError` from a conflicting input declaration | propagates at class-load time | propagates at class-load time |
 | Non-`StandardError` (e.g. `Interrupt`, `SignalException`) | propagates | propagates |

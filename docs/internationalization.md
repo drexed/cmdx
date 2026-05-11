@@ -76,7 +76,7 @@ CMDx.configure do |config|
 end
 ```
 
-In this mode there’s **one** active locale—no `I18n.with_locale` equivalent. If a key is missing, you’ll see `"Translation missing: <key>"`. More detail: [Configuration – default locale](configuration.md#default-locale).
+In this mode there’s **one** active locale—no `I18n.with_locale` equivalent. If a key is missing, you’ll see `"Translation missing: <key>"`. If the **locale itself** can’t be resolved to a YAML file on the load path, CMDx raises `CMDx::UnknownLocaleError` (a `CMDx::Error`) the first time it tries to translate. More detail: [Configuration – default locale](configuration.md#default-locale).
 
 ### Custom locale paths
 

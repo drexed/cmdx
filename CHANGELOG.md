@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - `key?` methods to registry classes
+- `CMDx::FrozenTaskError` raised when `success!` / `skip!` / `fail!` / `throw!` is called on an already-frozen task (was `FrozenError`)
+- `CMDx::UnknownAccessorError` raised by `Context` strict mode on missing keys (was `NoMethodError`)
+- `CMDx::UnknownEntryError` raised by registry lookups (coercions, validators, executors, mergers, retriers, deprecators) and `Telemetry#unsubscribe` for unknown names (was `ArgumentError`)
+- `CMDx::UnknownLocaleError` raised when `default_locale` cannot be resolved to a YAML file on the locale path (was `LoadError`)
 
 ### Changed
-- Custom CMDx based errors instead of generics
+- Custom CMDx based errors instead of generics — every new error inherits from `CMDx::Error`, so a single `rescue CMDx::Error` still catches them
 
 ## [2.0.1] - 2026-05-09
 

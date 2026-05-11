@@ -29,7 +29,7 @@ CMDx keeps **global** defaults and lets each **task class** override or extend t
 | `log_exclusions` | `[]` | Keys to strip from the **log line** of `Result#to_h` (e.g. hide fat `:context`) |
 | `default_locale` | `"en"` | Fallback language for built-in messages when I18n isn’t in play |
 | `backtrace_cleaner` | `nil` | Optional `Fault` backtrace scrubber |
-| `strict_context` | `false` | Typo on `context.foo` → `NoMethodError` instead of `nil` |
+| `strict_context` | `false` | Typo on `context.foo` → `CMDx::UnknownAccessorError` instead of `nil` |
 | `correlation_id` | `nil` | Callable → one id per root run, exposed as `xid` |
 | `middlewares` | `Middlewares.new` (empty) | Global middleware stack |
 | `callbacks` | `Callbacks.new` (empty) | Global callbacks |
@@ -74,7 +74,7 @@ end
 
 ### Strict context
 
-With `strict_context: true`, a bad dynamic read like `context.typo` raises **`NoMethodError`** instead of quietly returning `nil`. Hash-style access (`[]`, `fetch`, `dig`, …) stays forgiving. More examples: [Context - Strict Mode](basics/context.md#strict-mode).
+With `strict_context: true`, a bad dynamic read like `context.typo` raises **`CMDx::UnknownAccessorError`** instead of quietly returning `nil`. Hash-style access (`[]`, `fetch`, `dig`, …) stays forgiving. More examples: [Context - Strict Mode](basics/context.md#strict-mode).
 
 ```ruby
 CMDx.configure do |config|

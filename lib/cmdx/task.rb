@@ -460,7 +460,7 @@ module CMDx
     # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
     # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void] throws `Signal::TAG`; never returns
-    # @raise [FrozenError] when the task has already been frozen (post-execution)
+    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
     def success!(reason = nil, **sigdata)
       raise FrozenTaskError, "cannot call :success! after the task has been frozen" if frozen?
@@ -475,7 +475,7 @@ module CMDx
     # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
     # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void] throws `Signal::TAG`; never returns
-    # @raise [FrozenError]
+    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def skip!(reason = nil, **sigdata)
       raise FrozenTaskError, "cannot call :skip! after the task has been frozen" if frozen?
 
@@ -490,7 +490,7 @@ module CMDx
     # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
     # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void] throws `Signal::TAG`; never returns
-    # @raise [FrozenError]
+    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def fail!(reason = nil, **sigdata)
       raise FrozenTaskError, "cannot call :fail! after the task has been frozen" if frozen?
 
@@ -505,7 +505,7 @@ module CMDx
     # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before echoing
     # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
     # @return [void]
-    # @raise [FrozenError]
+    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def throw!(other, **sigdata)
       raise FrozenTaskError, "cannot call :throw! after the task has been frozen" if frozen?
 
