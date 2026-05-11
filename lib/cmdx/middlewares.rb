@@ -41,9 +41,11 @@ module CMDx
       elsif !middleware.respond_to?(:call)
         raise ArgumentError,
           "middleware must respond to #call (got #{middleware.class}). " \
-          "See https://drexed.github.io/cmdx/middlewares/"
+          "See https://drexed.github.io/cmdx/middlewares/#signature"
       elsif !at.nil? && !at.is_a?(Integer)
-        raise ArgumentError, "middleware :at must be an Integer (got #{at.class})"
+        raise ArgumentError,
+          "middleware :at must be an Integer (got #{at.class}). " \
+          "See https://drexed.github.io/cmdx/middlewares/#ordering"
       end
 
       entry = [middleware, options.freeze]
@@ -71,7 +73,9 @@ module CMDx
       elsif !at.nil? && !middleware.nil?
         raise ArgumentError, "middleware: provide either a middleware or an at: index, not both"
       elsif !at.nil? && !at.is_a?(Integer)
-        raise ArgumentError, "middleware :at must be an Integer (got #{at.class})"
+        raise ArgumentError,
+          "middleware :at must be an Integer (got #{at.class}). " \
+          "See https://drexed.github.io/cmdx/middlewares/#ordering"
       end
 
       if at.nil?
@@ -127,7 +131,7 @@ module CMDx
         offender = last_invoked.is_a?(Class) ? last_invoked : last_invoked.class
         raise MiddlewareError,
           "middleware #{offender} did not yield to next_link. " \
-          "See https://drexed.github.io/cmdx/middlewares/"
+          "See https://drexed.github.io/cmdx/middlewares/#safety"
       end
     end
 

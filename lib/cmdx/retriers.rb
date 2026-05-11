@@ -45,7 +45,7 @@ module CMDx
       elsif !retrier.respond_to?(:call)
         raise ArgumentError,
           "retrier must respond to #call (got #{retrier.class}). " \
-          "See https://drexed.github.io/cmdx/retries/"
+          "See https://drexed.github.io/cmdx/retries/#custom-strategies-via-the-retriers-registry"
       end
 
       registry[name.to_sym] = retrier
@@ -72,7 +72,7 @@ module CMDx
       registry[name] || begin
         raise UnknownEntryError,
           "unknown retrier #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/retries/"
+          "See https://drexed.github.io/cmdx/retries/#built-in-strategies"
       end
     end
 
@@ -94,7 +94,7 @@ module CMDx
 
         raise UnknownEntryError,
           "unknown retrier #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
-          "See https://drexed.github.io/cmdx/retries/"
+          "See https://drexed.github.io/cmdx/retries/#built-in-strategies"
       end
     end
 

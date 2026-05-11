@@ -45,7 +45,7 @@ module CMDx
 
         raise ArgumentError,
           "deprecation must be a Symbol, Proc, or respond to #call (got #{@value.class}). " \
-          "See https://drexed.github.io/cmdx/deprecation/"
+          "See https://drexed.github.io/cmdx/deprecation/#declarations"
       end
     end
 

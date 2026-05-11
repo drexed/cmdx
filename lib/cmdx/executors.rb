@@ -40,7 +40,7 @@ module CMDx
       elsif !executor.respond_to?(:call)
         raise ArgumentError,
           "executor must respond to #call (got #{executor.class}). " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#executors"
       end
 
       registry[name.to_sym] = executor
@@ -67,7 +67,7 @@ module CMDx
       registry[name] || begin
         raise UnknownEntryError,
           "unknown executor #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#executors"
       end
     end
 
@@ -89,7 +89,7 @@ module CMDx
 
         raise UnknownEntryError,
           "unknown executor #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#executors"
       end
     end
 

@@ -194,7 +194,7 @@ module CMDx
           raise ArgumentError,
             "unknown registry type #{type.inspect}; expected one of " \
             "[:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]. " \
-            "See https://drexed.github.io/cmdx/configuration/"
+            "See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister"
         end
       end
 
@@ -229,7 +229,7 @@ module CMDx
           raise ArgumentError,
             "unknown registry type #{type.inspect}; expected one of " \
             "[:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]. " \
-            "See https://drexed.github.io/cmdx/configuration/"
+            "See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister"
         end
       end
 
@@ -459,7 +459,7 @@ module CMDx
     def work
       raise ImplementationError,
         "#{self.class} must implement #work. " \
-        "See https://drexed.github.io/cmdx/basics/setup/"
+        "See https://drexed.github.io/cmdx/basics/setup/#structure"
     end
 
     private
@@ -476,7 +476,7 @@ module CMDx
       if frozen?
         raise FrozenTaskError,
           "cannot call :success! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/"
+          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
@@ -494,7 +494,7 @@ module CMDx
       if frozen?
         raise FrozenTaskError,
           "cannot call :skip! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/"
+          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
@@ -513,7 +513,7 @@ module CMDx
       if frozen?
         raise FrozenTaskError,
           "cannot call :fail! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/"
+          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
@@ -532,7 +532,7 @@ module CMDx
       if frozen?
         raise FrozenTaskError,
           "cannot call :throw! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/"
+          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
       end
 
       return unless other.failed?

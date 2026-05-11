@@ -61,11 +61,11 @@ module CMDx
       elsif !subscriber.respond_to?(:call)
         raise ArgumentError,
           "subscriber must respond to #call (got #{subscriber.class}). " \
-          "See https://drexed.github.io/cmdx/logging/"
+          "See https://drexed.github.io/cmdx/configuration/#telemetry"
       elsif !EVENTS.include?(event)
         raise ArgumentError,
           "unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}. " \
-          "See https://drexed.github.io/cmdx/logging/"
+          "See https://drexed.github.io/cmdx/configuration/#telemetry"
       end
 
       (registry[event] ||= []) << subscriber
@@ -83,7 +83,7 @@ module CMDx
       unless EVENTS.include?(event)
         raise UnknownEntryError,
           "unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}. " \
-          "See https://drexed.github.io/cmdx/logging/"
+          "See https://drexed.github.io/cmdx/configuration/#telemetry"
       end
 
       if (subscribers = registry[event])

@@ -57,11 +57,11 @@ module CMDx
       elsif !callback.is_a?(Symbol) && !callback.respond_to?(:call)
         raise ArgumentError,
           "callback must be a Symbol or respond to #call (got #{callback.class}). " \
-          "See https://drexed.github.io/cmdx/callbacks/"
+          "See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one"
       elsif !EVENTS.include?(event)
         raise ArgumentError,
           "unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
-          "See https://drexed.github.io/cmdx/callbacks/"
+          "See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist"
       end
 
       (registry[event] ||= []) << [callback, options.freeze]
@@ -82,7 +82,7 @@ module CMDx
       unless EVENTS.include?(event)
         raise ArgumentError,
           "unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
-          "See https://drexed.github.io/cmdx/callbacks/"
+          "See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist"
       end
 
       if callable.nil?
@@ -167,7 +167,7 @@ module CMDx
           called || raise(
             CallbackError,
             "#{event} callback did not invoke its continuation. " \
-            "See https://drexed.github.io/cmdx/callbacks/"
+            "See https://drexed.github.io/cmdx/callbacks/#around_execution-the-wrap-the-whole-thing-hook"
           )
         end
       end.call
@@ -191,7 +191,7 @@ module CMDx
 
         raise ArgumentError,
           "callback must be a Symbol, Proc, or respond to #call (got #{callable.class}). " \
-          "See https://drexed.github.io/cmdx/callbacks/"
+          "See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one"
       end
     end
 

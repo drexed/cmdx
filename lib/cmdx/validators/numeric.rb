@@ -64,7 +64,7 @@ module CMDx
             "unknown numeric validator options #{options.keys.inspect}; " \
             "expected one of [:within, :not_within, :in, :not_in, :min, :max, :gt, :lt, :is, :is_not] " \
             "(aliases: :gte, :lte, :eq, :not_eq). " \
-            "See https://drexed.github.io/cmdx/inputs/validations/"
+            "See https://drexed.github.io/cmdx/inputs/validations/#numeric"
         end
       end
 

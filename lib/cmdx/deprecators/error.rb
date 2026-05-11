@@ -16,7 +16,7 @@ module CMDx
       def call(task)
         raise DeprecationError,
           "#{task.class} is deprecated and prohibited from execution. " \
-          "See https://drexed.github.io/cmdx/deprecation/"
+          "See https://drexed.github.io/cmdx/deprecation/#error"
       end
 
     end

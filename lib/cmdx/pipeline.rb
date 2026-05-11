@@ -60,7 +60,7 @@ module CMDx
           else
             raise ArgumentError,
               "invalid pipeline strategy #{strategy.inspect}; expected one of [:sequential, :parallel]. " \
-              "See https://drexed.github.io/cmdx/workflows/"
+              "See https://drexed.github.io/cmdx/workflows/#group-options"
           end
 
         next unless halt

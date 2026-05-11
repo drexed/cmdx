@@ -40,7 +40,7 @@ module CMDx
       elsif !deprecator.respond_to?(:call)
         raise ArgumentError,
           "deprecator must respond to #call (got #{deprecator.class}). " \
-          "See https://drexed.github.io/cmdx/deprecation/"
+          "See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry"
       end
 
       registry[name.to_sym] = deprecator
@@ -67,7 +67,7 @@ module CMDx
       registry[name] || begin
         raise UnknownEntryError,
           "unknown deprecator #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/deprecation/"
+          "See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry"
       end
     end
 
@@ -89,7 +89,7 @@ module CMDx
 
         raise UnknownEntryError,
           "unknown deprecator #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
-          "See https://drexed.github.io/cmdx/deprecation/"
+          "See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry"
       end
     end
 

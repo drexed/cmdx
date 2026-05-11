@@ -25,7 +25,7 @@ module CMDx
 
           raise ArgumentError,
             "coerce handler must be a Symbol, Proc, or respond to #call (got #{handler.class}). " \
-            "See https://drexed.github.io/cmdx/inputs/coercions/"
+            "See https://drexed.github.io/cmdx/inputs/coercions/#inline-coerce-callable"
         end
       end
 

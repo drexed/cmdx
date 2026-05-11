@@ -94,7 +94,7 @@ module CMDx
           raise UnknownLocaleError,
             "unable to load #{default_locale.inspect} translations; " \
             "searched: #{self.class.locale_paths.map { |dir| File.join(dir, file) }.inspect}. " \
-            "See https://drexed.github.io/cmdx/internationalization/"
+            "See https://drexed.github.io/cmdx/internationalization/#custom-locale-paths"
         end
 
         paths.reduce({}) { |hash, path| hash.merge(YAML.safe_load_file(path)) }.freeze

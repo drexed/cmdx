@@ -24,7 +24,7 @@ module CMDx
 
           raise ArgumentError,
             "validate handler must be a Symbol, Proc, or respond to #call (got #{handler.class}). " \
-            "See https://drexed.github.io/cmdx/inputs/validations/"
+            "See https://drexed.github.io/cmdx/inputs/validations/#inline-validate-callable"
         end
       end
 

@@ -49,7 +49,7 @@ module CMDx
         else
           raise ArgumentError,
             "Context.build expected a Hash or an object responding to #to_h/#to_hash (got #{context.class}). " \
-            "See https://drexed.github.io/cmdx/basics/context/"
+            "See https://drexed.github.io/cmdx/basics/context/#assigning-data"
         end.transform_keys(&:to_sym)
     end
 
@@ -293,7 +293,7 @@ module CMDx
         raise UnknownAccessorError,
           "unknown context key #{method_name.inspect} (strict mode); " \
           "declared keys: #{@table.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/basics/context/"
+          "See https://drexed.github.io/cmdx/basics/context/#strict-mode"
       end
     end
 

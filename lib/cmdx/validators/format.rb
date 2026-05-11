@@ -27,7 +27,7 @@ module CMDx
           else
             raise ArgumentError,
               "format validator requires :with and/or :without (got #{options.keys.inspect}). " \
-              "See https://drexed.github.io/cmdx/inputs/validations/"
+              "See https://drexed.github.io/cmdx/inputs/validations/#format"
           end
 
         return if match

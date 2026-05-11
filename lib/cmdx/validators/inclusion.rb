@@ -22,7 +22,7 @@ module CMDx
         if values.nil?
           raise ArgumentError,
             "inclusion validator requires :in or :within (got #{options.keys.inspect}). " \
-            "See https://drexed.github.io/cmdx/inputs/validations/"
+            "See https://drexed.github.io/cmdx/inputs/validations/#inclusion"
         end
 
         if values.is_a?(Range)

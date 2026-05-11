@@ -49,7 +49,7 @@ module CMDx
       elsif !validator.respond_to?(:call)
         raise ArgumentError,
           "validator must respond to #call (got #{validator.class}). " \
-          "See https://drexed.github.io/cmdx/inputs/validations/"
+          "See https://drexed.github.io/cmdx/inputs/validations/#declarations"
       end
 
       registry[name.to_sym] = validator
@@ -76,7 +76,7 @@ module CMDx
       registry[name] || begin
         raise UnknownEntryError,
           "unknown validator #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/inputs/validations/"
+          "See https://drexed.github.io/cmdx/inputs/validations/#built-in-validators"
       end
     end
 
@@ -166,7 +166,7 @@ module CMDx
         raise ArgumentError,
           "unsupported validator option format #{raw_options.inspect}; " \
           "expected Boolean, Hash, Array, or Regexp. " \
-          "See https://drexed.github.io/cmdx/inputs/validations/"
+          "See https://drexed.github.io/cmdx/inputs/validations/#common-options"
       end
     end
 

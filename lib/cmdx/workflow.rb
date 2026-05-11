@@ -62,7 +62,7 @@ module CMDx
         if tasks.empty?
           raise DefinitionError,
             "#{name}: cannot declare an empty task group; pass at least one Task subclass. " \
-            "See https://drexed.github.io/cmdx/workflows/"
+            "See https://drexed.github.io/cmdx/workflows/#declarations"
         end
 
         pipeline << ExecutionGroup.new(
@@ -72,7 +72,7 @@ module CMDx
 
               raise TypeError,
                 "#{task.inspect} is not a Task subclass. " \
-                "See https://drexed.github.io/cmdx/workflows/"
+                "See https://drexed.github.io/cmdx/workflows/#declarations"
             end,
           options:
         )
@@ -92,7 +92,7 @@ module CMDx
 
         raise ImplementationError,
           "cannot define #{name}##{method_name} in a workflow; #work is auto-generated to delegate to Pipeline. " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#declarations"
       end
 
     end

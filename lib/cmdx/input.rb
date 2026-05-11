@@ -220,7 +220,7 @@ module CMDx
 
         raise ArgumentError,
           "input source must be a Symbol, Proc, or respond to #call (got #{source.class}). " \
-          "See https://drexed.github.io/cmdx/inputs/definitions/"
+          "See https://drexed.github.io/cmdx/inputs/definitions/#sources"
       end
     end
 
@@ -290,7 +290,7 @@ module CMDx
 
         raise ArgumentError,
           "input transform must be a Symbol, Proc, or respond to #call (got #{transform.class}). " \
-          "See https://drexed.github.io/cmdx/inputs/transformations/"
+          "See https://drexed.github.io/cmdx/inputs/transformations/#declarations"
       end
     end
 

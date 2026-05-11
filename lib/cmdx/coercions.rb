@@ -56,7 +56,7 @@ module CMDx
       elsif !coercion.respond_to?(:call)
         raise ArgumentError,
           "coercion must respond to #call (got #{coercion.class}). " \
-          "See https://drexed.github.io/cmdx/inputs/coercions/"
+          "See https://drexed.github.io/cmdx/inputs/coercions/#declarations"
       end
 
       registry[name.to_sym] = coercion
@@ -83,7 +83,7 @@ module CMDx
       registry[name] || begin
         raise UnknownEntryError,
           "unknown coercion #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/inputs/coercions/"
+          "See https://drexed.github.io/cmdx/inputs/coercions/#built-in-coercions"
       end
     end
 
@@ -113,7 +113,7 @@ module CMDx
 
         raise ArgumentError,
           "unsupported :coerce format #{raw.inspect}; expected Symbol, Array, Hash, or a callable. " \
-          "See https://drexed.github.io/cmdx/inputs/coercions/"
+          "See https://drexed.github.io/cmdx/inputs/coercions/#declarations"
       end
     end
 
@@ -180,7 +180,7 @@ module CMDx
 
         raise ArgumentError,
           "unsupported coerce entry #{entry.inspect}; expected Symbol, Proc, or a callable. " \
-          "See https://drexed.github.io/cmdx/inputs/coercions/"
+          "See https://drexed.github.io/cmdx/inputs/coercions/#inline-coerce-callable"
       end
     end
 

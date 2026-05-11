@@ -40,7 +40,7 @@ module CMDx
       elsif !merger.respond_to?(:call)
         raise ArgumentError,
           "merger must respond to #call (got #{merger.class}). " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#merge-strategies"
       end
 
       registry[name.to_sym] = merger
@@ -67,7 +67,7 @@ module CMDx
       registry[name] || begin
         raise UnknownEntryError,
           "unknown merger #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#merge-strategies"
       end
     end
 
@@ -89,7 +89,7 @@ module CMDx
 
         raise UnknownEntryError,
           "unknown merger #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
-          "See https://drexed.github.io/cmdx/workflows/"
+          "See https://drexed.github.io/cmdx/workflows/#merge-strategies"
       end
     end
 
