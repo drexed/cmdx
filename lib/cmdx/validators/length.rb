@@ -63,11 +63,11 @@ module CMDx
         in is_not:
           is_not_failure(is_not, options) if length == is_not
         else
-          raise ArgumentError,
-            "unknown length validator options #{options.keys.inspect}; " \
-            "expected one of [:within, :not_within, :in, :not_in, :min, :max, :gt, :lt, :is, :is_not] " \
-            "(aliases: :gte, :lte, :eq, :not_eq). " \
-            "See https://drexed.github.io/cmdx/inputs/validations/#length"
+          raise ArgumentError, <<~MSG.chomp
+            unknown length validator options #{options.keys.inspect};
+            expected one of [:within, :not_within, :in, :not_in, :min, :max, :gt, :lt, :is, :is_not] (aliases: :gte, :lte, :eq, :not_eq).
+            See https://drexed.github.io/cmdx/inputs/validations/#length
+          MSG
         end
       end
 

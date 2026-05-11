@@ -191,10 +191,11 @@ module CMDx
         when :output
           outputs.register(...)
         else
-          raise ArgumentError,
-            "unknown registry type #{type.inspect}; expected one of " \
-            "[:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]. " \
-            "See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister"
+          raise ArgumentError, <<~MSG.chomp
+            unknown registry type #{type.inspect};
+            expected one of [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output].
+            See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister
+          MSG
         end
       end
 
@@ -226,10 +227,11 @@ module CMDx
         when :output
           outputs.deregister(...)
         else
-          raise ArgumentError,
-            "unknown registry type #{type.inspect}; expected one of " \
-            "[:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]. " \
-            "See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister"
+          raise ArgumentError, <<~MSG.chomp
+            unknown registry type #{type.inspect};
+            expected one of [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output].
+            See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister
+          MSG
         end
       end
 
@@ -457,9 +459,10 @@ module CMDx
     # @return [void]
     # @raise [ImplementationError] when the subclass doesn't override
     def work
-      raise ImplementationError,
-        "#{self.class} must implement #work. " \
-        "See https://drexed.github.io/cmdx/basics/setup/#structure"
+      raise ImplementationError, <<~MSG.chomp
+        #{self.class} must implement #work.
+        See https://drexed.github.io/cmdx/basics/setup/#structure
+      MSG
     end
 
     private
@@ -474,9 +477,10 @@ module CMDx
     # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
     def success!(reason = nil, **sigdata)
       if frozen?
-        raise FrozenTaskError,
-          "cannot call :success! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
+        raise FrozenTaskError, <<~MSG.chomp
+          cannot call :success! on #{self.class}; the task has already been executed and frozen.
+          See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+        MSG
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
@@ -492,9 +496,10 @@ module CMDx
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def skip!(reason = nil, **sigdata)
       if frozen?
-        raise FrozenTaskError,
-          "cannot call :skip! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
+        raise FrozenTaskError, <<~MSG.chomp
+          cannot call :skip! on #{self.class}; the task has already been executed and frozen.
+          See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+        MSG
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
@@ -511,9 +516,10 @@ module CMDx
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def fail!(reason = nil, **sigdata)
       if frozen?
-        raise FrozenTaskError,
-          "cannot call :fail! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
+        raise FrozenTaskError, <<~MSG.chomp
+          cannot call :fail! on #{self.class}; the task has already been executed and frozen.
+          See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+        MSG
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
@@ -530,9 +536,10 @@ module CMDx
     # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def throw!(other, **sigdata)
       if frozen?
-        raise FrozenTaskError,
-          "cannot call :throw! on #{self.class}; the task has already been executed and frozen. " \
-          "See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates"
+        raise FrozenTaskError, <<~MSG.chomp
+          cannot call :throw! on #{self.class}; the task has already been executed and frozen.
+          See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+        MSG
       end
 
       return unless other.failed?

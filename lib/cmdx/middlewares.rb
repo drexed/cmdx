@@ -39,13 +39,15 @@ module CMDx
       if callable && block
         raise ArgumentError, "middleware: provide either a callable or a block, not both"
       elsif !middleware.respond_to?(:call)
-        raise ArgumentError,
-          "middleware must respond to #call (got #{middleware.class}). " \
-          "See https://drexed.github.io/cmdx/middlewares/#signature"
+        raise ArgumentError, <<~MSG.chomp
+          middleware must respond to #call (got #{middleware.class}).
+          See https://drexed.github.io/cmdx/middlewares/#signature
+        MSG
       elsif !at.nil? && !at.is_a?(Integer)
-        raise ArgumentError,
-          "middleware :at must be an Integer (got #{at.class}). " \
-          "See https://drexed.github.io/cmdx/middlewares/#ordering"
+        raise ArgumentError, <<~MSG.chomp
+          middleware :at must be an Integer (got #{at.class}).
+          See https://drexed.github.io/cmdx/middlewares/#ordering
+        MSG
       end
 
       entry = [middleware, options.freeze]
@@ -73,9 +75,10 @@ module CMDx
       elsif !at.nil? && !middleware.nil?
         raise ArgumentError, "middleware: provide either a middleware or an at: index, not both"
       elsif !at.nil? && !at.is_a?(Integer)
-        raise ArgumentError,
-          "middleware :at must be an Integer (got #{at.class}). " \
-          "See https://drexed.github.io/cmdx/middlewares/#ordering"
+        raise ArgumentError, <<~MSG.chomp
+          middleware :at must be an Integer (got #{at.class}).
+          See https://drexed.github.io/cmdx/middlewares/#ordering
+        MSG
       end
 
       if at.nil?
@@ -129,9 +132,10 @@ module CMDx
 
       processed || begin
         offender = last_invoked.is_a?(Class) ? last_invoked : last_invoked.class
-        raise MiddlewareError,
-          "middleware #{offender} did not yield to next_link. " \
-          "See https://drexed.github.io/cmdx/middlewares/#safety"
+        raise MiddlewareError, <<~MSG.chomp
+          middleware #{offender} did not yield to next_link.
+          See https://drexed.github.io/cmdx/middlewares/#safety
+        MSG
       end
     end
 

@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Updated install generator template comments
 - Custom CMDx based errors instead of generics — every new error inherits from `CMDx::Error`, so a single `rescue CMDx::Error` still catches them
 - Error messages across `lib/cmdx/` rewritten for actionable debugging — registry-lookup failures now include the offending value and the runtime-resolved set of registered keys (`unknown validator :foo; registered: [...]`), validator/option errors echo the keys you passed and the keys accepted, type-mismatch errors include the offending `class`, terse messages (`"block required"`, `"reason required"`) are prefixed with the calling method (`CMDx.configure requires a block`), `MiddlewareError` names the middleware that failed to yield, and conceptually-tricky failures (middleware contract, `#work` not implemented, frozen-task signaling, i18n loader, strict context, deprecation gate) link to the relevant section on https://drexed.github.io/cmdx/ via section permalinks (e.g. `inputs/validations/#length`, `outcomes/result/#predicate-dispatch-with-on`)
+- Multi-line error messages converted from backslash-continued string concatenation to squiggly heredocs (`<<~MSG`) for readability and so the doc-link reference renders on its own line in terminal output
 
 ## [2.0.1] - 2026-05-09
 

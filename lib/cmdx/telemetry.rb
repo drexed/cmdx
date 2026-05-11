@@ -59,13 +59,15 @@ module CMDx
       if callable && block
         raise ArgumentError, "subscriber: provide either a callable or a block, not both"
       elsif !subscriber.respond_to?(:call)
-        raise ArgumentError,
-          "subscriber must respond to #call (got #{subscriber.class}). " \
-          "See https://drexed.github.io/cmdx/configuration/#telemetry"
+        raise ArgumentError, <<~MSG.chomp
+          subscriber must respond to #call (got #{subscriber.class}).
+          See https://drexed.github.io/cmdx/configuration/#telemetry
+        MSG
       elsif !EVENTS.include?(event)
-        raise ArgumentError,
-          "unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}. " \
-          "See https://drexed.github.io/cmdx/configuration/#telemetry"
+        raise ArgumentError, <<~MSG.chomp
+          unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}.
+          See https://drexed.github.io/cmdx/configuration/#telemetry
+        MSG
       end
 
       (registry[event] ||= []) << subscriber
@@ -81,9 +83,10 @@ module CMDx
     # @raise [UnknownEntryError] when `event` is unknown
     def unsubscribe(event, callable)
       unless EVENTS.include?(event)
-        raise UnknownEntryError,
-          "unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}. " \
-          "See https://drexed.github.io/cmdx/configuration/#telemetry"
+        raise UnknownEntryError, <<~MSG.chomp
+          unknown telemetry event #{event.inspect}, must be one of #{EVENTS.inspect}.
+          See https://drexed.github.io/cmdx/configuration/#telemetry
+        MSG
       end
 
       if (subscribers = registry[event])
@@ -105,9 +108,10 @@ module CMDx
     # @raise [UnknownEntryError] when `event` isn't registered
     def lookup(event)
       registry[event] || begin
-        raise UnknownEntryError,
-          "unknown telemetry event #{event.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/configuration/#telemetry"
+        raise UnknownEntryError, <<~MSG.chomp
+          unknown telemetry event #{event.inspect}; registered: #{registry.keys.inspect}.
+          See https://drexed.github.io/cmdx/configuration/#telemetry
+        MSG
       end
     end
 

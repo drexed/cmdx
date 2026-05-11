@@ -23,9 +23,10 @@ module CMDx
         else
           return handler.call(value, task) if handler.respond_to?(:call)
 
-          raise ArgumentError,
-            "coerce handler must be a Symbol, Proc, or respond to #call (got #{handler.class}). " \
-            "See https://drexed.github.io/cmdx/inputs/coercions/#inline-coerce-callable"
+          raise ArgumentError, <<~MSG.chomp
+            coerce handler must be a Symbol, Proc, or respond to #call (got #{handler.class}).
+            See https://drexed.github.io/cmdx/inputs/coercions/#inline-coerce-callable
+          MSG
         end
       end
 

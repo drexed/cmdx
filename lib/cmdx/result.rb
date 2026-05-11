@@ -146,9 +146,10 @@ module CMDx
 
       yield(self) if keys.any? do |k|
         unless EVENTS.include?(k.to_sym)
-          raise ArgumentError,
-            "unknown Result#on event #{k.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
-            "See https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch-with-on"
+          raise ArgumentError, <<~MSG.chomp
+            unknown Result#on event #{k.inspect}, must be one of #{EVENTS.to_a.inspect}.
+            See https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch-with-on
+          MSG
         end
 
         public_send(:"#{k}?")

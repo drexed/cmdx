@@ -58,9 +58,10 @@ module CMDx
           when :parallel
             run_parallel(group)
           else
-            raise ArgumentError,
-              "invalid pipeline strategy #{strategy.inspect}; expected one of [:sequential, :parallel]. " \
-              "See https://drexed.github.io/cmdx/workflows/#group-options"
+            raise ArgumentError, <<~MSG.chomp
+              invalid pipeline strategy #{strategy.inspect}; expected one of [:sequential, :parallel].
+              See https://drexed.github.io/cmdx/workflows/#group-options
+            MSG
           end
 
         next unless halt

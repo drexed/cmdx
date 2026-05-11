@@ -20,9 +20,10 @@ module CMDx
       def call(value, options = EMPTY_HASH)
         values = options[:in] || options[:within]
         if values.nil?
-          raise ArgumentError,
-            "inclusion validator requires :in or :within (got #{options.keys.inspect}). " \
-            "See https://drexed.github.io/cmdx/inputs/validations/#inclusion"
+          raise ArgumentError, <<~MSG.chomp
+            inclusion validator requires :in or :within (got #{options.keys.inspect}).
+            See https://drexed.github.io/cmdx/inputs/validations/#inclusion
+          MSG
         end
 
         if values.is_a?(Range)

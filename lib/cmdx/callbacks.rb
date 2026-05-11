@@ -55,13 +55,15 @@ module CMDx
       if callable && block
         raise ArgumentError, "callback: provide either a callable or a block, not both"
       elsif !callback.is_a?(Symbol) && !callback.respond_to?(:call)
-        raise ArgumentError,
-          "callback must be a Symbol or respond to #call (got #{callback.class}). " \
-          "See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one"
+        raise ArgumentError, <<~MSG.chomp
+          callback must be a Symbol or respond to #call (got #{callback.class}).
+          See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one
+        MSG
       elsif !EVENTS.include?(event)
-        raise ArgumentError,
-          "unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
-          "See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist"
+        raise ArgumentError, <<~MSG.chomp
+          unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}.
+          See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist
+        MSG
       end
 
       (registry[event] ||= []) << [callback, options.freeze]
@@ -80,9 +82,10 @@ module CMDx
     # @raise [ArgumentError] when `event` is unknown
     def deregister(event, callable = nil)
       unless EVENTS.include?(event)
-        raise ArgumentError,
-          "unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}. " \
-          "See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist"
+        raise ArgumentError, <<~MSG.chomp
+          unknown callback event #{event.inspect}, must be one of #{EVENTS.to_a.inspect}.
+          See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist
+        MSG
       end
 
       if callable.nil?
@@ -166,11 +169,10 @@ module CMDx
 
           invoke(callable, task, cont, &cont)
 
-          called || raise(
-            CallbackError,
-            "#{event} callback did not invoke its continuation. " \
-            "See https://drexed.github.io/cmdx/callbacks/#around_execution-the-wrap-the-whole-thing-hook"
-          )
+          called || raise(CallbackError, <<~MSG.chomp)
+            #{event} callback did not invoke its continuation.
+            See https://drexed.github.io/cmdx/callbacks/#around_execution-the-wrap-the-whole-thing-hook
+          MSG
         end
       end.call
     end
@@ -191,9 +193,10 @@ module CMDx
       else
         return callable.call(task, *extras) if callable.respond_to?(:call)
 
-        raise ArgumentError,
-          "callback must be a Symbol, Proc, or respond to #call (got #{callable.class}). " \
-          "See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one"
+        raise ArgumentError, <<~MSG.chomp
+          callback must be a Symbol, Proc, or respond to #call (got #{callable.class}).
+          See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one
+        MSG
       end
     end
 

@@ -60,9 +60,10 @@ module CMDx
       # @raise [TypeError] when any element isn't a `Task` subclass
       def tasks(*tasks, **options)
         if tasks.empty?
-          raise DefinitionError,
-            "#{name}: cannot declare an empty task group; pass at least one Task subclass. " \
-            "See https://drexed.github.io/cmdx/workflows/#declarations"
+          raise DefinitionError, <<~MSG.chomp
+            #{name}: cannot declare an empty task group; pass at least one Task subclass.
+            See https://drexed.github.io/cmdx/workflows/#declarations
+          MSG
         end
 
         pipeline << ExecutionGroup.new(
@@ -70,9 +71,10 @@ module CMDx
             tasks.map do |task|
               next task if task.is_a?(Class) && (task <= Task)
 
-              raise TypeError,
-                "#{task.inspect} is not a Task subclass. " \
-                "See https://drexed.github.io/cmdx/workflows/#declarations"
+              raise TypeError, <<~MSG.chomp
+                #{task.inspect} is not a Task subclass.
+                See https://drexed.github.io/cmdx/workflows/#declarations
+              MSG
             end,
           options:
         )
@@ -90,9 +92,10 @@ module CMDx
       def method_added(method_name)
         return super unless method_name == :work
 
-        raise ImplementationError,
-          "cannot define #{name}##{method_name} in a workflow; #work is auto-generated to delegate to Pipeline. " \
-          "See https://drexed.github.io/cmdx/workflows/#declarations"
+        raise ImplementationError, <<~MSG.chomp
+          cannot define #{name}##{method_name} in a workflow; #work is auto-generated to delegate to Pipeline.
+          See https://drexed.github.io/cmdx/workflows/#declarations
+        MSG
       end
 
     end

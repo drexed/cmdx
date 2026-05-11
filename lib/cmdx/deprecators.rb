@@ -38,9 +38,10 @@ module CMDx
       if callable && block
         raise ArgumentError, "deprecator: provide either a callable or a block, not both"
       elsif !deprecator.respond_to?(:call)
-        raise ArgumentError,
-          "deprecator must respond to #call (got #{deprecator.class}). " \
-          "See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry"
+        raise ArgumentError, <<~MSG.chomp
+          deprecator must respond to #call (got #{deprecator.class}).
+          See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry
+        MSG
       end
 
       registry[name.to_sym] = deprecator
@@ -65,9 +66,10 @@ module CMDx
     # @raise [UnknownEntryError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise UnknownEntryError,
-          "unknown deprecator #{name.inspect}; registered: #{registry.keys.inspect}. " \
-          "See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry"
+        raise UnknownEntryError, <<~MSG.chomp
+          unknown deprecator #{name.inspect}; registered: #{registry.keys.inspect}.
+          See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry
+        MSG
       end
     end
 
@@ -87,9 +89,10 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise UnknownEntryError,
-          "unknown deprecator #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable. " \
-          "See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry"
+        raise UnknownEntryError, <<~MSG.chomp
+          unknown deprecator #{spec.inspect}; expected a Symbol from #{registry.keys.inspect} or a callable.
+          See https://drexed.github.io/cmdx/deprecation/#custom-actions-via-the-deprecators-registry
+        MSG
       end
     end
 
