@@ -149,9 +149,6 @@ module CMDx
 
     private
 
-    # @param raw_options [Object] truthy flag, Hash, Array, Regexp, etc. from a declaration
-    # @return [Hash{Symbol => Object}, nil] normalized rule options, or nil when disabled
-    # @raise [ArgumentError] when `raw_options` has an unsupported shape
     def normalize_options(raw_options)
       case raw_options
       when FalseClass, NilClass

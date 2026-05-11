@@ -83,12 +83,6 @@ module CMDx
 
       private
 
-      # Forbids user-defined `work` on workflows; `Workflow#work` delegates
-      # to {Pipeline}.
-      #
-      # @param method_name [Symbol] hook name reported by Ruby
-      # @return [void]
-      # @raise [ImplementationError] when a workflow defines `work`
       def method_added(method_name)
         return super unless method_name == :work
 

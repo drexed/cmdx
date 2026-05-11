@@ -171,9 +171,6 @@ module CMDx
 
     private
 
-    # @param entry [Object] Array entry from a `:coerce` list
-    # @return [Array(Object, Hash)] handler + options pair
-    # @raise [ArgumentError] when `entry` is unsupported
     def normalize_entry(entry)
       case entry
       when ::Symbol, ::Proc

@@ -392,9 +392,6 @@ module CMDx
 
       private
 
-      # @param input [Input] defines `##{input.accessor_name}` when not already taken
-      # @return [void]
-      # @raise [DefinitionError] when the accessor name collides
       def define_input_reader(input)
         accessor = input.accessor_name
 
@@ -407,8 +404,6 @@ module CMDx
         input.children.each { |child| define_input_reader(child) }
       end
 
-      # @param input [Input] removes `##{input.accessor_name}` if defined on this class
-      # @return [void]
       def undefine_input_reader(input)
         accessor = input.accessor_name
         undef_method(accessor) if method_defined?(accessor)
@@ -467,14 +462,6 @@ module CMDx
 
     private
 
-    # Signals a successful halt.
-    #
-    # @param reason [String, nil]
-    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
-    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
-    # @return [void] throws `Signal::TAG`; never returns
-    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
-    # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
     def success!(reason = nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
@@ -487,13 +474,6 @@ module CMDx
       throw(Signal::TAG, Signal.success(reason, metadata:))
     end
 
-    # Signals a skip (interrupted + skipped).
-    #
-    # @param reason [String, nil]
-    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
-    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
-    # @return [void] throws `Signal::TAG`; never returns
-    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def skip!(reason = nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
@@ -506,14 +486,6 @@ module CMDx
       throw(Signal::TAG, Signal.skipped(reason, metadata:))
     end
 
-    # Signals a failure. Captures current call frames as the signal
-    # backtrace for Fault propagation.
-    #
-    # @param reason [String, nil]
-    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before throwing
-    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
-    # @return [void] throws `Signal::TAG`; never returns
-    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def fail!(reason = nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
@@ -526,14 +498,6 @@ module CMDx
       throw(Signal::TAG, Signal.failed(reason, metadata:, backtrace: caller_locations(1)))
     end
 
-    # Re-throws a failed peer Result's signal through this task. No-op when
-    # `other` didn't fail.
-    #
-    # @param other [Result]
-    # @param sigdata [Hash{Symbol => Object}] arbitrary metadata merged into {#metadata} before echoing
-    # @option sigdata [Object] arbitrary entries merged via `metadata.merge!`
-    # @return [void]
-    # @raise [FrozenTaskError] when the task has already been frozen (post-execution)
     def throw!(other, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp

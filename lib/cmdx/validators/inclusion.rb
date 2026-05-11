@@ -35,11 +35,6 @@ module CMDx
 
       private
 
-      # @param values [Enumerable] collection rendered into the failure message
-      # @param options [Hash{Symbol => Object}]
-      # @option options [String] :of_message
-      # @option options [String] :message
-      # @return [Validators::Failure]
       def of_failure(values, options)
         values = values.map(&:inspect).join(", ")
         message = options[:of_message] || options[:message]
@@ -48,13 +43,6 @@ module CMDx
         Failure.new(message || I18nProxy.t("cmdx.validators.inclusion.of", values:))
       end
 
-      # @param min [Object] range/inclusion lower bound
-      # @param max [Object] range/inclusion upper bound
-      # @param options [Hash{Symbol => Object}]
-      # @option options [String] :in_message
-      # @option options [String] :within_message
-      # @option options [String] :message
-      # @return [Validators::Failure]
       def within_failure(min, max, options)
         message = options[:in_message] || options[:within_message] || options[:message]
         message %= { min:, max: } unless message.nil?

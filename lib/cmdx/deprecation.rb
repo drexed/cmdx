@@ -52,12 +52,6 @@ module CMDx
 
     private
 
-    # Resolves the deprecators registry to consult for built-in actions.
-    # Prefers the task class's registry (so per-task `register(:deprecator, ...)`
-    # overrides take effect) and falls back to the global configuration.
-    #
-    # @param task [Task]
-    # @return [Deprecators]
     def deprecators_registry(task)
       if task.class.respond_to?(:deprecators)
         task.class.deprecators

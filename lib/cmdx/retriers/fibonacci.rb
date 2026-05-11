@@ -21,12 +21,6 @@ module CMDx
 
       private
 
-      # Iterative Fibonacci. `sequence(1) == 1`, `sequence(2) == 1`,
-      # `sequence(3) == 2`, ...
-      #
-      # @param n [Integer] one-based index into the Fibonacci sequence
-      # @return [Integer]
-      # @api private
       def sequence(n)
         a = 0
         b = 1

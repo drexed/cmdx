@@ -348,8 +348,6 @@ module CMDx
 
     private
 
-    # @param key [Symbol] reader name such as `:caused_failure` or `:threw_failure`
-    # @return [Hash{Symbol => Object}, nil] compact `{task:, tid:}` map for graph hints
     def hash_for_failure(key)
       r = public_send(key)
       return if r.nil?

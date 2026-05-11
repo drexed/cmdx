@@ -179,11 +179,6 @@ module CMDx
 
     private
 
-    # @param callable [Symbol, Proc, #call]
-    # @param task [Task]
-    # @param extras [Array<Object>] extra args after `task` for continuation-style callbacks
-    # @return [Object] the callback's return value
-    # @raise [ArgumentError] when `callable` is invalid
     def invoke(callable, task, *extras, &)
       case callable
       when Symbol

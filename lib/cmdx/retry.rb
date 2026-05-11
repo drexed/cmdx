@@ -126,13 +126,6 @@ module CMDx
 
     private
 
-    # Resolves the retriers registry to consult for built-in jitter strategies.
-    # Prefers the task class's registry (so per-task `register(:retrier, ...)`
-    # overrides take effect) and falls back to the global configuration when
-    # no task is supplied.
-    #
-    # @param task [Task, nil]
-    # @return [Retriers]
     def retriers_registry(task)
       if task && task.class.respond_to?(:retriers)
         task.class.retriers

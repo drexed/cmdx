@@ -94,8 +94,6 @@ module CMDx
 
     private
 
-    # @param task [Task]
-    # @return [Object, nil]
     def apply_default(task)
       return if default.nil?
 

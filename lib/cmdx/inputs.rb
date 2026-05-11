@@ -90,10 +90,6 @@ module CMDx
 
     private
 
-    # @param input [Input] parent input whose children should be resolved
-    # @param parent_value [Object] resolved parent value child inputs read from
-    # @param task [Task]
-    # @return [void]
     def resolve_children(input, parent_value, task)
       return if input.children.empty? || parent_value.nil?
 
@@ -190,23 +186,6 @@ module CMDx
 
       private
 
-      # @param names [Array<Symbol>]
-      # @param block [#call, nil]
-      # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
-      # @option options [String] :description (also accepts `:desc`)
-      # @option options [Symbol] :as overrides the accessor name
-      # @option options [Boolean, String] :prefix prefix for the accessor name
-      # @option options [Boolean, String] :suffix suffix for the accessor name
-      # @option options [Symbol, Proc, #call] :source (`:context`) where to fetch from
-      # @option options [Object, Symbol, Proc, #call] :default
-      # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
-      # @option options [Symbol, Proc, #call] :if
-      # @option options [Symbol, Proc, #call] :unless
-      # @option options [Boolean] :required
-      # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
-      # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
-      # @return [Array<Input>]
-      # @yield nested child input DSL
       def build(*names, **options, &block)
         nested = block ? self.class.build(&block) : EMPTY_ARRAY
         names.map { |name| children << Input.new(name, children: nested, **options) }
