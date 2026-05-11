@@ -316,6 +316,28 @@ subscribers are registered so telemetry has zero cost when unused.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#lookup-instance_method" title="#lookup (instance method)">#<strong>lookup</strong>(event)  &#x21d2; #call </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#size-instance_method" title="#size (instance method)">#<strong>size</strong>  &#x21d2; Integer </a>
     
 
@@ -540,12 +562,12 @@ subscribers are registered so telemetry has zero cost when unused.</p>
       <pre class="lines">
 
 
-105
-106
-107</pre>
+125
+126
+127</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 105</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 125</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_count'>count</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:size</span><span class='rparen'>)</span>
@@ -606,19 +628,25 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-115
-116
-117
-118
-119</pre>
+135
+136
+137
+138
+139
+140
+141
+142</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 115</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 135</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_emit'>emit</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='lparen'>(</span><span class='id identifier rubyid_subscribers'>subscribers</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_empty?'>empty?</span>
 
-  <span class='id identifier rubyid_subscribers'>subscribers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_subscribers'>subscribers</span> <span class='op'>=</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_subscribers'>subscribers</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_subscribers'>subscribers</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_subscribers'>subscribers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_callable'>callable</span><span class='op'>|</span> <span class='id identifier rubyid_callable'>callable</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -662,12 +690,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-95
-96
-97</pre>
+115
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 95</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 115</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -735,6 +763,97 @@ are no subscribers.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="lookup-instance_method">
+  
+    #<strong>lookup</strong>(event)  &#x21d2; <tt>#call</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>event</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>#call</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>event</code> isn't registered</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108
+109
+110
+111
+112</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown telemetry event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; registered: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/configuration/#telemetry</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="size-instance_method">
   
     #<strong>size</strong>  &#x21d2; <tt>Integer</tt> 
@@ -774,12 +893,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-100
-101
-102</pre>
+120
+121
+122</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 100</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 120</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -922,7 +1041,11 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
 66
 67
 68
-69</pre>
+69
+70
+71
+72
+73</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 56</span>
@@ -931,11 +1054,15 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
   <span class='id identifier rubyid_subscriber'>subscriber</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>subscriber: provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_subscriber'>subscriber</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>subscriber must respond to #call</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>subscriber must respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_subscriber'>subscriber</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/configuration/#telemetry</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown telemetry event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/configuration/#telemetry</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 
   <span class='lparen'>(</span><span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_subscriber'>subscriber</span>
@@ -1001,12 +1128,12 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
       <pre class="lines">
 
 
-90
-91
-92</pre>
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 90</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_subscribed?'>subscribed?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
@@ -1088,7 +1215,7 @@ entirely when no subscribers remain.</p>
     <li>
       
       
-        <span class='type'>(<tt>ArgumentError</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></tt>)</span>
       
       
       
@@ -1105,26 +1232,36 @@ entirely when no subscribers remain.</p>
       <pre class="lines">
 
 
-78
-79
-80
-81
 82
 83
 84
 85
-86</pre>
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 78</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 82</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unsubscribe'>unsubscribe</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown telemetry event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/configuration/#telemetry</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
 
-  <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>unless</span> <span class='id identifier rubyid_subscribed?'>subscribed?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_subscribers'>subscribers</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_subscribers'>subscribers</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_callable'>callable</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_subscribers'>subscribers</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>end</span>
 
-  <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_callable'>callable</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
   <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1137,7 +1274,7 @@ entirely when no subscribers remain.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat May  9 14:22:29 2026 by
+  Generated on Mon May 11 03:55:43 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

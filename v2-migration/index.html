@@ -3852,7 +3852,7 @@
 <li><code>success!</code> is new: exit early but count as a success (handy for “nothing to do” paths).</li>
 <li><code>fail!</code> and <code>throw!</code> record a backtrace from where you called them. <code>success!</code> and <code>skip!</code> do not. <code>Fault#backtrace</code> still reflects your call site when a cleaner is configured in <code>Settings</code>.</li>
 <li><code>throw!(other_result)</code> still does nothing useful if that result did not fail (same idea as v1; internally it is an echoed signal).</li>
-<li>If the task is already frozen, calling any halt raises <code>FrozenError</code> — usually a sign you are halting too late in the lifecycle.</li>
+<li>If the task is already frozen, calling any halt raises <code>CMDx::FrozenTaskError</code> — usually a sign you are halting too late in the lifecycle.</li>
 </ul>
 <p>Full story: <a href="../interruptions/signals/">Interruptions - Signals</a>.</p>
 <hr />
@@ -4616,8 +4616,20 @@
 <td>A workflow subclass defined <code>#work</code>. Delete it and move the body into <code>task</code> / <code>tasks</code> declarations.</td>
 </tr>
 <tr>
-<td><code>FrozenError: cannot throw signals</code></td>
+<td><code>CMDx::FrozenTaskError: cannot call :&lt;halt&gt;! after the task has been frozen</code></td>
 <td><code>skip!</code> / <code>fail!</code> / <code>throw!</code> called on a frozen task (post-execution). Restructure to halt inside <code>work</code>.</td>
+</tr>
+<tr>
+<td><code>CMDx::UnknownAccessorError: unknown context key :foo (strict mode)</code></td>
+<td><code>strict_context: true</code> caught a typoed reader. Either fix the typo or set the key before reading.</td>
+</tr>
+<tr>
+<td><code>CMDx::UnknownEntryError: unknown coercion: ...</code> (or validator / executor / merger / retrier / deprecator / event)</td>
+<td>Registry lookup against an unregistered name. Register it on <code>CMDx.configuration.&lt;registry&gt;</code> or fix the symbol.</td>
+</tr>
+<tr>
+<td><code>CMDx::UnknownLocaleError: unable to load &lt;locale&gt; translations</code></td>
+<td><code>default_locale</code> does not resolve to a YAML file on the locale path. Add the file via <code>CMDx::I18nProxy.register(path)</code> or pick a bundled locale.</td>
 </tr>
 <tr>
 <td><code>Translation missing: cmdx.returns.missing</code></td>

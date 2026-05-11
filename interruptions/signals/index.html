@@ -2507,7 +2507,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Where they work</p>
-<p>These helpers only work inside <code>work</code> (or code <code>work</code> calls). If you try them from rollback, callbacks, or middleware you get <code>UncaughtThrowError</code>. On a frozen task after teardown you get <code>FrozenError</code>. Stay inside the story.</p>
+<p>These helpers only work inside <code>work</code> (or code <code>work</code> calls). If you try them from rollback, callbacks, or middleware you get <code>UncaughtThrowError</code>. On a frozen task after teardown you get <code>CMDx::FrozenTaskError</code>. Stay inside the story.</p>
 </div>
 <h2 id="state-transitions">State Transitions<a class="headerlink" href="#state-transitions" title="Permanent link">&para;</a></h2>
 <p>Each halt maps to a simple combo of state, status, and how <code>ok?</code> / <code>ko?</code> read:</p>

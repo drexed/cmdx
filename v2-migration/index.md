@@ -155,7 +155,7 @@ Halts are how you stop `work` early: success, skip, fail, or re-throw someone el
 - `success!` is new: exit early but count as a success (handy for “nothing to do” paths).
 - `fail!` and `throw!` record a backtrace from where you called them. `success!` and `skip!` do not. `Fault#backtrace` still reflects your call site when a cleaner is configured in `Settings`.
 - `throw!(other_result)` still does nothing useful if that result did not fail (same idea as v1; internally it is an echoed signal).
-- If the task is already frozen, calling any halt raises `FrozenError` — usually a sign you are halting too late in the lifecycle.
+- If the task is already frozen, calling any halt raises `CMDx::FrozenTaskError` — usually a sign you are halting too late in the lifecycle.
 
 Full story: [Interruptions - Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md).
 
@@ -825,18 +825,21 @@ ______________________________________________________________________
 
 Quick fixes for the errors people hit first:
 
-| Symptom                                                                       | Fix                                                                                                                     |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `NoMethodError: undefined method 'good?' for Result`                          | `result.good?` → `result.ok?`, `result.bad?` → `result.ko?`                                                             |
-| `NoMethodError: undefined method 'chain_id'`                                  | `result.chain_id` → `result.cid`                                                                                        |
-| `NoMethodError: undefined method 'executed?' / 'executing?' / 'initialized?'` | Predicates removed; use `result.complete? \|\| result.interrupted?`                                                     |
-| `CMDx::MiddlewareError: middleware did not yield the next_link`               | A middleware's `rescue` / `ensure` / early-return path skipped `yield`. Yield on every code path.                       |
-| `CMDx::ImplementationError: cannot define Workflow#work`                      | A workflow subclass defined `#work`. Delete it and move the body into `task` / `tasks` declarations.                    |
-| `FrozenError: cannot throw signals`                                           | `skip!` / `fail!` / `throw!` called on a frozen task (post-execution). Restructure to halt inside `work`.               |
-| `Translation missing: cmdx.returns.missing`                                   | Rename locale key to `cmdx.outputs.missing`. Same for `cmdx.faults.unspecified` → `cmdx.reasons.unspecified`.           |
-| `ArgumentError: middleware must respond to #call`                             | A middleware class was registered instead of an instance. Pass `MyMiddleware.new(...)`.                                 |
-| `undefined method 'metadata=' for Result`                                     | `result.metadata[:x] = ...` writes aren't allowed. Set `task.context.x` **before** the halt instead.                    |
-| `Fault#task` is a class, not an instance                                      | v2 behavior — `fault.result.task` is the class. Read instance-scoped data off `fault.context` / `fault.result.context`. |
+| Symptom                                                                                                            | Fix                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NoMethodError: undefined method 'good?' for Result`                                                               | `result.good?` → `result.ok?`, `result.bad?` → `result.ko?`                                                                                      |
+| `NoMethodError: undefined method 'chain_id'`                                                                       | `result.chain_id` → `result.cid`                                                                                                                 |
+| `NoMethodError: undefined method 'executed?' / 'executing?' / 'initialized?'`                                      | Predicates removed; use `result.complete? \|\| result.interrupted?`                                                                              |
+| `CMDx::MiddlewareError: middleware did not yield the next_link`                                                    | A middleware's `rescue` / `ensure` / early-return path skipped `yield`. Yield on every code path.                                                |
+| `CMDx::ImplementationError: cannot define Workflow#work`                                                           | A workflow subclass defined `#work`. Delete it and move the body into `task` / `tasks` declarations.                                             |
+| `CMDx::FrozenTaskError: cannot call :<halt>! after the task has been frozen`                                       | `skip!` / `fail!` / `throw!` called on a frozen task (post-execution). Restructure to halt inside `work`.                                        |
+| `CMDx::UnknownAccessorError: unknown context key :foo (strict mode)`                                               | `strict_context: true` caught a typoed reader. Either fix the typo or set the key before reading.                                                |
+| `CMDx::UnknownEntryError: unknown coercion: ...` (or validator / executor / merger / retrier / deprecator / event) | Registry lookup against an unregistered name. Register it on `CMDx.configuration.<registry>` or fix the symbol.                                  |
+| `CMDx::UnknownLocaleError: unable to load <locale> translations`                                                   | `default_locale` does not resolve to a YAML file on the locale path. Add the file via `CMDx::I18nProxy.register(path)` or pick a bundled locale. |
+| `Translation missing: cmdx.returns.missing`                                                                        | Rename locale key to `cmdx.outputs.missing`. Same for `cmdx.faults.unspecified` → `cmdx.reasons.unspecified`.                                    |
+| `ArgumentError: middleware must respond to #call`                                                                  | A middleware class was registered instead of an instance. Pass `MyMiddleware.new(...)`.                                                          |
+| `undefined method 'metadata=' for Result`                                                                          | `result.metadata[:x] = ...` writes aren't allowed. Set `task.context.x` **before** the halt instead.                                             |
+| `Fault#task` is a class, not an instance                                                                           | v2 behavior — `fault.result.task` is the class. Read instance-scoped data off `fault.context` / `fault.result.context`.                          |
 
 ______________________________________________________________________
 

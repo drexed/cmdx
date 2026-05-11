@@ -337,6 +337,28 @@ callback is invoked; non-passing gates skip the callback silently.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#key%3F-instance_method" title="#key? (instance method)">#<strong>key?</strong>(event)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether a callback is registered under <code>name</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#process-instance_method" title="#process (instance method)">#<strong>process</strong>(event, task)  &#x21d2; void </a>
     
 
@@ -601,29 +623,33 @@ still running the body.</p>
       <pre class="lines">
 
 
-137
-138
-139
-140
-141
-142
-143
-144
-145
-146
-147
-148
-149
-150
-151
-152
 153
 154
 155
-156</pre>
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 137</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 153</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_around'>around</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_callbacks'>callbacks</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span>
@@ -641,7 +667,11 @@ still running the body.</p>
 
       <span class='id identifier rubyid_invoke'>invoke</span><span class='lparen'>(</span><span class='id identifier rubyid_callable'>callable</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_cont'>cont</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_cont'>cont</span><span class='rparen'>)</span>
 
-      <span class='id identifier rubyid_called'>called</span> <span class='op'>||</span> <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../CMDx.html#CallbackError-constant" title="CMDx::CallbackError (constant)">CallbackError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='embexpr_end'>}</span><span class='tstring_content'> callback did not invoke its continuation</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_called'>called</span> <span class='op'>||</span> <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span>
+        <span class='const'><span class='object_link'><a href="../CMDx.html#CallbackError-constant" title="CMDx::CallbackError (constant)">CallbackError</a></span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='embexpr_end'>}</span><span class='tstring_content'> callback did not invoke its continuation. </span><span class='tstring_end'>&quot;</span></span> \
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/callbacks/#around_execution-the-wrap-the-whole-thing-hook</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rparen'>)</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span>
 <span class='kw'>end</span></pre>
@@ -690,12 +720,12 @@ still running the body.</p>
       <pre class="lines">
 
 
-101
-102
-103</pre>
+115
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 101</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 115</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_count'>count</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:size</span><span class='rparen'>)</span>
@@ -799,10 +829,6 @@ When the last entry for <code>event</code> is removed, the key itself is dropped
       <pre class="lines">
 
 
-77
-78
-79
-80
 81
 82
 83
@@ -810,13 +836,25 @@ When the last entry for <code>event</code> is removed, the key itself is dropped
 85
 86
 87
-88</pre>
+88
+89
+90
+91
+92
+93
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 77</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown callback event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
@@ -869,12 +907,12 @@ When the last entry for <code>event</code> is removed, the key itself is dropped
       <pre class="lines">
 
 
-91
-92
-93</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 91</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -935,6 +973,76 @@ When the last entry for <code>event</code> is removed, the key itself is dropped
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_transform_values'>transform_values</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:dup</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="key?-instance_method">
+  
+    #<strong>key?</strong>(event)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns whether a callback is registered under <code>name</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>whether a callback is registered under <code>name</code></p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1008,21 +1116,25 @@ callback whose <code>:if</code>/<code>:unless</code> gates fail.</p>
       <pre class="lines">
 
 
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121</pre>
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 126</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_empty?'>empty?</span>
+
   <span class='id identifier rubyid_callbacks'>callbacks</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_callbacks'>callbacks</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_callbacks'>callbacks</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
 
@@ -1219,7 +1331,11 @@ callback type is invalid, or when <code>event</code> is unknown</p></div>
 62
 63
 64
-65</pre>
+65
+66
+67
+68
+69</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 52</span>
@@ -1228,11 +1344,15 @@ callback type is invalid, or when <code>event</code> is unknown</p></div>
   <span class='id identifier rubyid_callback'>callback</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>callback: provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_callback'>callback</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Symbol</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_callback'>callback</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>callback must be a Symbol or respond to #call</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>callback must be a Symbol or respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_callback'>callback</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/callbacks/#how-do-i-register-one</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown callback event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Callbacks::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/callbacks/#what-callbacks-exist</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 
   <span class='lparen'>(</span><span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_callback'>callback</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span><span class='rbracket'>]</span>
@@ -1283,12 +1403,12 @@ callback type is invalid, or when <code>event</code> is unknown</p></div>
       <pre class="lines">
 
 
-96
-97
-98</pre>
+110
+111
+112</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/callbacks.rb', line 110</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1303,7 +1423,7 @@ callback type is invalid, or when <code>event</code> is unknown</p></div>
 </div>
 
       <div id="footer">
-  Generated on Sat May  9 14:22:28 2026 by
+  Generated on Mon May 11 03:55:42 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

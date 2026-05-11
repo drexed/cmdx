@@ -29,7 +29,7 @@ end
 
 Note
 
-If you try `skip!` or `fail!` after Runtime has torn everything down (frozen task), you get `FrozenError`. The story is already written—you cannot rewrite it.
+If you try `skip!` or `fail!` after Runtime has torn everything down (frozen task), you get `CMDx::FrozenTaskError`. The story is already written—you cannot rewrite it.
 
 ## Predicates and handlers
 

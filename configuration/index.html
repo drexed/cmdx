@@ -2767,7 +2767,7 @@
 <tr>
 <td><code>strict_context</code></td>
 <td><code>false</code></td>
-<td>Typo on <code>context.foo</code> → <code>NoMethodError</code> instead of <code>nil</code></td>
+<td>Typo on <code>context.foo</code> → <code>CMDx::UnknownAccessorError</code> instead of <code>nil</code></td>
 </tr>
 <tr>
 <td><code>correlation_id</code></td>
@@ -2845,7 +2845,7 @@
 <p>In Rails, the Railtie wires a sensible default so you often don’t touch this.</p>
 </div>
 <h3 id="strict-context">Strict context<a class="headerlink" href="#strict-context" title="Permanent link">&para;</a></h3>
-<p>With <code>strict_context: true</code>, a bad dynamic read like <code>context.typo</code> raises <strong><code>NoMethodError</code></strong> instead of quietly returning <code>nil</code>. Hash-style access (<code>[]</code>, <code>fetch</code>, <code>dig</code>, …) stays forgiving. More examples: <a href="../basics/context/#strict-mode">Context - Strict Mode</a>.</p>
+<p>With <code>strict_context: true</code>, a bad dynamic read like <code>context.typo</code> raises <strong><code>CMDx::UnknownAccessorError</code></strong> instead of quietly returning <code>nil</code>. Hash-style access (<code>[]</code>, <code>fetch</code>, <code>dig</code>, …) stays forgiving. More examples: <a href="../basics/context/#strict-mode">Context - Strict Mode</a>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">strict_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>

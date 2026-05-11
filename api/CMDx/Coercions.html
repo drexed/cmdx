@@ -313,6 +313,28 @@ value on success, or a <span class='object_link'><a href="Coercions/Failure.html
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#key%3F-instance_method" title="#key? (instance method)">#<strong>key?</strong>(name)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether a coercion is registered under <code>name</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#lookup-instance_method" title="#lookup (instance method)">#<strong>lookup</strong>(name)  &#x21d2; #call </a>
     
 
@@ -606,18 +628,6 @@ recorded; otherwise the last individual failure is used.</p>
       <pre class="lines">
 
 
-128
-129
-130
-131
-132
-133
-134
-135
-136
-137
-138
-139
 140
 141
 142
@@ -633,10 +643,22 @@ recorded; otherwise the last individual failure is used.</p>
 152
 153
 154
-155</pre>
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 128</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 140</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_coerce'>coerce</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_rules'>rules</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span> <span class='kw'>if</span> <span class='id identifier rubyid_rules'>rules</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -726,16 +748,16 @@ recorded; otherwise the last individual failure is used.</p>
       <pre class="lines">
 
 
-66
-67
 68
-69</pre>
+69
+70
+71</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 66</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 68</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -780,12 +802,12 @@ recorded; otherwise the last individual failure is used.</p>
       <pre class="lines">
 
 
-109
-110
-111</pre>
+121
+122
+123</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 109</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 121</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -891,16 +913,6 @@ callable.</p>
       <pre class="lines">
 
 
-88
-89
-90
-91
-92
-93
-94
-95
-96
-97
 98
 99
 100
@@ -909,10 +921,22 @@ callable.</p>
 103
 104
 105
-106</pre>
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 88</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract'>extract</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='const'>EMPTY_ARRAY</span> <span class='kw'>if</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -930,7 +954,9 @@ callable.</p>
   <span class='kw'>else</span>
     <span class='kw'>return</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_raw'>raw</span><span class='comma'>,</span> <span class='const'>EMPTY_HASH</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
 
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unsupported type format: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unsupported :coerce format </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; expected Symbol, Array, Hash, or a callable. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/inputs/coercions/#declarations</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -996,6 +1022,76 @@ callable.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="key?-instance_method">
+  
+    #<strong>key?</strong>(name)  &#x21d2; <tt><span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns whether a coercion is registered under <code>name</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>whether a coercion is registered under <code>name</code></p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="lookup-instance_method">
   
     #<strong>lookup</strong>(name)  &#x21d2; <tt>#call</tt> 
@@ -1049,7 +1145,7 @@ callable.</p>
     <li>
       
       
-        <span class='type'>(<tt>ArgumentError</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></tt>)</span>
       
       
       
@@ -1066,18 +1162,22 @@ callable.</p>
       <pre class="lines">
 
 
-74
-75
-76
-77
-78</pre>
+82
+83
+84
+85
+86
+87
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 74</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 82</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown coercion: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown coercion </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; registered: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/inputs/coercions/#built-in-coercions</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1212,7 +1312,9 @@ when the resolved coercion isn't callable</p></div>
 59
 60
 61
-62</pre>
+62
+63
+64</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 51</span>
@@ -1221,9 +1323,11 @@ when the resolved coercion isn't callable</p></div>
   <span class='id identifier rubyid_coercion'>coercion</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>coercion: provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_coercion'>coercion</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>coercion must respond to #call</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>coercion must respond to #call (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_coercion'>coercion</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>). </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/inputs/coercions/#declarations</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_coercion'>coercion</span>
@@ -1271,12 +1375,12 @@ when the resolved coercion isn't callable</p></div>
       <pre class="lines">
 
 
-114
-115
-116</pre>
+126
+127
+128</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 114</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 126</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1291,7 +1395,7 @@ when the resolved coercion isn't callable</p></div>
 </div>
 
       <div id="footer">
-  Generated on Sat May  9 14:22:28 2026 by
+  Generated on Mon May 11 03:55:43 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

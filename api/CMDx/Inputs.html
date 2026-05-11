@@ -505,7 +505,7 @@ defines a reader method on the task class. <span class='object_link'><a href="#r
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_klass'>klass</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
-    <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:undefine_input_reader</span><span class='comma'>,</span> <span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 
@@ -1036,7 +1036,7 @@ computed value into its backing ivar so the generated readers return it.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat May  9 14:22:27 2026 by
+  Generated on Mon May 11 03:55:41 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

@@ -319,7 +319,11 @@ of <code>:min</code>, <code>:max</code>, <code>:is</code>, <code>:is_not</code> 
 65
 66
 67
-68</pre>
+68
+69
+70
+71
+72</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/validators/length.rb', line 37</span>
@@ -353,7 +357,11 @@ of <code>:min</code>, <code>:max</code>, <code>:is</code>, <code>:is_not</code> 
   <span class='kw'>in</span> <span class='label'>is_not:</span>
     <span class='id identifier rubyid_is_not_failure'>is_not_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_is_not'>is_not</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_is_not'>is_not</span>
   <span class='kw'>else</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown length validator options given</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown length validator options </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>expected one of [:within, :not_within, :in, :not_in, :min, :max, :gt, :lt, :is, :is_not] </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>(aliases: :gte, :lte, :eq, :not_eq). </span><span class='tstring_end'>&quot;</span></span> \
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See https://drexed.github.io/cmdx/inputs/validations/#length</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -366,7 +374,7 @@ of <code>:min</code>, <code>:max</code>, <code>:is</code>, <code>:is_not</code> 
 </div>
 
       <div id="footer">
-  Generated on Sat May  9 14:22:26 2026 by
+  Generated on Mon May 11 03:55:40 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

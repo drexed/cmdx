@@ -2394,7 +2394,7 @@
 <p>Sharing a <code>Context</code>, <code>Task</code>, or <code>Result</code> means <strong>by reference</strong> — the callee’s writes show up for the caller. <code>context.to_h</code> is still the live backing hash; <code>Context.build(context.to_h)</code> copies the top level but nested objects might still be the same object in memory. Want a full snapshot? <code>context.deep_dup</code>.</p>
 </div>
 <h2 id="strict-mode">Strict Mode<a class="headerlink" href="#strict-mode" title="Permanent link">&para;</a></h2>
-<p>By default, <code>context.unknown_method</code> is just <code>nil</code> — forgiving, sometimes <em>too</em> forgiving. Turn on <strong>strict mode</strong> and typos explode as <code>NoMethodError</code> so you catch them early.</p>
+<p>By default, <code>context.unknown_method</code> is just <code>nil</code> — forgiving, sometimes <em>too</em> forgiving. Turn on <strong>strict mode</strong> and typos explode as <code>CMDx::UnknownAccessorError</code> so you catch them early.</p>
 <p>Global or per-task:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">strict_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
@@ -2405,7 +2405,7 @@
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="w">       </span><span class="c1">#=&gt; reads fine when set</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">typoed_key</span><span class="w">   </span><span class="c1">#=&gt; raises NoMethodError: unknown context key :typoed_key (strict mode)</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">typoed_key</span><span class="w">   </span><span class="c1">#=&gt; raises CMDx::UnknownAccessorError: unknown context key :typoed_key (strict mode)</span>
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">end</span>
 </span></code></pre></div>
@@ -2420,7 +2420,7 @@
 <tbody>
 <tr>
 <td><code>context.missing</code></td>
-<td>Raises <code>NoMethodError</code></td>
+<td>Raises <code>CMDx::UnknownAccessorError</code></td>
 </tr>
 <tr>
 <td><code>context[:missing]</code></td>
