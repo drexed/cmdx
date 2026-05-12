@@ -5,7 +5,7 @@ description: Build, debug, and document CMDx tasks and workflows in Ruby. Use wh
 
 # CMDx Agent Skill
 
-CMDx is a Ruby framework for composable command/service objects with declarative inputs, outputs, coercion, validation, retries, rollback, and structured observability. Deep dives live under [docs/](docs/) and [references/](references/); the [LLM index](https://github.com/drexed/cmdx/blob/main/LLM.md) bundles the full doc tree for one-shot loading.
+CMDx is a Ruby framework for composable command/service objects with declarative inputs, outputs, coercion, validation, retries, rollback, and structured observability. Deep dives live under [docs/](docs/) and [references/](references/); the [LLM index](https://drexed.github.io/cmdx/llms.txt) bundles the full doc tree for one-shot loading.
 
 ## Lifecycle
 
