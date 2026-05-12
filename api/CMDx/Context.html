@@ -960,132 +960,29 @@ nested subtasks can't mutate the outer task's state after completion.</p>
   
 
   
-</h3><div class="docstring">
-  <div class="discussion">
-    <p class="note private">
-  <strong>This method is part of a private API.</strong>
-  You should avoid using this method if possible, as it may be removed or be changed in the future.
-</p>
-<p>Provides dynamic read/write/predicate access to context keys.</p>
-<ul>
-<li><code>ctx.name</code> — reads <code>@table[name]</code>, <code>nil</code> when absent (raises
-<code>UnknownAccessorError</code> when <span class='object_link'><a href="#strict%3F-instance_method" title="CMDx::Context#strict? (method)">#strict?</a></span> is true and the key is absent).</li>
-<li><code>ctx.name = val</code> — stores <code>val</code> under <code>:name</code>.</li>
-<li><code>ctx.name?</code> — truthy check for <code>@table[:name]</code>.</li>
-</ul>
-
-  </div>
-</div>
-<div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>method_name</span>
-      
-      
-        <span class='type'>(<tt>Symbol</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><p>dynamic reader/writer/predicate name</p></div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>args</span>
-      
-      
-        <span class='type'>(<tt>Array&lt;Object&gt;</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><p>stores RHS for writers (<code>name=</code> → <code>[value]</code>)</p></div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>_kwargs</span>
-      
-      
-        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><p>ignored (accepted for Ruby keyword forwarding)</p></div>
-      
-    </li>
-  
-</ul>
-
-  
-    
-    
-    
-    
-    
-    
-    <p class="tag_title">Options Hash (<tt>**_kwargs</tt>):</p>
-    <ul class="option">
-      
-        <li>
-          <span class="name">ignored</span>
-          <span class="type">(<tt>Object</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-        </li>
-      
-    </ul>
-  
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#UnknownAccessorError-constant" title="CMDx::UnknownAccessorError (constant)">UnknownAccessorError</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><p>when <span class='object_link'><a href="#strict%3F-instance_method" title="CMDx::Context#strict? (method)">#strict?</a></span> is true and the key is missing</p></div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-286
-287
-288
-289
-290
-291
-292
-293
-294
-295
-296
-297
-298
-299</pre>
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 286</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 273</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid__kwargs'>_kwargs</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='rparen'>)</span>
@@ -3135,7 +3032,7 @@ strings by the <code>json</code> stdlib.</p>
 </div>
 
       <div id="footer">
-  Generated on Mon May 11 10:51:23 2026 by
+  Generated on Tue May 12 21:00:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>
