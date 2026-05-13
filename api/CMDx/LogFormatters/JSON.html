@@ -106,7 +106,10 @@
   <div class="discussion">
     <p><code>Logger</code> formatter that emits one JSON object per line with <code>severity</code>,
 ISO8601 <code>timestamp</code>, <code>progname</code>, <code>pid</code>, and <code>message</code> (rendered via
-<code>#to_h</code> when available — Result instances serialize themselves).</p>
+<code>#to_h</code> when available — Result instances serialize themselves). Falls
+back to <code>message.inspect</code> if the original <code>JSON.dump</code> raises (e.g. for
+non-JSON-encodable or cyclic structures) so logging never crashes the
+caller.</p>
 
   </div>
 </div>
@@ -254,9 +257,6 @@ ISO8601 <code>timestamp</code>, <code>progname</code>, <code>pid</code>, and <co
       <pre class="lines">
 
 
-15
-16
-17
 18
 19
 20
@@ -264,10 +264,17 @@ ISO8601 <code>timestamp</code>, <code>progname</code>, <code>pid</code>, and <co
 22
 23
 24
-25</pre>
+25
+26
+27
+28
+29
+30
+31
+32</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/log_formatters/json.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/log_formatters/json.rb', line 18</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_severity'>severity</span><span class='comma'>,</span> <span class='id identifier rubyid_time'>time</span><span class='comma'>,</span> <span class='id identifier rubyid_progname'>progname</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='lbrace'>{</span>
@@ -278,6 +285,10 @@ ISO8601 <code>timestamp</code>, <code>progname</code>, <code>pid</code>, and <co
     <span class='label'>message:</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:to_h</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>:</span> <span class='id identifier rubyid_message'>message</span>
   <span class='rbrace'>}</span>
 
+  <span class='op'>::</span><span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:message</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span>
+  <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:logerr</span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_error_s'><span class='object_link'><a href="../Util.html#to_error_s-instance_method" title="CMDx::Util#to_error_s (method)">to_error_s</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='op'>::</span><span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span></pre>
     </td>
@@ -290,7 +301,7 @@ ISO8601 <code>timestamp</code>, <code>progname</code>, <code>pid</code>, and <co
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:09 2026 by
+  Generated on Wed May 13 20:27:00 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

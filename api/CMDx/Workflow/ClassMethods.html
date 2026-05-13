@@ -312,8 +312,9 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Declares a task group. With no arguments, returns the pipeline.
-Tasks must be <code>Task</code> subclasses.</p>
+    <p>Declares a task group. At least one <code>Task</code> subclass is required —
+invoking with no arguments raises <code>DefinitionError</code>. Use <span class='object_link'><a href="#pipeline-instance_method" title="CMDx::Workflow::ClassMethods#pipeline (method)">#pipeline</a></span>
+to read the existing group list.</p>
 
   </div>
 </div>
@@ -329,6 +330,9 @@ Tasks must be <code>Task</code> subclasses.</p>
         <span class='type'>(<tt>Array&lt;Class&lt;<span class='object_link'><a href="../Task.html" title="CMDx::Task (class)">Task</a></span>&gt;&gt;</tt>)</span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>one or more <code>Task</code> subclasses</p></div>
       
     </li>
   
@@ -468,7 +472,7 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
       
       
         &mdash;
-        <div class='inline'><p>the full pipeline</p></div>
+        <div class='inline'><p>the full pipeline (with the new group appended)</p></div>
       
     </li>
   
@@ -484,7 +488,7 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
       
       
         &mdash;
-        <div class='inline'><p>when called with options but no tasks</p></div>
+        <div class='inline'><p>when called with no tasks</p></div>
       
     </li>
   
@@ -508,7 +512,6 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
       <pre class="lines">
 
 
-61
 62
 63
 64
@@ -528,10 +531,11 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
 78
 79
 80
-81</pre>
+81
+82</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 61</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 62</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tasks'>tasks</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tasks'>tasks</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_tasks'>tasks</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -564,7 +568,7 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:06 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

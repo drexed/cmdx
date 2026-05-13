@@ -164,7 +164,15 @@ for each handler passed under the <code>:validate</code> option.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns handler's return value.</p>
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'><p>Symbol handlers are dispatched via <code>send</code> so private helpers on
+the task are reachable. Handlers are baked into class definitions;
+never derive them from untrusted input.</p></div>
+  </div>
+
+<p>Returns handler's return value.</p>
 
   </div>
 </div>
@@ -249,9 +257,6 @@ for each handler passed under the <code>:validate</code> option.</p>
       <pre class="lines">
 
 
-16
-17
-18
 19
 20
 21
@@ -263,10 +268,13 @@ for each handler passed under the <code>:validate</code> option.</p>
 27
 28
 29
-30</pre>
+30
+31
+32
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validators/validate.rb', line 16</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validators/validate.rb', line 19</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_handler'>handler</span>
@@ -293,7 +301,7 @@ for each handler passed under the <code>:validate</code> option.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

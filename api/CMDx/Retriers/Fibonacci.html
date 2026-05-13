@@ -112,6 +112,37 @@ Slower-growing than exponential, faster-growing than linear.</p>
   
 
 </div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MAX_INDEX-constant" class="">MAX_INDEX =
+          <div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This constant is part of a private API.</strong>
+  You should avoid using this constant if possible, as it may be removed or be changed in the future.
+</p>
+<p>Hard cap on the index to keep multipliers/integer allocations bounded.
+<code>fib(78) &lt; 2**63</code>, well past any realistic retry attempt. Pair with
+<code>:max_delay</code> for the actual sleep ceiling.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>78</span></pre></dd>
+      
+    </dl>
+  
+
 
 
 
@@ -250,15 +281,19 @@ Slower-growing than exponential, faster-growing than linear.</p>
       <pre class="lines">
 
 
-18
-19
-20</pre>
+30
+31
+32
+33
+34</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retriers/fibonacci.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retriers/fibonacci.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='id identifier rubyid__prev_delay'>_prev_delay</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_delay'>delay</span> <span class='op'>*</span> <span class='id identifier rubyid_sequence'>sequence</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_index'>index</span> <span class='op'>=</span> <span class='id identifier rubyid_attempt'>attempt</span> <span class='op'>+</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_index'>index</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#MAX_INDEX-constant" title="CMDx::Retriers::Fibonacci::MAX_INDEX (constant)">MAX_INDEX</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_index'>index</span> <span class='op'>&gt;</span> <span class='const'><span class='object_link'><a href="#MAX_INDEX-constant" title="CMDx::Retriers::Fibonacci::MAX_INDEX (constant)">MAX_INDEX</a></span></span>
+  <span class='id identifier rubyid_delay'>delay</span> <span class='op'>*</span> <span class='id identifier rubyid_fib'>fib</span><span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -270,7 +305,7 @@ Slower-growing than exponential, faster-growing than linear.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

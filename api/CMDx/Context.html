@@ -599,6 +599,28 @@ nested subtasks can't mutate the outer task's state after completion.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#initialize_copy-instance_method" title="#initialize_copy (instance method)">#<strong>initialize_copy</strong>(source)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Ensures <code>#dup</code> / <code>#clone</code> produce a context with an independent backing hash so mutations on the copy do not leak into the original.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#key%3F-instance_method" title="#key? (instance method)">#<strong>key?</strong>(key)  &#x21d2; Boolean </a>
     
 
@@ -769,7 +791,7 @@ nested subtasks can't mutate the outer task's state after completion.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>The underlying table (not a copy).</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>A shallow copy of the underlying table.</p></div></span>
   
 </li>
 
@@ -966,23 +988,23 @@ nested subtasks can't mutate the outer task's state after completion.</p>
       <pre class="lines">
 
 
-280
-281
-282
-283
-284
-285
-286
-287
-288
-289
-290
-291
-292
-293</pre>
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 280</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 295</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid__kwargs'>_kwargs</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='rparen'>)</span>
@@ -1229,12 +1251,12 @@ a new Context with symbolized keys.</p>
       <pre class="lines">
 
 
-99
-100
-101</pre>
+111
+112
+113</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 99</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 111</span>
 
 <span class='kw'>def</span> <span class='op'>[]</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span>
@@ -1283,12 +1305,12 @@ entries rely on their own <code>as_json</code> / <code>to_json</code>.</p>
       <pre class="lines">
 
 
-218
-219
-220</pre>
+232
+233
+234</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 218</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 232</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_as_json'>as_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span>
@@ -1338,13 +1360,13 @@ entries rely on their own <code>as_json</code> / <code>to_json</code>.</p>
       <pre class="lines">
 
 
-189
-190
-191
-192</pre>
+201
+202
+203
+204</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 201</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_clear'>clear</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
@@ -1392,12 +1414,12 @@ entries rely on their own <code>as_json</code> / <code>to_json</code>.</p>
       <pre class="lines">
 
 
-254
-255
-256</pre>
+268
+269
+270</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 254</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 268</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deconstruct'>deconstruct</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
@@ -1462,12 +1484,12 @@ entries rely on their own <code>as_json</code> / <code>to_json</code>.</p>
       <pre class="lines">
 
 
-247
-248
-249</pre>
+261
+262
+263</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 247</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 261</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deconstruct_keys'>deconstruct_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='ivar'>@table</span> <span class='op'>:</span> <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
@@ -1490,7 +1512,7 @@ entries rely on their own <code>as_json</code> / <code>to_json</code>.</p>
   <div class="discussion">
     <p>Returns a deep copy. Non-mutable scalars are shared; Hashes/Arrays are
 recursively duplicated; other objects fall back to <code>#dup</code> (and then
-to the original on <code>StandardError</code>).</p>
+to the original on <code>StandardError</code>). <code>@strict</code> is preserved on the copy.</p>
 
   </div>
 </div>
@@ -1516,18 +1538,20 @@ to the original on <code>StandardError</code>).</p>
       <pre class="lines">
 
 
-263
-264
-265
-266
-267</pre>
+277
+278
+279
+280
+281
+282</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 263</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 277</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deep_dup'>deep_dup</span>
   <span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_allocate'>allocate</span>
   <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@table</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deep_dup'><span class='object_link'><a href="Util.html#deep_dup-instance_method" title="CMDx::Util#deep_dup (method)">deep_dup</a></span></span><span class='lparen'>(</span><span class='ivar'>@table</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@strict</span><span class='comma'>,</span> <span class='ivar'>@strict</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_ctx'>ctx</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1594,14 +1618,14 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-91
-92
-93
-94
-95</pre>
+103
+104
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 91</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 103</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deep_merge'>deep_merge</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
@@ -1684,12 +1708,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-182
-183
-184</pre>
+194
+195
+196</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 182</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 194</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1768,12 +1792,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-115
-116
-117</pre>
+127
+128
+129</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 115</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 127</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
@@ -1833,12 +1857,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-163
-164
-165</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 163</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1898,12 +1922,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-169
-170
-171</pre>
+181
+182
+183</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 169</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 181</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_each_key'>each_key</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1963,12 +1987,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-175
-176
-177</pre>
+187
+188
+189</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 175</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 187</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_each_value'>each_value</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -2015,12 +2039,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-152
-153
-154</pre>
+164
+165
+166</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 152</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 164</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -2086,12 +2110,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-198
-199
-200</pre>
+210
+211
+212</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 198</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>==</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -2154,12 +2178,12 @@ Non-Hash values follow last-write-wins (<code>context</code> wins).</p>
       <pre class="lines">
 
 
-108
-109
-110</pre>
+120
+121
+122</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 108</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 120</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
@@ -2210,13 +2234,13 @@ root task's context during teardown.</p>
       <pre class="lines">
 
 
-273
-274
-275
-276</pre>
+288
+289
+290
+291</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 273</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 288</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_freeze'>freeze</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
@@ -2264,15 +2288,75 @@ root task's context during teardown.</p>
       <pre class="lines">
 
 
-204
-205
-206</pre>
+216
+217
+218</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 204</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 216</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hash'>hash</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_hash'>hash</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_copy-instance_method">
+  
+    #<strong>initialize_copy</strong>(source)  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Ensures <code>#dup</code> / <code>#clone</code> produce a context with an independent backing
+hash so mutations on the copy do not leak into the original. <code>@strict</code>
+is preserved on the copy.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='ivar'>@table</span>  <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='symbol'>:@table</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+  <span class='ivar'>@strict</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_strict?'>strict?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2331,12 +2415,12 @@ root task's context during teardown.</p>
       <pre class="lines">
 
 
-137
-138
-139</pre>
+149
+150
+151</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 137</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 149</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
@@ -2383,12 +2467,12 @@ root task's context during teardown.</p>
       <pre class="lines">
 
 
-142
-143
-144</pre>
+154
+155
+156</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 142</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 154</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_keys'>keys</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
@@ -2456,14 +2540,14 @@ root task's context during teardown.</p>
       <pre class="lines">
 
 
-79
-80
-81
-82
-83</pre>
+91
+92
+93
+94
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 79</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 91</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
@@ -2576,16 +2660,16 @@ default (from block if given, else <code>value</code>).</p>
       <pre class="lines">
 
 
-127
-128
-129
-130
-131
-132
-133</pre>
+139
+140
+141
+142
+143
+144
+145</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 127</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 139</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_retrieve'>retrieve</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_nk'>nk</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
@@ -2636,12 +2720,12 @@ default (from block if given, else <code>value</code>).</p>
       <pre class="lines">
 
 
-157
-158
-159</pre>
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 157</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 169</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -2722,12 +2806,12 @@ existing entry.</p>
       <pre class="lines">
 
 
-69
-70
-71</pre>
+81
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_store'>store</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
   <span class='ivar'>@table</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
@@ -2779,12 +2863,12 @@ of returning <code>nil</code></p></div>
       <pre class="lines">
 
 
-59
-60
-61</pre>
+71
+72
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 59</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_strict?'>strict?</span>
   <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@strict</span>
@@ -2805,7 +2889,9 @@ of returning <code>nil</code></p></div>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the underlying table (not a copy).</p>
+    <p>Returns a shallow copy of the underlying table.
+Frozen contexts return the frozen table directly to preserve
+<code>Hash#frozen?</code> semantics for serialization callers.</p>
 
   </div>
 </div>
@@ -2822,7 +2908,9 @@ of returning <code>nil</code></p></div>
       
       
         &mdash;
-        <div class='inline'><p>the underlying table (not a copy)</p></div>
+        <div class='inline'><p>a shallow copy of the underlying table.
+Frozen contexts return the frozen table directly to preserve
+<code>Hash#frozen?</code> semantics for serialization callers.</p></div>
       
     </li>
   
@@ -2834,15 +2922,15 @@ of returning <code>nil</code></p></div>
       <pre class="lines">
 
 
-209
-210
-211</pre>
+223
+224
+225</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 209</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 223</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
-  <span class='ivar'>@table</span>
+  <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_frozen?'>frozen?</span> <span class='op'>?</span> <span class='ivar'>@table</span> <span class='op'>:</span> <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2905,12 +2993,12 @@ strings by the <code>json</code> stdlib.</p>
       <pre class="lines">
 
 
-227
-228
-229</pre>
+241
+242
+243</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 227</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 241</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -2960,19 +3048,19 @@ strings by the <code>json</code> stdlib.</p>
       <pre class="lines">
 
 
-232
-233
-234
-235
-236
-237
-238
-239
-240
-241</pre>
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 232</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 246</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='const'>String</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>capacity:</span> <span class='int'>256</span><span class='rparen'>)</span>
@@ -3026,12 +3114,12 @@ strings by the <code>json</code> stdlib.</p>
       <pre class="lines">
 
 
-147
-148
-149</pre>
+159
+160
+161</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 147</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 159</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_values'>values</span>
   <span class='ivar'>@table</span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span>
@@ -3046,7 +3134,7 @@ strings by the <code>json</code> stdlib.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:08 2026 by
+  Generated on Wed May 13 20:26:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

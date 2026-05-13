@@ -164,7 +164,7 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#build-instance_method" title="#build (instance method)">#<strong>build</strong>(new_exceptions, new_options, &amp;block) {|attempt, delay| ... } &#x21d2; Retry </a>
+      <a href="#build-instance_method" title="#build (instance method)">#<strong>build</strong>(new_exceptions, new_options, &amp;block) {|attempt, delay, prev_delay| ... } &#x21d2; Retry </a>
     
 
     
@@ -208,7 +208,7 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(exceptions, options = EMPTY_HASH, &amp;block) {|attempt, delay| ... } &#x21d2; Retry </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(exceptions, options = EMPTY_HASH, &amp;block) {|attempt, delay, prev_delay| ... } &#x21d2; Retry </a>
     
 
     
@@ -349,7 +349,7 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(exceptions, options = EMPTY_HASH, &amp;block) {|attempt, delay| ... } &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Retry (class)">Retry</a></span></tt> 
+    #<strong>initialize</strong>(exceptions, options = EMPTY_HASH, &amp;block) {|attempt, delay, prev_delay| ... } &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Retry (class)">Retry</a></span></tt> 
   
 
   
@@ -498,6 +498,17 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
       
     </li>
   
+    <li>
+      
+        <span class='name'>prev_delay</span>
+      
+      
+        <span class='type'>(<tt>Float</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
 </ul>
 
 </div><table class="source_code">
@@ -506,14 +517,14 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
       <pre class="lines">
 
 
-23
 24
 25
 26
-27</pre>
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_exceptions'>exceptions</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='ivar'>@exceptions</span> <span class='op'>=</span> <span class='id identifier rubyid_exceptions'>exceptions</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span>
@@ -581,7 +592,7 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
       <div class="method_details first">
   <h3 class="signature first" id="build-instance_method">
   
-    #<strong>build</strong>(new_exceptions, new_options, &amp;block) {|attempt, delay| ... } &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Retry (class)">Retry</a></span></tt> 
+    #<strong>build</strong>(new_exceptions, new_options, &amp;block) {|attempt, delay, prev_delay| ... } &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Retry (class)">Retry</a></span></tt> 
   
 
   
@@ -591,7 +602,9 @@ exception list, attempt <code>:limit</code>, base <code>:delay</code>, <code>:ma
   <div class="discussion">
     <p>Returns a new Retry layering <code>new_exceptions</code> and <code>new_options</code> onto the
 current one. Used for inheritance so subclasses extend rather than
-replace.</p>
+replace. Returns <code>self</code> only when <em>every</em> override (exceptions, options,
+and block) is empty so option-only updates such as <code>retry_on(limit: 5)</code>
+still take effect.</p>
 
   </div>
 </div>
@@ -643,7 +656,7 @@ replace.</p>
     <li>
       
       
-        <span class='type'>(<tt>attempt</tt>, <tt><span class='object_link'><a href="#delay-instance_method" title="CMDx::Retry#delay (method)">delay</a></span></tt>)</span>
+        <span class='type'>(<tt>attempt</tt>, <tt><span class='object_link'><a href="#delay-instance_method" title="CMDx::Retry#delay (method)">delay</a></span></tt>, <tt>prev_delay</tt>)</span>
       
       
       
@@ -673,20 +686,20 @@ replace.</p>
       <pre class="lines">
 
 
-38
-39
-40
 41
 42
 43
 44
-45</pre>
+45
+46
+47
+48</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 38</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 41</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_new_exceptions'>new_exceptions</span><span class='comma'>,</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_exceptions'>new_exceptions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_exceptions'>new_exceptions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
 
   <span class='id identifier rubyid_merged_exceptions'>merged_exceptions</span> <span class='op'>=</span> <span class='id identifier rubyid_exceptions'>exceptions</span> <span class='op'>|</span> <span class='id identifier rubyid_new_exceptions'>new_exceptions</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span>
   <span class='id identifier rubyid_merged_options'>merged_options</span>    <span class='op'>=</span> <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_new_options'>new_options</span><span class='rparen'>)</span>
@@ -738,12 +751,12 @@ replace.</p>
       <pre class="lines">
 
 
-53
-54
-55</pre>
+56
+57
+58</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 53</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 56</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delay'>delay</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:delay</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='float'>0.5</span>
@@ -793,12 +806,12 @@ replace.</p>
       <pre class="lines">
 
 
-63
-64
-65</pre>
+66
+67
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 63</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 66</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_jitter'>jitter</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:jitter</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='ivar'>@block</span>
@@ -845,12 +858,12 @@ replace.</p>
       <pre class="lines">
 
 
-48
-49
-50</pre>
+51
+52
+53</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 48</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 51</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_limit'>limit</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:limit</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>3</span>
@@ -900,12 +913,12 @@ replace.</p>
       <pre class="lines">
 
 
-58
-59
-60</pre>
+61
+62
+63</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 61</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_max_delay'>max_delay</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:max_delay</span><span class='rbracket'>]</span>
@@ -1026,22 +1039,22 @@ exception when attempts are exhausted.</p>
       <pre class="lines">
 
 
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-125</pre>
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 127</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_exceptions'>exceptions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>||</span> <span class='op'>!</span><span class='id identifier rubyid_limit'>limit</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
@@ -1073,6 +1086,14 @@ exception when attempts are exhausted.</p>
 </h3><div class="docstring">
   <div class="discussion">
     <p>Sleeps <code>attempt</code>'s jittered/bounded delay. No-op when the base delay is zero.</p>
+<p>Custom jitter callables (registry, task Symbol method, <code>Proc</code> / block via
+<code>instance_exec</code> on the task, and other <code>#call</code>-ables) always receive
+<code>(attempt, delay, prev_delay)</code> so strategies share one shape; ignore
+<code>prev_delay</code> when you do not need decorrelated threading.</p>
+<p>Non-numeric or non-finite jitter results are sanitized to the base <code>delay</code>
+and the final sleep is always clamped to <code>[0, max_delay]</code> when <code>max_delay</code>
+is set, preventing self-DoS from a buggy jitter returning <code>Float::INFINITY</code>
+or a non-Numeric value.</p>
 
   </div>
 </div>
@@ -1153,19 +1174,6 @@ exception when attempts are exhausted.</p>
       <pre class="lines">
 
 
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87
 88
 89
 90
@@ -1181,10 +1189,24 @@ exception when attempts are exhausted.</p>
 100
 101
 102
-103</pre>
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 75</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 88</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_delay'>delay</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
@@ -1199,18 +1221,19 @@ exception when attempts are exhausted.</p>
       <span class='kw'>if</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_jitter'>jitter</span><span class='rparen'>)</span>
         <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_jitter'>jitter</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span><span class='rparen'>)</span>
       <span class='kw'>else</span>
-        <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_jitter'>jitter</span><span class='comma'>,</span> <span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_jitter'>jitter</span><span class='comma'>,</span> <span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span><span class='rparen'>)</span>
       <span class='kw'>end</span>
     <span class='kw'>when</span> <span class='const'>Proc</span>
-      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_instance_exec'>instance_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_jitter'>jitter</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_instance_exec'>instance_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_jitter'>jitter</span><span class='rparen'>)</span>
     <span class='kw'>else</span>
       <span class='kw'>if</span> <span class='id identifier rubyid_jitter'>jitter</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
-        <span class='id identifier rubyid_jitter'>jitter</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_jitter'>jitter</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt'>attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span><span class='rparen'>)</span>
       <span class='kw'>else</span>
         <span class='id identifier rubyid_delay'>delay</span>
       <span class='kw'>end</span>
     <span class='kw'>end</span>
 
+  <span class='id identifier rubyid_d'>d</span> <span class='op'>=</span> <span class='id identifier rubyid_delay'>delay</span> <span class='kw'>unless</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Numeric</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_finite?'>finite?</span>
   <span class='id identifier rubyid_d'>d</span> <span class='op'>=</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_clamp'>clamp</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_max_delay'>max_delay</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_max_delay'>max_delay</span>
   <span class='const'>Kernel</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_d'>d</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
   <span class='id identifier rubyid_d'>d</span>
@@ -1225,7 +1248,7 @@ exception when attempts are exhausted.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

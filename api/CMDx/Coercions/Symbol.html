@@ -98,8 +98,14 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Coerces to Symbol via <code>#to_s.to_sym</code>. Fails only when <code>value</code> has no
-<code>#to_s</code> (i.e. <code>BasicObject</code> instances).</p>
+    <p>Coerces to Symbol via <code>#to_s.to_sym</code>. Fails when <code>value</code> has no
+<code>#to_s</code> (i.e. <code>BasicObject</code> instances) or when the resulting string
+exceeds <span class='object_link'><a href="#MAX_LENGTH-constant" title="CMDx::Coercions::Symbol::MAX_LENGTH (constant)">MAX_LENGTH</a></span> characters.</p>
+<p>Symbols are never garbage-collected when interned from arbitrary
+strings, so unbounded coercion of attacker-controlled input would
+grow the symbol table unbounded (memory DoS). The default cap is
+generous for legitimate identifiers; pass <code>max_length:</code> to tighten
+it for hot paths or untrusted boundaries.</p>
 
   </div>
 </div>
@@ -107,6 +113,22 @@
   
 
 </div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MAX_LENGTH-constant" class="">MAX_LENGTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>256</span></pre></dd>
+      
+    </dl>
+  
+
 
 
 
@@ -207,13 +229,16 @@
     <ul class="option">
       
         <li>
-          <span class="name">reserved</span>
-          <span class="type">(<tt>Object</tt>)</span>
+          <span class="name">:max_length</span>
+          <span class="type">(<tt><span class='object_link'><a href="Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span></tt>)</span>
           <span class="default">
+            
+              &mdash; default:
+              <tt>256</tt>
             
           </span>
           
-            &mdash; <div class='inline'><p>for future per-coercion configuration (currently ignored)</p></div>
+            &mdash; <div class='inline'><p>reject strings longer than this</p></div>
           
         </li>
       
@@ -240,25 +265,31 @@
       <pre class="lines">
 
 
-15
-16
-17
-18
-19
-20
-21
-22</pre>
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/symbol.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/symbol.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Symbol</span><span class='rparen'>)</span>
 
-  <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+  <span class='id identifier rubyid_str'>str</span>   <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_limit'>limit</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:max_length</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="#MAX_LENGTH-constant" title="CMDx::Coercions::Symbol::MAX_LENGTH (constant)">MAX_LENGTH</a></span></span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_coercion_failure'>coercion_failure</span> <span class='kw'>if</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_limit'>limit</span>
+
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
 <span class='kw'>rescue</span> <span class='const'>NoMethodError</span>
-  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="../I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.types.symbol</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Coercions.html#initialize-instance_method" title="CMDx::Coercions#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="../I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.coercions.into_a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>type:</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_coercion_failure'>coercion_failure</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -270,7 +301,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

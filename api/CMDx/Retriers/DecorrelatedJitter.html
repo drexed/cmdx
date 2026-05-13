@@ -103,9 +103,12 @@
   You should avoid using this module if possible, as it may be removed or be changed in the future.
 </p>
 <p>AWS-recommended decorrelated jitter. Produces a uniform delay in
-<code>[delay, prev_delay * 3]</code>, threading state across attempts via
-<code>prev_delay</code>. When no previous delay exists the upper bound collapses
-to <code>3 * delay</code>, matching the AWS reference implementation.</p>
+<code>[delay, max(prev_delay * 3, delay)]</code>, threading state across attempts
+via <code>prev_delay</code>. When no previous delay exists the upper bound
+collapses to <code>3 * delay</code>, matching the AWS reference implementation.
+The lower bound is pinned at <code>delay</code> even when <code>prev_delay * 3 &lt; delay</code>
+(e.g. after <code>:max_delay</code> clamping or mixed strategies), guaranteeing
+the returned value is never below the configured base.</p>
 
   </div>
 </div>
@@ -151,7 +154,7 @@ to <code>3 * delay</code>, matching the AWS reference implementation.</p>
   <span class="private note title">private</span>
 
   
-    <span class="summary_desc"><div class='inline'><p>Computed delay.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>Computed delay, never less than <code>delay</code>.</p></div></span>
   
 </li>
 
@@ -181,7 +184,7 @@ to <code>3 * delay</code>, matching the AWS reference implementation.</p>
   <strong>This method is part of a private API.</strong>
   You should avoid using this method if possible, as it may be removed or be changed in the future.
 </p>
-<p>Returns computed delay.</p>
+<p>Returns computed delay, never less than <code>delay</code>.</p>
 
   </div>
 </div>
@@ -247,7 +250,7 @@ to <code>3 * delay</code>, matching the AWS reference implementation.</p>
       
       
         &mdash;
-        <div class='inline'><p>computed delay</p></div>
+        <div class='inline'><p>computed delay, never less than <code>delay</code></p></div>
       
     </li>
   
@@ -259,17 +262,21 @@ to <code>3 * delay</code>, matching the AWS reference implementation.</p>
       <pre class="lines">
 
 
-21
-22
-23
-24</pre>
+24
+25
+26
+27
+28
+29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retriers/decorrelated_jitter.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retriers/decorrelated_jitter.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid__attempt'>_attempt</span><span class='comma'>,</span> <span class='id identifier rubyid_delay'>delay</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='id identifier rubyid_prev_delay'>prev_delay</span> <span class='op'>||</span> <span class='id identifier rubyid_delay'>delay</span>
-  <span class='id identifier rubyid_delay'>delay</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>*</span> <span class='int'>3</span><span class='rparen'>)</span> <span class='op'>-</span> <span class='id identifier rubyid_delay'>delay</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_high'>high</span> <span class='op'>=</span> <span class='id identifier rubyid_base'>base</span> <span class='op'>*</span> <span class='int'>3</span>
+  <span class='id identifier rubyid_high'>high</span> <span class='op'>=</span> <span class='id identifier rubyid_delay'>delay</span> <span class='kw'>if</span> <span class='id identifier rubyid_high'>high</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_delay'>delay</span>
+  <span class='id identifier rubyid_delay'>delay</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='id identifier rubyid_high'>high</span> <span class='op'>-</span> <span class='id identifier rubyid_delay'>delay</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -281,7 +288,7 @@ to <code>3 * delay</code>, matching the AWS reference implementation.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

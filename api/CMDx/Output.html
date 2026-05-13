@@ -950,7 +950,16 @@ defaults.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p><p>Enforces the output contract against <code>task.context[name]</code> after <code>work</code> runs.</p>
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'><p>&quot;Missing&quot; here means &quot;the key was never written&quot;; an explicit <code>nil</code>
+under an existing key is treated as &quot;present&quot; and the value remains
+<code>nil</code> (unless <code>:default</code> overrides it). To reject explicit <code>nil</code>, write
+a non-nil value or set a non-nil <code>:default</code>.</p></div>
+  </div>
+
+<p class="note returns_void">This method returns an undefined value.</p><p>Enforces the output contract against <code>task.context[name]</code> after <code>work</code> runs.</p>
 <p>Steps, in order:</p>
 <ol>
 <li>Skips entirely when <code>:if</code>/<code>:unless</code> excludes it.</li>
@@ -989,11 +998,6 @@ supplied a value (every declared output is implicitly required).</li>
       <pre class="lines">
 
 
-80
-81
-82
-83
-84
 85
 86
 87
@@ -1002,10 +1006,15 @@ supplied a value (every declared output is implicitly required).</li>
 90
 91
 92
-93</pre>
+93
+94
+95
+96
+97
+98</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/output.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/output.rb', line 85</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_verify'>verify</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_condition_if'>condition_if</span><span class='comma'>,</span> <span class='id identifier rubyid_condition_unless'>condition_unless</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
@@ -1031,7 +1040,7 @@ supplied a value (every declared output is implicitly required).</li>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

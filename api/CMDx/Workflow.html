@@ -258,7 +258,6 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
       <pre class="lines">
 
 
-104
 105
 106
 107
@@ -267,10 +266,11 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
 110
 111
 112
-113</pre>
+113
+114</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 104</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_included'>included</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span><span class='rparen'>)</span>
   <span class='kw'>unless</span> <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Class</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_base'>base</span> <span class='op'>&lt;=</span> <span class='const'><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></span>
@@ -317,12 +317,12 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
       <pre class="lines">
 
 
-118
 119
-120</pre>
+120
+121</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 118</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 119</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
   <span class='const'><span class='object_link'><a href="Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'><span class='object_link'><a href="Pipeline.html#execute-class_method" title="CMDx::Pipeline.execute (method)">execute</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -337,7 +337,7 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:06 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

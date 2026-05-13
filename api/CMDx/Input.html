@@ -1100,12 +1100,12 @@ callers (e.g. Rails).</p>
       <pre class="lines">
 
 
-164
-165
-166</pre>
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 164</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 169</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_as_json'>as_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span>
@@ -1571,7 +1571,16 @@ When called without a task, returns the static <code>:required</code> flag.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Fetches + coerces + transforms + validates the value from its
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'><p>&quot;Required&quot; here means &quot;the key is present in the source&quot;; an
+explicit <code>nil</code> under an existing key satisfies the required check
+and is then routed through <code>:default</code>. Combine with <code>:presence</code> /
+<code>:validate</code> to reject explicit <code>nil</code> values.</p></div>
+  </div>
+
+<p>Fetches + coerces + transforms + validates the value from its
 configured <code>:source</code> on <code>task</code>. Missing-but-required inputs add a
 validation error to <code>task.errors</code>. Returns <code>nil</code> when coercion or any
 validator fails (the failure message is recorded on <code>task.errors</code>).</p>
@@ -1618,13 +1627,13 @@ validator fails (the failure message is recorded on <code>task.errors</code>).</
       <pre class="lines">
 
 
-133
-134
-135
-136</pre>
+138
+139
+140
+141</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 133</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 138</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_key_provided'>key_provided</span> <span class='op'>=</span> <span class='id identifier rubyid_resolve_with_key'>resolve_with_key</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
@@ -1702,13 +1711,13 @@ nested child inputs) instead of the declared <code>:source</code>.</p>
       <pre class="lines">
 
 
-144
-145
-146
-147</pre>
+149
+150
+151
+152</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 144</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 149</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_resolve_from_parent'>resolve_from_parent</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_value'>parent_value</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_key_provided'>key_provided</span> <span class='op'>=</span> <span class='id identifier rubyid_resolve_from_parent_with_key'>resolve_from_parent_with_key</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_value'>parent_value</span><span class='rparen'>)</span>
@@ -1863,24 +1872,24 @@ nested child inputs) instead of the declared <code>:source</code>.</p>
       <pre class="lines">
 
 
-150
-151
-152
-153
-154
 155
 156
 157
-158</pre>
+158
+159
+160
+161
+162
+163</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 150</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 155</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
     <span class='label'>name:</span> <span class='id identifier rubyid_accessor_name'>accessor_name</span><span class='comma'>,</span>
     <span class='label'>description:</span><span class='comma'>,</span>
-    <span class='label'>required:</span> <span class='id identifier rubyid_required?'>required?</span><span class='comma'>,</span>
+    <span class='label'>required:</span><span class='comma'>,</span>
     <span class='label'>options:</span> <span class='ivar'>@options</span><span class='comma'>,</span>
     <span class='label'>children:</span> <span class='id identifier rubyid_children'>children</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_h</span><span class='rparen'>)</span>
   <span class='rbrace'>}</span>
@@ -1947,12 +1956,12 @@ defaults.</p>
       <pre class="lines">
 
 
-174
-175
-176</pre>
+179
+180
+181</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 174</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/input.rb', line 179</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -2019,7 +2028,7 @@ defaults.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

@@ -265,7 +265,7 @@ empty collection.</p>
     <span class='kw'>elsif</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:empty?</span><span class='rparen'>)</span>
       <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
     <span class='kw'>else</span>
-      <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='op'>!</span><span class='op'>!</span><span class='id identifier rubyid_value'>value</span>
     <span class='kw'>end</span>
 
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_present'>present</span>
@@ -282,7 +282,7 @@ empty collection.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

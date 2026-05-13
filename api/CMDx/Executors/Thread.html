@@ -104,7 +104,9 @@
 </p>
 <p>Default executor. Uses a fixed-size <code>Thread</code> pool drained via a <code>Queue</code>;
 sentinel <code>nil</code>s terminate workers. Workers inherit the parent's chain via
-fiber-local storage.</p>
+fiber-local storage. Exceptions raised inside <code>on_job</code> are captured per
+worker and re-raised on the main thread once every worker has joined, so
+callers see failures instead of silently dropped jobs.</p>
 
   </div>
 </div>
@@ -205,7 +207,7 @@ fiber-local storage.</p>
       
       
         &mdash;
-        <div class='inline'><p>worker count</p></div>
+        <div class='inline'><p>worker count (must be &gt;= 1)</p></div>
       
     </li>
   
@@ -225,6 +227,34 @@ fiber-local storage.</p>
   
 </ul>
 
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>concurrency</code> is not a positive Integer</p></div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StandardError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>re-raises the first exception captured from any worker</p></div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -232,10 +262,6 @@ fiber-local storage.</p>
       <pre class="lines">
 
 
-18
-19
-20
-21
 22
 23
 24
@@ -246,25 +272,49 @@ fiber-local storage.</p>
 29
 30
 31
-32</pre>
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors/thread.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors/thread.rb', line 22</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>jobs:</span><span class='comma'>,</span> <span class='label'>concurrency:</span><span class='comma'>,</span> <span class='label'>on_job:</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_queue'>queue</span> <span class='op'>=</span> <span class='const'>Queue</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>executor concurrency must be a positive Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
+
+  <span class='id identifier rubyid_queue'>queue</span>  <span class='op'>=</span> <span class='const'>Queue</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_errors'>errors</span> <span class='op'>=</span> <span class='const'>Queue</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
   <span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_job'>job</span><span class='op'>|</span> <span class='id identifier rubyid_queue'>queue</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_job'>job</span> <span class='rbrace'>}</span>
   <span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_queue'>queue</span> <span class='op'>&lt;&lt;</span> <span class='kw'>nil</span> <span class='rbrace'>}</span>
 
   <span class='id identifier rubyid_workers'>workers</span> <span class='op'>=</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_concurrency'>concurrency</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='op'>::</span><span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span>
       <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_job'>job</span> <span class='op'>=</span> <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span><span class='rparen'>)</span>
-        <span class='id identifier rubyid_on_job'>on_job</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_job'>job</span><span class='rparen'>)</span>
+        <span class='kw'>begin</span>
+          <span class='id identifier rubyid_on_job'>on_job</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_job'>job</span><span class='rparen'>)</span>
+        <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+          <span class='id identifier rubyid_errors'>errors</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_e'>e</span>
+        <span class='kw'>end</span>
       <span class='kw'>end</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_workers'>workers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:join</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span> <span class='kw'>unless</span> <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -276,7 +326,7 @@ fiber-local storage.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 18:19:07 2026 by
+  Generated on Wed May 13 20:26:57 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

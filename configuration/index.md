@@ -356,7 +356,7 @@ class FetchInvoice < CMDx::Task
     max_delay: 5.0,
     jitter: :exponential   # :exponential, :half_random, :full_random, :bounded_random, :linear, :fibonacci, :decorrelated_jitter
 
-  retry_on External::ApiError, limit: 5 do |attempt, delay|
+  retry_on External::ApiError, limit: 5 do |attempt, delay, _prev_delay|
     delay * (attempt + 1)  # custom backoff
   end
 end
