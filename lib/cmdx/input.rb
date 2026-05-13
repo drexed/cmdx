@@ -156,7 +156,7 @@ module CMDx
       {
         name: accessor_name,
         description:,
-        required:,
+        required: required?,
         options: @options,
         children: children.map(&:to_h)
       }
