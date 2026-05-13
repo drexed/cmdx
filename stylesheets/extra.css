@@ -129,10 +129,10 @@
 
 /* Dark scheme palette aligned with docs/overrides/home.html */
 [data-md-color-scheme="slate"] {
-  --md-default-bg-color:           #15171a;
-  --md-default-bg-color--light:    #1c1f23;
-  --md-default-bg-color--lighter:  #23272c;
-  --md-default-bg-color--lightest: #2a2e34;
+  --md-default-bg-color:           #161616;
+  --md-default-bg-color--light:    #1c1c1c;
+  --md-default-bg-color--lighter:  #232323;
+  --md-default-bg-color--lightest: #2a2a2a;
 
   --md-default-fg-color:           #c2c5ca;
   --md-default-fg-color--light:    rgba(194, 197, 202, 0.75);
@@ -142,11 +142,13 @@
   --md-typeset-color:              #c2c5ca;
   --md-typeset-a-color:            #fe1817;
 
-  --md-code-bg-color:              #1c1f23;
+  --md-code-bg-color:              #1c1c1c;
   --md-code-fg-color:              #c2c5ca;
+  --md-code-bg-color--light:       #232323;
+  --md-code-bg-color--lighter:     #1c1c1c;
 
-  --md-footer-bg-color:            #15171a;
-  --md-footer-bg-color--dark:      #101216;
+  --md-footer-bg-color:            #191919;
+  --md-footer-bg-color--dark:      #0d0d0d;
   --md-footer-fg-color:            #c2c5ca;
   --md-footer-fg-color--light:     #7a8290;
   --md-footer-fg-color--lighter:   rgba(194, 197, 202, 0.45);
@@ -163,7 +165,7 @@
   --md-typeset-table-color:        rgba(255, 255, 255, 0.12);
   --md-typeset-table-color--light: rgba(255, 255, 255, 0.04);
 
-  --md-admonition-bg-color:        #1c1f23;
+  --md-admonition-bg-color:        #1c1c1c;
   --md-admonition-fg-color:        #c2c5ca;
 
   --md-warning-bg-color:           #3b2d04;
@@ -177,21 +179,21 @@
   --md-tooltip-fg-color:           #d4d4d4;
 
   --md-mermaid-edge-color:                 #7a8290;
-  --md-mermaid-node-bg-color:              #1c1f23;
+  --md-mermaid-node-bg-color:              #1c1c1c;
   --md-mermaid-node-fg-color:              #c2c5ca;
-  --md-mermaid-label-bg-color:             #1c1f23;
+  --md-mermaid-label-bg-color:             #1c1c1c;
   --md-mermaid-label-fg-color:             #c2c5ca;
-  --md-mermaid-sequence-actor-bg-color:    #1c1f23;
+  --md-mermaid-sequence-actor-bg-color:    #1c1c1c;
   --md-mermaid-sequence-actor-border-color:#c2c5ca;
   --md-mermaid-sequence-actor-fg-color:    #c2c5ca;
   --md-mermaid-sequence-actor-line-color:  #7a8290;
-  --md-mermaid-sequence-actorman-bg-color: #1c1f23;
+  --md-mermaid-sequence-actorman-bg-color: #1c1c1c;
   --md-mermaid-sequence-actorman-line-color:#7a8290;
-  --md-mermaid-sequence-box-bg-color:      #15171a;
+  --md-mermaid-sequence-box-bg-color:      #161616;
   --md-mermaid-sequence-box-fg-color:      #c2c5ca;
   --md-mermaid-sequence-label-bg-color:    #c2c5ca;
-  --md-mermaid-sequence-label-fg-color:    #15171a;
-  --md-mermaid-sequence-loop-bg-color:     #1c1f23;
+  --md-mermaid-sequence-label-fg-color:    #161616;
+  --md-mermaid-sequence-loop-bg-color:     #1c1c1c;
   --md-mermaid-sequence-loop-fg-color:     #c2c5ca;
   --md-mermaid-sequence-loop-border-color: #7a8290;
   --md-mermaid-sequence-message-fg-color:  #c2c5ca;
@@ -241,6 +243,12 @@
   border-radius: 0;
   border: none;
   margin: -10px 0;
+}
+
+.md-code__nav {
+  border-radius: 8px;
+  right: 0;
+  top: -0.8rem;
 }
 
 .tabbed-block {
@@ -333,17 +341,19 @@
 [data-md-color-scheme="slate"] .only-light { display: none !important; }
 [data-md-color-scheme="slate"] .only-dark { display: inline !important; }
 
-/* Tables: prevent column squish, allow horizontal scroll, improve rhythm */
+/* Tables: full width of article column; grow + scroll when content is wider */
 .md-typeset__table {
+  width: 100%;
   overflow-x: auto;
 }
 
 .md-typeset__table > table:not([class]),
 .md-typeset table:not([class]) {
   display: table;
-  width: 100%;
+  width: auto;
+  min-width: 100%;
+  max-width: none;
   table-layout: auto;
-  min-width: max-content;
 }
 
 .md-typeset table:not([class]) th,

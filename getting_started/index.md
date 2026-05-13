@@ -94,9 +94,9 @@ When you are ready to go deeper, this map points you at the right doc:
 | Automatic retries                        | [Retries](https://drexed.github.io/cmdx/retries/index.md)                | `retry_on Net::OpenTimeout, limit: 3` |
 | What got logged                          | [Logging](https://drexed.github.io/cmdx/logging/index.md)                | Built-in structured lines             |
 
-## The CERO Pattern (say it like “zero”)
+## The CERO Pattern
 
-CMDx lines up with a simple mental model: **CERO** — **C**ompose, **E**xecute, **R**eact, **O**bserve.
+CMDx lines up with a simple mental model: **CERO** (say it like “zero”) — **C**ompose, **E**xecute, **R**eact, **O**bserve.
 
 - **Compose:** write small tasks with clear inputs and outputs; plug them together.
 - **Execute:** call `.execute` and let CMDx validate, run `work`, and wrap errors.

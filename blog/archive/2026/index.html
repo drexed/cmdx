@@ -2018,6 +2018,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cmdx-20-is-here-rewriting-the-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx 2.0 Is Here: Rewriting the Runtime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cmdx-patterns-debugging-and-observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2116,17 +2127,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#building-production-ready-rails-applications-with-cmdx-a-complete-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building Production-Ready Rails Applications with CMDx: A Complete Guide
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2141,6 +2141,56 @@
       <header class="md-typeset">
         <h1 id="may-2026">May 2026<a class="headerlink" href="#may-2026" title="Permanent link">&para;</a></h1>
       </header>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-05-13 00:00:00+00:00">May 13, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="cmdx-20-is-here-rewriting-the-runtime"><a class="toclink" href="../../cmdx-v2-the-runtime-rewrite/">CMDx 2.0 Is Here: Rewriting the Runtime</a></h2>
+<p>v1 shipped in March 2025. Over the next year, a lot of real applications pushed it in directions I hadn't planned for: fiber-based schedulers, high-throughput workflows, middleware stacks that wanted to introspect results, pattern-matching consumers. Every one of those pressures exposed the same underlying problem — the v1 runtime was a state machine bolted onto a mutable <code>Result</code>, and the longer I tried to extend it, the more it fought back.</p>
+<p>v2 is the rewrite those cracks justified. Same DSL surface you already know — <code>required</code>, <code>optional</code>, <code>returns</code>, <code>on_success</code>, <code>settings</code>, <code>CMDx::Workflow</code> — but a different engine underneath. This post is about why I rewrote the runtime, what actually changed, and how to get your app onto it.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../cmdx-v2-the-runtime-rewrite/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
       
         <article class="md-post md-post--excerpt">
   <header class="md-post__header">
@@ -2600,57 +2650,6 @@
     
       <nav class="md-post__action">
         <a href="../../testing-cmdx-tasks-like-a-pro/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-03-04 00:00:00+00:00">March 4, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              9 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="building-production-ready-rails-applications-with-cmdx-a-complete-guide"><a class="toclink" href="../../building-production-ready-rails-with-cmdx/">Building Production-Ready Rails Applications with CMDx: A Complete Guide</a></h2>
-<p><em>Targets CMDx v1.17.</em></p>
-<p>I've been building Ruby on Rails applications for over a decade, and if there's one thing that keeps me up at night, it's the state of business logic in most codebases. You know what I'm talking about—fat controllers, bloated models, service objects that look like they were written by five different people on five different days. We've all inherited that one <code>OrderService</code> class with 800 lines of spaghetti code and a comment at the top that says "TODO: refactor this."</p>
-<p>This guide is everything I wish I had when I started taking service objects seriously. We're going to build a complete order processing system from scratch, and by the end, you'll understand how CMDx transforms chaotic business logic into clean, observable, maintainable code.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../building-production-ready-rails-with-cmdx/">
           Continue reading
         </a>
       </nav>
