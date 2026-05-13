@@ -7,20 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
-- `key?` methods to registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
-- `Telemetry#lookup` accessor (`lookup` raises `UnknownEntryError` when the event has no subscribers); `Telemetry#emit` short-circuits on an empty registry
-
-### Removed
-- `CMDx::FrozenTaskError` raised when `success!` / `skip!` / `fail!` / `throw!` is called on an already-frozen task (was `FrozenError`)
-- `CMDx::UnknownAccessorError` raised by `Context` strict mode on missing keys (was `NoMethodError`)
-- `CMDx::UnknownEntryError` raised by registry lookups (coercions, validators, executors, mergers, retriers, deprecators) and `Telemetry#unsubscribe` for unknown names (was `ArgumentError`)
-- `CMDx::UnknownLocaleError` raised when `default_locale` cannot be resolved to a YAML file on the locale path (was `LoadError`)
+- `key?` on registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
+- `Telemetry#lookup` (subscriber list or `UnknownEntryError` for unknown events)
 
 ### Changed
-- Updated install generator template comments
-- Custom CMDx based errors instead of generics — every new error inherits from `CMDx::Error`, so a single `rescue CMDx::Error` still catches them
-- Error messages across `lib/cmdx/` rewritten for actionable debugging — registry-lookup failures now include the offending value and the runtime-resolved set of registered keys (`unknown validator :foo; registered: [...]`), validator/option errors echo the keys you passed and the keys accepted, type-mismatch errors include the offending `class`, terse messages (`"block required"`, `"reason required"`) are prefixed with the calling method (`CMDx.configure requires a block`), `MiddlewareError` names the middleware that failed to yield, and conceptually-tricky failures (middleware contract, `#work` not implemented, frozen-task signaling, i18n loader, strict context, deprecation gate) link to the relevant section on https://drexed.github.io/cmdx/ via section permalinks (e.g. `inputs/validations/#length`, `outcomes/result/#predicate-dispatch`)
-- Multi-line error messages converted from backslash-continued string concatenation to squiggly heredocs (`<<~MSG`) for readability and so the doc-link reference renders on its own line in terminal output
+- Install generator template comments refreshed for strict context and current APIs
+- Replace several generic Ruby / stdlib errors with `CMDx::Error` subclasses so `rescue CMDx::Error` stays sufficient: `FrozenTaskError` (was `FrozenError`) after freeze when calling `success!` / `skip!` / `fail!` / `throw!`; `UnknownAccessorError` (was `NoMethodError`) on strict `Context` reader misses; `UnknownEntryError` (was `ArgumentError`) on registry / `Telemetry#lookup` / `Telemetry#unsubscribe` misses; `UnknownLocaleError` (was `LoadError`) when `default_locale` cannot be resolved to a locale file
+- Reword errors in `lib/cmdx/` for clearer debugging: registry misses include the bad key and registered keys; validator / option errors show passed vs accepted keys; type mismatches include the unexpected class; short messages are prefixed with the caller (e.g. `CMDx.configure requires a block`); `MiddlewareError` names the non-yielding middleware; trickier cases (middleware contract, missing `#work`, frozen-task signals, i18n load, strict context, deprecation gate) append https://drexed.github.io/cmdx/ permalinks (e.g. `inputs/validations/#length`, `outcomes/result/#predicate-dispatch`)
+- Multi-line errors use squiggly heredocs (`<<~MSG`) instead of backslash-continued strings so doc links sit on their own line in logs
+- `Telemetry#emit` returns immediately when no telemetry subscribers exist; `Runtime` still uses `Telemetry#subscribed?` before emitting a given event
 
 ## [2.0.1] - 2026-05-09
 
@@ -29,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Simplify context `method_missing` lookup order (small perf boost)
 - Attempt translation of errors `full_messages`
 - Emit `:task_rolled_back` telemetry event on workflow rollback
-- `around_execution` callbacks now wrap only `Task#work` (and any `#rollback`); `before_validation` runs *before* the around-block and `after_execution` runs *after* it. Previously both were nested inside the around-block
+- Run `before_validation` before the `around_execution` stack (it used to run inside the around callbacks); the around hook still wraps input resolution, retried `work`, output verification, and post-failure `#rollback` when defined — `after_execution` remains after the stack
 
 ## [2.0.0] - 2026-05-05
 
@@ -46,14 +41,14 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `CMDx::Signal` halt token thrown via `catch(Signal::TAG)` (`:cmdx_signal`)
 - Add `Signal#ok?` / `Signal#ko?` predicates
 - Add `CMDx::Runtime` orchestrating the full task lifecycle and building the final `Result`
-- Add `CMDx::Telemetry` pub/sub for `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`; emits `Telemetry::Event` data objects with `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`
+- Add `CMDx::Telemetry` pub/sub for `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`; emits `Telemetry::Event` data objects with `xid`, `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`
 - Add `CMDx::Deprecation` for declarative class-level deprecation (`:log`, `:warn`, `:error`, Symbol, Proc, callable) with `:if` / `:unless` gating
 - Add `CMDx::Input` / `CMDx::Inputs` (replaces `Attribute` / `AttributeRegistry` / `AttributeValue`) supporting `:source`, `:default`, `:transform`, `:as`, `:prefix` / `:suffix`, and nested children via DSL block
 - Add `CMDx::Output` / `CMDx::Outputs` for first-class declared outputs verified against `task.context` after `work`. Every declared output is implicitly required — there is no `:required` option. Surface is intentionally minimal: `:default` (literal/Symbol/Proc/`#call(task)`-able fallback applied when the value is `nil`, satisfies the implicit required check), `:if` / `:unless` guards, and `:description`. Coercion, transformation, validation, and nested children are intentionally not supported on outputs — use inputs (or compute in `work`) when you need any of those
 - Add `CMDx::Util` single conditional-evaluation module (`evaluate`, `if?`, `unless?`, `satisfied?`) consolidating the v1 `Utils::*` modules
 - Add `CMDx::I18nProxy` translation façade that delegates to `I18n` when available, otherwise loads the bundled YAML and percent-interpolates with memoization
 - Add `CMDx::LoggerProxy` returning a per-task logger, `dup`-ing the base only when the task overrides `log_level` or `log_formatter`
-- Add `around_execution` callback that wraps `before_validation`, `Task#work`, any `#rollback`, and `after_execution` in a single hook. Symbol callbacks receive the continuation as their block (use `yield`); Procs/blocks/callables receive `(task, continuation)` and must invoke `continuation.call`. Multiple hooks nest in declaration order; failure to invoke the continuation raises `CMDx::CallbackError`. Sits inside middlewares but outside the state/status callbacks, so it's the right place for symmetric concerns (transactions, instrumentation, per-task logging context) without bolting them onto `middlewares.register`
+- Add `around_execution` callback nesting `before_validation`, input resolution, retried `Task#work`, output verification, `after_execution`, and post-failure `#rollback` (when defined). Symbol callbacks receive the continuation as their block (use `yield`); Procs/blocks/callables receive `(task, continuation)` and must invoke `continuation.call`. Hooks nest in declaration order; skipping the continuation raises `CMDx::CallbackError`. Lives inside middlewares but outside the `on_*` state/status callbacks — suited to transactions, instrumentation, and logging scope without extra `middlewares.register` entries (ordering of `before_validation` / `after_execution` vs this hook was refined in 2.0.1)
 - Add new exception classes: `DefinitionError`, `DeprecationError`, `ImplementationError`, `MiddlewareError`, `CallbackError`
 - Add `Task#work` abstract method (raises `ImplementationError` when not defined)
 - Add `Task#rollback` lifecycle hook, auto-invoked by Runtime on failed results when defined; surfaced via `Result#rolled_back?` and the `:task_rolled_back` event
@@ -99,11 +94,11 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Generated input accessors are now plain instance methods backed by `@_input_<name>` ivars set during input resolution; outputs have no accessors and are read/written directly on `task.context`
 - `Workflow` declares groups via `task` / `tasks` (still aliased) and supports `:strategy => :parallel`, `:pool_size`, `:continue_on_failure`, `:if` / `:unless` per group; defining `#work` on a workflow raises `ImplementationError`
 - `Pipeline` gains a `:parallel` strategy with `:pool_size` (replacing the removed `Parallelizer`); parallel workers share the parent fiber's chain, each get a `deep_dup`-ed context, successful child contexts are merged back into the workflow's context, and the first failed result is echoed via `throw!` to halt the pipeline. By default pending tasks are cancelled on the first failure (in-flight tasks still finish and successful contexts still merge); opt into batch semantics with `:continue_on_failure => true` to run every task to completion and aggregate failures into the workflow's `errors` (keys namespaced as `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"` for bare `fail!` reasons). `:continue_on_failure` works for both `:sequential` and `:parallel` groups.
-- `Task.callbacks`, `Task.middlewares`, `Task.coercions`, `Task.validators`, `Task.executors`, `Task.mergers`, `Task.telemetry`, `Task.inputs`, `Task.outputs` lazy-clone from the superclass (or global `Configuration`) on first access — subclasses extend rather than replace
-- `Settings` is now a frozen value object holding only `logger`, `log_formatter`, `log_level`, `log_exclusions`, `backtrace_cleaner`, `tags`, `strict_context`; every getter falls back to `CMDx.configuration`
+- `Task.callbacks`, `Task.middlewares`, `Task.coercions`, `Task.validators`, `Task.executors`, `Task.mergers`, `Task.retriers`, `Task.deprecators`, `Task.telemetry`, `Task.inputs`, `Task.outputs` lazy-clone from the superclass (or global `Configuration`) on first access — subclasses extend rather than replace
+- `Settings` is now a frozen value object holding only `logger`, `log_formatter`, `log_level`, `log_exclusions`, `backtrace_cleaner`, `tags`, `strict_context`, `correlation_id`; every getter falls back to `CMDx.configuration`
 - `Context.build` accepts anything that responds to `#context` (e.g. another `Task`), unwraps repeatedly, and only re-wraps frozen contexts; symbolizes hash keys via `#to_hash` / `#to_h`
 - `Retry` becomes a value object; `Task.retry_on` accumulates exceptions and options across the inheritance chain via `Retry#build`; supports built-in jitter strategies (`:exponential`, `:half_random`, `:full_random`, `:bounded_random`) plus Symbol / Proc / callable; retry wraps `work` only (input resolution and output verification run once, outside the retry loop)
-- All registries (`Callbacks`, `Middlewares`, `Coercions`, `Validators`, `Telemetry`, `Inputs`, `Outputs`) implement `initialize_copy` for cheap copy-on-write inheritance; `register` / `deregister` validate types up-front and raise `ArgumentError` on misuse
+- All registries (`Callbacks`, `Middlewares`, `Coercions`, `Validators`, `Executors`, `Mergers`, `Retriers`, `Deprecators`, `Telemetry`, `Inputs`, `Outputs`) implement `initialize_copy` for cheap copy-on-write inheritance; `register` / `deregister` validate types up-front and raise `ArgumentError` on misuse
 - `Coercions#coerce` returns a `Coercions::Failure` sentinel with an i18n message recorded on `task.errors`; when multiple declared coercion rules match none (and none were inline), an aggregated `cmdx.coercions.into_any` message is reported instead of the per-rule messages
 - `Validators#validate` records a message on `task.errors` for each failed rule (the individual built-in validators return `Validators::Failure`)
 - Extend `Validators::Numeric` and `Validators::Length` with `:gt` / `:lt` (strict comparison, with `:gt_message` / `:lt_message` overrides and `cmdx.validators.{numeric,length}.{gt,lt}` i18n keys), plus `:gte` / `:lte` / `:eq` / `:not_eq` aliases that normalize to `:min` / `:max` / `:is` / `:is_not`
@@ -112,10 +107,10 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - `Result#to_h` / `to_s` / `deconstruct_keys` now include `:origin` (compact `{ task:, tid: }` hash, or `nil` for locally originated failures)
 - **BREAKING**: `Result#deconstruct` now returns `#to_h.to_a` (array of `[key, value]` pairs) instead of the fixed `[type, task, state, status, reason, metadata, cause, origin]` tuple — update any array-pattern matches to use find-patterns (`in [*, [:status, "failed"], *]`)
 - `Result#deconstruct_keys` now honors its `keys` argument — `nil` returns the full `#to_h`, a key list slices it; previously it always returned the full hash
-- `Middlewares` registry entries are now `[callable, options.freeze]` tuples — callers that read `Task.middlewares.registry` directly must map `.first` to recover the callable
+- `Middlewares` registry entries are now `[callable, options.freeze]` tuples — callers that read `Task.middlewares.registry` directly should take `.first` for the callable (per-entry options live in `.last`)
 - Slim the locale file: remove `attributes.undefined`, `coercions.unknown`, `faults.invalid`, `faults.unspecified`, `returns.*`; rename `returns.missing` → `outputs.missing`; add `nil_value` to `length` / `numeric` validator messages
 - Generators emit the new `def work` template; the install template documents the new middleware / callback / telemetry / coercion / validator registration shapes
-- Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `strict_context`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`
+- Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `retriers`, `deprecators`, `telemetry`, `correlation_id`, `default_locale`, `strict_context`, `backtrace_cleaner`, `log_exclusions`, `logger`, `log_level`, `log_formatter`
 - `Configuration#log_level` and `Configuration#log_formatter` now default to `nil` — treat them as optional overrides on top of `config.logger` (the default `Logger` still carries `Logger::INFO` + `LogFormatters::Line.new`). `LoggerProxy` only `dup`s the logger when a non-nil override differs from the logger's own level/formatter, so swapping `config.logger` no longer requires also clearing these fields
 
 ### Removed
