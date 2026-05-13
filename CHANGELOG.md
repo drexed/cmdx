@@ -7,36 +7,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
-- `CMDx::Util.deep_merge` — shared recursive `Hash` merge (scalar last-write-wins); used by `Context#deep_merge` and bundled `I18nProxy` locale YAML folding
-- `CMDx::Util.deep_dup` — shared recursive copy of `Hash` / `Array` trees with scalar sharing and `#dup` fallback; used by `Context#deep_dup`
-- Add `key?` on registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
-- Add `Telemetry#lookup` (subscriber list or `UnknownEntryError` for unknown events)
-- Add `CMDx.config` alias to `CMDx.configuration`
-- `Coercions::Integer` honors `:base` for non-decimal string parsing (`"0x10"` with `base: 16`, etc.); ignored for non-`String` values
+- `CMDx::Util.deep_merge` — recursive `Hash` merge with scalar last-write-wins; used by `Context#deep_merge` and `I18nProxy` locale YAML folding
+- `CMDx::Util.deep_dup` — recursive `Hash` / `Array` copy with scalar sharing and `#dup` fallback; used by `Context#deep_dup`
+- Add `Telemetry#lookup` (subscriber list, or `UnknownEntryError` when `event` is unknown)
+- Add `CMDx.config` as an alias for `CMDx.configuration`
+- Add `key?` to the name-keyed registries `Callbacks`, `Coercions`, `Validators`, `Executors`, `Mergers`, `Retriers`, and `Deprecators`
+- `Coercions::Symbol` accepts `:max_length` (default `256`); longer strings fail with the usual coercion message (reduces symbol-table pressure from oversized untrusted strings)
+- `Coercions::Integer` honors `:base` for non-decimal string input (e.g. `"0x10"` with `base: 16`); non-`String` values ignore `:base`
 
 ### Changed
-- Install generator template comments refreshed for strict context and current APIs
-- Replace several generic Ruby / stdlib errors with `CMDx::Error` subclasses so `rescue CMDx::Error` stays sufficient: `FrozenTaskError` (was `FrozenError`) after freeze when calling `success!` / `skip!` / `fail!` / `throw!`; `UnknownAccessorError` (was `NoMethodError`) on strict `Context` reader misses; `UnknownEntryError` (was `ArgumentError`) on registry / `Telemetry#lookup` / `Telemetry#unsubscribe` misses; `UnknownLocaleError` (was `LoadError`) when `default_locale` cannot be resolved to a locale file
-- Reword errors in `lib/cmdx/` for clearer debugging: registry misses include the bad key and registered keys; validator / option errors show passed vs accepted keys; type mismatches include the unexpected class; short messages are prefixed with the caller (e.g. `CMDx.configure requires a block`); `MiddlewareError` names the non-yielding middleware; trickier cases (middleware contract, missing `#work`, frozen-task signals, i18n load, strict context, deprecation gate) append https://drexed.github.io/cmdx/ permalinks (e.g. `inputs/validations/#length`, `outcomes/result/#predicate-dispatch`)
-- Multi-line errors use squiggly heredocs (`<<~MSG`) instead of backslash-continued strings so doc links sit on their own line in logs
-- `Telemetry#emit` returns immediately when no telemetry subscribers exist; `Runtime` still uses `Telemetry#subscribed?` before emitting a given event
-- `Runtime#execute` (non-strict) now converts non-`CMDx::Error` `StandardError`s raised by callbacks, middlewares, deprecation, telemetry subscribers, or `#rollback` into a failed `Result` (`cause` set to the original exception) so `Task.execute` honors its documented "never raises on failure" contract. `CMDx::Error` subclasses still propagate. Strict (`execute!`) behavior is unchanged — the finalized result is produced before re-raising
-- `Errors` symbolizes string keys on `add`, `[]`, `added?`, `key?`/`for?`, and `delete` to match `Context`'s normalization
-- `I18nProxy.register` now deep-merges locale YAML files so external paths can override a single nested key (e.g. `cmdx.validators.format`) without restating the whole branch
-- `Settings#tags` is now memoized and returns a **frozen** array; callers that need a mutable copy must `.dup` it. Previously each call allocated a fresh mutable array
-- `Middlewares#process` builds the wrap chain via iterative reverse-reduce (matching `Callbacks#around`) instead of a recursive lambda trampoline
-- `Context#to_s` uses a pre-sized `String` buffer instead of `map.join`
-- `CMDx.reset_configuration!` walks `ObjectSpace.each_object(Class)` and clears cached registries on every `Task` subclass, not just `Task` itself
-- `Validators::Inclusion` / `Validators::Exclusion` now raise `ArgumentError` when `:in`/`:within` is a `Hash` (previously silently flattened to `[[k, v], …]`)
-- `Coercions::DateTime` now rescues `RangeError` (in addition to `ArgumentError`/`TypeError`/`Date::Error`) and returns a `Failure`
-- `Input` resolution: `Symbol` sources returning `false` (not just `nil`) are treated as absent, falling back to `:default`/required-check; parent resolution prefers `#fetch` (with sentinel) so explicit-`nil` values are distinguishable from missing keys
-- `Pipeline` rollback isolates per-task compensator exceptions: a single failing `#rollback` is logged at `error` level and the remaining executed tasks still get compensated; after the saga finishes, the **first** compensator exception is re-raised into the workflow so `Result#cause` and strict `execute!` surface the rollback failure (instead of only the halted child fault)
-- `Workflow.included` now raises `ImplementationError` immediately when mixed into a non-`Task` class instead of erroring later at execution time
-- Improved `DefinitionError` message when an input reader collision is caused by sibling inputs sharing a nested child name (e.g. `inputs :a, :b do; required :x; end`); guidance points at `:as`/`:prefix`/`:suffix` or separating the blocks
-- `Middlewares#register`: removed dead `.min` clamp; insertion index is already bounded by `clamp(-size-1, size)`
-- `Fault.for?`/`reason?`/`matches?` YARD docs note the per-call anonymous-class allocation and recommend hoisting matchers to module scope on hot paths
+- `Executors::Thread` and `Executors::Fiber` require `concurrency >= 1` (`ArgumentError` on zero/negative, avoiding a silent hang); worker `on_job` errors are collected and the first is re-raised after workers finish
+- `Chain` synchronizes `index`, `each`, `last`, `root`, `size`, `empty?`, `freeze`, and `results` on the existing mutex; `#results` dups while the chain stays mutable; `#root` is updated on `push` / `unshift` when the new result is the root
+- `Context#initialize_copy` copies the backing table and preserves `@strict`, so `dup` / `clone` no longer share `@table`; `Context#deep_dup` preserves `@strict`; `Context#to_h` returns `table.dup` unless the context is frozen
+- `Telemetry#emit` returns immediately when the telemetry registry is empty; `Runtime` and `Pipeline` still gate lifecycle emits with `Telemetry#subscribed?` first (calling `emit` for an unknown `event` while other events exist still goes through `lookup` and raises `UnknownEntryError`)
+- `Task.optional` / `Task.required` and the matching `Inputs::ChildBuilder` helpers merge `**options` then pin `required:` (`optional` forces `false`, `required` forces `true`) so `required:` inside `**options` cannot flip polarity
+- `Retry#wait` bounds jitter: non-`Numeric` / non-finite results fall back to base `delay`; the sleep is clamped to `[0, max_delay]` when set; registry strategies, task Symbol methods, `Proc` / `instance_exec` blocks, and `#call`-ables receive `(attempt, delay, prev_delay)`
+- `Retry#build` returns `self` only when new exceptions, new options, and a replacement block are all empty — option-only subclass updates such as `retry_on(limit: 5)` apply
+- `Retriers::Exponential` caps the doubling exponent at `30` (`2 ** attempt` saturates); `Retriers::Fibonacci` memoizes the sequence (lock-free reads, mutex-guarded growth) and caps `attempt + 1` at `78`; `Retriers::DecorrelatedJitter` draws in `[delay, max(prev_delay * 3, delay)]` so the delay never sits below the configured base
+- `Pipeline#rollback_executed!` marks successful results `rolled_back` before each compensator, logs each `#rollback` failure at `error`, continues through the remaining tasks, then re-raises the **first** compensator exception so strict runs surface rollback faults
+- `Validators::Inclusion` / `Validators::Exclusion` raise `ArgumentError` when `:in` / `:within` is a `Hash` (instead of flattening into key/value pairs)
+- `Validators::Format` sends values without `#match?` through `#to_s` before matching so non-strings do not raise `NoMethodError`
+- `Coercions::DateTime` rescues `RangeError` in addition to `ArgumentError` / `TypeError` / `Date::Error` and returns `Failure`
 - `Coercions::Boolean` coerces `nil` to `false` (unknown strings still fail)
-- `Settings#correlation_id`, `Result#xid`, and `Chain#initialize` YARD docs corrected: `correlation_id` is a callable (not a `String`) that resolves to the xid at root-chain construction
+- `Input` resolution treats `Symbol` sources whose resolved object is `false` as absent; parent reads prefer `#fetch` with a sentinel so explicit `nil` stays distinct from a missing key
+- `LogFormatters::JSON` and `LogFormatters::Logstash` rescue `JSON.dump` failures, substitute `message.inspect`, and record `logerr` so a bad payload cannot crash the logger process
+- `Inputs#deregister` ignores unknown names (same as `Outputs#deregister`; avoids `NoMethodError` on a missing entry)
+- `Railtie` uses a `{*}.yml` locale segment when `app.config.i18n.available_locales` is empty (the old `{}` segment matched no files)
+- `Errors` coerces string keys to symbols on `add`, `[]`, `added?`, `key?` / `for?`, and `delete` to match `Context`
+- `I18nProxy.register` deep-merges locale YAML so later files patch nested keys without replacing whole branches
+- `Middlewares#process` builds the wrap chain with the same iterative reverse-reduce pattern as `Callbacks#around` (no recursive lambda trampoline)
+- `Context#to_s` uses a pre-sized `String` buffer instead of `map` / `join`
+- `CMDx.reset_configuration!` walks `ObjectSpace.each_object(Class)` and clears cached registry ivars on every `Task` subclass, not only `Task`
+- Replace selected stdlib exceptions with `CMDx::Error` subclasses so `rescue CMDx::Error` covers more framework cases: `FrozenTaskError` (was `FrozenError`) when signaling after freeze; `UnknownAccessorError` (was `NoMethodError`) on strict context reader misses; `UnknownEntryError` (was `ArgumentError`) on registry misses and on unknown `Telemetry` events in `lookup` / `unsubscribe`; `UnknownLocaleError` (was `LoadError`) when the default locale file cannot be loaded
+- Broader error copy refresh in `lib/cmdx/`: registry misses list the bad key plus registered keys; validator / option errors contrast passed vs accepted keys; type mismatches name the unexpected class; short messages name the entry point (e.g. `CMDx.configure`); `MiddlewareError` names the middleware that failed to yield; nuanced cases append https://drexed.github.io/cmdx/ anchors; multi-line text prefers squiggly heredocs (`<<~MSG`) so permalinks stay on their own line in logs
+- Document the Symbol dispatch contract for callbacks, coercions, validators, and input sources (`send` / instance hooks reach private helpers); never derive those symbols from untrusted input
+- `Workflow.included` raises `ImplementationError` immediately when the host is not a `Task` subclass (instead of failing later at execution)
+- Clearer `DefinitionError` when sibling nested inputs collide on the same accessor, pointing to `:as` / `:prefix` / `:suffix` or separate `inputs` blocks
+- `Fault.for?` / `Fault.reason?` / `Fault.matches?` YARD notes explain per-call anonymous subclass allocation; hoist matchers at module scope on hot paths
+- `Settings#correlation_id`, `Result#xid`, and `Chain#initialize` YARD: `correlation_id` is a callable evaluated when the root chain is created, not a literal `String` / xid
+- Install generator comments refreshed for strict context and current registration APIs
 
 ## [2.0.1] - 2026-05-09
 

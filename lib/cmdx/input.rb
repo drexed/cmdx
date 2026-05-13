@@ -128,6 +128,11 @@ module CMDx
     # validation error to `task.errors`. Returns `nil` when coercion or any
     # validator fails (the failure message is recorded on `task.errors`).
     #
+    # @note "Required" here means "the key is present in the source"; an
+    #   explicit `nil` under an existing key satisfies the required check
+    #   and is then routed through `:default`. Combine with `:presence` /
+    #   `:validate` to reject explicit `nil` values.
+    #
     # @param task [Task]
     # @return [Object, nil] the resolved value (`nil` on failure)
     def resolve(task)
@@ -151,7 +156,7 @@ module CMDx
       {
         name: accessor_name,
         description:,
-        required: required?,
+        required:,
         options: @options,
         children: children.map(&:to_h)
       }

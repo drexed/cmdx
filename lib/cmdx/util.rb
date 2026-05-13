@@ -107,5 +107,13 @@ module CMDx
       end
     end
 
+    # Returns a string representation of `error` in the format `[Class] Message`.
+    #
+    # @param error [Exception]
+    # @return [String]
+    def to_error_s(error)
+      "[#{error.class}] #{error.message}"
+    end
+
   end
 end

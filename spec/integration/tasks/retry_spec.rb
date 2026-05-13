@@ -95,10 +95,10 @@ RSpec.describe "Task retry", type: :feature do
       expect(task.execute).to have_attributes(status: CMDx::Signal::SUCCESS, retries: 2)
     end
 
-    it "accepts a Proc jitter that receives attempt and delay" do
+    it "accepts a Proc jitter that receives attempt, delay, and prev_delay" do
       seen = []
-      jitter = lambda do |attempt, delay|
-        seen << [attempt, delay]
+      jitter = lambda do |attempt, delay, prev_delay|
+        seen << [attempt, delay, prev_delay]
         0
       end
       task = create_flaky_task(failures: 2) do
@@ -108,7 +108,8 @@ RSpec.describe "Task retry", type: :feature do
       task.execute
 
       expect(seen.map(&:first)).to eq([0, 1])
-      expect(seen.map(&:last)).to all(eq(0.0001))
+      expect(seen.transpose[1]).to all(eq(0.0001))
+      expect(seen.transpose[2]).to eq([nil, 0.0])
     end
   end
 

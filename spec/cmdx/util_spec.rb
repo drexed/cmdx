@@ -138,4 +138,22 @@ RSpec.describe CMDx::Util do
       expect(described_class.deep_dup(val: unduppable)[:val]).to be(unduppable)
     end
   end
+
+  describe ".to_error_s" do
+    it "returns [Class] message for a standard error" do
+      error = RuntimeError.new("boom")
+      expect(described_class.to_error_s(error)).to eq("[RuntimeError] boom")
+    end
+
+    it "includes the subclass name" do
+      stub_const("UtilSpecToErrorS", Class.new(StandardError))
+      error = UtilSpecToErrorS.new("x")
+      expect(described_class.to_error_s(error)).to eq("[UtilSpecToErrorS] x")
+    end
+
+    it "formats an empty message" do
+      error = ArgumentError.new("")
+      expect(described_class.to_error_s(error)).to eq("[ArgumentError] ")
+    end
+  end
 end

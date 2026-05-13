@@ -51,7 +51,8 @@ module CMDx
       self
     end
 
-    # Removes inputs and their accessor readers from `klass`.
+    # Removes inputs and their accessor readers from `klass`. Unknown names
+    # are silently ignored (matching {Outputs#deregister} semantics).
     #
     # @param klass [Class]
     # @param names [Array<Symbol>]
@@ -59,6 +60,8 @@ module CMDx
     def deregister(klass, *names)
       names.each do |name|
         input = registry.delete(name)
+        next if input.nil?
+
         klass.send(:undefine_input_reader, input)
       end
 
@@ -145,6 +148,9 @@ module CMDx
       alias input inputs
 
       # Declares optional child inputs (equivalent to `inputs ..., required: false`).
+      # An explicit `required:` in `options` is ignored — use {#inputs} when
+      # you need to set the flag dynamically.
+      #
       # @param names [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
       # @option options [String] :description (also accepts `:desc`)
@@ -161,10 +167,13 @@ module CMDx
       # @yield nested child input DSL
       # @return [Array<Input>]
       def optional(*names, **options, &)
-        build(*names, required: false, **options, &)
+        build(*names, **options, required: false, &)
       end
 
       # Declares required child inputs (equivalent to `inputs ..., required: true`).
+      # An explicit `required:` in `options` is ignored — use {#inputs} when
+      # you need to set the flag dynamically.
+      #
       # @param names [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] forwarded to {Input#initialize}
       # @option options [String] :description (also accepts `:desc`)
@@ -181,14 +190,14 @@ module CMDx
       # @yield nested child input DSL
       # @return [Array<Input>]
       def required(*names, **options, &)
-        build(*names, required: true, **options, &)
+        build(*names, **options, required: true, &)
       end
 
       private
 
       def build(*names, **options, &block)
         nested = block ? self.class.build(&block) : EMPTY_ARRAY
-        names.map { |name| children << Input.new(name, children: nested, **options) }
+        names.each { |name| children << Input.new(name, children: nested, **options) }
       end
 
     end

@@ -13,7 +13,7 @@ module CMDx
       # @option options [Integer] :precision (14)
       # @return [BigDecimal, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
-        return value if value.is_a?(BigDecimal)
+        return value if value.is_a?(::BigDecimal)
 
         BigDecimal(value, options[:precision] || 14)
       rescue ArgumentError, TypeError

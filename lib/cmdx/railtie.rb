@@ -10,6 +10,7 @@ module CMDx
 
     initializer("cmdx.configure_rails") do |app|
       available_locales = app.config.i18n.available_locales.join(",")
+      available_locales = "*" if available_locales.empty?
       locale_path = File.expand_path("../locales/{#{available_locales}}.yml", __dir__)
       ::I18n.load_path += Dir[locale_path]
 

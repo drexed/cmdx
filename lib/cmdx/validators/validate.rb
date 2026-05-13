@@ -13,6 +13,9 @@ module CMDx
       # @param handler [Symbol, Proc, #call]
       # @return [Validators::Failure, nil, Object] handler's return value
       # @raise [ArgumentError] when `handler` isn't a supported type
+      # @note Symbol handlers are dispatched via `send` so private helpers on
+      #   the task are reachable. Handlers are baked into class definitions;
+      #   never derive them from untrusted input.
       def call(task, value, handler)
         case handler
         when Symbol

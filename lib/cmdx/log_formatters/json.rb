@@ -4,7 +4,10 @@ module CMDx
   module LogFormatters
     # `Logger` formatter that emits one JSON object per line with `severity`,
     # ISO8601 `timestamp`, `progname`, `pid`, and `message` (rendered via
-    # `#to_h` when available — Result instances serialize themselves).
+    # `#to_h` when available — Result instances serialize themselves). Falls
+    # back to `message.inspect` if the original `JSON.dump` raises (e.g. for
+    # non-JSON-encodable or cyclic structures) so logging never crashes the
+    # caller.
     class JSON
 
       # @param severity [String] Logger severity name
@@ -21,6 +24,10 @@ module CMDx
           message: message.respond_to?(:to_h) ? message.to_h : message
         }
 
+        ::JSON.dump(hash) << "\n"
+      rescue StandardError => e
+        hash[:message] = message.inspect
+        hash[:logerr]  = Util.to_error_s(e)
         ::JSON.dump(hash) << "\n"
       end
 

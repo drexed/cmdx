@@ -165,6 +165,13 @@ module CMDx
       callbacks.around(event, @task, &)
     end
 
+    # @note Unhandled `StandardError`s become failed signals whose reason is
+    #   `"[ExceptionClass] message"`. This is debug-friendly but means
+    #   exception messages may surface in logs / dashboards / `Result#to_h`
+    #   when callers do not gate on `failed?` first. The full exception is
+    #   also attached as `cause:` for programmatic inspection. Configure
+    #   `log_exclusions: [:reason, :cause, :context]` when reasons must not
+    #   leak from internal services.
     def perform_work
       @signal = catch(Signal::TAG) do
         resolve_inputs!
@@ -176,7 +183,7 @@ module CMDx
       rescue Error => e
         raise(e)
       rescue StandardError => e
-        Signal.failed("[#{e.class}] #{e.message}", cause: e, metadata: @task.metadata)
+        Signal.failed(Util.to_error_s(e), cause: e, metadata: @task.metadata)
       end
     end
 

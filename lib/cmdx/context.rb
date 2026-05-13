@@ -54,6 +54,18 @@ module CMDx
         end.transform_keys(&:to_sym)
     end
 
+    # Ensures `#dup` / `#clone` produce a context with an independent backing
+    # hash so mutations on the copy do not leak into the original. `@strict`
+    # is preserved on the copy.
+    #
+    # @param source [Context]
+    # @return [void]
+    def initialize_copy(source)
+      super
+      @table  = source.instance_variable_get(:@table).dup
+      @strict = source.strict?
+    end
+
     # @return [Boolean] whether dynamic reads for unknown keys raise instead
     #   of returning `nil`
     def strict?
@@ -205,9 +217,11 @@ module CMDx
       @table.hash
     end
 
-    # @return [Hash{Symbol => Object}] the underlying table (not a copy)
+    # @return [Hash{Symbol => Object}] a shallow copy of the underlying table.
+    #   Frozen contexts return the frozen table directly to preserve
+    #   `Hash#frozen?` semantics for serialization callers.
     def to_h
-      @table
+      @table.frozen? ? @table : @table.dup
     end
 
     # JSON-friendly hash view. Aliases {#to_h} for conventional `as_json`
@@ -257,12 +271,13 @@ module CMDx
 
     # Returns a deep copy. Non-mutable scalars are shared; Hashes/Arrays are
     # recursively duplicated; other objects fall back to `#dup` (and then
-    # to the original on `StandardError`).
+    # to the original on `StandardError`). `@strict` is preserved on the copy.
     #
     # @return [Context]
     def deep_dup
       ctx = self.class.allocate
       ctx.instance_variable_set(:@table, Util.deep_dup(@table))
+      ctx.instance_variable_set(:@strict, @strict)
       ctx
     end
 

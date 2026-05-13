@@ -50,7 +50,10 @@ module CMDx
       end
     end
 
-    # @return [Array<Symbol>] keys to exclude from logging
+    # @return [Array<Symbol>] keys to exclude from `Runtime` log output.
+    #   Matched against {Result#to_h} keys. Common values for redaction:
+    #   `:context` (may contain secrets / PII), `:cause` (raw exception),
+    #   `:reason` (may embed exception messages from unhandled errors).
     def log_exclusions
       @options.fetch(:log_exclusions) do
         CMDx.configuration.log_exclusions

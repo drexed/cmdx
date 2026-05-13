@@ -3,7 +3,9 @@
 module CMDx
   module LogFormatters
     # `Logger` formatter that produces one JSON line per entry in the shape
-    # expected by Logstash (`@version` + `@timestamp`).
+    # expected by Logstash (`@version` + `@timestamp`). Falls back to
+    # `message.inspect` if `JSON.dump` raises (e.g. cyclic / non-encodable
+    # payload) so logging never crashes the caller.
     class Logstash
 
       # @param severity [String] Logger severity name
@@ -21,6 +23,10 @@ module CMDx
           "@timestamp" => time.utc.iso8601(6)
         }
 
+        ::JSON.dump(hash) << "\n"
+      rescue StandardError => e
+        hash[:message] = message.inspect
+        hash[:logerr]  = Util.to_error_s(e)
         ::JSON.dump(hash) << "\n"
       end
 

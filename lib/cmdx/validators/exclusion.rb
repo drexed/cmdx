@@ -34,8 +34,9 @@ module CMDx
 
         if values.is_a?(Range)
           within_failure(values.begin, values.end, options) if values.cover?(value)
-        elsif Array(values).any? { |v| v === value }
-          of_failure(values, options)
+        else
+          enum = values.is_a?(Enumerable) ? values : [values]
+          of_failure(enum, options) if enum.any? { |v| v === value }
         end
       end
 

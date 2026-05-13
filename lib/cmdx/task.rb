@@ -53,6 +53,9 @@ module CMDx
       # @option options [Array<Symbol>] :log_exclusions (see {Settings#initialize})
       # @option options [Array<Symbol, String>] :tags (see {Settings#initialize})
       # @option options [Boolean] :strict_context (see {Settings#initialize})
+      # @option options [#call] :correlation_id callable returning a String id
+      #   resolved once by {Runtime} when the root chain is acquired; surfaces
+      #   as `result.xid` (see {Settings#correlation_id})
       # @return [Settings]
       def settings(options = EMPTY_HASH)
         @settings ||=
@@ -290,6 +293,8 @@ module CMDx
       alias input inputs
 
       # Declares optional inputs (shorthand for `inputs ..., required: false`).
+      # An explicit `required:` in `options` is ignored — use {.inputs} when
+      # you need to set the flag dynamically.
       #
       # @param names [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] see {Input#initialize}
@@ -306,10 +311,12 @@ module CMDx
       # @option options [Object] :validate (see {Validators#extract})
       # @yield nested-input DSL block (see {Inputs::ChildBuilder})
       def optional(*names, **options, &)
-        register(:input, *names, required: false, **options, &)
+        register(:input, *names, **options, required: false, &)
       end
 
       # Declares required inputs (shorthand for `inputs ..., required: true`).
+      # An explicit `required:` in `options` is ignored — use {.inputs} when
+      # you need to set the flag dynamically.
       #
       # @param names [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] see {Input#initialize}
@@ -326,7 +333,7 @@ module CMDx
       # @option options [Object] :validate (see {Validators#extract})
       # @yield nested-input DSL block (see {Inputs::ChildBuilder})
       def required(*names, **options, &)
-        register(:input, *names, required: true, **options, &)
+        register(:input, *names, **options, required: true, &)
       end
 
       # @return [Hash{Symbol => Hash}] serialized input definitions

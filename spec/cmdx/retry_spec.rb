@@ -143,21 +143,21 @@ RSpec.describe CMDx::Retry do
     end
 
     it "falls back to a task instance method when Symbol is not in the registry" do
-      task = Class.new { def jitter_calc(attempt, delay) = delay * attempt }.new
+      task = Class.new { def jitter_calc(attempt, delay, _prev_delay = nil) = delay * attempt }.new
       described_class.new([error_class], delay: 1.0, jitter: :jitter_calc).wait(4, task)
 
       expect(sleeps).to eq([4.0])
     end
 
     it "evaluates a Proc jitter via instance_exec on the task" do
-      retry_ = described_class.new([error_class], delay: 1.0) { |attempt, delay| attempt + delay }
+      retry_ = described_class.new([error_class], delay: 1.0) { |attempt, delay, _prev_delay| attempt + delay }
       retry_.wait(2, Object.new)
 
       expect(sleeps).to eq([3.0])
     end
 
     it "calls a callable jitter" do
-      callable = ->(attempt, delay) { attempt + delay + 1 }
+      callable = ->(attempt, delay, _prev_delay) { attempt + delay + 1 }
       described_class.new([error_class], delay: 1.0, jitter: callable).wait(1)
 
       expect(sleeps).to eq([3.0])

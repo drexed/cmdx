@@ -75,6 +75,11 @@ module CMDx
     #    supplied a value (every declared output is implicitly required).
     # 4. Writes the resolved value back to `task.context[name]`.
     #
+    # @note "Missing" here means "the key was never written"; an explicit `nil`
+    #   under an existing key is treated as "present" and the value remains
+    #   `nil` (unless `:default` overrides it). To reject explicit `nil`, write
+    #   a non-nil value or set a non-nil `:default`.
+    #
     # @param task [Task] the running task whose context is inspected and mutated
     # @return [void]
     def verify(task)

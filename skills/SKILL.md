@@ -339,14 +339,14 @@ class Fetch < CMDx::Task
   retry_on Net::OpenTimeout, Net::ReadTimeout,
     limit: 3, delay: 0.5, max_delay: 5.0, jitter: :exponential
 
-  retry_on Api::Throttled, limit: 5 do |attempt, delay|
+  retry_on Api::Throttled, limit: 5 do |attempt, delay, _prev_delay|
     delay * (attempt + 1)
   end
 end
 ```
 
 - Only retries when the exception matches `retry_on`. Anything else (or a matching exception after the limit) becomes a failed result with `result.cause` set.
-- Jitter strategies: `:exponential`, `:half_random`, `:full_random`, `:bounded_random`, a Symbol (task method), a Proc (`instance_exec(attempt, delay)`), or any `#call(attempt, delay)`-able.
+- Jitter strategies: `:exponential`, `:half_random`, `:full_random`, `:bounded_random`, a Symbol (task method), a Proc (`instance_exec(attempt, delay, prev_delay)`), or any `#call(attempt, delay, prev_delay)`-able.
 - Only `work` is retried — inputs, outputs, and callbacks run once. `task.errors` accumulates across attempts; clear it at the start of `work` if you re-populate per attempt.
 
 Inspect with `result.retries` / `result.retried?`. Docs: [docs/retries.md](docs/retries.md).

@@ -19,7 +19,7 @@ module CMDx
           elsif value.respond_to?(:empty?)
             !value.empty?
           else
-            !value.nil?
+            !!value
           end
 
         return if present

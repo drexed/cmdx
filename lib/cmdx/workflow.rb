@@ -24,10 +24,11 @@ module CMDx
         @pipeline ||= []
       end
 
-      # Declares a task group. With no arguments, returns the pipeline.
-      # Tasks must be `Task` subclasses.
+      # Declares a task group. At least one `Task` subclass is required —
+      # invoking with no arguments raises `DefinitionError`. Use {.pipeline}
+      # to read the existing group list.
       #
-      # @param tasks [Array<Class<Task>>]
+      # @param tasks [Array<Class<Task>>] one or more `Task` subclasses
       # @param options [Hash{Symbol => Object}]
       # @option options [:sequential, :parallel] :strategy (:sequential)
       # @option options [Integer] :pool_size parallel worker/fiber count
@@ -55,8 +56,8 @@ module CMDx
       #   `:parallel` cancels pending tasks (in-flight tasks still finish).
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
-      # @return [Array<ExecutionGroup>] the full pipeline
-      # @raise [DefinitionError] when called with options but no tasks
+      # @return [Array<ExecutionGroup>] the full pipeline (with the new group appended)
+      # @raise [DefinitionError] when called with no tasks
       # @raise [TypeError] when any element isn't a `Task` subclass
       def tasks(*tasks, **options)
         if tasks.empty?

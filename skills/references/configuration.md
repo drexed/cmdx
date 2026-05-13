@@ -90,12 +90,12 @@ Options:
 | `:limit` | `3` | Max retry attempts (so `limit + 1` total tries). |
 | `:delay` | `0.5` | Base seconds between attempts; `0` disables sleep. |
 | `:max_delay` | — | Upper clamp for computed delay. |
-| `:jitter` | — | Symbol (`:exponential`, `:half_random`, `:full_random`, `:bounded_random`), Symbol method on the task, Proc (`instance_exec(attempt, delay)`), or any `#call(attempt, delay)`-able. A block passed to `retry_on` is equivalent to `jitter:`. |
+| `:jitter` | — | Symbol (`:exponential`, `:half_random`, `:full_random`, `:bounded_random`), Symbol method on the task, Proc (`instance_exec(attempt, delay, prev_delay)`), or any `#call(attempt, delay, prev_delay)`-able. A block passed to `retry_on` is equivalent to `jitter:`. |
 
 Multiple `retry_on` calls **merge**: exceptions accumulate, later options override earlier ones. Subclasses inherit and extend the parent's `Retry`.
 
 ```ruby
-retry_on Api::Throttled, limit: 5 do |attempt, delay|
+retry_on Api::Throttled, limit: 5 do |attempt, delay, _prev_delay|
   delay * (attempt + 1)
 end
 ```

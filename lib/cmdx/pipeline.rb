@@ -158,8 +158,7 @@ module CMDx
         rescue StandardError => e
           first_rollback_error ||= e
           instance.logger.error do
-            "rollback for #{instance.class} (#{instance.tid}) raised: " \
-              "[#{e.class}] #{e.message}"
+            "rollback for #{instance.class} (#{instance.tid}) raised: #{Util.to_error_s(e)}"
           end
         end
       end

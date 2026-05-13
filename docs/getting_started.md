@@ -239,7 +239,7 @@ flowchart TD
 - **Rollback runs only on failure**, before the result is finalized, so callbacks and telemetry already know whether rollback happened.
 - **Teardown always runs** (via `ensure`): the context is frozen, errors are captured, and fiber-local chain state is cleared—even when `execute!` re-raises.
 
-## Domain-driven design (without the buzzword fatigue)
+## Domain-driven design
 
 You do not have to read a thick DDD book to benefit. CMDx nudges you toward three ideas that keep big apps sane:
 

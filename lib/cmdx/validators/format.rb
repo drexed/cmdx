@@ -15,15 +15,20 @@ module CMDx
       # @option options [String] :message override for the failure message
       # @return [Validators::Failure, nil]
       # @raise [ArgumentError] when neither `:with` nor `:without` is given
+      # @note Non-String values that do not respond to `#match?` fail with the
+      #   regular format failure rather than raise `NoMethodError`. Coerce inputs
+      #   to String beforehand when format checks are required.
       def call(value, options = EMPTY_HASH)
+        str = value.nil? || value.respond_to?(:match?) ? value : value.to_s
+
         match =
           case options
           in with:, without:
-            value&.match?(with) && !value&.match?(without)
+            str&.match?(with) && !str&.match?(without)
           in with:
-            value&.match?(with)
+            str&.match?(with)
           in without:
-            !value&.match?(without)
+            !str&.match?(without)
           else
             raise ArgumentError, <<~MSG.chomp
               format validator requires :with and/or :without (got #{options.keys.inspect}).

@@ -64,7 +64,7 @@ end
 
 “Jitter” is a fancy word for **random-ish spacing** so many clients do not all wake up at the exact same millisecond.
 
-Built-in strategies receive `(attempt, delay)` where `attempt` is zero-based and `delay` is your base delay. The computed sleep is clamped by `max_delay` when you set it.
+Built-in strategies receive `(attempt, delay, prev_delay)` where `attempt` is zero-based, `delay` is your base delay, and `prev_delay` is the last computed sleep (or `nil` on the first wait in a run). Most built-ins ignore `prev_delay` except `:decorrelated_jitter`. The computed sleep is clamped by `max_delay` when you set it.
 
 ### Built-in Strategies
 
@@ -122,7 +122,7 @@ If a symbol is not in the registry, CMDx falls back to an **instance method** on
 
 ### Symbol (Instance Method)
 
-The method receives `(attempt, delay)` and returns how long to sleep, in seconds.
+The method receives `(attempt, delay, prev_delay)` and returns how long to sleep, in seconds.
 
 ```ruby
 class SyncInventory < CMDx::Task
@@ -134,7 +134,7 @@ class SyncInventory < CMDx::Task
 
   private
 
-  def exponential_backoff(attempt, delay)
+  def exponential_backoff(attempt, delay, _prev_delay = nil)
     delay * (2**attempt)
   end
 end
@@ -150,7 +150,7 @@ class PollJobStatus < CMDx::Task
            limit: 10,
            delay: 0.5,
            max_delay: 5.0,
-           jitter: ->(attempt, delay) { delay * (attempt + 1) }
+           jitter: ->(attempt, delay, _prev_delay) { delay * (attempt + 1) }
 
   def work
     context.status = JobAPI.check_status(context.job_id)
@@ -160,7 +160,7 @@ end
 
 ### Callable (Class or Module)
 
-Anything with `#call(attempt, delay)` works. The task is **not** passed in — bake config into the object.
+Anything with `#call(attempt, delay, prev_delay)` works (use `_prev_delay` if unused). The task is **not** passed in — bake config into the object.
 
 ```ruby
 class ExponentialBackoff
@@ -169,7 +169,7 @@ class ExponentialBackoff
     @cap  = cap
   end
 
-  def call(attempt, _delay)
+  def call(attempt, _delay, _prev_delay = nil)
     [@base * (2**attempt), @cap].min
   end
 end
@@ -189,7 +189,7 @@ No `:jitter` option? You can pass a block to `retry_on` instead. It runs as inst
 
 ```ruby
 class FetchAnalytics < CMDx::Task
-  retry_on Analytics::Throttled, limit: 3, delay: 1.0 do |attempt, delay|
+  retry_on Analytics::Throttled, limit: 3, delay: 1.0 do |attempt, delay, _prev_delay|
     delay + (attempt ** 1.5)
   end
 end

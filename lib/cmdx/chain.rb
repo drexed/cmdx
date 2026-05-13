@@ -34,7 +34,7 @@ module CMDx
 
     end
 
-    attr_reader :xid, :id, :results
+    attr_reader :xid, :id
 
     # @param xid [String, nil] external correlation id (e.g. Rails `request_id`)
     #   shared across every {Result} in this chain. Resolved once by Runtime
@@ -45,6 +45,16 @@ module CMDx
       @id      = SecureRandom.uuid_v7
       @mutex   = Mutex.new
       @results = []
+      @root    = nil
+    end
+
+    # @return [Array<Result>] snapshot of the results stored in this chain.
+    #   While the chain is mutable a dup is returned so callers cannot mutate
+    #   internal state and see consistent ordering despite parallel pushes;
+    #   after {#freeze} the actual frozen array is returned to preserve
+    #   `Array#frozen?` semantics.
+    def results
+      @mutex.synchronize { @results.frozen? ? @results : @results.dup }
     end
 
     # Appends `result` to the chain. Thread-safe to support parallel pipelines.
@@ -52,7 +62,10 @@ module CMDx
     # @param result [Result]
     # @return [Chain] self for chaining
     def push(result)
-      @mutex.synchronize { @results << result }
+      @mutex.synchronize do
+        @results << result
+        @root = result if @root.nil? && result.respond_to?(:root?) && result.root?
+      end
       self
     end
     alias << push
@@ -62,24 +75,29 @@ module CMDx
     # @param result [Result]
     # @return [Chain] self for chaining
     def unshift(result)
-      @mutex.synchronize { @results.unshift(result) }
+      @mutex.synchronize do
+        @results.unshift(result)
+        @root = result if result.respond_to?(:root?) && result.root?
+      end
       self
     end
 
     # @param result [Result]
     # @return [Integer, nil] zero-based position of `result`, or nil when absent
     def index(result)
-      @results.index(result)
+      @mutex.synchronize { @results.index(result) }
     end
 
     # @return [Result, nil] the most recently appended result
     def last
-      @results.last
+      @mutex.synchronize { @results.last }
     end
 
     # @return [Result, nil] the root result, or nil when absent
     def root
-      @results.find(&:root?)
+      @mutex.synchronize do
+        @root || @results.find { |r| r.respond_to?(:root?) && r.root? }
+      end
     end
 
     # @return [String, nil] the state of the root result, or nil when absent
@@ -94,18 +112,18 @@ module CMDx
 
     # @return [Boolean]
     def empty?
-      @results.empty?
+      @mutex.synchronize { @results.empty? }
     end
 
     # @return [Integer]
     def size
-      @results.size
+      @mutex.synchronize { @results.size }
     end
 
     # @yield [Result] each result in insertion order
     # @return [Enumerator, Chain]
     def each(&)
-      @results.each(&)
+      results.each(&)
     end
 
     # Freezes the chain and its results. Called by Runtime teardown.
