@@ -38,7 +38,8 @@ module CMDx
 
     # @param xid [String, nil] external correlation id (e.g. Rails `request_id`)
     #   shared across every {Result} in this chain. Resolved once by Runtime
-    #   from {Configuration#xid} when the root chain is created.
+    #   from {Settings#correlation_id} (a callable) when the root chain is
+    #   created.
     def initialize(xid = nil)
       @xid     = xid
       @id      = SecureRandom.uuid_v7

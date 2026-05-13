@@ -32,6 +32,21 @@ RSpec.describe CMDx::Errors do
       errors[:name] = "is required"
       expect(errors[:name]).to include("is required")
     end
+
+    it "symbolizes string keys" do
+      errors.add("name", "is required")
+
+      expect(errors.keys).to eq([:name])
+      expect(errors[:name]).to include("is required")
+      expect(errors["name"]).to include("is required")
+    end
+
+    it "treats symbol and string keys as the same entry" do
+      errors.add(:name, "from sym")
+      errors.add("name", "from str")
+
+      expect(errors[:name]).to contain_exactly("from sym", "from str")
+    end
   end
 
   describe "#merge!" do
@@ -104,6 +119,11 @@ RSpec.describe CMDx::Errors do
     it "is false when the key is absent" do
       expect(errors.added?(:missing, "x")).to be(false)
     end
+
+    it "symbolizes string keys" do
+      errors.add(:a, "x")
+      expect(errors.added?("a", "x")).to be(true)
+    end
   end
 
   describe "#key?" do
@@ -164,6 +184,20 @@ RSpec.describe CMDx::Errors do
       errors.add(:a, "x")
       errors.delete(:a)
       expect(errors).to be_empty
+    end
+
+    it "symbolizes string keys" do
+      errors.add(:a, "x")
+      errors.delete("a")
+      expect(errors).to be_empty
+    end
+  end
+
+  describe "#key? / #for? with string keys" do
+    it "symbolizes the key for lookup" do
+      errors.add(:a, "x")
+      expect(errors.key?("a")).to be(true)
+      expect(errors.for?("a")).to be(true)
     end
   end
 

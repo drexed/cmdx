@@ -105,4 +105,37 @@ RSpec.describe CMDx::Util do
       expect(described_class.satisfied?(nil, nil, receiver)).to be(true)
     end
   end
+
+  describe ".deep_merge" do
+    it "merges nested hashes with last-write-wins for scalars" do
+      left = { a: 1, b: { c: 2, d: 3 } }
+      right = { b: { d: 4, e: 5 } }
+      expect(described_class.deep_merge(left, right)).to eq(a: 1, b: { c: 2, d: 4, e: 5 })
+    end
+
+    it "returns rhs when either side is not a Hash" do
+      expect(described_class.deep_merge({}, "x")).to eq("x")
+      expect(described_class.deep_merge("x", {})).to eq({})
+    end
+  end
+
+  describe ".deep_dup" do
+    it "duplicates nested hashes and arrays independently" do
+      tree = { a: { b: [1, 2] } }
+      copy = described_class.deep_dup(tree)
+      copy[:a][:b] << 3
+      expect(tree[:a][:b]).to eq([1, 2])
+      expect(copy[:a][:b]).to eq([1, 2, 3])
+    end
+
+    it "shares immutable scalars" do
+      tree = { n: 1, s: :x, t: true, f: false, z: nil }
+      expect(described_class.deep_dup(tree)).to eq(n: 1, s: :x, t: true, f: false, z: nil)
+    end
+
+    it "returns the original when dup raises" do
+      unduppable = Class.new { def dup = raise "nope" }.new
+      expect(described_class.deep_dup(val: unduppable)[:val]).to be(unduppable)
+    end
+  end
 end

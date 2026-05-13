@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Shared helpers for resolving `:if` / `:unless` conditional options across
-  # tasks, callbacks, inputs, outputs, validators, and deprecations. Normalizes
-  # booleans, symbols (method names), procs, and call-ables into a truth value.
+  # Shared helpers for `:if` / `:unless` gates, recursive hash merge/dup, and
+  # related tree utilities used across tasks, context, and i18n.
   module Util
 
     extend self
@@ -68,6 +67,44 @@ module CMDx
     def satisfied?(condition_if, condition_unless, receiver, *args)
       if?(condition_if, receiver, *args) &&
         unless?(condition_unless, receiver, *args)
+    end
+
+    # Recursively merges two Hash-like trees. When both values at a key are
+    # Hashes, they merge recursively; otherwise the right-hand value wins
+    # (last-write-wins). When either top-level operand is not a Hash, returns
+    # `rhs` unchanged — useful when folding unknown YAML roots.
+    #
+    # @param lhs [Object] left tree (typically a Hash)
+    # @param rhs [Object] right tree (typically a Hash)
+    # @return [Object] merged Hash or `rhs` when a Hash-only merge is impossible
+    def deep_merge(lhs, rhs)
+      return rhs unless lhs.is_a?(Hash) && rhs.is_a?(Hash)
+
+      lhs.merge(rhs) { |_key, l, r| deep_merge(l, r) }
+    end
+
+    # Returns a deep copy of `value`. Immutable scalars (`Numeric`, `Symbol`,
+    # booleans, `nil`) are returned as-is; `Hash` and `Array` are walked
+    # recursively; other objects use `#dup`, falling back to the original when
+    # `#dup` raises.
+    #
+    # @param value [Object]
+    # @return [Object]
+    def deep_dup(value)
+      case value
+      when Numeric, Symbol, TrueClass, FalseClass, NilClass
+        value
+      when Hash
+        value.each_with_object({}) { |(k, v), acc| acc[k] = deep_dup(v) }
+      when Array
+        value.map { |e| deep_dup(e) }
+      else
+        begin
+          value.dup
+        rescue StandardError
+          value
+        end
+      end
     end
 
   end

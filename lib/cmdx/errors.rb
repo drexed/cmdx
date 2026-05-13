@@ -15,12 +15,13 @@ module CMDx
     end
 
     # Adds `message` under `key`. Duplicate messages are silently dropped.
+    # `key` is coerced to a Symbol to match {Context}'s key normalization.
     #
-    # @param key [Symbol]
+    # @param key [Symbol, String]
     # @param message [String]
     # @return [Set<String>] the set of messages now stored under `key`
     def add(key, message)
-      (messages[key] ||= Set.new) << message
+      (messages[key.to_sym] ||= Set.new) << message
     end
     alias []= add
 
@@ -40,23 +41,23 @@ module CMDx
       end
     end
 
-    # @param key [Symbol]
+    # @param key [Symbol, String]
     # @return [Array<String>] messages for `key`, or a frozen empty array
     def [](key)
-      messages[key]&.to_a || EMPTY_ARRAY
+      messages[key.to_sym]&.to_a || EMPTY_ARRAY
     end
 
-    # @param key [Symbol]
+    # @param key [Symbol, String]
     # @param message [String]
     # @return [Boolean] true when `message` is recorded under `key`
     def added?(key, message)
-      !!messages[key]&.include?(message)
+      !!messages[key.to_sym]&.include?(message)
     end
 
-    # @param key [Symbol]
+    # @param key [Symbol, String]
     # @return [Boolean]
     def key?(key)
-      messages.key?(key)
+      messages.key?(key.to_sym)
     end
     alias for? key?
 
@@ -98,10 +99,10 @@ module CMDx
       messages.each_value(&)
     end
 
-    # @param key [Symbol]
+    # @param key [Symbol, String]
     # @return [Set<String>, nil] the removed set, or nil when absent
     def delete(key)
-      messages.delete(key)
+      messages.delete(key.to_sym)
     end
 
     # @return [Hash{Symbol => Set<String>}] empties the container

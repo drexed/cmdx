@@ -40,7 +40,7 @@ ParseMetrics.execute(
 |------|---------|------------------|----------|
 | `:array` | | Turn into an array; JSON strings become real arrays; lone values get wrapped | `"val"` → `["val"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
 | `:big_decimal` | `:precision` (default `14`) | Decimal math without float weirdness | `"123.456"` → `BigDecimal("123.456")` |
-| `:boolean` | | Recognize common yes/no strings; `nil` / unknown strings fail | `"yes"` → `true`, `"no"` → `false` |
+| `:boolean` | | Recognize common yes/no strings; `nil` → `false`; unknown strings fail | `"yes"` → `true`, `"no"` → `false` |
 | `:complex` | `:imaginary` (default `0`) | Complex numbers from strings | `"1+2i"` → `Complex(1, 2)` |
 | `:date` | `:strptime` | Parse strings or call `#to_date` when available | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
 | `:date_time` | `:strptime` | Like `:date`, but `DateTime` | `"2024-01-23 10:30"` → `DateTime.new(...)` |

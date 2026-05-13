@@ -8,6 +8,24 @@ RSpec.describe CMDx::Workflow do
     end
   end
 
+  describe ".included" do
+    it "raises ImplementationError when mixed into a non-Task class" do
+      expect do
+        Class.new { include CMDx::Workflow }
+      end.to raise_error(CMDx::ImplementationError, /can only be included in a CMDx::Task subclass/)
+    end
+
+    it "raises ImplementationError when mixed into a Module" do
+      expect do
+        Module.new { include CMDx::Workflow }
+      end.to raise_error(CMDx::ImplementationError, /can only be included in a CMDx::Task subclass/)
+    end
+
+    it "accepts a Task subclass" do
+      expect { Class.new(CMDx::Task) { include CMDx::Workflow } }.not_to raise_error
+    end
+  end
+
   describe ".tasks" do
     it "appends an ExecutionGroup with options" do
       task = create_successful_task

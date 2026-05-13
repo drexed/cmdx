@@ -87,25 +87,15 @@ RSpec.describe CMDx::Settings do
       expect(described_class.new(tags: %w[a b]).tags).to eq(%w[a b])
     end
 
-    it "returns a fresh array on each call so callers can mutate without leaking" do
+    it "memoizes the array (same identity across calls)" do
       settings = described_class.new(tags: %w[a])
-
       first = settings.tags
-      first << "mutated"
 
-      expect(settings.tags).to eq(%w[a])
-      expect(first).not_to be_frozen
+      expect(settings.tags).to be(first)
     end
 
-    it "default empty array is mutable and unique per call" do
-      settings = described_class.new
-
-      a = settings.tags
-      b = settings.tags
-      a << :x
-
-      expect(b).to eq([])
-      expect(a).not_to be(b)
+    it "default empty array is frozen" do
+      expect(described_class.new.tags).to eq([]).and(be_frozen)
     end
   end
 

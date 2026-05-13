@@ -6,6 +6,16 @@ RSpec.describe CMDx::Validators::Inclusion do
       expect { described_class.call(1) }.to raise_error(ArgumentError, /:in or :within/)
     end
 
+    it "raises when :in is a Hash (use .keys/.values instead)" do
+      expect { described_class.call(:a, in: { a: 1, b: 2 }) }
+        .to raise_error(ArgumentError, /does not accept a Hash/)
+    end
+
+    it "raises when :within is a Hash" do
+      expect { described_class.call(:a, within: { a: 1 }) }
+        .to raise_error(ArgumentError, /does not accept a Hash/)
+    end
+
     context "with an array" do
       it "passes when the value is in the list" do
         expect(described_class.call(:a, in: %i[a b])).to be_nil

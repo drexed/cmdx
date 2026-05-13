@@ -24,6 +24,12 @@ module CMDx
             inclusion validator requires :in or :within (got #{options.keys.inspect}).
             See https://drexed.github.io/cmdx/inputs/validations/#inclusion
           MSG
+        elsif values.is_a?(Hash)
+          raise ArgumentError, <<~MSG.chomp
+            inclusion validator :in/:within does not accept a Hash; pass an Array,
+            Set, Range, or other Enumerable (e.g. `#{values.inspect}.keys`).
+            See https://drexed.github.io/cmdx/inputs/validations/#inclusion
+          MSG
         end
 
         if values.is_a?(Range)

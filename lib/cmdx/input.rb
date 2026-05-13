@@ -204,7 +204,7 @@ module CMDx
         [task.context[name], task.context.key?(name)]
       when Symbol
         obj = task.send(source)
-        return [nil, false] if obj.nil?
+        return [nil, false] unless obj
 
         fetch_by_name(obj)
       when Proc
@@ -220,7 +220,7 @@ module CMDx
     end
 
     def resolve_from_parent_with_key(parent_value)
-      return [nil, false] unless parent_value.respond_to?(:[])
+      return [nil, false] unless parent_value.respond_to?(:[]) || parent_value.respond_to?(:fetch)
 
       fetch_by_name(parent_value)
     end
@@ -236,9 +236,15 @@ module CMDx
         else
           [nil, false]
         end
+      elsif obj.respond_to?(:fetch)
+        # Prefer #fetch with a sentinel so an explicit `nil` value is
+        # distinguishable from a missing key (Hash, Array, etc.).
+        value = obj.fetch(name) { obj.fetch(name.to_s) { EMPTY_SENTINEL } }
+        value.equal?(EMPTY_SENTINEL) ? [nil, false] : [value, true]
       elsif obj.respond_to?(:[])
-        # Without #key? we cannot distinguish "key absent" from "value is nil",
-        # so an explicit nil is treated as not provided (triggers default/required).
+        # Without #key? or #fetch we cannot distinguish "key absent" from
+        # "value is nil", so an explicit nil is treated as not provided
+        # (triggers default/required).
         value = obj[name] || obj[name.to_s]
         [value, !value.nil?]
       else

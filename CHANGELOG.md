@@ -7,9 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
+- `CMDx::Util.deep_merge` — shared recursive `Hash` merge (scalar last-write-wins); used by `Context#deep_merge` and bundled `I18nProxy` locale YAML folding
+- `CMDx::Util.deep_dup` — shared recursive copy of `Hash` / `Array` trees with scalar sharing and `#dup` fallback; used by `Context#deep_dup`
 - Add `key?` on registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
 - Add `Telemetry#lookup` (subscriber list or `UnknownEntryError` for unknown events)
 - Add `CMDx.config` alias to `CMDx.configuration`
+- `Coercions::Integer` honors `:base` for non-decimal string parsing (`"0x10"` with `base: 16`, etc.); ignored for non-`String` values
 
 ### Changed
 - Install generator template comments refreshed for strict context and current APIs
@@ -17,6 +20,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Reword errors in `lib/cmdx/` for clearer debugging: registry misses include the bad key and registered keys; validator / option errors show passed vs accepted keys; type mismatches include the unexpected class; short messages are prefixed with the caller (e.g. `CMDx.configure requires a block`); `MiddlewareError` names the non-yielding middleware; trickier cases (middleware contract, missing `#work`, frozen-task signals, i18n load, strict context, deprecation gate) append https://drexed.github.io/cmdx/ permalinks (e.g. `inputs/validations/#length`, `outcomes/result/#predicate-dispatch`)
 - Multi-line errors use squiggly heredocs (`<<~MSG`) instead of backslash-continued strings so doc links sit on their own line in logs
 - `Telemetry#emit` returns immediately when no telemetry subscribers exist; `Runtime` still uses `Telemetry#subscribed?` before emitting a given event
+- `Runtime#execute` (non-strict) now converts non-`CMDx::Error` `StandardError`s raised by callbacks, middlewares, deprecation, telemetry subscribers, or `#rollback` into a failed `Result` (`cause` set to the original exception) so `Task.execute` honors its documented "never raises on failure" contract. `CMDx::Error` subclasses still propagate. Strict (`execute!`) behavior is unchanged — the finalized result is produced before re-raising
+- `Errors` symbolizes string keys on `add`, `[]`, `added?`, `key?`/`for?`, and `delete` to match `Context`'s normalization
+- `I18nProxy.register` now deep-merges locale YAML files so external paths can override a single nested key (e.g. `cmdx.validators.format`) without restating the whole branch
+- `Settings#tags` is now memoized and returns a **frozen** array; callers that need a mutable copy must `.dup` it. Previously each call allocated a fresh mutable array
+- `Middlewares#process` builds the wrap chain via iterative reverse-reduce (matching `Callbacks#around`) instead of a recursive lambda trampoline
+- `Context#to_s` uses a pre-sized `String` buffer instead of `map.join`
+- `CMDx.reset_configuration!` walks `ObjectSpace.each_object(Class)` and clears cached registries on every `Task` subclass, not just `Task` itself
+- `Validators::Inclusion` / `Validators::Exclusion` now raise `ArgumentError` when `:in`/`:within` is a `Hash` (previously silently flattened to `[[k, v], …]`)
+- `Coercions::DateTime` now rescues `RangeError` (in addition to `ArgumentError`/`TypeError`/`Date::Error`) and returns a `Failure`
+- `Input` resolution: `Symbol` sources returning `false` (not just `nil`) are treated as absent, falling back to `:default`/required-check; parent resolution prefers `#fetch` (with sentinel) so explicit-`nil` values are distinguishable from missing keys
+- `Pipeline` rollback isolates per-task compensator exceptions: a single failing `#rollback` is logged at `error` level and the remaining executed tasks still get compensated; after the saga finishes, the **first** compensator exception is re-raised into the workflow so `Result#cause` and strict `execute!` surface the rollback failure (instead of only the halted child fault)
+- `Workflow.included` now raises `ImplementationError` immediately when mixed into a non-`Task` class instead of erroring later at execution time
+- Improved `DefinitionError` message when an input reader collision is caused by sibling inputs sharing a nested child name (e.g. `inputs :a, :b do; required :x; end`); guidance points at `:as`/`:prefix`/`:suffix` or separating the blocks
+- `Middlewares#register`: removed dead `.min` clamp; insertion index is already bounded by `clamp(-size-1, size)`
+- `Fault.for?`/`reason?`/`matches?` YARD docs note the per-call anonymous-class allocation and recommend hoisting matchers to module scope on hot paths
+- `Coercions::Boolean` coerces `nil` to `false` (unknown strings still fail)
+- `Settings#correlation_id`, `Result#xid`, and `Chain#initialize` YARD docs corrected: `correlation_id` is a callable (not a `String`) that resolves to the xid at root-chain construction
 
 ## [2.0.1] - 2026-05-09
 

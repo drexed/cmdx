@@ -90,7 +90,7 @@ module CMDx
     # @return [Context] self for chaining
     def deep_merge(context = EMPTY_HASH)
       other = self.class.build(context)
-      @table = compute_deep_merge(@table, other.to_h)
+      @table = Util.deep_merge(@table, other.to_h)
       self
     end
 
@@ -230,7 +230,14 @@ module CMDx
 
     # @return [String] space-separated `key=value.inspect` pairs
     def to_s
-      @table.map { |k, v| "#{k}=#{v.inspect}" }.join(" ")
+      buf = String.new(capacity: 256)
+
+      @table.each do |k, v|
+        buf << " " unless buf.empty?
+        buf << k.to_s << "=" << v.inspect
+      end
+
+      buf
     end
 
     # Pattern-matching support for `case context in {...}`.
@@ -255,7 +262,7 @@ module CMDx
     # @return [Context]
     def deep_dup
       ctx = self.class.allocate
-      ctx.instance_variable_set(:@table, compute_deep_dup(@table))
+      ctx.instance_variable_set(:@table, Util.deep_dup(@table))
       ctx
     end
 
@@ -287,29 +294,6 @@ module CMDx
 
     def respond_to_missing?(method_name, include_private = false)
       @table.key?(method_name) || method_name.end_with?("=", "?") || super
-    end
-
-    def compute_deep_dup(value)
-      case value
-      when Numeric, Symbol, TrueClass, FalseClass, NilClass
-        value
-      when Hash
-        value.each_with_object({}) { |(k, v), acc| acc[k] = compute_deep_dup(v) }
-      when Array
-        value.map { |e| compute_deep_dup(e) }
-      else
-        begin
-          value.dup
-        rescue StandardError
-          value
-        end
-      end
-    end
-
-    def compute_deep_merge(lhs, rhs)
-      lhs.merge(rhs) do |_key, l, r|
-        l.is_a?(Hash) && r.is_a?(Hash) ? compute_deep_merge(l, r) : r
-      end
     end
 
   end

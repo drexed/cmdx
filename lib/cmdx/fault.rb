@@ -16,6 +16,10 @@ module CMDx
       # inherits from) any of the given task classes. Suitable for use in
       # `rescue`.
       #
+      # @note Each call allocates a new anonymous subclass. Hoist the matcher
+      #   to module scope (`MY_FAULT = CMDx::Fault.for?(MyTask)`) when used
+      #   on hot paths to avoid class allocation churn over time.
+      #
       # @param tasks [Array<Class>] one or more Task classes
       # @return [Class<Fault>] anonymous matcher subclass
       # @raise [ArgumentError] when no tasks are given
@@ -38,6 +42,10 @@ module CMDx
       # Returns a matcher subclass that matches Faults whose `result.reason`
       # is equal to the given string. Suitable for use in `rescue`.
       #
+      # @note Each call allocates a new anonymous subclass. Hoist the matcher
+      #   to module scope (`PAYMENT_FAULT = CMDx::Fault.reason?("Payment failed")`)
+      #   when used on hot paths to avoid class allocation churn.
+      #
       # @param reason [String] the reason to match
       # @return [Class<Fault>] anonymous matcher subclass
       # @raise [ArgumentError] when no reason is given
@@ -57,6 +65,10 @@ module CMDx
       end
 
       # Returns a matcher subclass whose `===` runs `block` against the fault.
+      #
+      # @note Each call allocates a new anonymous subclass. Hoist the matcher
+      #   to module scope when used on hot paths to avoid class allocation
+      #   churn.
       #
       # @param block [#call] `(fault) -> Boolean` matcher body
       # @yieldparam fault [Fault]

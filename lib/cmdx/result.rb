@@ -52,7 +52,9 @@ module CMDx
       task.type
     end
 
-    # @return [String, nil] correlation id or the global configuration's correlation id
+    # @return [String, nil] resolved correlation id from this result's chain
+    #   (produced by the configured `correlation_id` callable when the root
+    #   chain was acquired)
     def xid
       chain.xid
     end

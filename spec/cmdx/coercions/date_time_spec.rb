@@ -30,5 +30,15 @@ RSpec.describe CMDx::Coercions::DateTime do
     it "returns a Failure for malformed strings" do
       expect(described_class.call("nope")).to be_a(CMDx::Coercions::Failure)
     end
+
+    it "returns a Failure when #to_datetime raises RangeError" do
+      ranged = Class.new do
+        def to_datetime
+          raise RangeError, "out of range"
+        end
+      end
+
+      expect(described_class.call(ranged.new)).to be_a(CMDx::Coercions::Failure)
+    end
   end
 end

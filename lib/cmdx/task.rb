@@ -396,8 +396,19 @@ module CMDx
         accessor = input.accessor_name
 
         if method_defined?(accessor) || private_method_defined?(accessor)
-          raise DefinitionError,
-            "cannot define input #{accessor.inspect}: ##{accessor} is already defined on #{self}"
+          raise DefinitionError, <<~MSG.chomp
+            Cannot define input #{accessor.inspect}: ##{accessor} is already defined on #{self}.
+
+            Typical cause #1: there's a method or private method with the same name as the input.
+
+            Typical cause #2: two sibling `inputs` groups declare the same nested name
+            (for example `inputs :a, :b do ... required :x ... end`, which defines `:x` twice).
+
+            Fix: rename with `:as`, `:prefix`, or `:suffix`, or give each parent its own
+            `inputs ... do ... end` block so nested accessors do not collide.
+
+            https://drexed.github.io/cmdx/inputs/definitions
+          MSG
         end
 
         define_method(accessor) { instance_variable_get(input.ivar_name) }

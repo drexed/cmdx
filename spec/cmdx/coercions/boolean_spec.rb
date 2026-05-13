@@ -19,8 +19,8 @@ RSpec.describe CMDx::Coercions::Boolean do
       expect(described_class.call(false)).to be(false)
     end
 
-    it "returns a Failure for nil" do
-      expect(described_class.call(nil)).to be_a(CMDx::Coercions::Failure)
+    it "is false for nil" do
+      expect(described_class.call(nil)).to be(false)
     end
 
     it "returns a Failure for unrecognized strings" do

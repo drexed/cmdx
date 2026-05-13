@@ -55,8 +55,7 @@ module CMDx
       if at.nil?
         registry << entry
       else
-        at = [at.clamp(-registry.size - 1, registry.size), registry.size].min
-        registry.insert(at, entry)
+        registry.insert(at.clamp(-registry.size - 1, registry.size), entry)
       end
 
       self
@@ -103,6 +102,10 @@ module CMDx
     # Walks the middleware chain around `task`'s lifecycle. The final link
     # yields to `block`, which is expected to run the actual lifecycle.
     #
+    # Built as an iterative reverse-reduce (matching {Callbacks#around}),
+    # avoiding the per-link recursive lambda invocation of the previous
+    # implementation while preserving identical semantics.
+    #
     # @param task [Task]
     # @yield the innermost link — the task's lifecycle body
     # @return [void]
@@ -111,24 +114,22 @@ module CMDx
     def process(task)
       processed = false
       last_invoked = nil
-      count = registry.size
 
-      chain = lambda do |i|
-        if i == count
-          processed = true
-          yield
-        else
-          mw, opts = registry[i]
+      innermost = lambda do
+        processed = true
+        yield
+      end
 
-          if Util.satisfied?(opts[:if], opts[:unless], task)
-            last_invoked = mw
-            mw.call(task) { chain.call(i + 1) }
-          else
-            chain.call(i + 1)
-          end
+      chain = registry.reverse_each.reduce(innermost) do |succ, (mw, opts)|
+        lambda do
+          next succ.call unless Util.satisfied?(opts[:if], opts[:unless], task)
+
+          last_invoked = mw
+          mw.call(task) { succ.call }
         end
       end
-      chain.call(0)
+
+      chain.call
 
       processed || begin
         offender = last_invoked.is_a?(Class) ? last_invoked : last_invoked.class

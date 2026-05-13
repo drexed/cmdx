@@ -98,7 +98,7 @@ module CMDx
           MSG
         end
 
-        paths.reduce({}) { |hash, path| hash.merge(YAML.safe_load_file(path)) }.freeze
+        paths.reduce({}) { |acc, path| Util.deep_merge(acc, YAML.safe_load_file(path)) }.freeze
       end
 
       @defaults[translation_key] = @translations[default_locale].dig(*translation_key.split("."))

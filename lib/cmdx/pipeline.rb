@@ -141,6 +141,8 @@ module CMDx
     end
 
     def rollback_executed!
+      first_rollback_error = nil
+
       @executed.reverse_each do |instance, result|
         next unless result.success?
         next unless instance.respond_to?(:rollback)
@@ -150,8 +152,19 @@ module CMDx
         result.instance_variable_set(:@options, new_opts)
 
         emit_telemetry(instance, :task_rolled_back)
-        instance.rollback
+
+        begin
+          instance.rollback
+        rescue StandardError => e
+          first_rollback_error ||= e
+          instance.logger.error do
+            "rollback for #{instance.class} (#{instance.tid}) raised: " \
+              "[#{e.class}] #{e.message}"
+          end
+        end
       end
+
+      raise first_rollback_error if first_rollback_error
     end
 
     def emit_telemetry(instance, name, payload = EMPTY_HASH)

@@ -272,6 +272,16 @@ RSpec.describe CMDx::Input do
         input = described_class.new(:name, source: :params, default: "fallback")
         expect(input.resolve(task)).to eq("fallback")
       end
+
+      it "treats a falsy source return (nil OR false) as absent" do
+        task_class = create_task_class(name: "FalsySourceTask") do
+          define_method(:params) { false }
+        end
+        task = task_class.new
+
+        input = described_class.new(:name, source: :params, default: "fallback")
+        expect(input.resolve(task)).to eq("fallback")
+      end
     end
   end
 
@@ -298,6 +308,30 @@ RSpec.describe CMDx::Input do
       input = described_class.new(:age)
       expect(input.resolve_from_parent(nil, task)).to be_nil
       expect(task.errors).to be_empty
+    end
+
+    it "distinguishes explicit-nil from missing for Hash parents (via #key?)" do
+      explicit_nil = { age: nil }
+      missing      = {}
+      input        = described_class.new(:age, required: true)
+
+      input.resolve_from_parent(explicit_nil, task)
+      expect(task.errors).to be_empty
+
+      other_task = task_class.new
+      input.resolve_from_parent(missing, other_task)
+      expect(other_task.errors[:age]).not_to be_empty
+    end
+
+    it "uses #fetch for parents that respond to fetch but not key?" do
+      fetcher = Class.new do
+        def initialize(h) = @h = h
+        def fetch(k, &b) = @h.fetch(k, &b)
+      end
+
+      input = described_class.new(:age)
+      expect(input.resolve_from_parent(fetcher.new(age: 30), task)).to eq(30)
+      expect(input.resolve_from_parent(fetcher.new("age" => 30), task)).to eq(30)
     end
   end
 end

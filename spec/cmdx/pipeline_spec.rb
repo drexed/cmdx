@@ -487,6 +487,35 @@ RSpec.describe CMDx::Pipeline do
         end
       end
 
+      describe "rollback error isolation" do
+        it "continues rolling back siblings when a single compensator raises" do
+          rolled = []
+
+          ok = create_task_class(name: "Ok1") do
+            define_method(:work) { context.ok1 = true }
+            define_method(:rollback) { (context.rolled ||= []) << :ok1 }
+          end
+          bad = create_task_class(name: "Bad") do
+            define_method(:work) { context.bad = true }
+            define_method(:rollback) { raise CMDx::TestError, "compensator boom" }
+          end
+          ok2 = create_task_class(name: "Ok2") do
+            define_method(:work) { context.ok2 = true }
+            define_method(:rollback) { (context.rolled ||= []) << :ok2 }
+          end
+          failing = create_failing_task(name: "Failing", reason: "halt")
+
+          workflow_class = create_workflow_class do
+            tasks ok, bad, ok2, failing
+          end
+
+          expect { rolled = workflow_class.execute }.not_to raise_error
+
+          # bad raised but ok was still rolled back (reverse order means ok rolled back after bad)
+          expect(rolled.context.rolled).to include(:ok1)
+        end
+      end
+
       describe "registry-based resolution" do
         it "resolves executors registered on the workflow class" do
           custom = ->(jobs:, on_job:, **) { jobs.each { |j| on_job.call(j) } }

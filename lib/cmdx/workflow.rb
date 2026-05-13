@@ -100,7 +100,15 @@ module CMDx
     # @api private
     # @param base [Class] task class including this mixin
     # @return [void]
+    # @raise [ImplementationError] when `base` is not a {Task} subclass
     def self.included(base)
+      unless base.is_a?(Class) && base <= Task
+        raise ImplementationError, <<~MSG.chomp
+          CMDx::Workflow can only be included in a CMDx::Task subclass (got #{base.inspect}).
+          See https://drexed.github.io/cmdx/workflows/#declarations
+        MSG
+      end
+
       base.extend(ClassMethods)
     end
 

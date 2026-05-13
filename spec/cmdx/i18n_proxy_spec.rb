@@ -154,6 +154,22 @@ RSpec.describe CMDx::I18nProxy do
           expect(proxy.translate("custom.key")).to eq("override")
         end
       end
+
+      it "deep-merges nested keys so external paths can override individual leaves" do
+        Dir.mktmpdir do |dir|
+          # Override a single nested key without restating the whole tree.
+          File.write(
+            File.join(dir, "en.yml"),
+            { "en" => { "cmdx" => { "validators" => { "format" => "OVERRIDDEN" } } } }.to_yaml
+          )
+          described_class.register(dir)
+
+          expect(proxy.translate("cmdx.validators.format")).to eq("OVERRIDDEN")
+          # Sibling key from the bundled cmdx locale must still resolve.
+          expect(proxy.translate("cmdx.validators.presence")).to be_a(String)
+          expect(proxy.translate("cmdx.validators.presence")).not_to be_empty
+        end
+      end
     end
   end
 end

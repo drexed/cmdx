@@ -64,14 +64,9 @@ module CMDx
       end
     end
 
-    # Returns a fresh array each call so callers can mutate the result
-    # without affecting other tasks (or hitting `FrozenError` on the
-    # shared sentinel).
-    #
-    # @return [Array<Symbol, String>] task tags, surfaced on result hashes
+    # @return [Array<Symbol, String>] task tags
     def tags
-      tags = @options[:tags]
-      tags ? tags.dup : []
+      @options[:tags] || EMPTY_ARRAY
     end
 
     # @return [Boolean] whether this task's {Context} should raise on
@@ -83,7 +78,9 @@ module CMDx
       end
     end
 
-    # @return [String, nil] correlation id or the global configuration's correlation id
+    # @return [#call, nil] callable that produces a correlation id when invoked
+    #   by Runtime at root-chain construction. Resolution order:
+    #   task-level setting → {Configuration#correlation_id} → nil.
     def correlation_id
       @options.fetch(:correlation_id) do
         CMDx.configuration.correlation_id

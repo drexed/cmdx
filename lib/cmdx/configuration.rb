@@ -65,23 +65,39 @@ module CMDx
   end
 
   # Replaces the global configuration with a fresh instance and invalidates
-  # the cached registries on `Task` so new lookups rebuild from the new config.
-  # Intended for test setup/teardown.
+  # the cached registries on {Task} and every Task subclass currently in the
+  # object space, so new lookups rebuild from the new config. Intended for
+  # test setup/teardown.
+  #
+  # Walks `ObjectSpace.each_object(Class)` once — acceptable for tests but
+  # avoid calling it on a hot path.
   #
   # @return [void]
   def reset_configuration!
     @configuration = Configuration.new
     return unless defined?(Task)
 
-    Task.instance_variable_set(:@middlewares, nil)
-    Task.instance_variable_set(:@callbacks, nil)
-    Task.instance_variable_set(:@coercions, nil)
-    Task.instance_variable_set(:@validators, nil)
-    Task.instance_variable_set(:@executors, nil)
-    Task.instance_variable_set(:@mergers, nil)
-    Task.instance_variable_set(:@retriers, nil)
-    Task.instance_variable_set(:@deprecators, nil)
-    Task.instance_variable_set(:@telemetry, nil)
+    ivars = %i[
+      @middlewares
+      @callbacks
+      @coercions
+      @validators
+      @executors
+      @mergers
+      @retriers
+      @deprecators
+      @telemetry
+    ].freeze
+
+    ObjectSpace.each_object(Class) do |klass|
+      next unless klass <= Task
+
+      ivars.each do |iv|
+        next unless klass.instance_variable_defined?(iv)
+
+        klass.instance_variable_set(iv, nil)
+      end
+    end
   end
 
 end

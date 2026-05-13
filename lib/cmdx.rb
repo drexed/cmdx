@@ -24,6 +24,13 @@ module CMDx
   EMPTY_HASH = {}.freeze
   private_constant :EMPTY_HASH
 
+  # Sentinel object used as a placeholder return value to avoid per-call
+  # allocations on hot paths.
+  #
+  # @api private
+  EMPTY_SENTINEL = Object.new.freeze
+  private_constant :EMPTY_SENTINEL
+
   # Shared empty string constant used as a sentinel default. Intentionally
   # not frozen so callers may treat it as a mutable seed when needed.
   #

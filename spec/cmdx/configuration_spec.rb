@@ -98,6 +98,21 @@ RSpec.describe CMDx do
       expect(CMDx::Task.instance_variable_get(:@validators)).to be_nil
       expect(CMDx::Task.instance_variable_get(:@telemetry)).to be_nil
     end
+
+    it "clears cached registries on Task subclasses too" do
+      subclass = Class.new(CMDx::Task)
+      subclass.middlewares
+      subclass.callbacks
+      subclass.coercions
+
+      expect(subclass.instance_variable_get(:@middlewares)).not_to be_nil
+
+      described_class.reset_configuration!
+
+      expect(subclass.instance_variable_get(:@middlewares)).to be_nil
+      expect(subclass.instance_variable_get(:@callbacks)).to be_nil
+      expect(subclass.instance_variable_get(:@coercions)).to be_nil
+    end
   end
 end
 # rubocop:enable RSpec/MultipleDescribes

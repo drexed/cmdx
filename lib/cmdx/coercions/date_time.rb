@@ -27,7 +27,7 @@ module CMDx
         else
           coercion_failure
         end
-      rescue ArgumentError, TypeError, ::Date::Error
+      rescue ArgumentError, RangeError, TypeError, ::Date::Error
         coercion_failure
       end
 
