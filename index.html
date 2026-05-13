@@ -2106,6 +2106,7 @@
   font-size: 0.88em;
   font-family: var(--cmdx-mono);
 }
+.home .md-code__nav { display: none; }
 
 [data-md-color-scheme="default"] .home p code,
 [data-md-color-scheme="default"] .home h1 code,
@@ -2489,7 +2490,7 @@
 
 .problem-annos {
   list-style: none;
-  padding: 1rem 1.35rem 1.35rem;
+  padding: 1.35rem 1rem 1.35rem !important;
   margin: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3319,18 +3320,18 @@
 
     <a class="hero-badge" href="v2-migration/">
       <span class="dot"></span>
-      <span>v2.0 &middot; Signal</span>
+      <span>v2.0 &middot; Runtime Signals</span>
       <span class="arrow">&rarr;</span>
     </a>
 
     <h1>
-      The runtime,<br>
-      <span class="accent">rewritten.</span>
+      Big logic,<br>
+      <span class="accent">small objects.</span>
     </h1>
 
     <p class="tagline">
-      Signals in. Immutable results out.<br>
-      A business-logic framework powered by an explicit signal-based runtime.
+      A framework for making service-style Ruby feel predictable:
+      <code>define</code> the work, <code>execute</code> the task, handle the <code>result</code>
     </p>
 
     <div class="hero-chain" aria-hidden="true">
@@ -3351,7 +3352,7 @@
         </g>
         <g class="chain-node n4">
           <circle cx="470" cy="30" r="12" />
-          <text x="470" y="55">telemetry</text>
+          <text x="470" y="55">logs</text>
         </g>
         <g class="chain-node n5">
           <circle cx="610" cy="30" r="12" style="stroke: var(--cmdx-red);" />
@@ -3365,11 +3366,11 @@
     <div class="hero-cta">
       <a href="getting_started/" class="cmd-btn primary">
         <span class="prompt">$</span>
-        <span>get-started</span>
+        <span>open-the-docs</span>
       </a>
       <a href="https://github.com/drexed/cmdx" class="cmd-btn ghost">
         <span class="prompt">&gt;</span>
-        <span>view on github</span>
+        <span>view-on-github</span>
       </a>
     </div>
 
@@ -3385,10 +3386,10 @@
   <div class="problem-wrap">
 
     <div class="section-head center">
-      <span class="section-eyebrow">&middot; 01 &middot; the problem</span>
-      <h2 class="section-title">The code you keep rewriting.</h2>
+      <span class="section-eyebrow">&middot; 01 &middot; the before / after</span>
+      <h2 class="section-title">Controllers love to do too much.</h2>
       <p class="section-sub">
-        Every Rails app has a 300-line controller like this. CMDx gives it a home.
+        Sound familiar? One action finds records, calls Stripe, rescues errors, fires mailers, and hopes for the best. CMDx moves that story into a plain Ruby class you can test and reuse.
       </p>
     </div>
 
@@ -3398,7 +3399,7 @@
       <!-- BEFORE -->
       <div class="problem-panel before">
         <div class="panel-head">
-          <span>today, in every rails app</span>
+          <span>today: everything in one action</span>
         </div>
         <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PaymentsController</span> <span class="o">&lt;</span> <span class="nc">ApplicationController</span>
   <span class="n">before_action</span> <span class="ss">:authenticate_user!</span>
@@ -3449,17 +3450,17 @@
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
         <ul class="problem-annos">
-          <li>mixed concerns</li>
-          <li>rescue-driven flow</li>
-          <li>not reusable</li>
-          <li>untyped inputs</li>
+          <li>HTTP + payments + mail in one place</li>
+          <li>hard to follow rescue branches</li>
+          <li>copy-paste if you need it twice</li>
+          <li>params are just "whatever showed up"</li>
         </ul>
       </div>
 
       <!-- AFTER -->
       <div class="problem-panel after">
         <div class="panel-head">
-          <span>with cmdx</span>
+          <span>with cmdx: one job, one class</span>
         </div>
         <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PayOrder</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
   <span class="n">required</span> <span class="ss">:order_id</span>, <span class="ss">coerce:</span> <span class="ss">:integer</span>
@@ -3504,17 +3505,17 @@
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
         <ul class="problem-annos">
-          <li>typed inputs</li>
-          <li>one responsibility</li>
-          <li>reusable anywhere</li>
-          <li>predictable result</li>
+          <li>inputs checked before <code>work</code> runs</li>
+          <li>one class, one story</li>
+          <li>call it from controllers, jobs, consoles</li>
+          <li>same three outcomes every time</li>
         </ul>
       </div>
     </div>
 
     <!-- Caller -->
     <div class="problem-panel problem-caller">
-      <div class="caller-label">your controller, now</div>
+      <div class="caller-label">your controller stays boring (on purpose)</div>
       <pre class="problem-code"><code><span class="k">def</span> <span class="n">create</span>
   <span class="n">result</span> = <span class="nc">PayOrder</span>.<span class="n">execute</span>(<span class="ss">**payment_params</span>, <span class="ss">user:</span> <span class="n">current_user</span>)
 
@@ -3543,9 +3544,9 @@
   <div class="section">
 
     <div class="section-head center">
-      <span class="section-eyebrow">&middot; 02 &middot; the pipeline</span>
-      <h2 class="section-title">CERO &mdash; the four-step flow.</h2>
-      <p class="section-sub">A single, repeatable shape behind every task.</p>
+      <span class="section-eyebrow">&middot; 02 &middot; the cheat code</span>
+      <h2 class="section-title">CERO: the same four beats, every time.</h2>
+      <p class="section-sub">Think of it as a tiny checklist. Compose what you need, run it, branch on the answer, peek at the logs. No new vocabulary quiz required.</p>
     </div>
 
     <div class="cero-rail">
@@ -3554,28 +3555,28 @@
       <div class="cero-stage">
         <div class="idx">01 &middot; C</div>
         <h3>Compose</h3>
-        <p>Define typed inputs and the business rules they enforce.</p>
+        <p>List the inputs you need and how they should look. Bad data stops the task before your <code style="display: inline;">work</code> method even starts.</p>
         <code><span class="tk">required</span> :id, <span class="tk">coerce:</span> :integer</code>
       </div>
 
       <div class="cero-stage">
         <div class="idx">02 &middot; E</div>
         <h3>Execute</h3>
-        <p>Run tasks anywhere &mdash; controllers, jobs, scripts, tests.</p>
+        <p>Call the same class from a controller, a background job, a rake task, or a test. One front door: <code style="display: inline;">execute</code>.</p>
         <code>Task.<span class="tk">execute</span>(id: 42)</code>
       </div>
 
       <div class="cero-stage">
         <div class="idx">03 &middot; R</div>
         <h3>React</h3>
-        <p>Branch on success, skip, or fail &mdash; no rescues for control flow.</p>
+        <p>Ask the result object what happened. Success, skipped, or failed &mdash; plain <code style="display: inline;">if</code> branches, not rescue gymnastics.</p>
         <code><span class="tk">result</span>.success?<br><span class="tk">result</span>.skipped?<br><span class="tk">result</span>.failed?</code>
       </div>
 
       <div class="cero-stage">
         <div class="idx">04 &middot; O</div>
         <h3>Observe</h3>
-        <p>Every run ships structured logs and telemetry.</p>
+        <p>Each run emits structured lines you can tail in dev and pipe to Datadog, Honeycomb, or whatever you like in prod.</p>
         <code>configuration.telemetry.<span class="tk">subscribe</span>(...)</code>
       </div>
     </div>
@@ -3588,9 +3589,9 @@
   <div class="showcase-wrap">
 
     <div class="section-head">
-      <span class="section-eyebrow">&middot; 03 &middot; see it in action</span>
-      <h2 class="section-title">From one task to full workflows.</h2>
-      <p class="section-sub">From a single command to an orchestrated pipeline. Click through the files.</p>
+      <span class="section-eyebrow">&middot; 03 &middot; click around</span>
+      <h2 class="section-title">Start with one task. Grow into full workflows.</h2>
+      <p class="section-sub">Flip the tabs like tiny files in an editor &mdash; same ideas, bigger scope.</p>
     </div>
 
     <div class="showcase-frame">
@@ -3654,18 +3655,18 @@
             <pre><code><span class="k">class</span> <span class="nc">OnboardCustomer</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
   <span class="k">include</span> <span class="nc">CMDx::Workflow</span>
 
-  <span class="c"># Sequential pipeline</span>
+  <span class="c"># Run these one after another</span>
   <span class="n">task</span> <span class="nc">CreateAccount</span>
   <span class="n">task</span> <span class="nc">SetupBilling</span>
   <span class="n">task</span> <span class="nc">AssignPlan</span>
 
-  <span class="c"># Parallel notifications</span>
+  <span class="c"># Fire these at the same time</span>
   <span class="n">tasks</span> <span class="nc">SendWelcomeEmail</span>,
         <span class="nc">SendWelcomeSms</span>,
         <span class="nc">CreateDashboard</span>,
         <span class="ss">strategy:</span> <span class="ss">:parallel</span>
 
-  <span class="c"># Conditional execution</span>
+  <span class="c"># Only run this when the predicate is true</span>
   <span class="n">task</span> <span class="nc">ScheduleOnboardingCall</span>,
        <span class="ss">if:</span> <span class="ss">:premium_plan?</span>
 
@@ -3681,10 +3682,10 @@
         <!-- Execute -->
         <div class="showcase-panel has-output" id="panel-execute">
           <div class="showcase-code">
-            <pre><code><span class="c"># Execute with typed, validated arguments</span>
+            <pre><code><span class="c"># Arguments are checked before anything runs</span>
 <span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
 
-<span class="c"># React to the outcome</span>
+<span class="c"># Branch like normal Ruby</span>
 <span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
   <span class="n">puts</span> <span class="s">"Approved at </span><span class="c">#{</span><span class="n">result</span>.<span class="n">context</span>.<span class="n">approved_at</span><span class="c">}</span><span class="s">"</span>
 
@@ -3696,7 +3697,7 @@
   <span class="n">puts</span> <span class="s">"Code: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">metadata</span>[<span class="ss">:code</span>]<span class="c">}</span><span class="s">"</span>
 <span class="k">end</span>
 
-<span class="c"># Bang variant raises on failure</span>
+<span class="c"># Bang method raises if something goes wrong</span>
 <span class="n">result</span> = <span class="nc">OnboardCustomer</span>.<span class="n">execute!</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)
 <span class="c"># =&gt; raises CMDx::Fault on failure</span></code></pre>
           </div>
@@ -3715,7 +3716,7 @@
         <!-- Observe -->
         <div class="showcase-panel has-output" id="panel-observe">
           <div class="showcase-code">
-            <pre><code><span class="c"># Plug into any observability stack</span>
+            <pre><code><span class="c"># Hook your favorite metrics or tracing tool</span>
 <span class="nc">CMDx</span>.<span class="n">configure</span> <span class="k">do</span> |<span class="n">c</span>|
   <span class="n">c</span>.<span class="n">telemetry</span>.<span class="n">subscribe</span>(<span class="ss">:task_executed</span>) <span class="k">do</span> |<span class="n">event</span>|
     <span class="nc">Datadog</span>.<span class="n">increment</span>(<span class="s">"cmdx.executed"</span>, <span class="ss">tags:</span> [
@@ -3725,10 +3726,9 @@
   <span class="k">end</span>
 <span class="k">end</span>
 
-<span class="c"># Every event ships with a cid, task_id,</span>
-<span class="c"># runtime, origin, and correlation metadata.</span>
+<span class="c"># Each event carries ids, timing, and handy tags</span>
 
-<span class="c"># Structured logs are emitted automatically.</span>
+<span class="c"># Logs show up without you wiring printf everywhere</span>
 <span class="nc">OnboardCustomer</span>.<span class="n">execute</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)</code></pre>
           </div>
           <aside class="showcase-output">
@@ -3752,9 +3752,9 @@
   <div class="section">
 
     <div class="section-head center">
-      <span class="section-eyebrow">&middot; 04 &middot; features</span>
-      <h2 class="section-title">Everything your tasks need.</h2>
-      <p class="section-sub">Batteries included. No external dependencies required.</p>
+      <span class="section-eyebrow">&middot; 04 &middot; the good stuff</span>
+      <h2 class="section-title">Batteries included, drama optional.</h2>
+      <p class="section-sub">These helpers ship with the gem itself. You do not need a pile of extra dependencies just to feel productive.</p>
     </div>
 
     <div class="features-grid">
@@ -3766,7 +3766,7 @@
           </svg>
         </div>
         <h3>Typed inputs</h3>
-        <p>Declare inputs with coercion, defaults, and validation. Invalid data fails before <code>work</code> runs, never mid-method.</p>
+        <p>Say what you expect, add defaults, and validate early. If something is wrong, CMDx stops the run before <code>work</code> starts, so you are not debugging half-finished state.</p>
       </div>
 
       <div class="feature-card">
@@ -3777,7 +3777,7 @@
           </svg>
         </div>
         <h3>Automatic retries</h3>
-        <p>Configurable retries with exponential backoff, scoped to the exception classes you choose. Declared per task with <code>retry_on</code>.</p>
+        <p>Transient network blip? Configure retries with backoff and only for the exception types you trust. Declare it once with <code>retry_on</code> and move on.</p>
       </div>
 
       <div class="feature-card">
@@ -3791,7 +3791,7 @@
           </svg>
         </div>
         <h3>Workflows</h3>
-        <p>Chain tasks into sequential or parallel pipelines. Conditional steps, shared context, halt-aware error propagation.</p>
+        <p>Line tasks up in order, fan them out in parallel, or skip steps when a flag says so. They share one context object and errors bubble the way you expect.</p>
       </div>
 
       <div class="feature-card">
@@ -3804,7 +3804,7 @@
           </svg>
         </div>
         <h3>Structured logging</h3>
-        <p>Each execution emits a chain id, task, state, status, runtime, and metadata as a structured key-value line.</p>
+        <p>Every run prints a tidy line: chain id, task name, state, status, runtime, and any metadata you attached. Great for grepping locally or feeding a log platform.</p>
       </div>
 
       <div class="feature-card">
@@ -3816,7 +3816,7 @@
           </svg>
         </div>
         <h3>Middleware &amp; callbacks</h3>
-        <p>Wrap tasks with auth, caching, timing, and other cross-cutting concerns. Hook lifecycle events with <code>on_success</code>, <code>on_skipped</code>, and <code>on_failed</code>.</p>
+        <p>Wrap tasks when you need auth checks, caching, timing, or other cross-cutting bits. React to life-cycle moments with <code>on_success</code>, <code>on_skipped</code>, and <code>on_failed</code>.</p>
       </div>
 
       <div class="feature-card">
@@ -3827,13 +3827,13 @@
           </svg>
         </div>
         <h3>I18n messages</h3>
-        <p>Translatable error messages built on the standard I18n backend. English ships with the gem; bring your own locale files for everything else.</p>
+        <p>User-facing strings ride on plain Rails I18n. English ships inside the gem; drop in YAML for any other locale when you are ready.</p>
       </div>
 
     </div>
 
     <p class="features-footer">
-      Full capability list in the <a href="https://github.com/drexed/cmdx/blob/main/CHANGELOG.md">changelog</a> &rarr;
+      Hungry for the full list? Cruise the <a href="https://github.com/drexed/cmdx/blob/main/CHANGELOG.md">changelog</a> &rarr;
     </p>
 
   </div>
@@ -3857,9 +3857,9 @@
   <div class="section">
 
     <div class="section-head center">
-      <span class="section-eyebrow">&middot; 05 &middot; built for</span>
-      <h2 class="section-title">Built for real workloads.</h2>
-      <p class="section-sub">From core business logic to external integrations.</p>
+      <span class="section-eyebrow">&middot; 05 &middot; where it shines</span>
+      <h2 class="section-title">Real apps, same cozy pattern.</h2>
+      <p class="section-sub">If it is important, stateful, and a little scary, it probably deserves its own task class.</p>
     </div>
 
     <div class="usecase-grid">
@@ -3875,7 +3875,7 @@
           </div>
           <h3>Payment processing</h3>
         </div>
-        <p>Charges, refunds, ledgers, and reconciliation with audit-friendly result objects and automatic retries on gateway errors.</p>
+        <p>Take money, undo charges, balance books, and leave an audit trail. Results are plain objects, and flaky gateways can opt into retries.</p>
         <div class="tag-row"><span>stripe</span><span>braintree</span><span>ledgers</span></div>
       </div>
 
@@ -3890,7 +3890,7 @@
           </div>
           <h3>User onboarding</h3>
         </div>
-        <p>Orchestrate signup &rarr; billing &rarr; welcome emails with parallel fan-out and conditional steps for paid tiers.</p>
+        <p>Spin up accounts, attach billing, say hello over email or SMS, and only book the fancy onboarding call when someone paid for premium.</p>
         <div class="tag-row"><span>signup</span><span>billing</span><span>welcome</span></div>
       </div>
 
@@ -3905,7 +3905,7 @@
           </div>
           <h3>Webhook handlers</h3>
         </div>
-        <p>Validate, dispatch, and retry Stripe, GitHub, or Twilio events with one task per event type and typed payloads.</p>
+        <p>Check signatures, route each provider to its own task, and retry safely when the internet does internet things.</p>
         <div class="tag-row"><span>stripe</span><span>github</span><span>twilio</span></div>
       </div>
 
@@ -3919,7 +3919,7 @@
           </div>
           <h3>Background jobs</h3>
         </div>
-        <p>Give Sidekiq or async-job workers structured inputs, predictable results, and retry-aware error handling.</p>
+        <p>Sidekiq (and friends) get predictable inputs, clear outcomes, and retry rules that match the exceptions you care about.</p>
         <div class="tag-row"><span>sidekiq</span><span>async-job</span><span>solid_queue</span></div>
       </div>
 
@@ -3934,7 +3934,7 @@
           </div>
           <h3>ETL &amp; data sync</h3>
         </div>
-        <p>Compose import &rarr; transform &rarr; load pipelines with per-step checkpoints and parallel stages for throughput.</p>
+        <p>Move data in stages, save checkpoints when it makes sense, and parallelize the slow bits without losing your place.</p>
         <div class="tag-row"><span>extract</span><span>transform</span><span>load</span></div>
       </div>
 
@@ -3950,7 +3950,7 @@
           </div>
           <h3>AI agent flows</h3>
         </div>
-        <p>Wrap LLM tool calls, embeddings, and vector writes with timeouts, retries, and telemetry you can observe.</p>
+        <p>Wrap model calls, embeddings, and vector writes with timeouts, retries, and logs so you can tell what the bot actually did.</p>
         <div class="tag-row"><span>openai</span><span>tools</span><span>vectors</span></div>
       </div>
 
@@ -3961,7 +3961,7 @@
 
 <!-- ===================== 06. FOOTER CTA ===================== -->
 <section class="cta-footer">
-  <h2>Start building.</h2>
+  <h2>Install the gem, crack the docs, keep shipping.</h2>
 
   <div class="install-box">
     <span class="prompt">$</span>
