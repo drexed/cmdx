@@ -960,7 +960,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#chain-analysis-who-broke-what" class="md-nav__link">
+  <a href="#chain-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
         Chain analysis: who broke what?
@@ -993,7 +993,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#predicate-dispatch-with-on" class="md-nav__link">
+  <a href="#predicate-dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       
         Predicate dispatch with on
@@ -2249,7 +2249,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#chain-analysis-who-broke-what" class="md-nav__link">
+  <a href="#chain-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
         Chain analysis: who broke what?
@@ -2282,7 +2282,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#predicate-dispatch-with-on" class="md-nav__link">
+  <a href="#predicate-dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       
         Predicate dispatch with on
@@ -2502,7 +2502,7 @@
 <p class="admonition-title">Note</p>
 <p>There is no <code>executing?</code> here. A <code>Result</code> only appears <strong>after</strong> things are finalized—so “already ran” is baked in.</p>
 </div>
-<h2 id="chain-analysis-who-broke-what">Chain analysis: who broke what?<a class="headerlink" href="#chain-analysis-who-broke-what" title="Permanent link">&para;</a></h2>
+<h2 id="chain-analysis">Chain analysis: who broke what?<a class="headerlink" href="#chain-analysis" title="Permanent link">&para;</a></h2>
 <p>When failures bubble, CMDx remembers <strong><code>origin</code></strong>—the upstream <code>Result</code> yours echoed (via <code>Task#throw!</code> or Runtime rescuing a <code>Fault</code> inside <code>work</code>). The helpers below only make sense when <code>result.failed?</code>; otherwise they return <code>nil</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">DeploymentWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">app_name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;webapp&quot;</span><span class="p">)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
@@ -2590,7 +2590,7 @@
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="predicate-dispatch-with-on">Predicate dispatch with <code>on</code><a class="headerlink" href="#predicate-dispatch-with-on" title="Permanent link">&para;</a></h2>
+<h2 id="predicate-dispatch">Predicate dispatch with <code>on</code><a class="headerlink" href="#predicate-dispatch" title="Permanent link">&para;</a></h2>
 <p><code>Result#on(*keys, &amp;block)</code> runs your block when <strong>any</strong> listed predicate is truthy. It returns <code>self</code> so you can chain:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.3&quot;</span><span class="p">)</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>

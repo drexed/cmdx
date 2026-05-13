@@ -604,7 +604,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-lifecycle-the-big-picture" class="md-nav__link">
+  <a href="#task-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
         Task lifecycle (the big picture)
@@ -2354,7 +2354,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-lifecycle-the-big-picture" class="md-nav__link">
+  <a href="#task-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
         Task lifecycle (the big picture)
@@ -2686,7 +2686,7 @@
 <p class="admonition-title">Note</p>
 <p>If you ship logs to durable storage, these entries become a time-ordered trail of “who did what, when”—great for audits and spooky production mysteries.</p>
 </div>
-<h2 id="task-lifecycle-the-big-picture">Task lifecycle (the big picture)<a class="headerlink" href="#task-lifecycle-the-big-picture" title="Permanent link">&para;</a></h2>
+<h2 id="task-lifecycle">Task lifecycle (the big picture)<a class="headerlink" href="#task-lifecycle" title="Permanent link">&para;</a></h2>
 <p>Every <code>Task.execute</code> walks the same path: setup, optional retries around <code>work</code>, output checks, callbacks, then a frozen <code>Result</code>. The diagram below is dense on purpose; bookmark it when you are debugging middleware, signals (<code>success!</code>, <code>skip!</code>, <code>fail!</code>, <code>throw!</code>), or rollbacks.</p>
 <pre class="mermaid"><code>flowchart TD
     Invoke([Task.execute]) --&gt; Dep{Deprecation?}
