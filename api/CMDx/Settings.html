@@ -175,7 +175,7 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#correlation_id-instance_method" title="#correlation_id (instance method)">#<strong>correlation_id</strong>  &#x21d2; String<sup>?</sup> </a>
+      <a href="#correlation_id-instance_method" title="#correlation_id (instance method)">#<strong>correlation_id</strong>  &#x21d2; #call<sup>?</sup> </a>
     
 
     
@@ -189,7 +189,7 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Correlation id or the global configuration's correlation id.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>Callable that produces a correlation id when invoked by Runtime at root-chain construction.</p></div></span>
   
 </li>
 
@@ -345,7 +345,7 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns a fresh array each call so callers can mutate the result without affecting other tasks (or hitting <code>FrozenError</code> on the shared sentinel).</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>Task tags.</p></div></span>
   
 </li>
 
@@ -635,7 +635,7 @@ unchanged when <code>new_options</code> is empty (used by Task inheritance).</p>
       <div class="method_details ">
   <h3 class="signature " id="correlation_id-instance_method">
   
-    #<strong>correlation_id</strong>  &#x21d2; <tt>String</tt><sup>?</sup> 
+    #<strong>correlation_id</strong>  &#x21d2; <tt>#call</tt><sup>?</sup> 
   
 
   
@@ -643,7 +643,9 @@ unchanged when <code>new_options</code> is empty (used by Task inheritance).</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns correlation id or the global configuration's correlation id.</p>
+    <p>Returns callable that produces a correlation id when invoked
+by Runtime at root-chain construction. Resolution order:
+task-level setting → <span class='object_link'><a href="Configuration.html#correlation_id-instance_method" title="CMDx::Configuration#correlation_id (method)">Configuration#correlation_id</a></span> → nil.</p>
 
   </div>
 </div>
@@ -655,12 +657,14 @@ unchanged when <code>new_options</code> is empty (used by Task inheritance).</p>
     <li>
       
       
-        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+        <span class='type'>(<tt>#call</tt>, <tt>nil</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'><p>correlation id or the global configuration's correlation id</p></div>
+        <div class='inline'><p>callable that produces a correlation id when invoked
+by Runtime at root-chain construction. Resolution order:
+task-level setting → <span class='object_link'><a href="Configuration.html#correlation_id-instance_method" title="CMDx::Configuration#correlation_id (method)">Configuration#correlation_id</a></span> → nil.</p></div>
       
     </li>
   
@@ -672,14 +676,14 @@ unchanged when <code>new_options</code> is empty (used by Task inheritance).</p>
       <pre class="lines">
 
 
+84
+85
+86
 87
-88
-89
-90
-91</pre>
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 84</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_correlation_id'>correlation_id</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:correlation_id</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -971,14 +975,14 @@ unknown dynamic reads; falls back to
       <pre class="lines">
 
 
-80
-81
-82
-83
-84</pre>
+75
+76
+77
+78
+79</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 75</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_strict_context'>strict_context</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:strict_context</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1001,9 +1005,7 @@ unknown dynamic reads; falls back to
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns a fresh array each call so callers can mutate the result
-without affecting other tasks (or hitting <code>FrozenError</code> on the
-shared sentinel).</p>
+    <p>Returns task tags.</p>
 
   </div>
 </div>
@@ -1020,7 +1022,7 @@ shared sentinel).</p>
       
       
         &mdash;
-        <div class='inline'><p>task tags, surfaced on result hashes</p></div>
+        <div class='inline'><p>task tags</p></div>
       
     </li>
   
@@ -1032,17 +1034,15 @@ shared sentinel).</p>
       <pre class="lines">
 
 
-72
-73
-74
-75</pre>
+68
+69
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 72</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 68</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tags'>tags</span>
-  <span class='id identifier rubyid_tags'>tags</span> <span class='op'>=</span> <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:tags</span><span class='rbracket'>]</span>
-  <span class='id identifier rubyid_tags'>tags</span> <span class='op'>?</span> <span class='id identifier rubyid_tags'>tags</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='op'>:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:tags</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>EMPTY_ARRAY</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1054,7 +1054,7 @@ shared sentinel).</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:50 2026 by
+  Generated on Wed May 13 18:19:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

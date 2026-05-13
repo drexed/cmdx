@@ -508,6 +508,7 @@ or when <code>:at</code> isn't an Integer</p></div>
       <pre class="lines">
 
 
+71
 72
 73
 74
@@ -526,11 +527,10 @@ or when <code>:at</code> isn't an Integer</p></div>
 87
 88
 89
-90
-91</pre>
+90</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 72</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_middleware'>middleware</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>at:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_middleware'>middleware</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -594,12 +594,12 @@ or when <code>:at</code> isn't an Integer</p></div>
       <pre class="lines">
 
 
+93
 94
-95
-96</pre>
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 94</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -679,6 +679,9 @@ or when <code>:at</code> isn't an Integer</p></div>
   <div class="discussion">
     <p class="note returns_void">This method returns an undefined value.</p><p>Walks the middleware chain around <code>task</code>'s lifecycle. The final link
 yields to <code>block</code>, which is expected to run the actual lifecycle.</p>
+<p>Built as an iterative reverse-reduce (matching <span class='object_link'><a href="Callbacks.html#around-instance_method" title="CMDx::Callbacks#around (method)">Callbacks#around</a></span>),
+avoiding the per-link recursive lambda invocation of the previous
+implementation while preserving identical semantics.</p>
 
   </div>
 </div>
@@ -739,9 +742,6 @@ which would otherwise silently skip the task</p></div>
       <pre class="lines">
 
 
-111
-112
-113
 114
 115
 116
@@ -768,32 +768,31 @@ which would otherwise silently skip the task</p></div>
 137
 138
 139
-140</pre>
+140
+141</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 111</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_processed'>processed</span> <span class='op'>=</span> <span class='kw'>false</span>
   <span class='id identifier rubyid_last_invoked'>last_invoked</span> <span class='op'>=</span> <span class='kw'>nil</span>
-  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
 
-  <span class='id identifier rubyid_chain'>chain</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
-    <span class='kw'>if</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>==</span> <span class='id identifier rubyid_count'>count</span>
-      <span class='id identifier rubyid_processed'>processed</span> <span class='op'>=</span> <span class='kw'>true</span>
-      <span class='kw'>yield</span>
-    <span class='kw'>else</span>
-      <span class='id identifier rubyid_mw'>mw</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_innermost'>innermost</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_processed'>processed</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>yield</span>
+  <span class='kw'>end</span>
 
-      <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
-        <span class='id identifier rubyid_last_invoked'>last_invoked</span> <span class='op'>=</span> <span class='id identifier rubyid_mw'>mw</span>
-        <span class='id identifier rubyid_mw'>mw</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
-      <span class='kw'>else</span>
-        <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span>
-      <span class='kw'>end</span>
+  <span class='id identifier rubyid_chain'>chain</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_reverse_each'>reverse_each</span><span class='period'>.</span><span class='id identifier rubyid_reduce'>reduce</span><span class='lparen'>(</span><span class='id identifier rubyid_innermost'>innermost</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_succ'>succ</span><span class='comma'>,</span> <span class='lparen'>(</span><span class='id identifier rubyid_mw'>mw</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='op'>|</span>
+    <span class='id identifier rubyid_lambda'>lambda</span> <span class='kw'>do</span>
+      <span class='kw'>next</span> <span class='id identifier rubyid_succ'>succ</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_last_invoked'>last_invoked</span> <span class='op'>=</span> <span class='id identifier rubyid_mw'>mw</span>
+      <span class='id identifier rubyid_mw'>mw</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_succ'>succ</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span> <span class='rbrace'>}</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
-  <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span>
 
   <span class='id identifier rubyid_processed'>processed</span> <span class='op'>||</span> <span class='kw'>begin</span>
     <span class='id identifier rubyid_offender'>offender</span> <span class='op'>=</span> <span class='id identifier rubyid_last_invoked'>last_invoked</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Class</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_last_invoked'>last_invoked</span> <span class='op'>:</span> <span class='id identifier rubyid_last_invoked'>last_invoked</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
@@ -1001,8 +1000,7 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
 59
 60
 61
-62
-63</pre>
+62</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 35</span>
@@ -1030,8 +1028,7 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
   <span class='kw'>if</span> <span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='id identifier rubyid_registry'>registry</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
   <span class='kw'>else</span>
-    <span class='id identifier rubyid_at'>at</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_clamp'>clamp</span><span class='lparen'>(</span><span class='op'>-</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span>
-    <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='id identifier rubyid_at'>at</span><span class='comma'>,</span> <span class='id identifier rubyid_entry'>entry</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='id identifier rubyid_at'>at</span><span class='period'>.</span><span class='id identifier rubyid_clamp'>clamp</span><span class='lparen'>(</span><span class='op'>-</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_entry'>entry</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 
   <span class='kw'>self</span>
@@ -1078,12 +1075,12 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
       <pre class="lines">
 
 
+98
 99
-100
-101</pre>
+100</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 99</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1098,7 +1095,7 @@ when the callable doesn't respond to <code>#call</code>, or when <code>:at</code
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:51 2026 by
+  Generated on Wed May 13 18:19:09 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

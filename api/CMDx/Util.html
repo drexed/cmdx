@@ -98,9 +98,8 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Shared helpers for resolving <code>:if</code> / <code>:unless</code> conditional options across
-tasks, callbacks, inputs, outputs, validators, and deprecations. Normalizes
-booleans, symbols (method names), procs, and call-ables into a truth value.</p>
+    <p>Shared helpers for <code>:if</code> / <code>:unless</code> gates, recursive hash merge/dup, and
+related tree utilities used across tasks, context, and i18n.</p>
 
   </div>
 </div>
@@ -121,6 +120,50 @@ booleans, symbols (method names), procs, and call-ables into a truth value.</p>
     </h2>
 
     <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deep_dup-instance_method" title="#deep_dup (instance method)">#<strong>deep_dup</strong>(value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns a deep copy of <code>value</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deep_merge-instance_method" title="#deep_merge (instance method)">#<strong>deep_merge</strong>(lhs, rhs)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Recursively merges two Hash-like trees.</p></div></span>
+  
+</li>
+
       
         <li class="public ">
   <span class="summary_signature">
@@ -221,7 +264,197 @@ booleans, symbols (method names), procs, and call-ables into a truth value.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="evaluate-instance_method">
+  <h3 class="signature first" id="deep_dup-instance_method">
+  
+    #<strong>deep_dup</strong>(value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a deep copy of <code>value</code>. Immutable scalars (<code>Numeric</code>, <code>Symbol</code>,
+booleans, <code>nil</code>) are returned as-is; <code>Hash</code> and <code>Array</code> are walked
+recursively; other objects use <code>#dup</code>, falling back to the original when
+<code>#dup</code> raises.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 93</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deep_dup'>deep_dup</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>when</span> <span class='const'>Numeric</span><span class='comma'>,</span> <span class='const'>Symbol</span><span class='comma'>,</span> <span class='const'>TrueClass</span><span class='comma'>,</span> <span class='const'>FalseClass</span><span class='comma'>,</span> <span class='const'>NilClass</span>
+    <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>when</span> <span class='const'>Hash</span>
+    <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_acc'>acc</span><span class='op'>|</span> <span class='id identifier rubyid_acc'>acc</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_deep_dup'>deep_dup</span><span class='lparen'>(</span><span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>when</span> <span class='const'>Array</span>
+    <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_deep_dup'>deep_dup</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+    <span class='kw'>rescue</span> <span class='const'>StandardError</span>
+      <span class='id identifier rubyid_value'>value</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deep_merge-instance_method">
+  
+    #<strong>deep_merge</strong>(lhs, rhs)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Recursively merges two Hash-like trees. When both values at a key are
+Hashes, they merge recursively; otherwise the right-hand value wins
+(last-write-wins). When either top-level operand is not a Hash, returns
+<code>rhs</code> unchanged — useful when folding unknown YAML roots.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>lhs</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>left tree (typically a Hash)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>rhs</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>right tree (typically a Hash)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>merged Hash or <code>rhs</code> when a Hash-only merge is impossible</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deep_merge'>deep_merge</span><span class='lparen'>(</span><span class='id identifier rubyid_lhs'>lhs</span><span class='comma'>,</span> <span class='id identifier rubyid_rhs'>rhs</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_rhs'>rhs</span> <span class='kw'>unless</span> <span class='id identifier rubyid_lhs'>lhs</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_rhs'>rhs</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_lhs'>lhs</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_rhs'>rhs</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__key'>_key</span><span class='comma'>,</span> <span class='id identifier rubyid_l'>l</span><span class='comma'>,</span> <span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_deep_merge'>deep_merge</span><span class='lparen'>(</span><span class='id identifier rubyid_l'>l</span><span class='comma'>,</span> <span class='id identifier rubyid_r'>r</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="evaluate-instance_method">
   
     #<strong>evaluate</strong>(condition, receiver, *args)  &#x21d2; <tt>Boolean</tt>, <tt>Object</tt> 
   
@@ -322,6 +555,7 @@ booleans, symbols (method names), procs, and call-ables into a truth value.</p>
       <pre class="lines">
 
 
+17
 18
 19
 20
@@ -337,11 +571,10 @@ booleans, symbols (method names), procs, and call-ables into a truth value.</p>
 30
 31
 32
-33
-34</pre>
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 17</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_evaluate'>evaluate</span><span class='lparen'>(</span><span class='id identifier rubyid_condition'>condition</span><span class='comma'>,</span> <span class='id identifier rubyid_receiver'>receiver</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_condition'>condition</span>
@@ -451,14 +684,14 @@ booleans, symbols (method names), procs, and call-ables into a truth value.</p>
       <pre class="lines">
 
 
+41
 42
 43
 44
-45
-46</pre>
+45</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 42</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 41</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_if?'>if?</span><span class='lparen'>(</span><span class='id identifier rubyid_condition'>condition</span><span class='comma'>,</span> <span class='id identifier rubyid_receiver'>receiver</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_condition'>condition</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -571,13 +804,13 @@ whether a conditional feature (callback, retry, validator, etc.) should run.</p>
       <pre class="lines">
 
 
+67
 68
 69
-70
-71</pre>
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 68</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_satisfied?'>satisfied?</span><span class='lparen'>(</span><span class='id identifier rubyid_condition_if'>condition_if</span><span class='comma'>,</span> <span class='id identifier rubyid_condition_unless'>condition_unless</span><span class='comma'>,</span> <span class='id identifier rubyid_receiver'>receiver</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_if?'>if?</span><span class='lparen'>(</span><span class='id identifier rubyid_condition_if'>condition_if</span><span class='comma'>,</span> <span class='id identifier rubyid_receiver'>receiver</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
@@ -674,14 +907,14 @@ whether a conditional feature (callback, retry, validator, etc.) should run.</p>
       <pre class="lines">
 
 
+53
 54
 55
 56
-57
-58</pre>
+57</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 54</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/util.rb', line 53</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unless?'>unless?</span><span class='lparen'>(</span><span class='id identifier rubyid_condition'>condition</span><span class='comma'>,</span> <span class='id identifier rubyid_receiver'>receiver</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_condition'>condition</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -698,7 +931,7 @@ whether a conditional feature (callback, retry, validator, etc.) should run.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:48 2026 by
+  Generated on Wed May 13 18:19:06 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

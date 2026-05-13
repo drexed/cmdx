@@ -98,7 +98,11 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Coerces to Integer via <code>Kernel#Integer</code> (strict; rejects floats-as-strings).</p>
+    <p>Coerces to Integer via <code>Kernel#Integer</code> (strict; rejects floats-as-strings).
+Pass <code>base:</code> to parse strings written in non-decimal radix
+(e.g. <code>&quot;0x10&quot;</code> with <code>base: 16</code>). The <code>:base</code> option is applied only
+when <code>value</code> is a String — for numeric inputs <code>Kernel#Integer</code> is
+called without a base, matching its native contract.</p>
 
   </div>
 </div>
@@ -206,13 +210,13 @@
     <ul class="option">
       
         <li>
-          <span class="name">reserved</span>
-          <span class="type">(<tt>Object</tt>)</span>
+          <span class="name">:base</span>
+          <span class="type">(<tt><span class='object_link'><a href="" title="CMDx::Coercions::Integer (module)">Integer</a></span></tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'><p>for future per-coercion configuration (currently ignored)</p></div>
+            &mdash; <div class='inline'><p>radix for string parsing (default 10)</p></div>
           
         </li>
       
@@ -239,18 +243,28 @@
       <pre class="lines">
 
 
-14
-15
-16
-17
 18
-19</pre>
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/integer.rb', line 14</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/integer.rb', line 18</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Integer (module)">Integer</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:base</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_base'>base</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>String</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Integer (module)">Integer</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_base'>base</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Integer (module)">Integer</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
 <span class='kw'>rescue</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='const'>FloatDomainError</span><span class='comma'>,</span> <span class='const'>RangeError</span><span class='comma'>,</span> <span class='const'>TypeError</span>
   <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="../I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.types.integer</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Coercions.html#initialize-instance_method" title="CMDx::Coercions#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="../I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.coercions.into_an</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>type:</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -265,7 +279,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:48 2026 by
+  Generated on Wed May 13 18:19:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

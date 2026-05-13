@@ -235,6 +235,22 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
   
 </ul>
 
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#ImplementationError-constant" title="CMDx::ImplementationError (constant)">ImplementationError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>base</code> is not a <span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span> subclass</p></div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -242,14 +258,28 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
       <pre class="lines">
 
 
-103
 104
-105</pre>
+105
+106
+107
+108
+109
+110
+111
+112
+113</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 103</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 104</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_included'>included</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Class</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_base'>base</span> <span class='op'>&lt;=</span> <span class='const'><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#ImplementationError-constant" title="CMDx::ImplementationError (constant)">ImplementationError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      CMDx::Workflow can only be included in a CMDx::Task subclass (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>).
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/workflows/#declarations
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
+
   <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Workflow/ClassMethods.html" title="CMDx::Workflow::ClassMethods (module)">ClassMethods</a></span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -287,12 +317,12 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
       <pre class="lines">
 
 
-110
-111
-112</pre>
+118
+119
+120</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 110</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 118</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
   <span class='const'><span class='object_link'><a href="Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'><span class='object_link'><a href="Pipeline.html#execute-class_method" title="CMDx::Pipeline.execute (method)">execute</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -307,7 +337,7 @@ on a workflow is forbidden — <code>#work</code> is auto-generated to delegate 
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:48 2026 by
+  Generated on Wed May 13 18:19:06 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

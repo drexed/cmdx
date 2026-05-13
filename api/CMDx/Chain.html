@@ -630,7 +630,8 @@ clears the chain on teardown.</p>
         &mdash;
         <div class='inline'><p>external correlation id (e.g. Rails <code>request_id</code>)
 shared across every <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> in this chain. Resolved once by Runtime
-from Configuration#xid when the root chain is created.</p></div>
+from <span class='object_link'><a href="Settings.html#correlation_id-instance_method" title="CMDx::Settings#correlation_id (method)">Settings#correlation_id</a></span> (a callable) when the root chain is
+created.</p></div>
       
     </li>
   
@@ -643,15 +644,15 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-42
 43
 44
 45
 46
-47</pre>
+47
+48</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 42</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 43</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_xid'>xid</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='ivar'>@xid</span>     <span class='op'>=</span> <span class='id identifier rubyid_xid'>xid</span>
@@ -1032,12 +1033,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-106
 107
-108</pre>
+108
+109</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 106</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 107</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1084,12 +1085,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-95
 96
-97</pre>
+97
+98</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 95</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 96</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -1139,13 +1140,13 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-113
 114
 115
-116</pre>
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_freeze'>freeze</span>
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span> <span class='rbrace'>}</span>
@@ -1211,12 +1212,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-70
 71
-72</pre>
+72
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
@@ -1266,12 +1267,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-75
 76
-77</pre>
+77
+78</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 75</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 76</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_last'>last</span>
   <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
@@ -1340,13 +1341,13 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-53
 54
 55
-56</pre>
+56
+57</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 53</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 54</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_result'>result</span> <span class='rbrace'>}</span>
@@ -1397,12 +1398,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-80
 81
-82</pre>
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span>
   <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:root?</span><span class='rparen'>)</span>
@@ -1449,12 +1450,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-100
 101
-102</pre>
+102
+103</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 100</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 101</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1504,12 +1505,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-85
 86
-87</pre>
+87
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 85</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 86</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_state'>state</span>
   <span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='op'>&amp;.</span><span class='id identifier rubyid_state'>state</span>
@@ -1559,12 +1560,12 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-90
 91
-92</pre>
+92
+93</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 90</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 91</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_status'>status</span>
   <span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='op'>&amp;.</span><span class='id identifier rubyid_status'>status</span>
@@ -1629,13 +1630,13 @@ from Configuration#xid when the root chain is created.</p></div>
       <pre class="lines">
 
 
-63
 64
 65
-66</pre>
+66
+67</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 63</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 64</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
@@ -1651,7 +1652,7 @@ from Configuration#xid when the root chain is created.</p></div>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:49 2026 by
+  Generated on Wed May 13 18:19:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

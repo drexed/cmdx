@@ -369,7 +369,7 @@ file on the i18n load path.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Replaces the global configuration with a fresh instance and invalidates the cached registries on <code>Task</code> so new lookups rebuild from the new config.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>Replaces the global configuration with a fresh instance and invalidates the cached registries on <span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span> and every Task subclass currently in the object space, so new lookups rebuild from the new config.</p></div></span>
   
 </li>
 
@@ -544,8 +544,11 @@ file on the i18n load path.</p>
 </h3><div class="docstring">
   <div class="discussion">
     <p class="note returns_void">This method returns an undefined value.</p><p>Replaces the global configuration with a fresh instance and invalidates
-the cached registries on <code>Task</code> so new lookups rebuild from the new config.
-Intended for test setup/teardown.</p>
+the cached registries on <span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span> and every Task subclass currently in the
+object space, so new lookups rebuild from the new config. Intended for
+test setup/teardown.</p>
+<p>Walks <code>ObjectSpace.each_object(Class)</code> once — acceptable for tests but
+avoid calling it on a hot path.</p>
 
   </div>
 </div>
@@ -558,10 +561,6 @@ Intended for test setup/teardown.</p>
       <pre class="lines">
 
 
-72
-73
-74
-75
 76
 77
 78
@@ -571,24 +570,52 @@ Intended for test setup/teardown.</p>
 82
 83
 84
-85</pre>
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 72</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 76</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_reset_configuration!'>reset_configuration!</span>
   <span class='ivar'>@configuration</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CMDx/Configuration.html#initialize-instance_method" title="CMDx::Configuration#initialize (method)">new</a></span></span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='rparen'>)</span>
 
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@middlewares</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@callbacks</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@coercions</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@validators</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@executors</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@mergers</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@retriers</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@deprecators</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@telemetry</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ivars'>ivars</span> <span class='op'>=</span> <span class='qsymbols_beg'>%i[</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@middlewares</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@callbacks</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@coercions</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@validators</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@executors</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@mergers</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@retriers</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@deprecators</span><span class='words_sep'>
+</span><span class='words_sep'>    </span><span class='tstring_content'>@telemetry</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='const'>ObjectSpace</span><span class='period'>.</span><span class='id identifier rubyid_each_object'>each_object</span><span class='lparen'>(</span><span class='const'>Class</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_klass'>klass</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_klass'>klass</span> <span class='op'>&lt;=</span> <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span>
+
+    <span class='id identifier rubyid_ivars'>ivars</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_iv'>iv</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_defined?'>instance_variable_defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_iv'>iv</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='id identifier rubyid_iv'>iv</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -600,7 +627,7 @@ Intended for test setup/teardown.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 15:52:48 2026 by
+  Generated on Wed May 13 18:19:06 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>
