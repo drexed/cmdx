@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Workflow parallel execution", type: :feature do
   after { CMDx::Chain.clear }
 

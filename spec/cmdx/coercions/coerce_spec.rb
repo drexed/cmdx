@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Coercions::Coerce do
   let(:task_class) do
     create_task_class do

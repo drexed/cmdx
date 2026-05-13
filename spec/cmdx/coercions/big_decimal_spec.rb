@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
 require "bigdecimal"
 
 RSpec.describe CMDx::Coercions::BigDecimal do

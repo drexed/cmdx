@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task deprecation", type: :feature do
   def deprecated_task(value, **options, &)
     create_task_class(name: "DeprecatedTask") do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Coercions::Complex do
   describe ".call" do
     it "returns a Complex unchanged" do

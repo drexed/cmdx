@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Coercions::Symbol do
   describe ".call" do
     it "returns a Symbol unchanged" do

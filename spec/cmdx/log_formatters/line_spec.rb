@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::LogFormatters::Line do
   subject(:formatter) { described_class.new }
 

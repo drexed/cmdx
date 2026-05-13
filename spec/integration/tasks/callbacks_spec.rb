@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task callbacks", type: :feature do
   def callback_log_task(status: :success)
     create_task_class(name: "CallbackTask") do

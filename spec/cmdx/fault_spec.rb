@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Fault do
   let(:chain) { CMDx::Chain.new }
   let(:task_class) { create_task_class(name: "SampleTask") }

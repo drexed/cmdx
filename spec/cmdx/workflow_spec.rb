@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Workflow do
   describe ".pipeline" do
     it "defaults to an empty array" do

@@ -5,8 +5,6 @@
 ```ruby
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::ClassName do
   subject(:instance) { described_class.new(args) }
 
@@ -40,8 +38,6 @@ end
 
 ```ruby
 # frozen_string_literal: true
-
-require "spec_helper"
 
 RSpec.describe "Feature name", type: :feature do
   context "when soft execution" do
@@ -96,8 +92,6 @@ end
 ```ruby
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Workflow feature name", type: :feature do
   context "when non-blocking" do
     subject(:result) { workflow.execute }
@@ -130,8 +124,6 @@ end
 
 ```ruby
 # frozen_string_literal: true
-
-require "spec_helper"
 
 RSpec.describe "Workflow feature name", type: :feature do
   context "when using custom configuration" do

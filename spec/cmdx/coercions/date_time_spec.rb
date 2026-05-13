@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
 require "date"
 
 RSpec.describe CMDx::Coercions::DateTime do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Deprecators do
   subject(:deprecators) { described_class.new }
 

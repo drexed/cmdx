@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Retry do
   let(:error_class) { Class.new(StandardError) }
 

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Deprecation do
   let(:logger) { Logger.new(log_output) }
   let(:log_output) { StringIO.new }

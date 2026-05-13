@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Runtime do
   describe ".execute" do
     it "delegates to a new Runtime instance" do

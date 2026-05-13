@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Coercions::Boolean do
   describe ".call" do
     %w[true yes on y 1 t True YES ON].each do |input|

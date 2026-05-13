@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Validators::Presence do
   describe ".call" do
     it "passes for non-blank strings" do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task telemetry", type: :feature do
   let(:events) { [] }
   let(:sub) { ->(event) { events << event } }

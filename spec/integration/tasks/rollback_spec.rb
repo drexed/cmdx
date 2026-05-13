@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task rollback", type: :feature do
   describe "#rollback runs on failure" do
     context "when fail! was called" do

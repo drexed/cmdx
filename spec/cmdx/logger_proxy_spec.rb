@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::LoggerProxy do
   let(:task_class) { create_task_class }
   let(:task) { task_class.new }

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task input resolution", type: :feature do
   describe "presence rules" do
     let(:task) do

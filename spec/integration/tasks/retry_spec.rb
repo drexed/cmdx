@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task retry", type: :feature do
   describe "without retry_on" do
     it "returns success with retries: 0" do

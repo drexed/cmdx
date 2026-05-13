@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Output do
   describe "#initialize" do
     it "coerces the name to a symbol" do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Settings do
   describe "#build" do
     it "returns self when new_options is empty" do

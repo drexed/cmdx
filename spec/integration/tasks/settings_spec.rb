@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task settings", type: :feature do
   describe "defaults" do
     let(:task) { create_successful_task }

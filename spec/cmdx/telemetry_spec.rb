@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Telemetry do
   subject(:telemetry) { described_class.new }
 

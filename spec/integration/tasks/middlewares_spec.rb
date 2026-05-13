@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task middlewares", type: :feature do
   describe "execution wrapping" do
     it "wraps #work with before and after hooks" do

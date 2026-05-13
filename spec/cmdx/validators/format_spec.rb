@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Validators::Format do
   describe ".call" do
     it "passes when :with matches" do

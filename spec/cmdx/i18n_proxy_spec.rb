@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
 require "tmpdir"
 
 RSpec.describe CMDx::I18nProxy do

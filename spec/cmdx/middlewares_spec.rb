@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Middlewares do
   subject(:middlewares) { described_class.new }
 

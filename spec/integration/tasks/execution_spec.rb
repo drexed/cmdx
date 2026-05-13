@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task execution", type: :feature do
   describe "non-blocking execute" do
     context "when successful" do

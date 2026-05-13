@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 # rubocop:disable RSpec/MultipleDescribes
 RSpec.describe CMDx::Configuration do
   subject(:config) { described_class.new }

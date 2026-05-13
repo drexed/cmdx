@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Validators::Length do
   describe ".call" do
     it "fails for values without #length" do

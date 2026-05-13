@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Nested workflows", type: :feature do
   after { CMDx::Chain.clear }
 

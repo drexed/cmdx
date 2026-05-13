@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task output verification", type: :feature do
   describe "presence" do
     context "when all declared keys are set" do

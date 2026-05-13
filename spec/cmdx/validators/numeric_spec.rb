@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Validators::Numeric do
   describe ".call" do
     it "fails for nil values" do

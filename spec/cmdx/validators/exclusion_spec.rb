@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Validators::Exclusion do
   describe ".call" do
     it "raises without :in or :within" do

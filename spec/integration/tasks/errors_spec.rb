@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe "Task error collection", type: :feature do
   describe "adding errors inside #work" do
     context "with no errors added" do

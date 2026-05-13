@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Context do
   describe ".build" do
     it "returns the same instance when given an unfrozen Context" do

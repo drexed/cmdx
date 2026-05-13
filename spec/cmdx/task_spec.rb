@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
 RSpec.describe CMDx::Task do
   describe "class-level registries" do
     let(:base) { create_task_class(name: "BaseTask") }
