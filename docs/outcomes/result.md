@@ -70,7 +70,7 @@ result.ko?          #=> true for skipped or failed
 
     There is no `executing?` here. A `Result` only appears **after** things are finalized—so “already ran” is baked in.
 
-## Chain analysis: who broke what?
+## Chain analysis: who broke what? {#chain-analysis}
 
 When failures bubble, CMDx remembers **`origin`**—the upstream `Result` yours echoed (via `Task#throw!` or Runtime rescuing a `Fault` inside `work`). The helpers below only make sense when `result.failed?`; otherwise they return `nil`:
 
@@ -138,7 +138,7 @@ deploy_url = BuildApplication.execute(version: "1.2.3") do |result|
 end
 ```
 
-## Predicate dispatch with `on`
+## Predicate dispatch with `on` {#predicate-dispatch}
 
 `Result#on(*keys, &block)` runs your block when **any** listed predicate is truthy. It returns `self` so you can chain:
 

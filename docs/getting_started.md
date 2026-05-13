@@ -212,7 +212,7 @@ I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d
 
     If you ship logs to durable storage, these entries become a time-ordered trail of “who did what, when”—great for audits and spooky production mysteries.
 
-## Task lifecycle (the big picture)
+## Task lifecycle (the big picture) {#task-lifecycle}
 
 Every `Task.execute` walks the same path: setup, optional retries around `work`, output checks, callbacks, then a frozen `Result`. The diagram below is dense on purpose; bookmark it when you are debugging middleware, signals (`success!`, `skip!`, `fail!`, `throw!`), or rollbacks.
 

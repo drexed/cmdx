@@ -148,7 +148,7 @@ module CMDx
         unless EVENTS.include?(k.to_sym)
           raise ArgumentError, <<~MSG.chomp
             unknown Result#on event #{k.inspect}, must be one of #{EVENTS.to_a.inspect}.
-            See https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch-with-on
+            See https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch
           MSG
         end
 
