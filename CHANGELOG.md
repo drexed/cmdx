@@ -7,8 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
-- `key?` on registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
-- `Telemetry#lookup` (subscriber list or `UnknownEntryError` for unknown events)
+- Add `key?` on registry classes (`Coercions`, `Validators`, `Callbacks`, `Middlewares`, `Executors`, `Mergers`, `Retriers`, `Deprecators`)
+- Add `Telemetry#lookup` (subscriber list or `UnknownEntryError` for unknown events)
+- Add `CMDx.config` alias to `CMDx.configuration`
 
 ### Changed
 - Install generator template comments refreshed for strict context and current APIs

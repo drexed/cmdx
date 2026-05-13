@@ -51,18 +51,17 @@ module CMDx
 
     @configuration ||= Configuration.new
   end
+  alias config configuration
 
   # Yields the global configuration for mutation.
   #
   # @yield [Configuration]
   # @return [Configuration]
   # @raise [ArgumentError] when no block is given
-  def configure
+  def configure(&)
     raise ArgumentError, "CMDx.configure requires a block" unless block_given?
 
-    config = configuration
-    yield(config)
-    config
+    configuration.tap(&)
   end
 
   # Replaces the global configuration with a fresh instance and invalidates
