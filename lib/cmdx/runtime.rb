@@ -48,20 +48,16 @@ module CMDx
     def execute
       acquire_chain
 
-      @signal = catch(Signal::TAG) do
-        run_middlewares do
-          emit_telemetry(:task_started)
-          run_deprecation
-          run_lifecycle
-        end
-
-        @signal # Return non-middleware signal
+      run_middlewares do
+        emit_telemetry(:task_started)
+        run_deprecation
+        run_lifecycle
       end
 
       finalize_result
     ensure
       run_teardown
-      raise_signal! if @strict
+      raise_signal!
     end
 
     private
@@ -75,10 +71,11 @@ module CMDx
     end
 
     def run_middlewares(&)
-      middlewares = @task.class.middlewares
-      return yield if middlewares.empty?
-
-      middlewares.process(@task, &)
+      @signal = catch(Signal::TAG) do
+        middlewares = @task.class.middlewares
+        middlewares.empty? ? yield : middlewares.process(@task, &)
+        @signal # Return non-middleware signal
+      end
     end
 
     def run_deprecation
@@ -108,7 +105,7 @@ module CMDx
     end
 
     def raise_signal!
-      return unless @result&.failed?
+      return unless @strict && @result&.failed?
 
       cause = @result.cause
       raise cause if cause && !cause.is_a?(Fault)
