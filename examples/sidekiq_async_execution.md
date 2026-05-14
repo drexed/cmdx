@@ -23,7 +23,8 @@ class ProcessExport < CMDx::Task
   end
 
   def perform(context = {})
-    self.class.execute!(context)
+    @context = CMDx::Context.build(context)
+    CMDx::Runtime.execute(self, strict: true)
   end
 end
 ```
