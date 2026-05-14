@@ -180,7 +180,10 @@ end
 
 class MyTask < CMDx::Task
   register :middleware, BrokenMiddleware
-  def work; end
+
+  def work
+    # ...
+  end
 end
 
 MyTask.execute!
@@ -239,7 +242,10 @@ end
 
 class ExperimentalTask < CMDx::Task
   register :middleware, FeatureFlagGate.new(:experimental_path)
-  def work; end
+
+  def work
+    # ...
+  end
 end
 
 result = ExperimentalTask.execute

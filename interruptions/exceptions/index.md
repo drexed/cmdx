@@ -109,7 +109,9 @@ Raised when an `around_execution` callback never calls its continuation. Without
 class ForgetfulCallback < CMDx::Task
   around_execution proc { |task, _cont| log("started") }  # never calls cont
 
-  def work; end
+  def work
+    # ...
+  end
 end
 
 ForgetfulCallback.execute!
@@ -122,7 +124,9 @@ Raised when `success!`, `skip!`, `fail!`, or `throw!` is called on a task that h
 
 ```ruby
 class LateHalter < CMDx::Task
-  def work; end
+  def work
+    # ...
+  end
 end
 
 task = LateHalter.new
@@ -152,7 +156,9 @@ Raised when a registry lookup is performed against a name that has not been regi
 class BadCoercion < CMDx::Task
   required :amount, coerce: :doubloon
 
-  def work; end
+  def work
+    # ...
+  end
 end
 
 BadCoercion.execute!(amount: "10")
@@ -185,7 +191,10 @@ end
 
 class MyTask < CMDx::Task
   register :middleware, BrokenMiddleware
-  def work; end
+
+  def work
+    # ...
+  end
 end
 
 MyTask.execute!
