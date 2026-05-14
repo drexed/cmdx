@@ -189,6 +189,7 @@ nav:
       - Tips and Tricks: tips_and_tricks.md
       - Comparison: comparison.md
       - v1 → v2 Migration: v2-migration.md
+      - Examples: https://github.com/drexed/cmdx/blob/main/examples/index.md
     - References:
       - API Documentation: https://drexed.github.io/cmdx/api/index.html
       - llms.txt: https://drexed.github.io/cmdx/llms.txt

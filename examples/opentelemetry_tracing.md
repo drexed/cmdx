@@ -1,30 +1,29 @@
 # OpenTelemetry Tracing
 
-Emit an OTel span per CMDx task. Each span inherits the parent task's context, so nested `execute` calls produce a proper trace hierarchy that matches the `Chain`.
+Each task gets one OTel span. Nested `execute` calls inherit the parent span automatically, so the resulting trace mirrors the `Chain` — root task at the top, every child below it, with timing, status, and exception attached at the level they happened.
 
-## Tracing Middleware
+## Tracing middleware
 
 ```ruby
 # app/middlewares/cmdx_otel_middleware.rb
+# frozen_string_literal: true
+
 class CmdxOtelMiddleware
   TRACER = OpenTelemetry.tracer_provider.tracer("cmdx", CMDx::VERSION)
 
   def call(task)
-    attrs = {
-      "cmdx.task"  => task.class.name,
-      "cmdx.tid"   => task.tid,
-      "cmdx.cid"   => CMDx::Chain.current&.id,
-      "cmdx.type"  => task.class.type
-    }
+    chain = CMDx::Chain.current
 
-    TRACER.in_span(task.class.name, attributes: attrs, kind: :internal) do |span|
+    attributes = {
+      "cmdx.task" => task.class.name,
+      "cmdx.type" => task.class.type,
+      "cmdx.tid"  => task.tid,
+      "cmdx.cid"  => chain.id,
+      "cmdx.xid"  => chain.xid
+    }.compact
+
+    TRACER.in_span(task.class.name, attributes:, kind: :internal) do |span|
       yield
-    rescue CMDx::Fault => e
-      span.set_attribute("cmdx.status", e.result.status)
-      span.set_attribute("cmdx.reason", e.result.reason.to_s) if e.result.reason
-      span.record_exception(e.result.cause) if e.result.cause
-      span.status = OpenTelemetry::Trace::Status.error(e.message)
-      raise
     rescue StandardError => e
       span.record_exception(e)
       span.status = OpenTelemetry::Trace::Status.error(e.message)
@@ -34,36 +33,42 @@ class CmdxOtelMiddleware
 end
 ```
 
-Middlewares rescue `Fault` themselves because CMDx converts raised `Fault`s back into echoed signals after the middleware chain — without the rescue the span wouldn't see the failure.
-
 ```ruby
 class ApplicationTask < CMDx::Task
   register :middleware, CmdxOtelMiddleware.new
 end
 ```
 
-## Recording Logical Failures on the Span
+## Recording logical failures
 
-Middlewares don't see the finalized `Result`, so subscribe to `:task_executed` for `skip!` / `fail!` outcomes that never raised:
+`perform_work` converts `fail!` and rescued exceptions into `Result` signals, so the middleware's `rescue` only catches errors raised outside `work` (callbacks, strict-mode re-raises). Subscribe to `:task_executed` to attach the finalized status to the still-current span:
 
 ```ruby
+# config/initializers/cmdx_otel.rb
+# frozen_string_literal: true
+
 CMDx.configure do |config|
   config.telemetry.subscribe(:task_executed) do |event|
-    result = event.payload[:result]
-    span   = OpenTelemetry::Trace.current_span
+    span = OpenTelemetry::Trace.current_span
     next unless span&.recording?
 
-    span.set_attribute("cmdx.state",    result.state)
-    span.set_attribute("cmdx.status",   result.status)
-    span.set_attribute("cmdx.duration", result.duration)
-    span.set_attribute("cmdx.reason",   result.reason.to_s) if result.reason
-    span.status = OpenTelemetry::Trace::Status.error(result.reason.to_s) if result.failed?
+    result = event.payload[:result]
+    span.set_attribute("cmdx.state",       result.state)
+    span.set_attribute("cmdx.status",      result.status)
+    span.set_attribute("cmdx.duration_ms", result.duration)
+    span.set_attribute("cmdx.retries",     result.retries)
+    span.set_attribute("cmdx.reason",      result.reason.to_s) if result.reason
+
+    if result.failed?
+      span.record_exception(result.cause) if result.cause
+      span.status = OpenTelemetry::Trace::Status.error(result.reason.to_s)
+    end
   end
 end
 ```
 
 ## Notes
 
-!!! tip
+!!! tip "Linking propagated failures"
 
-    Add `result.origin` as a span link when chasing root-cause across workflows: it points at the leaf task that originated a propagated failure. Use `span.add_link(OpenTelemetry::Trace::Link.new(origin_span_context))` when you keep a task-id → span-context map.
+    `result.origin` points at the leaf `Result` that originated a propagated failure (via `throw!` or a re-raised `Fault`). When tasks keep a `tid → SpanContext` map, `span.add_link(OpenTelemetry::Trace::Link.new(origin_span_context))` connects the span where the failure surfaced to the span where it actually happened.

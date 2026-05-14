@@ -1,11 +1,15 @@
 # Rate Limit
 
-Throttle a task so a burst of callers can't exceed `N` executions per window. The middleware increments a counter in a pluggable store; when the window is full it records a clear error and `yield`s, letting `signal_errors!` halt the task as **failed** during input resolution.
+A password-reset endpoint is a textbook abuse target: cheap to call, expensive downstream (mail delivery, account lockout). Capping it at *N* invocations per window per actor turns a flood into a handful of failed results without the task ever reaching `work`.
 
 ## Setup
 
+The middleware increments a counter in a pluggable store and, when the bucket is full, records the throttle on `task.errors` and yields. `signal_errors!` halts the task as failed during input resolution.
+
 ```ruby
 # app/middlewares/cmdx_rate_limit_middleware.rb
+# frozen_string_literal: true
+
 class CmdxRateLimitMiddleware
   def initialize(max:, per:, key: :class, store: MemoryStore.new)
     @max   = max
@@ -20,6 +24,7 @@ class CmdxRateLimitMiddleware
 
     if count > @max
       task.errors.add(:base, "rate limited: #{count}/#{@max} per #{@per}s for #{bucket}")
+      task.metadata.merge!(code: :rate_limited, retry_after: @per)
     end
 
     yield
@@ -30,7 +35,7 @@ class CmdxRateLimitMiddleware
   def resolve_key(task)
     case @key
     when :class then task.class.name
-    when Symbol then task.send(@key).to_s
+    when Symbol then task.context[@key].to_s
     when Proc   then @key.call(task).to_s
     else             @key.to_s
     end
@@ -46,6 +51,7 @@ class CmdxRateLimitMiddleware
       @mutex.synchronize do
         now    = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         bucket = @data[key]
+
         if bucket.nil? || bucket[:exp] < now
           @data[key] = { count: 1, exp: now + ttl }
           1
@@ -65,10 +71,10 @@ class SendPasswordReset < CMDx::Task
   register :middleware, CmdxRateLimitMiddleware.new(
     max: 5,
     per: 60,
-    key: ->(t) { t.context.email }
+    key: ->(task) { task.context.email }
   )
 
-  required :email
+  required :email, coerce: :string
 
   def work
     Mailer.password_reset(email).deliver_later
@@ -76,34 +82,45 @@ class SendPasswordReset < CMDx::Task
 end
 
 5.times { SendPasswordReset.execute(email: "user@example.com") }   # success
-SendPasswordReset.execute(email: "user@example.com")               # failed:
-#   reason => "rate limited: 6/5 per 60s for user@example.com"
+result = SendPasswordReset.execute(email: "user@example.com")
+result.failed?              # => true
+result.reason               # => "base rate limited: 6/5 per 60s for user@example.com"
+result.metadata[:code]      # => :rate_limited
+result.metadata[:retry_after] # => 60
 ```
 
 ## Redis store
 
-The in-memory store resets per process. For production (multi-worker / multi-host), back it with Redis using an atomic `INCR` + `EXPIRE` pair (Lua script avoids a race between the two commands):
+The in-memory store resets per process. A shared store backs the same middleware across workers and hosts; the Lua script makes the `INCR` + `EXPIRE` pair atomic so the first caller in each window is the one that sets the TTL.
 
 ```ruby
-class RedisRateStore
-  LUA = <<~LUA.freeze
-    local c = redis.call("INCR", KEYS[1])
-    if c == 1 then redis.call("EXPIRE", KEYS[1], ARGV[1]) end
-    return c
-  LUA
+# app/middlewares/cmdx_rate_limit_middleware/redis_store.rb
+# frozen_string_literal: true
 
-  def initialize(redis: Redis.current, namespace: "cmdx:rl")
-    @redis     = redis
-    @namespace = namespace
-  end
+class CmdxRateLimitMiddleware
+  class RedisStore
+    INCR_WITH_TTL = <<~LUA
+      local count = redis.call("INCR", KEYS[1])
+      if count == 1 then redis.call("EXPIRE", KEYS[1], ARGV[1]) end
+      return count
+    LUA
+    private_constant :INCR_WITH_TTL
 
-  def increment(key, ttl:)
-    @redis.eval(LUA, keys: ["#{@namespace}:#{key}"], argv: [ttl])
+    def initialize(redis: Redis.current, namespace: "cmdx:rl")
+      @redis     = redis
+      @namespace = namespace
+    end
+
+    def increment(key, ttl:)
+      @redis.eval(INCR_WITH_TTL, keys: ["#{@namespace}:#{key}"], argv: [ttl])
+    end
   end
 end
 
 register :middleware, CmdxRateLimitMiddleware.new(
-  max: 100, per: 60, key: ->(t) { t.context.user_id }, store: RedisRateStore.new
+  max: 100, per: 60,
+  key:   ->(t) { t.context.user_id },
+  store: CmdxRateLimitMiddleware::RedisStore.new
 )
 ```
 
@@ -111,12 +128,12 @@ register :middleware, CmdxRateLimitMiddleware.new(
 
 !!! note "Fixed-window vs token-bucket"
 
-    The example uses a fixed window: the counter resets when the TTL expires. That's simple and fast but allows brief 2× bursts at window boundaries (last second of window N + first second of window N+1). For smoother shaping, replace the store with a token-bucket implementation — the middleware contract is unchanged.
+    A fixed window is simple and fast but allows a 2× burst at the boundary (last second of window N + first second of window N+1). For smoother shaping, swap the store for a token-bucket implementation — the middleware contract (`#increment(key, ttl:) → Integer`) is unchanged.
 
 !!! warning "Failed, not skipped"
 
-    A middleware cannot emit a `skipped` signal — that originates inside `work`. This middleware surfaces throttling as **failed** via `task.errors` + `yield`, letting `signal_errors!` halt during input resolution. To treat excess calls as *skipped* instead, hoist the rate-limit check into `work` and call `skip!("rate limited")`.
+    A middleware cannot emit `skipped` — that signal must originate inside `work`. Throttled calls surface as **failed** here. To treat excess calls as skipped, hoist the check into `work` and call `skip!("rate limited", retry_after: 60)`.
 
 !!! tip "Keying strategies"
 
-    Pick the `:key` to match your threat model: `:class` throttles globally per task, a Symbol reads an attribute (`:user_id`, `:ip`), a Proc composes multiple dimensions (`->(t) { "#{t.context.user_id}:#{t.context.endpoint}" }`).
+    `:class` throttles globally per task. A Symbol reads `task.context[symbol]` — typically `:user_id`, `:ip_address`, `:account_id`. A Proc composes multiple dimensions: `->(t) { "#{t.context.user_id}:#{t.context.endpoint}" }` for a user-and-endpoint bucket.

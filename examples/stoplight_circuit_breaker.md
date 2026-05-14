@@ -1,21 +1,26 @@
 # Stoplight Circuit Breaker
 
-Wrap a task in a [Stoplight](https://github.com/bolshakov/stoplight) circuit breaker to shed load when a downstream dependency is misbehaving.
+When a downstream service degrades, retrying every request piles latency onto the caller and load onto the dependency. A [Stoplight](https://github.com/bolshakov/stoplight) circuit breaker counts failures, opens after a threshold, and short-circuits subsequent calls until a cool-off elapses — so a partial outage stops cascading.
 
 ## Setup
 
 ```ruby
 # app/middlewares/cmdx_stoplight_middleware.rb
+# frozen_string_literal: true
+
 class CmdxStoplightMiddleware
-  def initialize(**options)
+  def initialize(name: nil, **options)
+    @name    = name
     @options = options
   end
 
   def call(task)
-    name = @options[:name] || task.class.name
-    Stoplight(name, **@options).run { yield }
+    light_name = @name || task.class.name
+
+    Stoplight(light_name, **@options).run { yield }
   rescue Stoplight::Error::RedLight => e
-    task.errors.add(:base, "[#{e.class}] #{e.message}")
+    task.errors.add(:base, "circuit open: #{e.message}")
+    task.metadata.merge!(code: :circuit_open, light: light_name)
     yield
   end
 end
@@ -25,20 +30,29 @@ end
 
 ```ruby
 class FetchInventory < CMDx::Task
-  register :middleware, CmdxStoplightMiddleware.new(cool_off_time: 10)
+  register :middleware, CmdxStoplightMiddleware.new(
+    cool_off_time: 10,
+    threshold:     3
+  )
+
+  required :sku, coerce: :string
 
   def work
-    # ...
+    context.inventory = InventoryClient.fetch(sku, timeout: 2)
   end
 end
+
+result = FetchInventory.execute(sku: "ABC-123")
+result.failed?              # => true while the breaker is open
+result.metadata[:code]      # => :circuit_open
 ```
 
 ## Notes
 
-!!! note
+!!! note "Failed, not raised"
 
-    When the light is red, the middleware records the breaker error on `task.errors` and `yield`s. `signal_errors!` picks the error up during input resolution and halts with a **failed** result; `execute!` surfaces it as `CMDx::Fault`.
+    When the light is red, the middleware records the breaker error on `task.errors` and yields. `signal_errors!` halts the task as **failed** during input resolution; `execute!` callers see the same failure surface as `CMDx::Fault`.
 
-!!! tip
+!!! tip "Production data store"
 
-    Stoplight itself needs a data store for production use (`Stoplight::DataStore::Redis`, etc.). Configure it once at boot — the middleware only wires the breaker around each execution.
+    Stoplight defaults to an in-memory data store, which means each process has its own breaker — a half-degraded cluster never opens consistently. Configure `Stoplight::Light.default_data_store = Stoplight::DataStore::Redis.new(Redis.current)` once at boot so every worker shares state.

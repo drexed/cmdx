@@ -1,33 +1,38 @@
 # OpenAPI Schema Generation
 
-Project a task's `inputs_schema` into an OpenAPI property definition so your API docs stay in lockstep with the task contract.
+A task already declares its inputs as a typed contract. Projecting that contract into an OpenAPI schema means the API documentation can never drift from the validation the request will actually face — change a `required`, the docs change next deploy.
 
-## Example Task
+## Example task
 
 ```ruby
 class CreateUser < CMDx::Task
-  required :email,      coerce: :string,                description: "The user's email address"
-  required :age,        coerce: :integer,               description: "The user's age in years"
-  optional :newsletter, coerce: :boolean, default: false, description: "Subscribe to newsletter"
+  required :email, coerce: :string, description: "Primary email address",
+           validate: { format: URI::MailTo::EMAIL_REGEXP }
+  required :age,   coerce: :integer, description: "Age in years",
+           validate: { numericality: { greater_than_or_equal_to: 13 } }
+  optional :newsletter, coerce: :boolean, default: false,
+           description: "Subscribe to the product newsletter"
 
-  required :address, coerce: :hash, description: "User's physical address" do
-    required :street,   coerce: :string,                 description: "Street name and number"
-    required :city,     coerce: :string,                 description: "City name"
-    optional :zip_code, coerce: [:string, :integer],     description: "Postal code"
+  required :address, description: "Shipping address" do
+    required :street,   coerce: :string,                description: "Street name and number"
+    required :city,     coerce: :string,                description: "City"
+    optional :zip_code, coerce: %i[string integer],     description: "Postal code"
   end
 
   def work
-    # ...
+    context.user = User.create!(email:, age:, newsletter:, address:)
   end
 end
 ```
 
 ## Generator
 
-One recursive method walks `inputs_schema` and emits an OpenAPI `object` schema. Each input's `:options` hash carries the `:coerce` declaration — map its first symbol to an OpenAPI primitive.
+`inputs_schema` returns one entry per declared input as `{ name:, description:, required:, options:, children: }`. Walking that recursively turns it into a nested OpenAPI `object`. Coerce arrays project to the first symbol — that's enough for the common case; extend the map for `format`, `enum`, etc.
 
 ```ruby
 # lib/openapi_schema_generator.rb
+# frozen_string_literal: true
+
 class OpenApiSchemaGenerator
   COERCE_TO_TYPE = {
     string:      "string",
@@ -42,12 +47,13 @@ class OpenApiSchemaGenerator
     array:       "array",
     hash:        "object"
   }.freeze
+  private_constant :COERCE_TO_TYPE
 
   def self.generate(task_class)
-    build_object(task_class.inputs_schema.values)
+    new.build_object(task_class.inputs_schema.values)
   end
 
-  def self.build_object(inputs)
+  def build_object(inputs)
     properties = {}
     required   = []
 
@@ -59,14 +65,14 @@ class OpenApiSchemaGenerator
     { type: "object", properties:, required: }
   end
 
-  def self.build_property(input)
+  def build_property(input)
     prop   = { description: input[:description] }.compact
     coerce = Array(input.dig(:options, :coerce)).first
     prop[:type] = COERCE_TO_TYPE.fetch(coerce, "string") if coerce
 
-    if input[:children].any?
-      prop[:type]       = "object"
+    unless input[:children].empty?
       nested            = build_object(input[:children])
+      prop[:type]       = "object"
       prop[:properties] = nested[:properties]
       prop[:required]   = nested[:required] unless nested[:required].empty?
     end
@@ -86,15 +92,15 @@ puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
 {
   "type": "object",
   "properties": {
-    "email":      { "description": "The user's email address", "type": "string" },
-    "age":        { "description": "The user's age in years",  "type": "integer" },
-    "newsletter": { "description": "Subscribe to newsletter",  "type": "boolean" },
+    "email":      { "description": "Primary email address",          "type": "string" },
+    "age":        { "description": "Age in years",                   "type": "integer" },
+    "newsletter": { "description": "Subscribe to the product newsletter", "type": "boolean" },
     "address": {
-      "description": "User's physical address",
+      "description": "Shipping address",
       "type": "object",
       "properties": {
         "street":   { "description": "Street name and number", "type": "string" },
-        "city":     { "description": "City name",              "type": "string" },
+        "city":     { "description": "City",                   "type": "string" },
         "zip_code": { "description": "Postal code",            "type": "string" }
       },
       "required": ["street", "city"]
@@ -106,6 +112,6 @@ puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
 
 ## Notes
 
-!!! tip
+!!! tip "Beyond the basics"
 
-    `inputs_schema` returns `{ name, description, required, options, children }` per input — the full declaration options sit under `:options`, so you can extend the generator to emit `format`, `enum`, `default`, etc. straight from validator/default keys (see [Inputs — Definitions](../docs/inputs/definitions.md#introspection)).
+    `:options` carries the full declaration verbatim — `:default`, `:validate`, `:if` — so the generator can extend straight to `default`, `enum` (`inclusion: { in: [...] }`), `pattern` (`format: { with: /.../ }`), and `minimum`/`maximum` (`numericality:`). See [Inputs — Definitions](../docs/inputs/definitions.md#introspection).

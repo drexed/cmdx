@@ -1,76 +1,58 @@
 # GraphQL Resolvers
 
-Use CMDx tasks as the business logic layer behind [graphql-ruby](https://graphql-ruby.org/) mutations and resolvers. The resolver stays thin: parse arguments, delegate, translate the `Result` into a payload.
+A GraphQL mutation should validate input, perform one piece of work, and return a payload. Pushing the second step into a CMDx task keeps the resolver a five-line adapter and gives the same operation a callable handle for jobs, scripts, and tests.
 
-## Mutation Recipe
+## Mutation recipe
 
 ```ruby
 # app/graphql/mutations/application_mutation.rb
+# frozen_string_literal: true
+
 class Mutations::ApplicationMutation < GraphQL::Schema::Mutation
-  # Normalize a CMDx::Result into a mutation payload with
-  # `{ success:, errors:, ... }` — fields your schema expects.
-  def self.result_payload(result)
+  def self.payload_for(result, **extras)
     if result.success?
-      { success: true, errors: [] }.merge(result.context.to_h)
+      { success: true, errors: [] }.merge(extras)
     else
-      {
-        success: false,
-        errors: result.errors.full_messages.presence ||
-                [{ message: result.reason, path: [] }]
-      }
+      { success: false, errors: user_errors(result) }
     end
+  end
+
+  def self.user_errors(result)
+    field_errors = result.errors.to_h.flat_map do |field, messages|
+      messages.map { |message| { message:, path: ["input", field.to_s] } }
+    end
+
+    field_errors.presence || [{ message: result.reason, path: [] }]
   end
 end
 ```
 
 ```ruby
 # app/graphql/mutations/create_invoice.rb
+# frozen_string_literal: true
+
 class Mutations::CreateInvoice < Mutations::ApplicationMutation
-  argument :customer_id, ID, required: true
+  argument :customer_id,  ID,      required: true
   argument :amount_cents, Integer, required: true
 
-  field :invoice, Types::InvoiceType, null: true
-  field :success, Boolean, null: false
+  field :invoice, Types::InvoiceType,    null: true
+  field :success, Boolean,               null: false
   field :errors,  [Types::UserErrorType], null: false
 
   def resolve(**args)
-    result = CreateInvoice.execute(
-      **args,
-      current_user: context[:current_user]
-    )
+    result = CreateInvoice.execute(**args, current_user: context[:current_user])
 
-    self.class.result_payload(result).tap do |payload|
-      payload[:invoice] = result.context.invoice
-    end
+    self.class.payload_for(result, invoice: result.context.invoice)
   end
-end
-```
-
-## Surfacing Validation Errors
-
-`Task#errors` aggregates coercion/validation/output errors per input key — perfect for GraphQL field-level user errors.
-
-```ruby
-def self.result_payload(result)
-  return { success: true, errors: [] }.merge(result.context.to_h) if result.success?
-
-  field_errors = result.errors.to_hash.flat_map do |field, messages|
-    messages.map { |m| { message: m, path: ["input", field.to_s] } }
-  end
-
-  {
-    success: false,
-    errors:  field_errors.presence || [{ message: result.reason, path: [] }]
-  }
 end
 ```
 
 ## Notes
 
-!!! tip
+!!! tip "Trace ids in development"
 
-    Expose `result.tid` (task id) and `result.chain.id` (correlation id) on a debug field or in an error extension in non-production environments — they turn a single log line into a full trace.
+    Expose `result.tid` and `result.cid` on a debug field (or as an error extension) outside production. A single id turns one log line into a full trace through the resolver, the task, and any nested tasks it dispatches.
 
-!!! warning
+!!! warning "Don't use execute! in resolvers"
 
-    Don't raise `Fault` in a resolver (`execute!`). Schema-level raises become `InternalError` in GraphQL and hide the actual reason. Use `execute` and translate the `Result` yourself.
+    `execute!` raises `CMDx::Fault` on failure. graphql-ruby converts unhandled exceptions into opaque `InternalError` payloads, hiding `result.reason`. Always prefer `execute` and translate the `Result` into a payload yourself.

@@ -1,13 +1,15 @@
 # Active Job Durability
 
-Execute CMDx tasks reliably in the background by routing them through Active Job, so your queue backend (Sidekiq, Solid Queue, etc.) handles durability and retries.
+A task invoked from a controller dies with the request. Routing it through Active Job hands durability, retries, and queue routing to the queue backend (Sidekiq, Solid Queue, GoodJob), so a transient failure becomes a retried job instead of a 500.
 
 ## Setup
 
-A generic adapter job wraps any task name + context pair:
+A single adapter job runs any task class. Storing the task name (a String) keeps the payload safe under JSON serialization, and re-raising `result.cause` lets `retry_on` see the original exception.
 
 ```ruby
 # app/jobs/task_job.rb
+# frozen_string_literal: true
+
 class TaskJob < ApplicationJob
   queue_as :default
 
@@ -20,13 +22,15 @@ class TaskJob < ApplicationJob
 end
 ```
 
-Extend your base task to expose an enqueue helper:
+A base class exposes the enqueue helper so every task gets it for free.
 
 ```ruby
 # app/tasks/application_task.rb
+# frozen_string_literal: true
+
 class ApplicationTask < CMDx::Task
-  def self.perform_later(**attributes)
-    TaskJob.perform_later(name, attributes)
+  def self.perform_later(context = {})
+    TaskJob.perform_later(name, context.deep_stringify_keys)
   end
 end
 ```
@@ -34,15 +38,25 @@ end
 ## Usage
 
 ```ruby
-GenerateInvoice.perform_later(user_id: user.id, date: Date.today)
+class GenerateInvoice < ApplicationTask
+  required :user_id, coerce: :integer
+  required :date,    coerce: :date
+
+  def work
+    context.invoice = Invoice.create!(user_id:, period_ending: date)
+    InvoiceMailer.with(invoice: context.invoice).deliver_now
+  end
+end
+
+GenerateInvoice.perform_later(user_id: user.id, date: Date.current)
 ```
 
 ## Notes
 
-!!! note
+!!! warning "Symbol vs String keys"
 
-    `wait: :polynomially_longer` is the Rails 7.1+ default; earlier releases used `:exponentially_longer`.
+    Active Job serializes arguments as JSON, so symbols round-trip as strings. `Context.build` accepts either, but `deep_stringify_keys` on enqueue removes the asymmetry between `perform_now` and `perform_later`.
 
-!!! tip
+!!! tip "Failed without a cause"
 
-    Re-raising `result.cause` lets Active Job's `retry_on` see the original exception. A task that finishes as `failed` via `fail!` (no `cause`) will not retry — inspect `result.reason` / `result.metadata` from an `on_failed` callback or a `:task_executed` telemetry subscriber instead.
+    `result.cause` is `nil` when a task halts via `fail!("reason")` rather than a raised exception. Active Job's `retry_on` is exception-driven and won't re-enqueue those. Subscribe to `:task_executed` (see [Telemetry](../docs/configuration.md#telemetry)) and re-enqueue manually if logical failures should retry.
