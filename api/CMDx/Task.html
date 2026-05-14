@@ -828,6 +828,28 @@ hierarchy), so subclasses extend rather than replace.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#fail!-instance_method" title="#fail! (instance method)">#<strong>fail!</strong>(reason = nil, **sigdata)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Halts <code>#work</code> and marks the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> as <code>failed</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(context = EMPTY_HASH)  &#x21d2; Task </a>
     
 
@@ -867,6 +889,72 @@ hierarchy), so subclasses extend rather than replace.</p>
 
   
     <span class="summary_desc"><div class='inline'><p>A logger tailored to this task's settings.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip!-instance_method" title="#skip! (instance method)">#<strong>skip!</strong>(reason = nil, **sigdata)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Halts <code>#work</code> and marks the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> as <code>skipped</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#success!-instance_method" title="#success! (instance method)">#<strong>success!</strong>(reason = nil, **sigdata)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Halts <code>#work</code> early with a successful outcome.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#throw!-instance_method" title="#throw! (instance method)">#<strong>throw!</strong>(other, **sigdata)  &#x21d2; void<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Echoes another <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> or <span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span>'s failure outcome from this task.</p></div></span>
   
 </li>
 
@@ -3992,6 +4080,113 @@ otherwise the <span class='object_link'><a href="Result.html" title="CMDx::Resul
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="fail!-instance_method">
+  
+    #<strong>fail!</strong>(reason = nil, **sigdata)  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Halts <code>#work</code> and marks the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> as <code>failed</code>. Captures the current
+caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span> backtrace and merges any <code>sigdata</code> onto
+<span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span> before the signal is thrown.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>reason</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>human-readable explanation surfaced on the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>/<span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>sigdata</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>extra metadata merged into <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when the task has already been executed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 527</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      cannot call :fail! on </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>; the task has already been executed and frozen.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">TAG</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='period'>.</span><span class='id identifier rubyid_failed'><span class='object_link'><a href="Signal.html#failed-class_method" title="CMDx::Signal.failed (method)">failed</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='label'>metadata:</span><span class='comma'>,</span> <span class='label'>backtrace:</span> <span class='id identifier rubyid_caller_locations'>caller_locations</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="logger-instance_method">
   
     #<strong>logger</strong>  &#x21d2; <tt>Logger</tt> 
@@ -4040,6 +4235,345 @@ otherwise the <span class='object_link'><a href="Result.html" title="CMDx::Resul
 
 <span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
   <span class='ivar'>@logger</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="LoggerProxy.html" title="CMDx::LoggerProxy (module)">LoggerProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="LoggerProxy.html#logger-instance_method" title="CMDx::LoggerProxy#logger (method)">logger</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="skip!-instance_method">
+  
+    #<strong>skip!</strong>(reason = nil, **sigdata)  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Halts <code>#work</code> and marks the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> as <code>skipped</code>. Any <code>sigdata</code> is merged
+onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span> before the signal is thrown.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>reason</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>human-readable explanation surfaced on the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>sigdata</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>extra metadata merged into <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when the task has already been executed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 507</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      cannot call :skip! on </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>; the task has already been executed and frozen.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">TAG</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='period'>.</span><span class='id identifier rubyid_skipped'><span class='object_link'><a href="Signal.html#skipped-class_method" title="CMDx::Signal.skipped (method)">skipped</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='label'>metadata:</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="success!-instance_method">
+  
+    #<strong>success!</strong>(reason = nil, **sigdata)  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Halts <code>#work</code> early with a successful outcome. Any <code>sigdata</code> is merged
+onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span> before the signal is thrown.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>reason</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>human-readable explanation surfaced on the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>sigdata</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>extra metadata merged into <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when the task has already been executed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 488</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_success!'>success!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      cannot call :success! on </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>; the task has already been executed and frozen.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">TAG</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='period'>.</span><span class='id identifier rubyid_success'><span class='object_link'><a href="Signal.html#success-class_method" title="CMDx::Signal.success (method)">success</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='label'>metadata:</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="throw!-instance_method">
+  
+    #<strong>throw!</strong>(other, **sigdata)  &#x21d2; <tt>void</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Echoes another <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> or <span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span>'s failure outcome from this task. A
+no-op when <code>other</code> is not failed, letting callers conditionally bubble up
+nested failures without branching. Captures caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span>
+backtrace and merges any <code>sigdata</code> onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span> before the signal is
+thrown.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>other</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>, <tt><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>upstream outcome to mirror</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>sigdata</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>extra metadata merged into <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>returns <code>nil</code> when <code>other</code> is not failed; otherwise throws <span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">Signal::TAG</a></span></p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when the task has already been executed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 549</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+<span class='tstring_content'>      cannot call :throw! on </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>; the task has already been executed and frozen.
+</span><span class='tstring_content'>      See https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates
+</span><span class='heredoc_end'>    MSG
+</span>  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_failed?'>failed?</span>
+
+  <span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">TAG</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='period'>.</span><span class='id identifier rubyid_echoed'><span class='object_link'><a href="Signal.html#echoed-class_method" title="CMDx::Signal.echoed (method)">echoed</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='comma'>,</span> <span class='label'>metadata:</span><span class='comma'>,</span> <span class='label'>backtrace:</span> <span class='id identifier rubyid_caller_locations'>caller_locations</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4116,7 +4650,7 @@ otherwise the <span class='object_link'><a href="Result.html" title="CMDx::Resul
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 20:27:35 2026 by
+  Generated on Thu May 14 21:18:51 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

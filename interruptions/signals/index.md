@@ -141,7 +141,7 @@ end
 
 Where they work
 
-These helpers only work inside `work` (or code `work` calls). If you try them from rollback, callbacks, or middleware you get `UncaughtThrowError`. On a frozen task after teardown you get `CMDx::FrozenTaskError`. Stay inside the story.
+These halt cleanly from `work`, callbacks, and middlewares (see [Halting from middleware](https://drexed.github.io/cmdx/middlewares/#halting-from-middleware)). Throwing from `#rollback` or on a frozen task raises `CMDx::FrozenTaskError`.
 
 ## State Transitions
 

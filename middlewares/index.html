@@ -1504,6 +1504,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#halting-from-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Halting from middleware
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#wrapping-with-thread-local-state" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1871,6 +1882,34 @@
     
   
     v1 → v2 Migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx/blob/main/examples/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
   
 
     
@@ -2383,6 +2422,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#halting-from-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Halting from middleware
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#wrapping-with-thread-local-state" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2669,30 +2719,52 @@
 </span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">FeatureFlag</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:experimental_path</span><span class="p">)</span>
 </span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>If you truly need to skip <code>work</code> but still finish with a result, do that <strong>inside</strong> the task with <code>skip!</code> / <code>success!</code> — not from middleware.</p>
+<h3 id="halting-from-middleware">Halting from middleware<a class="headerlink" href="#halting-from-middleware" title="Permanent link">&para;</a></h3>
+<p>Runtime wraps the middleware chain in <code>catch(Signal::TAG)</code>, so a middleware can halt the task directly with <code>task.success!</code> / <code>task.skip!</code> / <code>task.fail!</code> / <code>task.throw!</code>. Throw <strong>before</strong> calling <code>yield</code> / <code>next_link.call</code>; signals thrown after the inner chain finalized are silently dropped (the lifecycle's outcome already won).</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FeatureFlagGate</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="vi">@flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">flag</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@flag</span><span class="si">}</span><span class="s2"> disabled&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="ss">:flag_off</span><span class="p">)</span><span class="w"> </span><span class="k">unless</span><span class="w"> </span><span class="no">Flipper</span><span class="o">.</span><span class="n">enabled?</span><span class="p">(</span><span class="vi">@flag</span><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="k">yield</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">end</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExperimentalTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">FeatureFlagGate</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:experimental_path</span><span class="p">)</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="k">end</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ExperimentalTask</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">            </span><span class="c1">#=&gt; &quot;skipped&quot;</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">            </span><span class="c1">#=&gt; &quot;experimental_path disabled&quot;</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:code</span><span class="o">]</span><span class="w">   </span><span class="c1">#=&gt; :flag_off</span>
+</span></code></pre></div>
 <h3 id="wrapping-with-thread-local-state">Wrapping with thread-local state<a class="headerlink" href="#wrapping-with-thread-local-state" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="no">Thread</span><span class="o">.</span><span class="n">current</span><span class="o">[</span><span class="ss">:current_user_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user_id</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">ensure</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="no">Thread</span><span class="o">.</span><span class="n">current</span><span class="o">[</span><span class="ss">:current_user_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="no">Thread</span><span class="o">.</span><span class="n">current</span><span class="o">[</span><span class="ss">:current_user_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user_id</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">ensure</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="no">Thread</span><span class="o">.</span><span class="n">current</span><span class="o">[</span><span class="ss">:current_user_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="enriching-result-metadata">Enriching result metadata<a class="headerlink" href="#enriching-result-metadata" title="Permanent link">&para;</a></h3>
 <p><code>task.metadata</code> is a small hash you can mutate for “stuff about this run” that should ride along on signals and default logging — without stuffing everything into <code>context</code>.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">RequestIdMiddleware</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:request_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">request_id</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">yield</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">end</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">RequestIdMiddleware</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">RequestIdMiddleware</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:request_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">request_id</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">yield</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">end</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">RequestIdMiddleware</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:request_id</span><span class="o">]</span><span class="w"> </span><span class="c1">#=&gt; &quot;req-abc123&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:request_id</span><span class="o">]</span><span class="w"> </span><span class="c1">#=&gt; &quot;req-abc123&quot;</span>
 </span></code></pre></div>
 <p>If the task later calls <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> with its own <code>metadata:</code> keys, those win on merge — user code always gets the last word.</p>
 

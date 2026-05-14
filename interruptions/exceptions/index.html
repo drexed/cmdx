@@ -1900,6 +1900,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx/blob/main/examples/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2643,7 +2671,7 @@
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">LateHalter</span><span class="o">.</span><span class="n">new</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">task</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">task</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="ss">:fail!</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too late&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">#=&gt; raises CMDx::FrozenTaskError: &quot;cannot call :fail! after the task has been frozen&quot;</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">task</span><span class="o">.</span><span class="n">fail!</span><span class="p">(</span><span class="s2">&quot;too late&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">#=&gt; raises CMDx::FrozenTaskError: &quot;cannot call :fail! after the task has been frozen&quot;</span>
 </span></code></pre></div>
 <h3 id="cmdxunknownaccessorerror">CMDx::UnknownAccessorError<a class="headerlink" href="#cmdxunknownaccessorerror" title="Permanent link">&para;</a></h3>
 <p>Raised by <a href="../../basics/context/"><code>Context</code></a> in <strong>strict mode</strong> when reading a key that was never assigned. Replaces the bare <code>NoMethodError</code> so you can rescue framework typos without catching unrelated <code>NoMethodError</code>s.</p>

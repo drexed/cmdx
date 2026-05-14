@@ -1828,6 +1828,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx/blob/main/examples/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2505,9 +2533,9 @@
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="admonition warning">
+<div class="admonition note">
 <p class="admonition-title">Where they work</p>
-<p>These helpers only work inside <code>work</code> (or code <code>work</code> calls). If you try them from rollback, callbacks, or middleware you get <code>UncaughtThrowError</code>. On a frozen task after teardown you get <code>CMDx::FrozenTaskError</code>. Stay inside the story.</p>
+<p>These halt cleanly from <code>work</code>, callbacks, and middlewares (see <a href="../../middlewares/#halting-from-middleware">Halting from middleware</a>). Throwing from <code>#rollback</code> or on a frozen task raises <code>CMDx::FrozenTaskError</code>.</p>
 </div>
 <h2 id="state-transitions">State Transitions<a class="headerlink" href="#state-transitions" title="Permanent link">&para;</a></h2>
 <p>Each halt maps to a simple combo of state, status, and how <code>ok?</code> / <code>ko?</code> read:</p>

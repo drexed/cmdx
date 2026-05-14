@@ -114,13 +114,14 @@
 telemetry, deprecation, callbacks, input resolution, <code>work</code> (wrapped in
 retry), output verification, rollback on failure, result finalization,
 and teardown (freeze + chain clear).</p>
-<p>Signal propagation: Runtime wraps <code>work</code> in <code>catch(Signal::TAG)</code> so
-<code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> break out cleanly. Raised
-Faults are converted to echoed signals (carrying the upstream failed
-result as <code>:origin</code>); other <code>StandardError</code>s become failed signals with
-the exception as <code>:cause</code>. <code>execute!</code> (strict mode) re-raises on failure
-after the result is finalized, raising a <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span> built from the deepest
-originating result so <code>fault.task</code> points at the leaf that failed.</p>
+<p>Signal propagation: <code>work</code> and the surrounding middleware/callback chain
+both run inside <code>catch(Signal::TAG)</code>, so <code>success!</code> / <code>skip!</code> / <code>fail!</code> /
+<code>throw!</code> halt cleanly from anywhere. Raised Faults become echoed signals
+(with the upstream result as <code>:origin</code>); other <code>StandardError</code>s become
+failed signals (with the exception as <code>:cause</code>). In strict mode,
+<code>execute!</code> re-raises from <code>ensure</code> using a <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span> built from the
+deepest originating result, so <code>fault.task</code> points at the leaf that
+failed.</p>
 
   </div>
 </div>
@@ -288,13 +289,13 @@ originating result so <code>fault.task</code> points at the leaf that failed.</p
       <pre class="lines">
 
 
-36
 37
 38
-39</pre>
+39
+40</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 37</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='ivar'>@task</span>   <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
@@ -399,12 +400,12 @@ originating result so <code>fault.task</code> points at the leaf that failed.</p
       <pre class="lines">
 
 
-28
 29
-30</pre>
+30
+31</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 28</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 29</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>strict:</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span>
@@ -475,7 +476,6 @@ when strict mode re-raises.</p>
       <pre class="lines">
 
 
-47
 48
 49
 50
@@ -492,7 +492,7 @@ when strict mode re-raises.</p>
 61</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 48</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span>
   <span class='id identifier rubyid_acquire_chain'>acquire_chain</span>
@@ -501,13 +501,12 @@ when strict mode re-raises.</p>
     <span class='id identifier rubyid_emit_telemetry'>emit_telemetry</span><span class='lparen'>(</span><span class='symbol'>:task_started</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_run_deprecation'>run_deprecation</span>
     <span class='id identifier rubyid_run_lifecycle'>run_lifecycle</span>
-    <span class='id identifier rubyid_finalize_result'>finalize_result</span>
-    <span class='id identifier rubyid_raise_signal!'>raise_signal!</span> <span class='kw'>if</span> <span class='ivar'>@strict</span>
   <span class='kw'>end</span>
 
-  <span class='ivar'>@result</span>
+  <span class='id identifier rubyid_finalize_result'>finalize_result</span>
 <span class='kw'>ensure</span>
   <span class='id identifier rubyid_run_teardown'>run_teardown</span>
+  <span class='id identifier rubyid_raise_signal!'>raise_signal!</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -519,7 +518,7 @@ when strict mode re-raises.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed May 13 20:27:37 2026 by
+  Generated on Thu May 14 21:18:53 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.43 (ruby-3.4.9).
 </div>

@@ -1342,7 +1342,7 @@ end
 
 Where they work
 
-These helpers only work inside `work` (or code `work` calls). If you try them from rollback, callbacks, or middleware you get `UncaughtThrowError`. On a frozen task after teardown you get `CMDx::FrozenTaskError`. Stay inside the story.
+These halt cleanly from `work`, callbacks, and middlewares (see [Halting from middleware](https://drexed.github.io/cmdx/middlewares/#halting-from-middleware)). Throwing from `#rollback` or on a frozen task raises `CMDx::FrozenTaskError`.
 
 ## State Transitions
 
@@ -1716,7 +1716,7 @@ end
 
 task = LateHalter.new
 task.execute
-task.send(:fail!, "too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
+task.fail!("too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
 ```
 
 ### CMDx::UnknownAccessorError
@@ -1901,6 +1901,8 @@ result.status       #=> "failed"
 result.reason       #=> "Build tool not found"
 result.metadata     #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 result.cause        #=> nil, the rescued StandardError, or the propagated Fault
+result.error        #=> cause (Exception) when the failure was raised, otherwise reason (String); nil for non-failed
+                    #   Lets telemetry adapters branch on type without repeating the `cause || reason` dance.
 result.backtrace    #=> caller_locations captured by fail!/throw! (Array<Thread::Backtrace::Location>), or nil
                     #   (Fault#backtrace stringifies these through the configured backtrace_cleaner)
 
@@ -3904,7 +3906,32 @@ class ExperimentalTask < CMDx::Task
 end
 ```
 
-If you truly need to skip `work` but still finish with a result, do that **inside** the task with `skip!` / `success!` — not from middleware.
+### Halting from middleware
+
+Runtime wraps the middleware chain in `catch(Signal::TAG)`, so a middleware can halt the task directly with `task.success!` / `task.skip!` / `task.fail!` / `task.throw!`. Throw **before** calling `yield` / `next_link.call`; signals thrown after the inner chain finalized are silently dropped (the lifecycle's outcome already won).
+
+```ruby
+class FeatureFlagGate
+  def initialize(flag)
+    @flag = flag
+  end
+
+  def call(task)
+    task.skip!("#{@flag} disabled", code: :flag_off) unless Flipper.enabled?(@flag)
+    yield
+  end
+end
+
+class ExperimentalTask < CMDx::Task
+  register :middleware, FeatureFlagGate.new(:experimental_path)
+  def work; end
+end
+
+result = ExperimentalTask.execute
+result.status            #=> "skipped"
+result.reason            #=> "experimental_path disabled"
+result.metadata[:code]   #=> :flag_off
+```
 
 ### Wrapping with thread-local state
 

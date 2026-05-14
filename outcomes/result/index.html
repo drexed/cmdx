@@ -1856,6 +1856,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx/blob/main/examples/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2470,17 +2498,19 @@
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">       </span><span class="c1">#=&gt; &quot;Build tool not found&quot;</span>
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w">     </span><span class="c1">#=&gt; { error_code: &quot;BUILD_TOOL.NOT_FOUND&quot; }</span>
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="n">result</span><span class="o">.</span><span class="n">cause</span><span class="w">        </span><span class="c1">#=&gt; nil, the rescued StandardError, or the propagated Fault</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="n">result</span><span class="o">.</span><span class="n">backtrace</span><span class="w">    </span><span class="c1">#=&gt; caller_locations captured by fail!/throw! (Array&lt;Thread::Backtrace::Location&gt;), or nil</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">                    </span><span class="c1">#   (Fault#backtrace stringifies these through the configured backtrace_cleaner)</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1"># Lifecycle metadata</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="n">result</span><span class="o">.</span><span class="n">duration</span><span class="w">     </span><span class="c1">#=&gt; 12.34            (milliseconds, monotonic)</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="w">      </span><span class="c1">#=&gt; 2</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="w">     </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="n">result</span><span class="o">.</span><span class="n">strict?</span><span class="w">      </span><span class="c1">#=&gt; false            (true when produced via execute! or execute(strict: true))</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="n">result</span><span class="o">.</span><span class="n">deprecated?</span><span class="w">  </span><span class="c1">#=&gt; false</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="n">result</span><span class="o">.</span><span class="n">rolled_back?</span><span class="w"> </span><span class="c1">#=&gt; false</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="n">result</span><span class="o">.</span><span class="n">tags</span><span class="w">         </span><span class="c1">#=&gt; []               (from settings(tags: [...]))</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="w">        </span><span class="c1">#=&gt; cause (Exception) when the failure was raised, otherwise reason (String); nil for non-failed</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">                    </span><span class="c1">#   Lets telemetry adapters branch on type without repeating the `cause || reason` dance.</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="n">result</span><span class="o">.</span><span class="n">backtrace</span><span class="w">    </span><span class="c1">#=&gt; caller_locations captured by fail!/throw! (Array&lt;Thread::Backtrace::Location&gt;), or nil</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">                    </span><span class="c1">#   (Fault#backtrace stringifies these through the configured backtrace_cleaner)</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1"># Lifecycle metadata</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="n">result</span><span class="o">.</span><span class="n">duration</span><span class="w">     </span><span class="c1">#=&gt; 12.34            (milliseconds, monotonic)</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="w">      </span><span class="c1">#=&gt; 2</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="w">     </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="n">result</span><span class="o">.</span><span class="n">strict?</span><span class="w">      </span><span class="c1">#=&gt; false            (true when produced via execute! or execute(strict: true))</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="n">result</span><span class="o">.</span><span class="n">deprecated?</span><span class="w">  </span><span class="c1">#=&gt; false</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="n">result</span><span class="o">.</span><span class="n">rolled_back?</span><span class="w"> </span><span class="c1">#=&gt; false</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="n">result</span><span class="o">.</span><span class="n">tags</span><span class="w">         </span><span class="c1">#=&gt; []               (from settings(tags: [...]))</span>
 </span></code></pre></div>
 <h2 id="lifecycle-predicates">Lifecycle predicates<a class="headerlink" href="#lifecycle-predicates" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.3&quot;</span><span class="p">)</span>
