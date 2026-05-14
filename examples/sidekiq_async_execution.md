@@ -38,6 +38,8 @@ ProcessExport.perform_in(1.hour, user_id: 42, format: "json")
 
 ## Notes
 
+Alternatively you can implement something similar to the [Active Job Durability](https://github.com/drexed/cmdx/blob/main/examples/active_job_durability.md) example.
+
 !!! warning "JSON-safe arguments"
 
     Sidekiq serializes payloads as JSON, so every value in the context must round-trip through `JSON.dump`/`JSON.parse`. Pass `user_id: 42`, never `user: User.find(42)`. Symbol keys deserialize as strings — `Context.build` accepts both, but consider `deep_stringify_keys` at the call site to make the asymmetry explicit.
