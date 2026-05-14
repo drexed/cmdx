@@ -74,6 +74,24 @@ RSpec.describe CMDx::Result do
     end
   end
 
+  describe "#error" do
+    it "returns nil for non-failed results" do
+      expect(build(CMDx::Signal.success).error).to be_nil
+      expect(build(CMDx::Signal.skipped("nope")).error).to be_nil
+    end
+
+    it "returns the cause exception when one was rescued" do
+      err = StandardError.new("boom")
+      result = build(CMDx::Signal.failed("[StandardError] boom", cause: err))
+      expect(result.error).to be(err)
+    end
+
+    it "falls back to reason when no cause is present" do
+      result = build(CMDx::Signal.failed("not authorized"))
+      expect(result.error).to eq("not authorized")
+    end
+  end
+
   describe "#on" do
     let(:success) { build(CMDx::Signal.success) }
     let(:failed)  { build(CMDx::Signal.failed) }

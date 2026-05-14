@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
+- `Result#error` — convenience returning `cause` (rescued `Exception`) when a failure was raised, otherwise the `reason` `String`; `nil` for non-failed results. Lets telemetry adapters branch on type without repeating the `cause || reason` dance
 - `CMDx::Util.deep_merge` — recursive `Hash` merge with scalar last-write-wins; used by `Context#deep_merge` and `I18nProxy` locale YAML folding
 - `CMDx::Util.deep_dup` — recursive `Hash` / `Array` copy with scalar sharing and `#dup` fallback; used by `Context#deep_dup`
 - Add `Telemetry#lookup` (subscriber list, or `UnknownEntryError` when `event` is unknown)

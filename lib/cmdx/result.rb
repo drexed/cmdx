@@ -184,6 +184,20 @@ module CMDx
       @signal.cause
     end
 
+    # Convenience accessor that returns the underlying exception when the
+    # failure was produced by a rescued exception, otherwise the human
+    # `reason`. `nil` for non-failed results. Useful for telemetry adapters
+    # (Sentry, Bugsnag, ...) that branch on whether an exception is
+    # available without forcing every subscriber to repeat the
+    # `cause || reason` dance.
+    #
+    # @return [Exception, String, nil]
+    def error
+      return unless failed?
+
+      cause || reason
+    end
+
     # The originating failed result at the bottom of the propagation chain.
     # Walks `origin` recursively. `self` when this result is the originator;
     # `nil` when not failed.
