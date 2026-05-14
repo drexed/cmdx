@@ -52,12 +52,12 @@ module CMDx
         run_deprecation
         run_lifecycle
         finalize_result
-        raise_signal! if @strict
       end
 
       @result
     ensure
       run_teardown
+      raise_signal! if @strict
     end
 
     private
@@ -104,9 +104,9 @@ module CMDx
     end
 
     def raise_signal!
-      return unless @result.failed?
+      return unless @result&.failed?
 
-      cause = @signal.cause
+      cause = @result.cause
       raise cause if cause && !cause.is_a?(Fault)
 
       raise Fault, @result.caused_failure, cause:
