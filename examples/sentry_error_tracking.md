@@ -30,11 +30,12 @@ CMDx.configure do |config|
         metadata: result.metadata
       })
 
-      if result.cause
-        Sentry.capture_exception(result.cause)
-      else
+      case result.error
+      when Exception
+        Sentry.capture_exception(result.error)
+      when String
         Sentry.capture_message(
-          "Task failed: #{event.task.name} — #{result.reason}",
+          "Task failed: #{event.task.name} — #{result.error}",
           level: :error
         )
       end
@@ -67,9 +68,9 @@ end
 
 ## Notes
 
-!!! note "Cause vs reason"
+!!! note "Result#error"
 
-    `result.cause` is populated only when an exception was rescued. `fail!("not authorized")` produces a failed result with `cause: nil` and `reason: "not authorized"` — the subscriber's `if result.cause` branch routes those to `capture_message` instead of `capture_exception` so they show up as a sibling event class in Sentry.
+    `result.error` returns `cause || reason` — the rescued `Exception` when `work` raised, or the human `String` when the task halted via `fail!("...")`. The subscriber branches on type so logical failures show up as `capture_message` events while raised exceptions group with their stack traces under `capture_exception`.
 
 !!! tip "Drop noisy logical failures"
 

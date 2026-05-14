@@ -4,7 +4,7 @@ A task that mutates data is a sensitive operation regardless of how it's invoked
 
 ## Authorization middleware
 
-A middleware can't throw `fail!` directly (signals only originate inside `work`), but recording a policy denial as an error and yielding lets `signal_errors!` halt the task as failed during input resolution.
+A middleware can halt the task directly via `task.fail!` — Runtime catches the thrown signal and produces a failed result without ever entering `work`.
 
 ```ruby
 # app/middlewares/cmdx_pundit_middleware.rb
@@ -21,8 +21,7 @@ class CmdxPunditMiddleware
     policy = (@policy || task.class).then { |klass| Pundit.policy!(user, klass) }
 
     unless policy.public_send(@action)
-      task.errors.add(:base, "not authorized")
-      task.metadata[:code] = :forbidden
+      task.fail!("not authorized", code: :forbidden)
     end
 
     yield
@@ -90,6 +89,6 @@ end
 
     Registering the middleware on `ApplicationTask` covers every subclass automatically. Tasks that shouldn't be authorized (e.g. an internal background sweeper) drop it locally with `deregister :middleware, CmdxPunditMiddleware`.
 
-!!! warning "Middlewares cannot throw signals"
+!!! note "Halt before yielding"
 
-    Calling `task.send(:fail!)` from a middleware throws past the lifecycle's `catch(Signal::TAG)` and surfaces as `UncaughtThrowError`. The `errors.add + yield` pattern is the signal-safe equivalent — `signal_errors!` picks the error up at input resolution and halts with a failed result whose `reason` carries the message.
+    Runtime wraps the middleware chain in `catch(Signal::TAG)`, so middlewares may halt with `success!` / `skip!` / `fail!` / `throw!`. Throw **before** calling `yield` (or `next_link.call`); a signal thrown after the lifecycle has already finalized is silently dropped — the lifecycle's outcome wins.

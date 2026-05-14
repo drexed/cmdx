@@ -41,7 +41,7 @@ end
 
 ## Recording logical failures
 
-`perform_work` converts `fail!` and rescued exceptions into `Result` signals, so the middleware's `rescue` only catches errors raised outside `work` (callbacks, strict-mode re-raises). Subscribe to `:task_executed` to attach the finalized status to the still-current span:
+`perform_work` converts `fail!` and rescued exceptions into `Result` signals, so the middleware's `rescue` only catches true unhandled exceptions raised from a callback (`fail!` from a callback is also caught at the signal layer and produces a failed `Result` instead of an exception). Strict-mode `Fault` re-raises happen in `Runtime#execute`'s `ensure` after the middleware chain has already returned and so are **not** rescuable from a middleware — use the `:task_executed` subscriber below to attach finalized status to the still-current span:
 
 ```ruby
 # config/initializers/cmdx_otel.rb

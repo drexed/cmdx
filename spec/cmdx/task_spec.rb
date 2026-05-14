@@ -214,21 +214,21 @@ RSpec.describe CMDx::Task do
 
     it "success! throws a success signal" do
       task = klass.new
-      signal = catch(CMDx::Signal::TAG) { task.send(:success!, "ok", foo: 1) }
+      signal = catch(CMDx::Signal::TAG) { task.success!("ok", foo: 1) }
 
       expect(signal).to have_attributes(status: "success", reason: "ok", metadata: { foo: 1 })
     end
 
     it "skip! throws a skipped signal" do
       task = klass.new
-      signal = catch(CMDx::Signal::TAG) { task.send(:skip!, "later") }
+      signal = catch(CMDx::Signal::TAG) { task.skip!("later") }
 
       expect(signal.status).to eq("skipped")
     end
 
     it "fail! throws a failed signal with backtrace" do
       task = klass.new
-      signal = catch(CMDx::Signal::TAG) { task.send(:fail!, "bad") }
+      signal = catch(CMDx::Signal::TAG) { task.fail!("bad") }
 
       expect(signal.status).to eq("failed")
       expect(signal.backtrace).to be_an(Array)
@@ -238,7 +238,7 @@ RSpec.describe CMDx::Task do
     it "throw! echoes another failed signal" do
       source = CMDx::Signal.failed("upstream")
       task = klass.new
-      signal = catch(CMDx::Signal::TAG) { task.send(:throw!, source) }
+      signal = catch(CMDx::Signal::TAG) { task.throw!(source) }
 
       expect(signal.reason).to eq("upstream")
       expect(signal.status).to eq("failed")
@@ -248,21 +248,67 @@ RSpec.describe CMDx::Task do
       source = CMDx::Signal.success
       task = klass.new
       result = catch(CMDx::Signal::TAG) do
-        task.send(:throw!, source)
+        task.throw!(source)
         :not_thrown
       end
 
       expect(result).to eq(:not_thrown)
     end
 
+    it "success! merges sigdata into the task's metadata" do
+      task = klass.new
+      catch(CMDx::Signal::TAG) { task.success!("ok", foo: 1, bar: 2) }
+
+      expect(task.metadata).to eq(foo: 1, bar: 2)
+    end
+
+    it "skip! merges sigdata into the task's metadata" do
+      task = klass.new
+      catch(CMDx::Signal::TAG) { task.skip!("later", reason_code: :deferred) }
+
+      expect(task.metadata).to eq(reason_code: :deferred)
+    end
+
+    it "fail! merges sigdata into the task's metadata" do
+      task = klass.new
+      catch(CMDx::Signal::TAG) { task.fail!("bad", code: 422) }
+
+      expect(task.metadata).to eq(code: 422)
+    end
+
+    it "throw! merges sigdata into the task's metadata when echoing a failure" do
+      source = CMDx::Signal.failed("upstream")
+      task = klass.new
+      catch(CMDx::Signal::TAG) { task.throw!(source, retried: true) }
+
+      expect(task.metadata).to eq(retried: true)
+    end
+
+    it "throw! does not mutate metadata when other is not failed" do
+      task = klass.new
+      catch(CMDx::Signal::TAG) do
+        task.throw!(CMDx::Signal.success, ignored: true)
+      end
+
+      expect(task.metadata).to be_empty
+    end
+
+    it "throw! captures caller_locations for the echoed signal" do
+      source = CMDx::Signal.failed("upstream")
+      task = klass.new
+      signal = catch(CMDx::Signal::TAG) { task.throw!(source) }
+
+      expect(signal.backtrace).to be_an(Array).and(be_any)
+    end
+
     it "raises FrozenTaskError when the task is frozen" do
       task = klass.new
       task.freeze
 
-      expect { task.send(:success!) }.to raise_error(CMDx::FrozenTaskError, /cannot call :success! on/)
-      expect { task.send(:fail!) }.to raise_error(CMDx::FrozenTaskError, /cannot call :fail! on/)
-      expect { task.send(:skip!) }.to raise_error(CMDx::FrozenTaskError, /cannot call :skip! on/)
-      expect { task.send(:throw!, CMDx::Signal.failed) }.to raise_error(CMDx::FrozenTaskError, /cannot call :throw! on/)
+      expect { task.success! }.to raise_error(CMDx::FrozenTaskError, /cannot call :success! on/)
+      expect { task.fail! }.to raise_error(CMDx::FrozenTaskError, /cannot call :fail! on/)
+      expect { task.skip! }.to raise_error(CMDx::FrozenTaskError, /cannot call :skip! on/)
+      expect { task.throw!(CMDx::Signal.failed) }.to raise_error(CMDx::FrozenTaskError, /cannot call :throw! on/)
     end
   end
 

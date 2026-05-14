@@ -67,7 +67,7 @@ module CMDx
         next unless halt
 
         rollback_executed!
-        @workflow.send(:throw!, halt)
+        @workflow.throw!(halt)
       end
     end
 

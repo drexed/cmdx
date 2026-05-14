@@ -6,13 +6,14 @@ module CMDx
   # retry), output verification, rollback on failure, result finalization,
   # and teardown (freeze + chain clear).
   #
-  # Signal propagation: Runtime wraps `work` in `catch(Signal::TAG)` so
-  # `success!` / `skip!` / `fail!` / `throw!` break out cleanly. Raised
-  # Faults are converted to echoed signals (carrying the upstream failed
-  # result as `:origin`); other `StandardError`s become failed signals with
-  # the exception as `:cause`. `execute!` (strict mode) re-raises on failure
-  # after the result is finalized, raising a {Fault} built from the deepest
-  # originating result so `fault.task` points at the leaf that failed.
+  # Signal propagation: `work` and the surrounding middleware/callback chain
+  # both run inside `catch(Signal::TAG)`, so `success!` / `skip!` / `fail!` /
+  # `throw!` halt cleanly from anywhere. Raised Faults become echoed signals
+  # (with the upstream result as `:origin`); other `StandardError`s become
+  # failed signals (with the exception as `:cause`). In strict mode,
+  # `execute!` re-raises from `ensure` using a {Fault} built from the
+  # deepest originating result, so `fault.task` points at the leaf that
+  # failed.
   #
   # @note Always used via the class method; never new Runtime manually.
   # @see Task.execute
@@ -47,14 +48,17 @@ module CMDx
     def execute
       acquire_chain
 
-      run_middlewares do
-        emit_telemetry(:task_started)
-        run_deprecation
-        run_lifecycle
-        finalize_result
+      @signal = catch(Signal::TAG) do
+        run_middlewares do
+          emit_telemetry(:task_started)
+          run_deprecation
+          run_lifecycle
+        end
+
+        @signal # Return non-middleware signal
       end
 
-      @result
+      finalize_result
     ensure
       run_teardown
       raise_signal! if @strict
@@ -165,13 +169,6 @@ module CMDx
       callbacks.around(event, @task, &)
     end
 
-    # @note Unhandled `StandardError`s become failed signals whose reason is
-    #   `"[ExceptionClass] message"`. This is debug-friendly but means
-    #   exception messages may surface in logs / dashboards / `Result#to_h`
-    #   when callers do not gate on `failed?` first. The full exception is
-    #   also attached as `cause:` for programmatic inspection. Configure
-    #   `log_exclusions: [:reason, :cause, :context]` when reasons must not
-    #   leak from internal services.
     def perform_work
       @signal = catch(Signal::TAG) do
         resolve_inputs!

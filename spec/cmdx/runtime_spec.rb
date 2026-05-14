@@ -182,6 +182,86 @@ RSpec.describe CMDx::Runtime do
       end
     end
 
+    describe "signals from middlewares and callbacks" do
+      it "halts as failed when a middleware calls fail! before yielding" do
+        task_class = create_task_class(name: "MwFailBeforeYield") do
+          define_method(:work) { context.work_ran = true }
+        end
+        task_class.register :middleware, lambda { |t, &blk|
+          t.fail!("blocked", code: :gate)
+          blk.call
+        }
+
+        result = described_class.execute(task_class.new)
+
+        expect(result).to have_attributes(status: "failed", reason: "blocked")
+        expect(result.metadata).to include(code: :gate)
+        expect(result.context).not_to respond_to(:work_ran)
+      end
+
+      it "halts as skipped when a middleware calls skip! before yielding" do
+        task_class = create_task_class(name: "MwSkipBeforeYield") do
+          define_method(:work) { context.work_ran = true }
+        end
+        task_class.register :middleware, ->(t, &_blk) { t.skip!("duplicate") }
+
+        result = described_class.execute(task_class.new)
+
+        expect(result).to have_attributes(status: "skipped", reason: "duplicate")
+      end
+
+      it "raises a Fault under strict mode for a middleware-thrown failure" do
+        task_class = create_task_class(name: "MwFailStrict") do
+          define_method(:work) { nil }
+        end
+        task_class.register :middleware, ->(t, &_blk) { t.fail!("no") }
+
+        expect { described_class.execute(task_class.new, strict: true) }
+          .to raise_error(CMDx::Fault, "no")
+      end
+
+      it "halts when a before_execution callback throws fail!" do
+        task_class = create_task_class(name: "CbFailBeforeExec") do
+          before_execution { fail!("guarded") }
+          define_method(:work) { context.work_ran = true }
+        end
+
+        result = described_class.execute(task_class.new)
+
+        expect(result).to have_attributes(status: "failed", reason: "guarded")
+      end
+
+      it "still finalizes the result when #rollback raises an exception that a wrapping middleware swallows" do
+        swallow_mw = lambda do |_task, &blk|
+          blk.call
+        rescue StandardError
+          # mimics ActiveRecord::Base.transaction silently catching ActiveRecord::Rollback
+        end
+
+        task_class = create_task_class(name: "RollbackSwallowedTask") do
+          register :middleware, swallow_mw
+          define_method(:work) { fail!("bad") }
+          define_method(:rollback) { raise "transaction rollback" }
+        end
+
+        result = described_class.execute(task_class.new)
+
+        expect(result).not_to be_nil
+        expect(result).to have_attributes(status: "failed", reason: "bad", rolled_back?: true)
+      end
+
+      it "pushes the result onto the chain exactly once when a middleware halts the task" do
+        task_class = create_task_class(name: "MwFailChain") do
+          define_method(:work) { nil }
+        end
+        task_class.register :middleware, ->(t, &_blk) { t.fail!("halt") }
+
+        result = described_class.execute(task_class.new)
+
+        expect(result.chain.to_a).to eq([result])
+      end
+    end
+
     describe "rollback" do
       it "invokes #rollback when the task fails" do
         task_class = create_task_class(name: "RollbackTask") do

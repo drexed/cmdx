@@ -4,7 +4,7 @@ Gating an expensive task on a [Flipper](https://github.com/flippercloud/flipper)
 
 ## Failing when the flag is off
 
-A middleware can't emit `fail!` directly (signals must originate inside `work`), but appending to `task.errors` and yielding produces the same outcome through `signal_errors!`.
+Halt directly with `task.fail!` — Runtime catches signals thrown from middlewares.
 
 ```ruby
 # app/middlewares/cmdx_flipper_middleware.rb
@@ -20,7 +20,7 @@ class CmdxFlipperMiddleware
     actor = resolve_actor(task)
 
     unless Flipper.enabled?(@feature, actor)
-      task.errors.add(:base, "feature #{@feature} is disabled")
+      task.fail!("feature #{@feature} is disabled", code: :feature_disabled)
     end
 
     yield
@@ -69,6 +69,6 @@ end
 
 ## Notes
 
-!!! warning "Middlewares cannot throw signals"
+!!! tip "Skip from a middleware too"
 
-    `skip!` / `fail!` `throw` to a `catch(Signal::TAG)` block that lives inside `perform_work`. A middleware sits outside that catch, so a thrown signal escapes as `UncaughtThrowError`. The `errors.add + yield` pattern is the only signal-safe way for a middleware to halt a task as failed.
+    Middlewares can throw any of `success!` / `skip!` / `fail!` / `throw!` — Runtime wraps the chain in `catch(Signal::TAG)`. Use `task.skip!(...)` from the middleware to short-circuit to a skipped result without touching `work`. Throws should happen **before yielding** to `next_link`; signals thrown after the lifecycle has finalized are silently ignored (the lifecycle's own outcome wins).

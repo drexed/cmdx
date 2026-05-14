@@ -4,7 +4,7 @@ A password-reset endpoint is a textbook abuse target: cheap to call, expensive d
 
 ## Setup
 
-The middleware increments a counter in a pluggable store and, when the bucket is full, records the throttle on `task.errors` and yields. `signal_errors!` halts the task as failed during input resolution.
+The middleware increments a counter in a pluggable store and, when the bucket is full, halts the task with `fail!` before `work` runs.
 
 ```ruby
 # app/middlewares/cmdx_rate_limit_middleware.rb
@@ -23,8 +23,12 @@ class CmdxRateLimitMiddleware
     count  = @store.increment(bucket, ttl: @per)
 
     if count > @max
-      task.errors.add(:base, "rate limited: #{count}/#{@max} per #{@per}s for #{bucket}")
-      task.metadata.merge!(code: :rate_limited, retry_after: @per)
+      task.send(
+        :fail!,
+        "rate limited: #{count}/#{@max} per #{@per}s for #{bucket}",
+        code: :rate_limited,
+        retry_after: @per
+      )
     end
 
     yield
@@ -84,7 +88,7 @@ end
 5.times { SendPasswordReset.execute(email: "user@example.com") }   # success
 result = SendPasswordReset.execute(email: "user@example.com")
 result.failed?              # => true
-result.reason               # => "base rate limited: 6/5 per 60s for user@example.com"
+result.reason               # => "rate limited: 6/5 per 60s for user@example.com"
 result.metadata[:code]      # => :rate_limited
 result.metadata[:retry_after] # => 60
 ```
@@ -130,9 +134,9 @@ register :middleware, CmdxRateLimitMiddleware.new(
 
     A fixed window is simple and fast but allows a 2× burst at the boundary (last second of window N + first second of window N+1). For smoother shaping, swap the store for a token-bucket implementation — the middleware contract (`#increment(key, ttl:) → Integer`) is unchanged.
 
-!!! warning "Failed, not skipped"
+!!! tip "Skip vs fail"
 
-    A middleware cannot emit `skipped` — that signal must originate inside `work`. Throttled calls surface as **failed** here. To treat excess calls as skipped, hoist the check into `work` and call `skip!("rate limited", retry_after: 60)`.
+    `fail!` flags throttled calls as actively rejected (handy for surfacing 429s). Swap to `task.skip!(...)` when excess calls should be silently dropped — both signals are valid from a middleware.
 
 !!! tip "Keying strategies"
 

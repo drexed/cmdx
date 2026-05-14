@@ -34,6 +34,8 @@ result.status       #=> "failed"
 result.reason       #=> "Build tool not found"
 result.metadata     #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 result.cause        #=> nil, the rescued StandardError, or the propagated Fault
+result.error        #=> cause (Exception) when the failure was raised, otherwise reason (String); nil for non-failed
+                    #   Lets telemetry adapters branch on type without repeating the `cause || reason` dance.
 result.backtrace    #=> caller_locations captured by fail!/throw! (Array<Thread::Backtrace::Location>), or nil
                     #   (Fault#backtrace stringifies these through the configured backtrace_cleaner)
 

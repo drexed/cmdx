@@ -221,7 +221,32 @@ class ExperimentalTask < CMDx::Task
 end
 ```
 
-If you truly need to skip `work` but still finish with a result, do that **inside** the task with `skip!` / `success!` — not from middleware.
+### Halting from middleware
+
+Runtime wraps the middleware chain in `catch(Signal::TAG)`, so a middleware can halt the task directly with `task.success!` / `task.skip!` / `task.fail!` / `task.throw!`. Throw **before** calling `yield` / `next_link.call`; signals thrown after the inner chain finalized are silently dropped (the lifecycle's outcome already won).
+
+```ruby
+class FeatureFlagGate
+  def initialize(flag)
+    @flag = flag
+  end
+
+  def call(task)
+    task.skip!("#{@flag} disabled", code: :flag_off) unless Flipper.enabled?(@flag)
+    yield
+  end
+end
+
+class ExperimentalTask < CMDx::Task
+  register :middleware, FeatureFlagGate.new(:experimental_path)
+  def work; end
+end
+
+result = ExperimentalTask.execute
+result.status            #=> "skipped"
+result.reason            #=> "experimental_path disabled"
+result.metadata[:code]   #=> :flag_off
+```
 
 ### Wrapping with thread-local state
 

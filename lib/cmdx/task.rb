@@ -478,8 +478,13 @@ module CMDx
       MSG
     end
 
-    private
-
+    # Halts `#work` early with a successful outcome. Any `sigdata` is merged
+    # onto {#metadata} before the signal is thrown.
+    #
+    # @param reason [String, nil] human-readable explanation surfaced on the {Result}
+    # @param sigdata [Hash{Symbol => Object}] extra metadata merged into {#metadata}
+    # @return [void] never returns; throws {Signal::TAG}
+    # @raise [FrozenTaskError] when the task has already been executed
     def success!(reason = nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
@@ -492,6 +497,13 @@ module CMDx
       throw(Signal::TAG, Signal.success(reason, metadata:))
     end
 
+    # Halts `#work` and marks the {Result} as `skipped`. Any `sigdata` is merged
+    # onto {#metadata} before the signal is thrown.
+    #
+    # @param reason [String, nil] human-readable explanation surfaced on the {Result}
+    # @param sigdata [Hash{Symbol => Object}] extra metadata merged into {#metadata}
+    # @return [void] never returns; throws {Signal::TAG}
+    # @raise [FrozenTaskError] when the task has already been executed
     def skip!(reason = nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
@@ -504,6 +516,14 @@ module CMDx
       throw(Signal::TAG, Signal.skipped(reason, metadata:))
     end
 
+    # Halts `#work` and marks the {Result} as `failed`. Captures the current
+    # caller frames for the {Fault} backtrace and merges any `sigdata` onto
+    # {#metadata} before the signal is thrown.
+    #
+    # @param reason [String, nil] human-readable explanation surfaced on the {Result}/{Fault}
+    # @param sigdata [Hash{Symbol => Object}] extra metadata merged into {#metadata}
+    # @return [void] never returns; throws {Signal::TAG}
+    # @raise [FrozenTaskError] when the task has already been executed
     def fail!(reason = nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
@@ -516,6 +536,16 @@ module CMDx
       throw(Signal::TAG, Signal.failed(reason, metadata:, backtrace: caller_locations(1)))
     end
 
+    # Echoes another {Result} or {Signal}'s failure outcome from this task. A
+    # no-op when `other` is not failed, letting callers conditionally bubble up
+    # nested failures without branching. Captures caller frames for the {Fault}
+    # backtrace and merges any `sigdata` onto {#metadata} before the signal is
+    # thrown.
+    #
+    # @param other [Result, Signal] upstream outcome to mirror
+    # @param sigdata [Hash{Symbol => Object}] extra metadata merged into {#metadata}
+    # @return [void, nil] returns `nil` when `other` is not failed; otherwise throws {Signal::TAG}
+    # @raise [FrozenTaskError] when the task has already been executed
     def throw!(other, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp

@@ -127,7 +127,7 @@ end
 
 task = LateHalter.new
 task.execute
-task.send(:fail!, "too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
+task.fail!("too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
 ```
 
 ### CMDx::UnknownAccessorError

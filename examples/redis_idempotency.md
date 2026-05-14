@@ -32,9 +32,13 @@ class CmdxRedisIdempotencyMiddleware
         raise
       end
     else
-      task.errors.add(:base, "duplicate request (state=#{@redis.get(redis_key)})")
-      task.metadata.merge!(code: :duplicate, idempotency_key: redis_key)
-      yield
+      state = @redis.get(redis_key)
+      task.send(
+        :skip!,
+        "duplicate request (state=#{state})",
+        code: :duplicate,
+        idempotency_key: redis_key
+      )
     end
   end
 
@@ -69,14 +73,14 @@ class ChargeCustomer < CMDx::Task
 end
 
 ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # success
-ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # failed: duplicate
+ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: duplicate
 ```
 
 ## Notes
 
-!!! warning "Failed, not skipped"
+!!! tip "Skip vs fail"
 
-    A middleware cannot emit `skipped`; the duplicate surfaces here as **failed** with `metadata[:code] == :duplicate`. To treat duplicates as a successful no-op, move the Redis check into `work` and call `skip!("duplicate")`.
+    `skip!` produces a `skipped?` result — appropriate for idempotent no-ops where the second call is "the work already happened, nothing more to do". Swap to `fail!("duplicate", code: :duplicate)` when callers need to know the request was actively rejected (e.g. to surface a 409 instead of a 2xx).
 
 !!! tip "Crash safety"
 

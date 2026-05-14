@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - `Result#error` — convenience returning `cause` (rescued `Exception`) when a failure was raised, otherwise the `reason` `String`; `nil` for non-failed results. Lets telemetry adapters branch on type without repeating the `cause || reason` dance
+- Middlewares and lifecycle callbacks may halt the task with `success!` / `skip!` / `fail!` / `throw!` — `Runtime#execute` now wraps the middleware chain in `catch(Signal::TAG)` so a signal thrown before yielding to `next_link` becomes the task's outcome instead of an `UncaughtThrowError`
 - `CMDx::Util.deep_merge` — recursive `Hash` merge with scalar last-write-wins; used by `Context#deep_merge` and `I18nProxy` locale YAML folding
 - `CMDx::Util.deep_dup` — recursive `Hash` / `Array` copy with scalar sharing and `#dup` fallback; used by `Context#deep_dup`
 - Add `Telemetry#lookup` (subscriber list, or `UnknownEntryError` when `event` is unknown)

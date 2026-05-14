@@ -87,7 +87,7 @@ CMDx.configure do |config|
 end
 ```
 
-In v2, middlewares can't mutate `Result` — it's frozen, built once at the end of the lifecycle. To fail a task from middleware, throw `CMDx::Signal::TAG` directly; Runtime's `catch(Signal::TAG)` block converts it into a failed Result.
+In v2, middlewares can't mutate `Result` — it's frozen, built once at the end of the lifecycle. To halt a task from middleware, call `task.fail!` (or `skip!` / `success!` / `throw!`) **before** yielding; Runtime wraps the middleware chain in `catch(Signal::TAG)` and converts the signal into the appropriate `Result`.
 
 The middleware uses `with_tenant`, which scopes all ActiveRecord queries within the block and restores the previous tenant when the block exits — safer than setting `current_tenant` directly: if the task raises, the tenant scope is still restored.
 

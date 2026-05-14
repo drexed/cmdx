@@ -206,13 +206,13 @@ class Idempotency
       end
     else
       status = Redis.current.get(redis_key)
-      throw(CMDx::Signal::TAG, CMDx::Signal.skipped("Already #{status} (idempotency guard)"))
+      task.skip!("Already #{status} (idempotency guard)")
     end
   end
 end
 ```
 
-Middlewares cannot mutate `Result` in v2 (it's frozen, constructed once at the end of the lifecycle). The way to short-circuit a task from middleware is to throw `CMDx::Signal::TAG` directly — Runtime's `catch(Signal::TAG)` block builds the appropriate Result from whatever signal escapes ([`lib/cmdx/runtime.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/runtime.rb)).
+Middlewares cannot mutate `Result` in v2 (it's frozen, constructed once at the end of the lifecycle). To short-circuit from middleware, halt the task directly with `task.skip!` / `task.fail!` / `task.success!` / `task.throw!` **before** yielding — Runtime wraps the middleware chain in `catch(Signal::TAG)` and converts the signal into the appropriate `Result` ([`lib/cmdx/runtime.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/runtime.rb)).
 
 Register it on tasks that must not duplicate:
 
