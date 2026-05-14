@@ -38,10 +38,6 @@ ProcessExport.perform_in(1.hour, user_id: 42, format: "json")
 
 ## Notes
 
-!!! note "Two task instances"
-
-    Sidekiq instantiates the class to call `#perform`; that instance forwards to `self.class.execute!`, which builds a *fresh* task with its own context and runs the full lifecycle. The Sidekiq instance is throwaway — declarations (`required`, `register`, callbacks) take effect on the second instance.
-
 !!! warning "JSON-safe arguments"
 
     Sidekiq serializes payloads as JSON, so every value in the context must round-trip through `JSON.dump`/`JSON.parse`. Pass `user_id: 42`, never `user: User.find(42)`. Symbol keys deserialize as strings — `Context.build` accepts both, but consider `deep_stringify_keys` at the call site to make the asymmetry explicit.

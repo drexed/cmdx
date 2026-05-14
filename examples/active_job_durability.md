@@ -4,7 +4,7 @@ A task invoked from a controller dies with the request. Routing it through Activ
 
 ## Setup
 
-A single adapter job runs any task class. Storing the task name (a String) keeps the payload safe under JSON serialization, and re-raising `result.cause` lets `retry_on` see the original exception.
+A single adapter job runs any task class. Storing the task name (a String) keeps the payload safe under JSON serialization.
 
 ```ruby
 # app/jobs/task_job.rb
@@ -13,11 +13,11 @@ A single adapter job runs any task class. Storing the task name (a String) keeps
 class TaskJob < ApplicationJob
   queue_as :default
 
-  retry_on StandardError, wait: :polynomially_longer, attempts: 5
+  retry_on CMDx::Fault, wait: :polynomially_longer, attempts: 5
 
   def perform(task_name, context = {})
-    result = task_name.constantize.execute(context)
-    raise result.cause if result.failed? && result.cause
+    task_class = task_name.constantize
+    task_class.execute!(context)
   end
 end
 ```
@@ -56,7 +56,3 @@ GenerateInvoice.perform_later(user_id: user.id, date: Date.current)
 !!! warning "Symbol vs String keys"
 
     Active Job serializes arguments as JSON, so symbols round-trip as strings. `Context.build` accepts either, but `deep_stringify_keys` on enqueue removes the asymmetry between `perform_now` and `perform_later`.
-
-!!! tip "Failed without a cause"
-
-    `result.cause` is `nil` when a task halts via `fail!("reason")` rather than a raised exception. Active Job's `retry_on` is exception-driven and won't re-enqueue those. Subscribe to `:task_executed` (see [Telemetry](../docs/configuration.md#telemetry)) and re-enqueue manually if logical failures should retry.
