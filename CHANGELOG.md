@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [2.x.x] - UNRELEASED
 
+## [2.1.0] - 2026-05-19
+
 ### Added
 - `Result#error` — convenience returning `cause` (rescued `Exception`) when a failure was raised, otherwise the `reason` `String`; `nil` for non-failed results. Lets telemetry adapters branch on type without repeating the `cause || reason` dance
 - Middlewares and lifecycle callbacks may halt the task with `success!` / `skip!` / `fail!` / `throw!` — `Runtime#execute` now wraps the middleware chain in `catch(Signal::TAG)` so a signal thrown before yielding to `next_link` becomes the task's outcome instead of an `UncaughtThrowError`
