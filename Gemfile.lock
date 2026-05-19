@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (2.0.1)
+    cmdx (2.1.0)
       bigdecimal
       logger
 
@@ -49,7 +49,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.7)
-    rubocop (1.86.1)
+    rubocop (1.86.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -83,7 +83,7 @@ GEM
     yard-lint (1.5.1)
       yard (~> 0.9)
       zeitwerk (~> 2.6)
-    zeitwerk (2.7.5)
+    zeitwerk (2.8.0)
 
 PLATFORMS
   arm64-darwin-24

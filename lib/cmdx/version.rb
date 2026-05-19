@@ -3,6 +3,6 @@
 module CMDx
 
   # Gem version. Bumped on release; mirrored in the gemspec.
-  VERSION = "2.0.1"
+  VERSION = "2.1.0"
 
 end
