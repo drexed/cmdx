@@ -2106,6 +2106,7 @@ result.to_h
 #     cid: "0190...", index: 0, root: true,
 #     type: "Task", task: BuildApplication, tid: "0190...",
 #     context: #<CMDx::Context ...>,
+#     errors: {},
 #     state: "complete", status: "success",
 #     reason: nil, metadata: {},
 #     strict: false, deprecated: false,
@@ -2118,6 +2119,8 @@ result.to_json           #=> '{"xid":null,"cid":"0190...",...}'
 result.to_s
 #=> "xid=nil cid=\"0190...\" index=0 ... state=\"complete\" status=\"success\" ..."
 ```
+
+`:errors` is always present and mirrors `result.errors.to_h` (`{ field: ["message", ...] }`). Use `result.errors.to_hash(true)` when you need `full_messages` instead.
 
 For failed results, `to_h` also adds `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` fields and `:origin` are compact `{ task:, tid: }` hashes (and `to_s` renders tasks as `<TaskClass uuid>`) so you do not serialize giant upstream trees. `:origin` is `nil` when the failure started here.
 

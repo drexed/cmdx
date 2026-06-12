@@ -6,7 +6,7 @@
 <title>
   Class: CMDx::Result
   
-    &mdash; Documentation by YARD 0.9.43
+    &mdash; Documentation by YARD 0.9.44
   
 </title>
 
@@ -1394,12 +1394,12 @@ deprecated). Constructed by Runtime at the end of <code>execute</code>.</p>
       <pre class="lines">
 
 
-314
 315
-316</pre>
+316
+317</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 314</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 315</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_as_json'>as_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span>
@@ -1831,12 +1831,12 @@ Walks <code>origin</code> recursively. <code>self</code> when this result is the
       <pre class="lines">
 
 
-361
 362
-363</pre>
+363
+364</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 361</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 362</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deconstruct'>deconstruct</span>
   <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
@@ -1901,12 +1901,12 @@ Walks <code>origin</code> recursively. <code>self</code> when this result is the
       <pre class="lines">
 
 
-354
 355
-356</pre>
+356
+357</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 354</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 355</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deconstruct_keys'>deconstruct_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>:</span> <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
@@ -3479,9 +3479,9 @@ originator; <code>nil</code> when not failed.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns memoized serialization. Includes
-<code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>, <code>:caused_failure</code>, <code>:rolled_back</code>
-on failure.</p>
+    <p>Returns memoized serialization. <code>:errors</code> mirrors
+<span class='object_link'><a href="Errors.html#to_h-instance_method" title="CMDx::Errors#to_h (method)">Errors#to_h</a></span>. Includes <code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>,
+<code>:caused_failure</code>, <code>:rolled_back</code> on failure.</p>
 
   </div>
 </div>
@@ -3498,9 +3498,9 @@ on failure.</p>
       
       
         &mdash;
-        <div class='inline'><p>memoized serialization. Includes
-<code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>, <code>:caused_failure</code>, <code>:rolled_back</code>
-on failure.</p></div>
+        <div class='inline'><p>memoized serialization. <code>:errors</code> mirrors
+<span class='object_link'><a href="Errors.html#to_h-instance_method" title="CMDx::Errors#to_h (method)">Errors#to_h</a></span>. Includes <code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>,
+<code>:caused_failure</code>, <code>:rolled_back</code> on failure.</p></div>
       
     </li>
   
@@ -3541,7 +3541,8 @@ on failure.</p></div>
 305
 306
 307
-308</pre>
+308
+309</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 279</span>
@@ -3560,6 +3561,7 @@ on failure.</p></div>
     <span class='label'>status:</span><span class='comma'>,</span>
     <span class='label'>reason:</span><span class='comma'>,</span>
     <span class='label'>metadata:</span><span class='comma'>,</span>
+    <span class='label'>errors:</span> <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='comma'>,</span>
     <span class='label'>strict:</span> <span class='id identifier rubyid_strict?'>strict?</span><span class='comma'>,</span>
     <span class='label'>deprecated:</span> <span class='id identifier rubyid_deprecated?'>deprecated?</span><span class='comma'>,</span>
     <span class='label'>retried:</span> <span class='id identifier rubyid_retried?'>retried?</span><span class='comma'>,</span>
@@ -3638,12 +3640,12 @@ defaults; <code>:context</code> delegates to <span class='object_link'><a href="
       <pre class="lines">
 
 
-324
 325
-326</pre>
+326
+327</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 324</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 325</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -3695,7 +3697,6 @@ references render as <code>&lt;TaskClass uuid&gt;</code>.</p></div>
       <pre class="lines">
 
 
-330
 331
 332
 333
@@ -3713,10 +3714,11 @@ references render as <code>&lt;TaskClass uuid&gt;</code>.</p></div>
 345
 346
 347
-348</pre>
+348
+349</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 330</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 331</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='ivar'>@to_s</span> <span class='op'>||=</span> <span class='kw'>begin</span>
@@ -3861,9 +3863,9 @@ chain was acquired)</p></div>
 </div>
 
       <div id="footer">
-  Generated on Tue May 19 12:57:36 2026 by
+  Generated on Fri Jun 12 15:56:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.43 (ruby-3.4.9).
+  0.9.44 (ruby-3.4.9).
 </div>
 
     </div>

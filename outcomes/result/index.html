@@ -2690,18 +2690,20 @@
 </span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1">#     cid: &quot;0190...&quot;, index: 0, root: true,</span>
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1">#     type: &quot;Task&quot;, task: BuildApplication, tid: &quot;0190...&quot;,</span>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1">#     context: #&lt;CMDx::Context ...&gt;,</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1">#     state: &quot;complete&quot;, status: &quot;success&quot;,</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1">#     reason: nil, metadata: {},</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1">#     strict: false, deprecated: false,</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1">#     retried: false, retries: 0,</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1">#     duration: 12.34, tags: []</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1">#   }</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">result</span><span class="o">.</span><span class="n">as_json</span><span class="w">           </span><span class="c1">#=&gt; same hash as to_h</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">result</span><span class="o">.</span><span class="n">to_json</span><span class="w">           </span><span class="c1">#=&gt; &#39;{&quot;xid&quot;:null,&quot;cid&quot;:&quot;0190...&quot;,...}&#39;</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">result</span><span class="o">.</span><span class="n">to_s</span>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="c1">#=&gt; &quot;xid=nil cid=\&quot;0190...\&quot; index=0 ... state=\&quot;complete\&quot; status=\&quot;success\&quot; ...&quot;</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1">#     errors: {},</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1">#     state: &quot;complete&quot;, status: &quot;success&quot;,</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1">#     reason: nil, metadata: {},</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1">#     strict: false, deprecated: false,</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1">#     retried: false, retries: 0,</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1">#     duration: 12.34, tags: []</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c1">#   }</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">result</span><span class="o">.</span><span class="n">as_json</span><span class="w">           </span><span class="c1">#=&gt; same hash as to_h</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">result</span><span class="o">.</span><span class="n">to_json</span><span class="w">           </span><span class="c1">#=&gt; &#39;{&quot;xid&quot;:null,&quot;cid&quot;:&quot;0190...&quot;,...}&#39;</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="n">result</span><span class="o">.</span><span class="n">to_s</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="c1">#=&gt; &quot;xid=nil cid=\&quot;0190...\&quot; index=0 ... state=\&quot;complete\&quot; status=\&quot;success\&quot; ...&quot;</span>
 </span></code></pre></div>
+<p><code>:errors</code> is always present and mirrors <code>result.errors.to_h</code> (<code>{ field: ["message", ...] }</code>). Use <code>result.errors.to_hash(true)</code> when you need <code>full_messages</code> instead.</p>
 <p>For failed results, <code>to_h</code> also adds <code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>, <code>:caused_failure</code>, and <code>:rolled_back</code>. The <code>_failure</code> fields and <code>:origin</code> are compact <code>{ task:, tid: }</code> hashes (and <code>to_s</code> renders tasks as <code>&lt;TaskClass uuid&gt;</code>) so you do not serialize giant upstream trees. <code>:origin</code> is <code>nil</code> when the failure started here.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

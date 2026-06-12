@@ -28,7 +28,7 @@
     
     
       
-        <title>May 2026 - CMDx</title>
+        <title>June 2026 - CMDx</title>
       
     
     
@@ -81,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#may-2026" class="md-skip">
+        <a href="#june-2026" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              May 2026
+              June 2026
             
           </span>
         </div>
@@ -2046,6 +2046,50 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#real-world-cmdx-multi-tenant-saas-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-World CMDx: Multi-Tenant SaaS Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-cmdx-background-jobs-cmdx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-World CMDx: Background Jobs + CMDx
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-cmdx-integrating-external-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-World CMDx: Integrating External APIs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-cmdx-building-a-user-onboarding-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-World CMDx: Building a User Onboarding Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cmdx-20-is-here-rewriting-the-runtime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2111,50 +2155,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#structuring-large-cmdx-codebases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Structuring Large CMDx Codebases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cmdx-as-a-pragmatic-alternative-to-event-sourcing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CMDx as a Pragmatic Alternative to Event Sourcing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-i-switched-to-cmdx-and-how-you-can-too" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why I Switched to CMDx (and How You Can Too)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing-cmdx-tasks-like-a-pro" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Testing CMDx Tasks Like a Pro
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2167,8 +2167,217 @@
   <div class="md-content" data-md-component="content">
     <div class="md-content__inner">
       <header class="md-typeset">
-        <h1 id="may-2026">May 2026<a class="headerlink" href="#may-2026" title="Permanent link">&para;</a></h1>
+        <h1 id="june-2026">June 2026<a class="headerlink" href="#june-2026" title="Permanent link">&para;</a></h1>
       </header>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-06-10 00:00:00+00:00">June 10, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              7 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="real-world-cmdx-multi-tenant-saas-patterns"><a class="toclink" href="../../real-world-cmdx-multi-tenant-saas/">Real-World CMDx: Multi-Tenant SaaS Patterns</a></h2>
+<p><em>Part 4 of the Real-World CMDx series</em></p>
+<p><em>Built on CMDx 2.0 — see the <a href="../../cmdx-v2-the-runtime-rewrite/">v2 release post</a>. v2's frozen <code>Result</code> makes <a href="https://drexed.github.io/cmdx/outcomes/result/">pattern matching on tenant metadata</a> safe across threads, and the per-fiber chain isolates tenant scopes naturally.</em></p>
+<p>Multi-tenancy changes everything. That simple <code>Users::Register</code> task you wrote? Now it needs to know which tenant it's operating on. Your database queries need scoping. Your logging needs tenant context. Your middleware stack needs to enforce tenant isolation. And if you get any of it wrong, Customer A sees Customer B's data, and you're writing an incident report instead of features.</p>
+<p>I've built three multi-tenant SaaS products with Ruby and CMDx. Each one taught me something about where tenant boundaries belong and, more importantly, where they don't. The pattern I've settled on keeps tenant concerns out of business logic entirely — tasks don't know they're multi-tenant. The middleware and base classes handle it.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../real-world-cmdx-multi-tenant-saas/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-06-03 00:00:00+00:00">June 3, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="real-world-cmdx-background-jobs-cmdx"><a class="toclink" href="../../real-world-cmdx-background-jobs/">Real-World CMDx: Background Jobs + CMDx</a></h2>
+<p><em>Part 3 of the Real-World CMDx series</em></p>
+<p><em>Built on CMDx 2.0 — see the <a href="../../cmdx-v2-the-runtime-rewrite/">v2 release post</a>. v2 ships only one Fault class (no <code>FailFault</code>/<code>SkipFault</code>), drops the built-in <code>Correlate</code> middleware in favor of <a href="https://drexed.github.io/cmdx/configuration/">Telemetry pub/sub</a>, and exposes <code>result.duration</code> directly.</em></p>
+<p>There's a natural tension between CMDx tasks and background jobs. Tasks are synchronous, deterministic, and observable. Jobs are asynchronous, retry-prone, and fire-and-forget. When you need both—and you almost always do—the question is how to combine them without losing what makes each one good.</p>
+<p>I've seen two bad extremes. The first: every task becomes a Sidekiq job, scattering your business logic across <code>app/jobs/</code> and <code>app/tasks/</code> with duplicated validation and no shared observability. The second: a single monolithic job that calls a workflow synchronously, tying up a Sidekiq thread for 30 seconds while it processes an order end-to-end.</p>
+<p>The sweet spot is using CMDx tasks as the unit of work and Sidekiq as the execution engine. Your Ruby business logic stays in tasks. The job is just the thin wrapper that triggers it. Here's how I set this up in production.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../real-world-cmdx-background-jobs/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-05-27 00:00:00+00:00">May 27, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              7 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="real-world-cmdx-integrating-external-apis"><a class="toclink" href="../../real-world-cmdx-external-apis/">Real-World CMDx: Integrating External APIs</a></h2>
+<p><em>Part 2 of the Real-World CMDx series</em></p>
+<p><em>Built on CMDx 2.0 — see the <a href="../../cmdx-v2-the-runtime-rewrite/">v2 release post</a> for the runtime changes this post depends on, especially <a href="../../cmdx-v2-the-runtime-rewrite/"><code>Task#rollback</code></a> and the <a href="https://drexed.github.io/cmdx/outputs/"><code>output</code> pipeline</a>.</em></p>
+<p>External APIs are where clean code goes to die. You write a beautiful service object, ship it, and then the real world hits: Stripe times out, the shipping API returns HTML instead of JSON, the geocoding service rate-limits you at 2 PM on a Tuesday. Suddenly your elegant <code>PaymentService</code> is a nest of <code>rescue</code> blocks, retry loops, and sleep statements.</p>
+<p>I've been on the receiving end of enough 3 AM pages to know that the problem isn't the API—it's how we integrate with it. CMDx gives you a layered defense against flaky I/O: retries for transient failures, timeouts for slow responses, circuit breakers for cascading failures, and structured error handling for everything else. Let me build a complete Stripe payment integration in Ruby to show you how these pieces fit together.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../real-world-cmdx-external-apis/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-05-20 00:00:00+00:00">May 20, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              7 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="real-world-cmdx-building-a-user-onboarding-pipeline"><a class="toclink" href="../../real-world-cmdx-user-onboarding/">Real-World CMDx: Building a User Onboarding Pipeline</a></h2>
+<p><em>Part 1 of the Real-World CMDx series</em></p>
+<p><em>Built on CMDx 2.0 — see the <a href="../../cmdx-v2-the-runtime-rewrite/">v2 release post</a> for the runtime changes this post depends on.</em></p>
+<p>User onboarding is one of those features that sounds simple until you actually build it. "Just create a user and send them an email." Sure—until you add email verification, trial activation, referral tracking, welcome sequences, analytics events, and a dozen conditional paths based on plan type, invite status, and geographic regulations.</p>
+<p>I've built this feature in Ruby at least six times across different projects, and it always follows the same trajectory: starts as a single service object, grows tentacles, and eventually becomes the thing nobody wants to touch. This time, I'm building it with CMDx from the start—decomposed into focused tasks, orchestrated as a workflow, with full observability baked in.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../real-world-cmdx-user-onboarding/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
       
         <article class="md-post md-post--excerpt">
   <header class="md-post__header">
@@ -2481,211 +2690,6 @@
   </div>
 </article>
       
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-04-01 00:00:00+00:00">April 1, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              5 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="structuring-large-cmdx-codebases"><a class="toclink" href="../../structuring-large-cmdx-codebases/">Structuring Large CMDx Codebases</a></h2>
-<p><em>Targets CMDx v1.20.</em></p>
-<p>Your first CMDx task is easy. Your tenth is manageable. But what about your hundredth? I've seen projects where the <code>app/tasks/</code> directory becomes a dumping ground—flat files with no organization, inconsistent naming, duplicated middleware registrations, and base classes that try to do everything.</p>
-<p>Scaling a CMDx codebase isn't about the framework. It's about the conventions you establish early and enforce consistently. This post is the playbook I wish I had when my first CMDx project grew from 10 tasks to 200.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../structuring-large-cmdx-codebases/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-03-25 00:00:00+00:00">March 25, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              6 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="cmdx-as-a-pragmatic-alternative-to-event-sourcing"><a class="toclink" href="../../cmdx-as-pragmatic-event-sourcing/">CMDx as a Pragmatic Alternative to Event Sourcing</a></h2>
-<p><em>Targets CMDx v1.20.</em></p>
-<p>Event Sourcing is one of those ideas that sounds perfect in a conference talk and then bankrupts your sprint when you try to implement it. You need an event store, projections, snapshot strategies, a way to replay history, and a team that understands why you can't just <code>UPDATE</code> a row anymore. For some domains—banking, audit-heavy compliance, truly distributed systems—it's worth the cost. For the rest of us, it's a complexity tax we can't afford.</p>
-<p>But the <em>benefits</em> of Event Sourcing are real. An immutable record of what happened. The ability to understand <em>why</em> the system is in its current state. Traceability across complex workflows. I wanted those benefits without the infrastructure.</p>
-<p>That's when I realized CMDx already gives you most of it for free.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../cmdx-as-pragmatic-event-sourcing/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-03-18 00:00:00+00:00">March 18, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              5 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="why-i-switched-to-cmdx-and-how-you-can-too"><a class="toclink" href="../../why-i-switched-to-cmdx/">Why I Switched to CMDx (and How You Can Too)</a></h2>
-<p><em>Targets CMDx v1.20.</em></p>
-<p>If you've been writing Ruby long enough, you've probably used at least one service object gem. Maybe you started with Interactor back when it was the default choice. Maybe you moved to ActiveInteraction for its ActiveModel-like validations. Maybe you tried Actor or LightService. I've used all of them in production, and each one taught me something about what I actually need from a command framework.</p>
-<p>This isn't a hit piece on any of those gems—they're well-built tools that solve real problems. But after years of using them, I kept hitting the same walls. So I built CMDx to knock those walls down.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../why-i-switched-to-cmdx/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-03-11 00:00:00+00:00">March 11, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              6 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="testing-cmdx-tasks-like-a-pro"><a class="toclink" href="../../testing-cmdx-tasks-like-a-pro/">Testing CMDx Tasks Like a Pro</a></h2>
-<p><em>Targets CMDx v1.19.</em></p>
-<p>I have a confession: I used to skip tests for service objects. Not because I didn't care, but because testing them was painful. Mock the database, stub the API, wrestle with instance variables, pray the test actually exercises the code path you think it does. The friction was real, and it showed in our coverage numbers.</p>
-<p>When I built CMDx, I made a promise to myself—if the framework isn't dead simple to test, it's not done. Every task takes data in and pushes a result out. No hidden state, no side-channel mutations, no surprises. That makes testing almost enjoyable. Almost.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../testing-cmdx-tasks-like-a-pro/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
       
         
           
@@ -2693,7 +2697,7 @@
 
 
 <nav class="md-pagination">
-  <span class="md-pagination__current">1</span> <a class="md-pagination__link" href="page/2/">2</a>
+  <span class="md-pagination__current">1</span> <a class="md-pagination__link" href="page/2/">2</a> <a class="md-pagination__link" href="page/3/">3</a>
 </nav>
         
       
