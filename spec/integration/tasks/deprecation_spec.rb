@@ -61,7 +61,7 @@ RSpec.describe "Task deprecation", type: :feature do
 
       deprecated_task(callable).execute
 
-      expect(seen).to match(/DeprecatedTask/)
+      expect(seen).to include("DeprecatedTask")
     end
 
     it "resolves a Symbol via an instance method" do

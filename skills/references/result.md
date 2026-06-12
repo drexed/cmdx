@@ -127,7 +127,7 @@ end
 
 ### `to_h`
 
-Memoized. Always includes: `:cid`, `:index`, `:root`, `:type`, `:task`, `:tid`, `:context`, `:state`, `:status`, `:reason`, `:metadata`, `:strict`, `:deprecated`, `:retried`, `:retries`, `:duration`, `:tags`.
+Memoized. Always includes: `:cid`, `:index`, `:root`, `:type`, `:task`, `:tid`, `:context`, `:errors` (`Errors#to_h`), `:state`, `:status`, `:reason`, `:metadata`, `:strict`, `:deprecated`, `:retried`, `:retries`, `:duration`, `:tags`.
 
 When `failed?`, additionally includes: `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`. Failure references render as `{ task: TaskClass, tid: "uuid" }` — the live `Result` objects aren't walked to avoid cycles.
 

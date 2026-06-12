@@ -273,9 +273,9 @@ module CMDx
       task.settings.tags
     end
 
-    # @return [Hash{Symbol => Object}] memoized serialization. Includes
-    #   `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`
-    #   on failure.
+    # @return [Hash{Symbol => Object}] memoized serialization. `:errors` mirrors
+    #   {Errors#to_h}. Includes `:cause`, `:origin`, `:threw_failure`,
+    #   `:caused_failure`, `:rolled_back` on failure.
     def to_h
       @to_h ||= {
         xid:,
@@ -290,6 +290,7 @@ module CMDx
         status:,
         reason:,
         metadata:,
+        errors: errors.to_h,
         strict: strict?,
         deprecated: deprecated?,
         retried: retried?,

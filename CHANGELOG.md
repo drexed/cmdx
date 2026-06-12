@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [2.x.x] - UNRELEASED
 
+### Added
+- `Result#to_h` includes `:errors` (`Errors#to_h`) for structured validation messages in logs, telemetry, and JSON serialization
+
 ## [2.1.0] - 2026-05-19
 
 ### Added

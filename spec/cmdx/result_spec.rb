@@ -222,9 +222,17 @@ RSpec.describe CMDx::Result do
         tid: "rid",
         state: "complete",
         status: "success",
+        errors: {},
         duration: 0.1
       )
       expect(hash).not_to have_key(:cause)
+    end
+
+    it "includes errors.to_h keyed messages" do
+      task.errors.add(:name, "is required")
+      chain << (result = build(CMDx::Signal.failed("name is required")))
+
+      expect(result.to_h[:errors]).to eq(name: ["is required"])
     end
 
     it "includes failure-specific fields for failed results" do
