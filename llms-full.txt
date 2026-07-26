@@ -6903,7 +6903,7 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 ### Observability / tooling
 
 - **`Chain#to_mermaid` / `#to_dot`** — pretty diagrams for gnarly chains.
-- **`Chain#timeline`** — rows of `(task, start, end, status)` for dashboards.
+- **`Chain#to_timeline`** — rows of `(task, start, end, status)` for dashboards.
 - **`Result#pretty_print`** — multi-line REPL output with indentation and optional color.
 
 None of the above exists in the gem yet; treat it as a peek at where maintainers are thinking, not a contract.```
