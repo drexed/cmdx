@@ -274,6 +274,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
       # @option options [Boolean] :required
+      # @option options [Boolean] :allow_nil (see {Input#allow_nil})
       # @option options [Object] :coerce (see {Coercions#extract})
       # @option options [Object] :validate (see {Validators#extract})
       # @yield nested-input DSL block (see {Inputs::ChildBuilder})
@@ -307,6 +308,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :allow_nil (see {Input#allow_nil})
       # @option options [Object] :coerce (see {Coercions#extract})
       # @option options [Object] :validate (see {Validators#extract})
       # @yield nested-input DSL block (see {Inputs::ChildBuilder})
@@ -329,6 +331,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :allow_nil (see {Input#allow_nil})
       # @option options [Object] :coerce (see {Coercions#extract})
       # @option options [Object] :validate (see {Validators#extract})
       # @yield nested-input DSL block (see {Inputs::ChildBuilder})

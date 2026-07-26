@@ -52,6 +52,14 @@ RSpec.describe CMDx::Input do
     it "source defaults to :context" do
       expect(described_class.new(:user).source).to eq(:context)
     end
+
+    it "allow_nil defaults to false" do
+      expect(described_class.new(:user).allow_nil).to be(false)
+    end
+
+    it "returns configured allow_nil" do
+      expect(described_class.new(:user, allow_nil: true).allow_nil).to be(true)
+    end
   end
 
   describe "#accessor_name" do
@@ -171,6 +179,36 @@ RSpec.describe CMDx::Input do
         input.resolve(task)
 
         expect(task.errors[:age]).to include(CMDx::I18nProxy.t("cmdx.attributes.required"))
+      end
+    end
+
+    context "with allow_nil" do
+      it "skips coercion and validation when the value is explicitly nil" do
+        task_class = create_task_class(name: "AllowNilExplicitTask")
+        task = task_class.new
+        task.context.title = nil
+
+        input = described_class.new(:title, allow_nil: true, coerce: :integer, presence: true)
+        expect(input.resolve(task)).to be_nil
+        expect(task.errors).to be_empty
+      end
+
+      it "skips coercion and validation when the default resolves to nil" do
+        task_class = create_task_class(name: "AllowNilDefaultTask")
+        task = task_class.new
+
+        input = described_class.new(:title, allow_nil: true, default: nil, coerce: :integer, presence: true)
+        expect(input.resolve(task)).to be_nil
+        expect(task.errors).to be_empty
+      end
+
+      it "still runs coercion and validation for non-nil values" do
+        task_class = create_task_class(name: "AllowNilPresentTask")
+        task = task_class.new
+        task.context.age = "42"
+
+        input = described_class.new(:age, allow_nil: true, coerce: :integer)
+        expect(input.resolve(task)).to eq(42)
       end
     end
 

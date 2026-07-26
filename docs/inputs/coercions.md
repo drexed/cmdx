@@ -52,6 +52,12 @@ ParseMetrics.execute(
 | `:symbol` | | `#to_s.to_sym`; fails if there’s no `#to_s` | `"abc"` → `:abc` |
 | `:time` | `:strptime` | Time parsing; numbers = Unix seconds | `"2024-01-23 10:30"` → `Time.new(...)` |
 
+Input-level **`allow_nil: true`** leaves `nil` after defaults unresolved — coercion, transform, and validation do not run. Per-coercion `:allow_nil` only skips that one rule.
+
+```ruby
+optional :expires_at, coerce: :time, allow_nil: true
+```
+
 ## Declarations
 
 !!! warning "Success vs failure"

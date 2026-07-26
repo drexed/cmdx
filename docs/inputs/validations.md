@@ -47,6 +47,12 @@ Most validators understand a few shared knobs:
 - **`:allow_nil`** — “Skip this check when the value is `nil`.”
 - **`:message`** — Your own words when something fails.
 
+Input-level **`allow_nil: true`** leaves `nil` after defaults unresolved — coercion, transform, and validation do not run. Per-validator `:allow_nil` only skips that one rule.
+
+```ruby
+optional :expires_at, presence: true, allow_nil: true
+```
+
 ```ruby
 class ProcessProduct < CMDx::Task
   input :tier_level, inclusion: { in: 1..5, allow_nil: true }

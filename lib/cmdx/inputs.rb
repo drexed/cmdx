@@ -35,6 +35,7 @@ module CMDx
     # @option options [Symbol, Proc, #call] :if
     # @option options [Symbol, Proc, #call] :unless
     # @option options [Boolean] :required
+    # @option options [Boolean] :allow_nil (see {Input#allow_nil})
     # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
     # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
     # @return [Inputs] self for chaining
@@ -138,6 +139,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
       # @option options [Boolean] :required
+      # @option options [Boolean] :allow_nil (see {Input#allow_nil})
       # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
       # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
       # @yield nested child input DSL
@@ -162,6 +164,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :allow_nil (see {Input#allow_nil})
       # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
       # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
       # @yield nested child input DSL
@@ -185,6 +188,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :transform mutator applied after coercion
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
+      # @option options [Boolean] :allow_nil (see {Input#allow_nil})
       # @option options [Object] :coerce forwarded with declaration (see {Coercions#extract})
       # @option options [Object] :validate forwarded with declaration (see {Validators#extract})
       # @yield nested child input DSL

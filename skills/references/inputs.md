@@ -21,9 +21,9 @@ Per input, in order:
 
 1. **Fetch** via `:source` (default `:context`).
 2. **Default** applied when the fetched value is `nil`.
-3. **Coerce** via `:coerce` (one or more coercions; the first successful one wins).
-4. **Transform** via `:transform`.
-5. **Validate** — declared validator shorthands and inline `:validate` callables.
+3. **Coerce** via `:coerce` (skipped when `allow_nil` and value is `nil`; see `Input#allow_nil`).
+4. **Transform** via `:transform` (skipped with `allow_nil` when value is `nil`).
+5. **Validate** — declared validator shorthands and inline `:validate` callables (skipped when `allow_nil` and value is `nil`).
 
 ## Options
 
@@ -39,6 +39,7 @@ Per input, in order:
 | `suffix:` | `true` → `_<source>`, or a String suffix. |
 | `transform:` | Symbol, Proc, or `#call(value, task)`. Applied post-coercion, pre-validation. |
 | `if:` / `unless:` | Gate declaration-required check. Signature `(task)` — NOT `(task, value)`. |
+| `allow_nil:` | Permit `nil` after defaults without coercion, transform, or validation (`Input#allow_nil`). |
 | `presence:`, `absence:`, `format:`, `length:`, `numeric:`, `inclusion:`, `exclusion:` | Validator shorthands. |
 | `validate:` | Inline validator (Symbol/Proc/`#call`-able). |
 

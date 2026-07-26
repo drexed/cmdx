@@ -22,6 +22,7 @@ module CMDx
     # @option options [Symbol, Proc, #call] :if
     # @option options [Symbol, Proc, #call] :unless
     # @option options [Boolean] :required
+    # @option options [Boolean] :allow_nil (see {#allow_nil})
     def initialize(name, children: EMPTY_ARRAY, **options)
       @name     = name.to_sym
       @children = children.freeze
@@ -78,6 +79,14 @@ module CMDx
       @options.fetch(:required, false)
     end
 
+    # When `true`, a `nil` value after defaults skips coercion, transform, and
+    # validation. Per-validator `:allow_nil` only skips individual rules.
+    #
+    # @return [Boolean]
+    def allow_nil
+      @options.fetch(:allow_nil, false)
+    end
+
     # Computed accessor/reader method name. Uses `:as` when provided,
     # otherwise combines `:prefix`, `name`, and `:suffix` around the source.
     #
@@ -131,7 +140,8 @@ module CMDx
     # @note "Required" here means "the key is present in the source"; an
     #   explicit `nil` under an existing key satisfies the required check
     #   and is then routed through `:default`. Combine with `:presence` /
-    #   `:validate` to reject explicit `nil` values.
+    #   `:validate` to reject explicit `nil` values, or `:allow_nil` (see
+    #   {#allow_nil}) to leave `nil` unresolved.
     #
     # @param task [Task]
     # @return [Object, nil] the resolved value (`nil` on failure)
@@ -189,7 +199,7 @@ module CMDx
       end
 
       value = apply_default(task) if value.nil?
-      return if value.nil? && !key_provided
+      return if value.nil? && (!key_provided || allow_nil)
 
       @coercions ||= task.class.coercions.extract(@options)
       value = task.class.coercions.coerce(task, accessor_name, value, @coercions)
