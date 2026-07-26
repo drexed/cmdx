@@ -342,7 +342,7 @@ Easy to mix up — they solve different problems:
 
 Optional + presence alone
 
-If an optional input ends up `nil`, validators (including `presence`) **do not** run — the pipeline stops after defaults. So `input :email, presence: true` does **nothing** when the caller never sends `email`. Use `required :email` (or both) when the key must be supplied.
+If an optional input's key is **omitted**, validators (including `presence`) **do not** run — the pipeline stops after defaults. If the caller **explicitly sends `nil`**, coerce → transform → validate still runs. Use `required :email` (or both) when the key must always be supplied.
 
 ## Error handling
 

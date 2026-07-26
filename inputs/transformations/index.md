@@ -80,4 +80,4 @@ end
 
 Optional + nil
 
-Transforms only run when the coerced value is **non-`nil`**. If the key is missing, there’s no default, and the input is optional, the pipeline stops early — no transform, no validator. Need the transform every time? Add a `default:` or make the input `required`.
+Transforms only run when the coerced value is **non-`nil`**. If the key is **omitted**, there’s no default, and the input is optional, the pipeline stops early — no transform, no validator. An explicit `nil` still walks the full pipeline. Need the transform every time? Add a `default:` or make the input `required`.
