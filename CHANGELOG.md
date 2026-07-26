@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - `Result#to_h` includes `:errors` (`Errors#to_h`) for structured validation messages in logs, telemetry, and JSON serialization
 
+### Fixed
+- `Input` resolution continues coerce → transform → validate when the key is present (including explicit `nil`) instead of stopping after defaults; omitted keys still stop when the value is `nil` after defaults
+
 ## [2.1.0] - 2026-05-19
 
 ### Added

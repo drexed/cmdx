@@ -174,6 +174,40 @@ RSpec.describe CMDx::Input do
       end
     end
 
+    context "when the value is explicitly nil" do
+      it "runs the full pipeline for required inputs" do
+        task_class = create_task_class(name: "ExplicitNilRequiredTask")
+        task = task_class.new
+        task.context.title = nil
+
+        input = described_class.new(:title, required: true, coerce: :string, presence: true)
+        input.resolve(task)
+
+        expect(task.errors[:title]).to include(CMDx::I18nProxy.t("cmdx.validators.presence"))
+      end
+
+      it "stops after defaults when the key is absent" do
+        task_class = create_task_class(name: "AbsentOptionalTask")
+        task = task_class.new
+
+        input = described_class.new(:title, presence: true)
+        input.resolve(task)
+
+        expect(task.errors).to be_empty
+      end
+
+      it "runs the full pipeline when the key is present with nil" do
+        task_class = create_task_class(name: "ExplicitNilOptionalTask")
+        task = task_class.new
+        task.context.title = nil
+
+        input = described_class.new(:title, presence: true)
+        input.resolve(task)
+
+        expect(task.errors[:title]).to include(CMDx::I18nProxy.t("cmdx.validators.presence"))
+      end
+    end
+
     context "when the value is absent but has a default" do
       it "applies a literal default" do
         task_class = create_task_class(name: "DefaultLiteralTask")
@@ -321,6 +355,13 @@ RSpec.describe CMDx::Input do
       other_task = task_class.new
       input.resolve_from_parent(missing, other_task)
       expect(other_task.errors[:age]).not_to be_empty
+    end
+
+    it "runs presence validation for an explicit nil parent value" do
+      input = described_class.new(:name, required: true, presence: true)
+      input.resolve_from_parent({ name: nil }, task)
+
+      expect(task.errors[:name]).to include(CMDx::I18nProxy.t("cmdx.validators.presence"))
     end
 
     it "uses #fetch for parents that respond to fetch but not key?" do

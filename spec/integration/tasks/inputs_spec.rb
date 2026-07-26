@@ -252,6 +252,34 @@ RSpec.describe "Task input resolution", type: :feature do
       expect(task.execute(title: "ok title")).to have_attributes(status: CMDx::Signal::SUCCESS)
     end
 
+    it "validates required nested inputs" do
+      task = create_task_class(name: "NestedValidated") do
+        required :user do
+          required :name, presence: true, length: { min: 3, max: 50 }
+        end
+        define_method(:work) { nil }
+      end
+
+      expect(task.execute(user: {}).errors.to_h[:name]).to eq(["is required"])
+      expect(task.execute(user: { name: nil }).errors.to_h[:name]).to eq(["must have a length", "cannot be empty"])
+      expect(task.execute(user: { name: "AB" }).errors.to_h[:name]).to eq(["length must be within 3 and 50"])
+      expect(task.execute(user: { name: "ok name" })).to have_attributes(status: CMDx::Signal::SUCCESS)
+    end
+
+    it "validates optional nested inputs" do
+      task = create_task_class(name: "NestedValidated") do
+        required :user do
+          optional :name, presence: true, length: { min: 3, max: 50 }
+        end
+        define_method(:work) { nil }
+      end
+
+      expect(task.execute(user: {}).errors.to_h[:name]).to be_nil
+      expect(task.execute(user: { name: nil }).errors.to_h[:name]).to eq(["must have a length", "cannot be empty"])
+      expect(task.execute(user: { name: "AB" }).errors.to_h[:name]).to eq(["length must be within 3 and 50"])
+      expect(task.execute(user: { name: "ok name" })).to have_attributes(status: CMDx::Signal::SUCCESS)
+    end
+
     it "validates after coerce and transform" do
       task = create_task_class(name: "FullPipeline") do
         input :frequency,

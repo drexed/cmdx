@@ -189,7 +189,7 @@ module CMDx
       end
 
       value = apply_default(task) if value.nil?
-      return if value.nil?
+      return if value.nil? && !key_provided
 
       @coercions ||= task.class.coercions.extract(@options)
       value = task.class.coercions.coerce(task, accessor_name, value, @coercions)
