@@ -315,12 +315,12 @@ accepts its own block.</p>
       <pre class="lines">
 
 
-125
 126
-127</pre>
+127
+128</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 125</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 126</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
   <span class='ivar'>@children</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -361,12 +361,12 @@ accepts its own block.</p>
       <pre class="lines">
 
 
-123
 124
-125</pre>
+125
+126</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 123</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 124</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_children'>children</span>
   <span class='ivar'>@children</span>
@@ -439,14 +439,14 @@ accepts its own block.</p>
       <pre class="lines">
 
 
-115
 116
 117
 118
-119</pre>
+119
+120</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 115</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 116</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_builder'>builder</span> <span class='op'>=</span> <span class='id identifier rubyid_new'>new</span>
@@ -629,6 +629,18 @@ accepts its own block.</p>
         </li>
       
         <li>
+          <span class="name">:allow_nil</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {Input#allow_nil}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
           <span class="name">:coerce</span>
           <span class="type">(<tt>Object</tt>)</span>
           <span class="default">
@@ -689,12 +701,12 @@ accepts its own block.</p>
       <pre class="lines">
 
 
-145
-146
-147</pre>
+147
+148
+149</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 145</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 147</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inputs'>inputs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -858,6 +870,18 @@ you need to set the flag dynamically.</p>
         </li>
       
         <li>
+          <span class="name">:allow_nil</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {Input#allow_nil}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
           <span class="name">:coerce</span>
           <span class="type">(<tt>Object</tt>)</span>
           <span class="default">
@@ -918,12 +942,12 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-169
-170
-171</pre>
+172
+173
+174</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 169</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 172</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_optional'>optional</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>required:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1087,6 +1111,18 @@ you need to set the flag dynamically.</p>
         </li>
       
         <li>
+          <span class="name">:allow_nil</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {Input#allow_nil}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
           <span class="name">:coerce</span>
           <span class="type">(<tt>Object</tt>)</span>
           <span class="default">
@@ -1147,12 +1183,12 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-192
-193
-194</pre>
+196
+197
+198</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 192</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 196</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required'>required</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>required:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1167,7 +1203,7 @@ you need to set the flag dynamically.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 26 17:16:42 2026 by
+  Generated on Sun Jul 26 20:47:04 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.10).
 </div>

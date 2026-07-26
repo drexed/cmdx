@@ -492,7 +492,6 @@ are silently ignored (matching <span class='object_link'><a href="Outputs.html#d
       <pre class="lines">
 
 
-60
 61
 62
 63
@@ -501,10 +500,11 @@ are silently ignored (matching <span class='object_link'><a href="Outputs.html#d
 66
 67
 68
-69</pre>
+69
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 60</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 61</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_klass'>klass</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
@@ -558,12 +558,12 @@ are silently ignored (matching <span class='object_link'><a href="Outputs.html#d
       <pre class="lines">
 
 
-72
 73
-74</pre>
+74
+75</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 72</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 73</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -825,6 +825,18 @@ A block nests child inputs under each declared name (see <span class='object_lin
         </li>
       
         <li>
+          <span class="name">:allow_nil</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {Input#allow_nil}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
           <span class="name">:coerce</span>
           <span class="type">(<tt>Object</tt>)</span>
           <span class="default">
@@ -890,7 +902,6 @@ A block nests child inputs under each declared name (see <span class='object_lin
       <pre class="lines">
 
 
-42
 43
 44
 45
@@ -900,10 +911,11 @@ A block nests child inputs under each declared name (see <span class='object_lin
 49
 50
 51
-52</pre>
+52
+53</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 42</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 43</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_klass'>klass</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_children'>children</span> <span class='op'>=</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="Inputs/ChildBuilder.html" title="CMDx::Inputs::ChildBuilder (class)">ChildBuilder</a></span></span><span class='period'>.</span><span class='id identifier rubyid_build'><span class='object_link'><a href="Inputs/ChildBuilder.html#build-class_method" title="CMDx::Inputs::ChildBuilder.build (method)">build</a></span></span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='const'>EMPTY_ARRAY</span>
@@ -961,16 +973,16 @@ computed value into its backing ivar so the generated readers return it.</p>
       <pre class="lines">
 
 
-86
 87
 88
 89
 90
 91
-92</pre>
+92
+93</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 86</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 87</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_input'>input</span><span class='op'>|</span>
@@ -1021,12 +1033,12 @@ computed value into its backing ivar so the generated readers return it.</p>
       <pre class="lines">
 
 
-77
 78
-79</pre>
+79
+80</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 77</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/inputs.rb', line 78</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1041,7 +1053,7 @@ computed value into its backing ivar so the generated readers return it.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 26 17:16:42 2026 by
+  Generated on Sun Jul 26 20:47:04 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.10).
 </div>
