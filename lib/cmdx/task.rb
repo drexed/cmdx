@@ -433,7 +433,7 @@ module CMDx
 
     end
 
-    attr_reader :tid, :context, :errors, :metadata
+    attr_reader :tid, :context, :cause, :errors, :metadata
     alias ctx context
 
     # @param context [Hash, Context, #context, #to_h]
@@ -443,6 +443,7 @@ module CMDx
     #   raise `NoMethodError` instead of returning `nil`.
     def initialize(context = EMPTY_HASH)
       @metadata = {}
+      @cause    = nil
       @tid      = SecureRandom.uuid_v7
       @errors   = Errors.new
       @context  = Context.build(context).tap do |c|
@@ -524,10 +525,12 @@ module CMDx
     # {#metadata} before the signal is thrown.
     #
     # @param reason [String, nil] human-readable explanation surfaced on the {Result}/{Fault}
+    # @param cause [Exception, nil] optional underlying exception preserved on
+    #   {Result#cause}, {Task#cause}, and strict re-raises from {Runtime#execute!}
     # @param sigdata [Hash{Symbol => Object}] extra metadata merged into {#metadata}
     # @return [void] never returns; throws {Signal::TAG}
     # @raise [FrozenTaskError] when the task has already been executed
-    def fail!(reason = nil, **sigdata)
+    def fail!(reason = nil, cause: nil, **sigdata)
       if frozen?
         raise FrozenTaskError, <<~MSG.chomp
           cannot call :fail! on #{self.class}; the task has already been executed and frozen.
@@ -536,12 +539,13 @@ module CMDx
       end
 
       metadata.merge!(sigdata) unless sigdata.empty?
-      throw(Signal::TAG, Signal.failed(reason, metadata:, backtrace: caller_locations(1)))
+      throw(Signal::TAG, Signal.failed(reason, metadata:, cause:, backtrace: caller_locations(1)))
     end
 
     # Echoes another {Result} or {Signal}'s failure outcome from this task. A
     # no-op when `other` is not failed, letting callers conditionally bubble up
-    # nested failures without branching. Captures caller frames for the {Fault}
+    # nested failures without branching. Copies `other`'s {Result#cause} /
+    # {Signal#cause} unless overridden. Captures caller frames for the {Fault}
     # backtrace and merges any `sigdata` onto {#metadata} before the signal is
     # thrown.
     #

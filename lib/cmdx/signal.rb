@@ -78,7 +78,9 @@ module CMDx
       def echoed(other, **options)
         raise ArgumentError, "Signal.echoed expected a Result or Signal (got #{other.class})" unless other.is_a?(Result) || other.is_a?(Signal)
 
-        options[:origin] = other if other.is_a?(Result) && !options.key?(:origin)
+        options[:origin] = other if !options.key?(:origin) && other.is_a?(Result)
+        options[:cause]  = other.cause if !options.key?(:cause) && other.respond_to?(:cause)
+
         new(other.state, other.status, **options, reason: other.reason)
       end
 

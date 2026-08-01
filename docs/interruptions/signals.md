@@ -82,6 +82,16 @@ result.reason #=> nil
 result.reason #=> "Refund period has expired"
 ```
 
+When you rescue an exception but still want a curated `reason`, pass `cause:` so `result.cause` and `task.cause` keep the original error (and `execute!` re-raises it in strict mode):
+
+```ruby
+rescue Stripe::CardError => e
+  fail!("Card declined", cause: e)
+end
+```
+
+Bare `fail!` halts without a `cause` — that is intentional for business-rule failures.
+
 !!! note
 
     `result.reason` is whatever string you passed (or `nil`). The generic "unspecified" text only shows up on `Fault#message` when `execute!` raises and you never gave a reason.

@@ -6,6 +6,8 @@ Callbacks are little hooks CMDx runs for you at fixed moments while a task runs.
 
     Inside a callback, `task.result` is not a thing yet (CMDx hasn’t finished building the `Result`). For “after we know how it went,” use `on_success`, `on_failed`, `on_skipped`, or listen to the `:task_executed` telemetry event — that one carries the finished result.
 
+    When a failure comes from an exception raised in `#work`, `task.cause` holds that exception during `on_failed`, `on_ko`, `after_execution`, `#rollback`, and the after-portion of `around_execution` — use it for custom branches or `if` / `unless` gates. Bare `fail!` halts and validation errors leave `cause` as `nil`; pass `fail!("reason", cause: e)` to preserve an exception while supplying a custom reason (same as `result.cause` after execution). `throw!` propagates upstream `cause` from nested failures.
+
 Want defaults for every task? See [Global Configuration](configuration.md#callbacks).
 
 !!! warning "Heads up"
@@ -151,6 +153,83 @@ class ProcessBooking < CMDx::Task
   end
 end
 ```
+
+### Branch on `task.cause`
+
+When a failure carries an exception — raised in `#work`, attached with `fail!(cause: e)`, or bubbled up via `throw!` — `task.cause` is available inside `on_failed`, `on_ko`, `after_execution`, `#rollback`, and the after-portion of `around_execution`. Use it to route different failure kinds to different handlers.
+
+**Split callbacks with `if` / `unless` gates** — each registration's guard runs against the task (`self` in procs):
+
+```ruby
+class ChargeCard < CMDx::Task
+  on_failed :notify_customer, if: :card_error?
+  on_failed :alert_oncall, if: :infrastructure_error?
+  on_failed :log_business_failure, unless: :exceptional_failure?
+
+  def work
+    gateway.charge!(context.payment_method_id, context.amount)
+  rescue Stripe::CardError => e
+    fail!("Card declined", cause: e)
+  end
+
+  private
+
+  def card_error?
+    cause.is_a?(Stripe::CardError)
+  end
+
+  def infrastructure_error?
+    cause.is_a?(Stripe::APIConnectionError, Stripe::RateLimitError)
+  end
+
+  def exceptional_failure?
+    cause.is_a?(StandardError)
+  end
+
+  def notify_customer
+    BillingMailer.declined(context.user).deliver_later
+  end
+
+  def alert_oncall
+    PagerDuty.trigger("billing outage", cause:)
+  end
+
+  def log_business_failure
+    Metrics.increment("billing.declined", reason:)
+  end
+end
+```
+
+**Branch inside one callback** when the logic is easier to read as a single `case`:
+
+```ruby
+class ChargeCard < CMDx::Task
+  on_failed :route_failure
+
+  def work
+    gateway.charge!(context.payment_method_id, context.amount)
+  rescue Stripe::CardError => e
+    fail!("Card declined", cause: e)
+  end
+
+  private
+
+  def route_failure
+    case cause
+    when Stripe::CardError
+      BillingMailer.declined(context.user).deliver_later
+    when Stripe::RateLimitError
+      RetryChargeJob.set(wait: 5.minutes).perform_later(context.payment_id)
+    when StandardError
+      ErrorTracker.capture(cause)
+    else
+      Metrics.increment("billing.declined", reason:)
+    end
+  end
+end
+```
+
+Bare `fail!("out of stock")` and validation failures leave `cause` as `nil` — the `else` branch above handles those intentional halts.
 
 ## `around_execution` — the “wrap the whole thing” hook
 

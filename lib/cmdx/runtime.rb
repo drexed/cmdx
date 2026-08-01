@@ -94,6 +94,7 @@ module CMDx
         run_callbacks(:before_validation)
         run_around(:around_execution) do
           perform_work
+          expose_cause
           perform_rollback if @signal.failed?
         end
         run_callbacks(:after_execution)
@@ -164,6 +165,12 @@ module CMDx
       return yield if callbacks.empty?
 
       callbacks.around(event, @task, &)
+    end
+
+    def expose_cause
+      return unless @signal.failed?
+
+      @task.instance_variable_set(:@cause, @signal.cause)
     end
 
     def perform_work
