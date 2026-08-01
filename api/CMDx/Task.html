@@ -137,6 +137,33 @@ hierarchy), so subclasses extend rather than replace.</p>
       <li class="public ">
   <span class="summary_signature">
     
+      <a href="#cause-instance_method" title="#cause (instance method)">#<strong>cause</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute cause.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#context-instance_method" title="#context (instance method)">#<strong>context</strong>  &#x21d2; Object </a>
     
 
@@ -828,7 +855,7 @@ hierarchy), so subclasses extend rather than replace.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#fail!-instance_method" title="#fail! (instance method)">#<strong>fail!</strong>(reason = nil, **sigdata)  &#x21d2; void </a>
+      <a href="#fail!-instance_method" title="#fail! (instance method)">#<strong>fail!</strong>(reason = nil, cause: nil, **sigdata)  &#x21d2; void </a>
     
 
     
@@ -1045,13 +1072,15 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
 448
 449
 450
-451</pre>
+451
+452</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 444</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@cause</span>    <span class='op'>=</span> <span class='kw'>nil</span>
   <span class='ivar'>@tid</span>      <span class='op'>=</span> <span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_uuid_v7'>uuid_v7</span>
   <span class='ivar'>@errors</span>   <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Errors.html" title="CMDx::Errors (class)">Errors</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Errors.html#initialize-instance_method" title="CMDx::Errors#initialize (method)">new</a></span></span>
   <span class='ivar'>@context</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Context.html" title="CMDx::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_build'><span class='object_link'><a href="Context.html#build-class_method" title="CMDx::Context.build (method)">build</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
@@ -1071,7 +1100,48 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       
       <span id=""></span>
       <div class="method_details first">
-  <h3 class="signature first" id="context-instance_method">
+  <h3 class="signature first" id="cause-instance_method">
+  
+    #<strong>cause</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute cause.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+436
+437
+438</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 436</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cause'>cause</span>
+  <span class='ivar'>@cause</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="context-instance_method">
   
     #<strong>context</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
   
@@ -4098,13 +4168,13 @@ otherwise the <span class='object_link'><a href="Result.html" title="CMDx::Resul
       <pre class="lines">
 
 
-461
 462
 463
-464</pre>
+464
+465</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 461</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 462</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Runtime.html" title="CMDx::Runtime (class)">Runtime</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'><span class='object_link'><a href="Runtime.html#execute-class_method" title="CMDx::Runtime.execute (method)">execute</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='label'>strict:</span><span class='rparen'>)</span>
@@ -4118,7 +4188,7 @@ otherwise the <span class='object_link'><a href="Result.html" title="CMDx::Resul
       <div class="method_details ">
   <h3 class="signature " id="fail!-instance_method">
   
-    #<strong>fail!</strong>(reason = nil, **sigdata)  &#x21d2; <tt>void</tt> 
+    #<strong>fail!</strong>(reason = nil, cause: nil, **sigdata)  &#x21d2; <tt>void</tt> 
   
 
   
@@ -4149,6 +4219,23 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
       
         &mdash;
         <div class='inline'><p>human-readable explanation surfaced on the <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>/<span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cause</span>
+      
+      
+        <span class='type'>(<tt>Exception</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>optional underlying exception preserved on
+<span class='object_link'><a href="Result.html#cause-instance_method" title="CMDx::Result#cause (method)">Result#cause</a></span>, <span class='object_link'><a href="#cause-instance_method" title="CMDx::Task#cause (method)">#cause</a></span>, and strict re-raises from Runtime#execute!</p></div>
       
     </li>
   
@@ -4191,9 +4278,6 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
       <pre class="lines">
 
 
-530
-531
-532
 533
 534
 535
@@ -4201,12 +4285,15 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
 537
 538
 539
-540</pre>
+540
+541
+542
+543</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 530</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 533</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#FrozenTaskError-constant" title="CMDx::FrozenTaskError (constant)">FrozenTaskError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
 <span class='tstring_content'>      cannot call :fail! on </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>; the task has already been executed and frozen.
@@ -4215,7 +4302,7 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
 </span>  <span class='kw'>end</span>
 
   <span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
-  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">TAG</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='period'>.</span><span class='id identifier rubyid_failed'><span class='object_link'><a href="Signal.html#failed-class_method" title="CMDx::Signal.failed (method)">failed</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='label'>metadata:</span><span class='comma'>,</span> <span class='label'>backtrace:</span> <span class='id identifier rubyid_caller_locations'>caller_locations</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Signal.html#TAG-constant" title="CMDx::Signal::TAG (constant)">TAG</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></span><span class='period'>.</span><span class='id identifier rubyid_failed'><span class='object_link'><a href="Signal.html#failed-class_method" title="CMDx::Signal.failed (method)">failed</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='label'>metadata:</span><span class='comma'>,</span> <span class='label'>cause:</span><span class='comma'>,</span> <span class='label'>backtrace:</span> <span class='id identifier rubyid_caller_locations'>caller_locations</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4262,12 +4349,12 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
       <pre class="lines">
 
 
-468
 469
-470</pre>
+470
+471</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 468</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 469</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
   <span class='ivar'>@logger</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="LoggerProxy.html" title="CMDx::LoggerProxy (module)">LoggerProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="LoggerProxy.html#logger-instance_method" title="CMDx::LoggerProxy#logger (method)">logger</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -4352,7 +4439,6 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
       <pre class="lines">
 
 
-510
 511
 512
 513
@@ -4362,10 +4448,11 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
 517
 518
 519
-520</pre>
+520
+521</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 510</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 511</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4458,7 +4545,6 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
       <pre class="lines">
 
 
-491
 492
 493
 494
@@ -4468,10 +4554,11 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
 498
 499
 500
-501</pre>
+501
+502</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 491</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 492</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_success!'>success!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4502,7 +4589,8 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
   <div class="discussion">
     <p>Echoes another <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> or <span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span>'s failure outcome from this task. A
 no-op when <code>other</code> is not failed, letting callers conditionally bubble up
-nested failures without branching. Captures caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span>
+nested failures without branching. Copies <code>other</code>'s <span class='object_link'><a href="Result.html#cause-instance_method" title="CMDx::Result#cause (method)">Result#cause</a></span> /
+<span class='object_link'><a href="Signal.html#cause-instance_method" title="CMDx::Signal#cause (method)">Signal#cause</a></span> unless overridden. Captures caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span>
 backtrace and merges any <code>sigdata</code> onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::Task#metadata (method)">#metadata</a></span> before the signal is
 thrown.</p>
 
@@ -4581,10 +4669,6 @@ thrown.</p>
       <pre class="lines">
 
 
-552
-553
-554
-555
 556
 557
 558
@@ -4593,10 +4677,14 @@ thrown.</p>
 561
 562
 563
-564</pre>
+564
+565
+566
+567
+568</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 552</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 556</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4660,15 +4748,15 @@ thrown.</p>
       <pre class="lines">
 
 
-477
 478
 479
 480
 481
-482</pre>
+482
+483</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 477</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 478</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#ImplementationError-constant" title="CMDx::ImplementationError (constant)">ImplementationError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
@@ -4686,7 +4774,7 @@ thrown.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 26 20:47:04 2026 by
+  Generated on Sat Aug  1 22:05:17 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.10).
 </div>
