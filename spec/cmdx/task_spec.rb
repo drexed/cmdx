@@ -276,33 +276,6 @@ RSpec.describe CMDx::Task do
       expect(task.metadata).to eq(code: 422)
     end
 
-    it "fail! attaches cause to the signal without merging it into metadata" do
-      error = StandardError.new("inner")
-      task = klass.new
-      signal = catch(CMDx::Signal::TAG) { task.fail!("bad", cause: error, code: 422) }
-
-      expect(signal.cause).to eq(error)
-      expect(task.metadata).to eq(code: 422)
-    end
-
-    it "throw! propagates cause from the echoed signal" do
-      error = StandardError.new("inner")
-      source = CMDx::Signal.failed("upstream", cause: error)
-      task = klass.new
-      signal = catch(CMDx::Signal::TAG) { task.throw!(source) }
-
-      expect(signal.cause).to eq(error)
-    end
-
-    it "throw! propagates cause from the echoed result" do
-      inner = create_erroring_task(reason: "nested").execute
-      outer = klass.new
-      signal = catch(CMDx::Signal::TAG) { outer.throw!(inner) }
-
-      expect(signal.cause).to eq(inner.cause)
-      expect(signal.cause.message).to eq("nested")
-    end
-
     it "throw! merges sigdata into the task's metadata when echoing a failure" do
       source = CMDx::Signal.failed("upstream")
       task = klass.new

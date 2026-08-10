@@ -66,23 +66,6 @@ RSpec.describe CMDx::Signal do
           metadata: { y: 2 }
         )
       end
-
-      it "copies cause from the source when not overridden" do
-        error = StandardError.new("inner")
-        source = described_class.failed("boom", cause: error)
-        echoed = described_class.echoed(source)
-
-        expect(echoed.cause).to eq(error)
-      end
-
-      it "lets explicit cause override the source" do
-        original = StandardError.new("inner")
-        replacement = StandardError.new("override")
-        source = described_class.failed("boom", cause: original)
-        echoed = described_class.echoed(source, cause: replacement)
-
-        expect(echoed.cause).to eq(replacement)
-      end
     end
 
     context "when given a non-Signal/non-Result" do

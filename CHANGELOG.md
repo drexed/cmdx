@@ -7,9 +7,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
-- `Task#fail!` — optional `cause:` keyword preserves an underlying exception on `Result#cause` and `Task#cause` while supplying a custom `reason` (bare `fail!` halts still leave `cause` nil)
-- `Task#throw!` / `Signal.echoed` — propagate upstream `cause` from the echoed {Result}/{Signal} unless explicitly overridden
-- `Task#cause` — underlying exception when a failure came from a rescued error in `#work`; set by Runtime before `#rollback`, `after_execution`, and `on_*` callbacks so hooks and `if` / `unless` gates can branch on the exception class (mirrors `Result#cause` after execution)
 - `Input#allow_nil` — permit `nil` after defaults without coercion, transform, or validation
 
 ## [2.1.1] - 2026-07-26
