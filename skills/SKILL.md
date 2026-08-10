@@ -292,7 +292,7 @@ Full reference: [references/result.md](references/result.md).
 
 ## Callbacks
 
-Declare via the per-event DSL helpers (`before_execution`, `before_validation`, `on_success`, `on_skipped`, `on_failed`, `on_complete`, `on_interrupted`, `on_ok`, `on_ko`). Each accepts a method name (Symbol), a Proc/lambda (`instance_exec`'d on the task with `task` passed as the block arg, so `->(task) { ... }` is the canonical shape), or a `#call(task)`-able. All forms support `if:` / `unless:` gates. The underlying form is `register :callback, event, callable, **opts`.
+Declare via the per-event DSL helpers (`before_execution`, `before_validation`, `on_success`, `on_skipped`, `on_failed`, `on_complete`, `on_interrupted`, `on_ok`, `on_ko`). Each accepts a method name (Symbol), a Proc/lambda (`instance_exec`'d on the task), or a `#call`-able. Pre-work hooks and `around_execution` receive `(task)` (around also gets a continuation). Post-work hooks (`after_execution`, every `on_*`) receive `(task, signal)` so you can read `reason`, `cause`, `metadata`, `origin`, and `backtrace` before the `Result` exists. All forms support `if:` / `unless:` gates. The underlying form is `register :callback, event, callable, **opts`.
 
 ```ruby
 class Example < CMDx::Task
@@ -300,11 +300,11 @@ class Example < CMDx::Task
   before_validation :normalize_input
   on_success :notify, if: -> { context.notify? }
   on_failed  LogFailureCallback
-  on_complete ->(task) { Audit.log(task.class.name) }
+  on_complete ->(task, signal) { Audit.log(task.class.name, status: signal.status) }
 end
 ```
 
-The `Result` isn't built yet when callbacks run — read `task.context` / `task.errors` inside, or subscribe to the `:task_executed` telemetry event for finalized result data.
+The `Result` isn't built yet when callbacks run — for post-work hooks use the `signal` argument (or `task.context` / `task.errors`); subscribe to `:task_executed` when you need the finalized `Result`.
 
 ## Middleware
 

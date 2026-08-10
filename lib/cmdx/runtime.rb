@@ -156,7 +156,8 @@ module CMDx
       callbacks = @task.class.callbacks
       return if callbacks.empty?
 
-      callbacks.process(event, @task)
+      signal = Callbacks::POST_WORK_EVENTS.include?(event) ? @signal : nil
+      callbacks.process(event, @task, signal)
     end
 
     def run_around(event, &)

@@ -22,7 +22,7 @@ RSpec.describe "Task callbacks", type: :feature do
       end
 
       CMDx::Callbacks::EVENTS.each do |event|
-        define_method(:"log_#{event}") { (context.log ||= []) << event }
+        define_method(:"log_#{event}") { |_signal = nil| (context.log ||= []) << event }
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe "Task callbacks", type: :feature do
       let(:task) do
         create_successful_task do
           on_success :note_success
-          define_method(:note_success) { context.note = :symbol }
+          define_method(:note_success) { |_signal = nil| context.note = :symbol }
         end
       end
 
@@ -90,7 +90,7 @@ RSpec.describe "Task callbacks", type: :feature do
     context "with a callable object" do
       let(:task) do
         handler = Class.new do
-          def self.call(task)
+          def self.call(task, _signal = nil)
             task.context.note = :callable
           end
         end
@@ -110,7 +110,7 @@ RSpec.describe "Task callbacks", type: :feature do
           on_success { (context.log ||= []) << :first }
           on_success :second_handler
           on_success { (context.log ||= []) << :third }
-          define_method(:second_handler) { (context.log ||= []) << :second }
+          define_method(:second_handler) { |_signal = nil| (context.log ||= []) << :second }
         end
       end
 
@@ -192,7 +192,7 @@ RSpec.describe "Task callbacks", type: :feature do
     it "runs the callback when an :if Symbol gate evaluates truthy" do
       task = create_successful_task do
         on_success :note_run, if: :messaging_enabled?
-        define_method(:note_run) { context.note = :ran }
+        define_method(:note_run) { |_signal = nil| context.note = :ran }
         define_method(:messaging_enabled?) { context.messaging == :on }
       end
 
@@ -203,7 +203,7 @@ RSpec.describe "Task callbacks", type: :feature do
     it "skips the callback when an :unless Symbol gate evaluates truthy" do
       task = create_successful_task do
         on_success :note_run, unless: :messaging_blocked?
-        define_method(:note_run) { context.note = :ran }
+        define_method(:note_run) { |_signal = nil| context.note = :ran }
         define_method(:messaging_blocked?) { context.blocked == true }
       end
 
@@ -214,7 +214,7 @@ RSpec.describe "Task callbacks", type: :feature do
     it "supports a Proc gate that runs against the task as self" do
       task = create_successful_task do
         on_success :note_run, if: proc { context.flag }
-        define_method(:note_run) { context.note = :ran }
+        define_method(:note_run) { |_signal = nil| context.note = :ran }
       end
 
       expect(task.execute(flag: true).context[:note]).to eq(:ran)
@@ -225,7 +225,7 @@ RSpec.describe "Task callbacks", type: :feature do
       gate = gate_class
       task = create_successful_task do
         on_success :note_run, if: gate
-        define_method(:note_run) { context.note = :ran }
+        define_method(:note_run) { |_signal = nil| context.note = :ran }
       end
 
       expect(task.execute(gate_open: true).context[:note]).to eq(:ran)
@@ -235,7 +235,7 @@ RSpec.describe "Task callbacks", type: :feature do
     it "applies :if and :unless together (both must pass)" do
       task = create_successful_task do
         on_success :note_run, if: :allowed?, unless: :paused?
-        define_method(:note_run) { context.note = :ran }
+        define_method(:note_run) { |_signal = nil| context.note = :ran }
         define_method(:allowed?) { context.allowed == true }
         define_method(:paused?) { context.paused == true }
       end
@@ -249,8 +249,8 @@ RSpec.describe "Task callbacks", type: :feature do
       task = create_successful_task do
         on_success :note_a, if: :a_open?
         on_success :note_b, if: :b_open?
-        define_method(:note_a) { (context.log ||= []) << :a }
-        define_method(:note_b) { (context.log ||= []) << :b }
+        define_method(:note_a) { |_signal = nil| (context.log ||= []) << :a }
+        define_method(:note_b) { |_signal = nil| (context.log ||= []) << :b }
         define_method(:a_open?) { context.a == true }
         define_method(:b_open?) { context.b == true }
       end
@@ -353,10 +353,60 @@ RSpec.describe "Task callbacks", type: :feature do
 
     it "fires on_failed even when failure came from a raised exception" do
       task = create_erroring_task do
-        on_failed { (context.log ||= []) << :handled_failure }
+        on_failed { |_signal = nil| (context.log ||= []) << :handled_failure }
       end
 
       expect(task.execute.context[:log]).to eq(%i[handled_failure])
+    end
+  end
+
+  describe "signal in post-work callbacks" do
+    it "passes the finalized signal to on_failed so hooks can read reason and cause" do
+      task = create_task_class(name: "SignalOnFailed") do
+        on_failed lambda { |t, signal|
+          t.context.reason = signal.reason
+          t.context.cause_class = signal.cause&.class
+        }
+        define_method(:work) { fail!("nope") }
+      end
+
+      result = task.execute
+
+      expect(result).to be_failed
+      expect(result.context[:reason]).to eq("nope")
+      expect(result.context[:cause_class]).to be_nil
+    end
+
+    it "passes cause when failure came from a raised exception" do
+      task = create_erroring_task do
+        on_failed ->(t, signal) { t.context.cause_class = signal.cause.class }
+      end
+
+      result = task.execute
+
+      expect(result).to be_failed
+      expect(result.context[:cause_class]).to eq(CMDx::TestError)
+    end
+
+    it "passes the signal to Symbol post-work methods" do
+      task = create_task_class(name: "SignalSymbol") do
+        on_success :capture_signal
+        define_method(:work) { nil }
+        define_method(:capture_signal) do |signal|
+          context.status = signal.status
+        end
+      end
+
+      expect(task.execute.context[:status]).to eq("success")
+    end
+
+    it "does not pass a signal argument to before_execution hooks" do
+      task = create_task_class(name: "NoSignalPreWork") do
+        before_execution { (context.log ||= []) << :ran }
+        define_method(:work) { nil }
+      end
+
+      expect(task.execute.context[:log]).to eq([:ran])
     end
   end
 end

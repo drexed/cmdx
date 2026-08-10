@@ -79,7 +79,8 @@ CMDx.configure do |config|
   # Callbacks
   # https://drexed.github.io/cmdx/configuration/#callbacks
   # ===========================================================================
-  # Hook into a task's lifecycle. Each callback receives the task instance.
+  # Hook into a task's lifecycle. Pre-work hooks receive the task; post-work
+  # hooks (`after_execution`, every `on_*`) also receive the finalized Signal.
   #
   # Available events:
   #   :before_execution, :before_validation,
@@ -88,8 +89,8 @@ CMDx.configure do |config|
   #   :on_success, :on_skipped, :on_failed,
   #   :on_ok, :on_ko
   #
-  # config.callbacks.register(:on_failed, proc do |task|
-  #   Rails.logger.error("[cmdx] #{task.class.name} failed: #{task.metadata[:reason]}")
+  # config.callbacks.register(:on_failed, proc do |task, signal|
+  #   Rails.logger.error("[cmdx] #{task.class.name} failed: #{signal.reason}")
   # end)
 
   # ===========================================================================

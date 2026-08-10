@@ -30,6 +30,21 @@ Picture the lifecycle like a sandwich:
 7. on_[ok|ko]                  # Coarse “good vs not purely success” buckets
 ```
 
+Post-work callbacks (`after_execution` and every `on_*` hook) receive the finalized `CMDx::Signal` as their **second** argument so you can read `reason`, `cause`, `metadata`, `origin`, and `backtrace` before the `Result` exists. Pre-work hooks (`before_execution`, `before_validation`) and `around_execution` keep the single-`task` arity — no signal is passed.
+
+```ruby
+class ProcessBooking < CMDx::Task
+  on_failed ->(task, signal) { AlertOps.notify(task.class.name, signal.reason, signal.cause) }
+  on_failed :log_failure
+
+  private
+
+  def log_failure(signal)
+    logger.warn(signal.reason, cause: signal.cause)
+  end
+end
+```
+
 !!! note "Two families, both can fire"
 
     “Status” callbacks (`on_success`, …) and “outcome” callbacks (`on_ok`, `on_ko`) are **separate channels**. If you define both, both can run for the same task. A **skipped** task is the quirky one: it hits `on_skipped`, `on_ok`, **and** `on_ko` (skipped is “ok-ish” but also “not a clean success”).
@@ -75,32 +90,32 @@ end
 
 ### Inline with a Proc or Lambda
 
-Great for one-liners you don’t want as named methods.
+Great for one-liners you don’t want as named methods. Post-work hooks take `(task, signal)`; pre-work hooks take `(task)`.
 
 ```ruby
 class ProcessBooking < CMDx::Task
-  # Proc
-  on_interrupted proc { ReservationSystem.pause! }
+  # Proc — post-work
+  on_interrupted proc { |_task, signal| ReservationSystem.pause!(signal.reason) }
 
-  # Lambda
-  on_complete -> { ReservationSystem.resume! }
+  # Lambda — post-work
+  on_complete ->(task, signal) { ReservationSystem.resume!(signal.status) }
 end
 ```
 
-### A class or module with `#call(task)`
+### A class or module with `#call(task)` or `#call(task, signal)`
 
-Extract shared behavior so several tasks can reuse it.
+Extract shared behavior so several tasks can reuse it. Post-work callables receive `(task, signal)`; pre-work callables receive `(task)`.
 
 ```ruby
 class BookingConfirmationCallback
-  def call(task)
-    MessagingApi.send_confirmation(task.context.guest)
+  def call(task, signal)
+    MessagingApi.send_confirmation(task.context.guest, reason: signal.reason)
   end
 end
 
 class BookingIssueCallback
-  def call(task)
-    MessagingApi.send_issue_alert(task.context.manager)
+  def call(task, signal)
+    MessagingApi.send_issue_alert(task.context.manager, reason: signal.reason)
   end
 end
 

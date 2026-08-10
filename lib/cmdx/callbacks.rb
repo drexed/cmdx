@@ -25,6 +25,20 @@ module CMDx
       :on_ko
     ].freeze
 
+    # Events fired after `around_execution` (work, rollback) finishes. Runtime
+    # passes the finalized {Signal} as the second callback argument so hooks can
+    # read `reason`, `cause`, `metadata`, `origin`, and `backtrace`.
+    POST_WORK_EVENTS = Set[
+      :after_execution,
+      :on_complete,
+      :on_interrupted,
+      :on_success,
+      :on_skipped,
+      :on_failed,
+      :on_ok,
+      :on_ko
+    ].freeze
+
     attr_reader :registry
 
     def initialize
@@ -122,20 +136,26 @@ module CMDx
     # Fires each callback registered for `event` against `task`. Skips any
     # callback whose `:if`/`:unless` gates fail.
     #
+    # Post-work events ({POST_WORK_EVENTS}) receive the finalized `signal` as
+    # their second argument (Symbol method, Proc, or `#call`). Pre-work events
+    # and `around_execution` omit it.
+    #
     # @param event [Symbol]
     # @param task [Task]
+    # @param signal [Signal, nil] finalized halt token for post-work events
     # @return [void]
     # @raise [ArgumentError] when a callback is neither a Symbol nor responds to `#call`
-    def process(event, task)
+    def process(event, task, signal = nil)
       return if empty?
 
       callbacks = registry[event]
       return if callbacks.nil? || callbacks.empty?
 
+      post_work = POST_WORK_EVENTS.include?(event)
       callbacks.each do |callable, options|
         next unless Util.satisfied?(options[:if], options[:unless], task)
 
-        invoke(callable, task)
+        invoke(callable, task, signal: post_work ? signal : nil)
       end
     end
 
@@ -167,7 +187,7 @@ module CMDx
             succ.call
           end
 
-          invoke(callable, task, cont, &cont)
+          invoke(callable, task, continuation: cont, &cont)
 
           called || raise(CallbackError, <<~MSG.chomp)
             #{event} callback did not invoke its continuation.
@@ -179,14 +199,25 @@ module CMDx
 
     private
 
-    def invoke(callable, task, *extras, &)
+    def invoke(callable, task, continuation: nil, signal: nil, &block)
       case callable
       when Symbol
-        task.send(callable, &)
+        if signal
+          task.send(callable, signal, &block)
+        else
+          task.send(callable, &block)
+        end
       when Proc
-        task.instance_exec(task, *extras, &callable)
+        extras = continuation ? [continuation] : []
+        if signal
+          task.instance_exec(task, signal, *extras, &callable)
+        else
+          task.instance_exec(task, *extras, &callable)
+        end
       else
-        return callable.call(task, *extras) if callable.respond_to?(:call)
+        args = signal ? [task, signal] : [task]
+        args << continuation if continuation
+        return callable.call(*args) if callable.respond_to?(:call)
 
         raise ArgumentError, <<~MSG.chomp
           callback must be a Symbol, Proc, or respond to #call (got #{callable.class}).

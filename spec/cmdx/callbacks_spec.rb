@@ -299,6 +299,63 @@ RSpec.describe CMDx::Callbacks do
       end
     end
 
+    context "with a post-work event" do
+      let(:signal) { CMDx::Signal.failed("boom", cause: StandardError.new("err")) }
+
+      it "passes the signal as the second argument to a Proc" do
+        received = []
+        callbacks.register(:on_failed, proc { |t, sig| received << [t, sig] })
+
+        callbacks.process(:on_failed, task, signal)
+
+        expect(received).to eq([[task, signal]])
+      end
+
+      it "passes the signal to a Symbol method" do
+        task_class = Class.new do
+          attr_reader :received
+
+          def on_failed_hook(sig)
+            @received = sig
+          end
+        end
+        task = task_class.new
+        callbacks.register(:on_failed, :on_failed_hook)
+
+        callbacks.process(:on_failed, task, signal)
+
+        expect(task.received).to be(signal)
+      end
+
+      it "passes the signal to a class-level callable" do
+        handler = Class.new do
+          class << self
+
+            attr_reader :received
+
+            def call(task, signal)
+              (@received ||= []) << [task, signal]
+            end
+
+          end
+        end
+        callbacks.register(:on_failed, handler)
+
+        callbacks.process(:on_failed, task, signal)
+
+        expect(handler.received).to eq([[task, signal]])
+      end
+
+      it "does not pass a signal argument for pre-work events" do
+        received = []
+        callbacks.register(:before_execution, proc { |t| received << t })
+
+        callbacks.process(:before_execution, task, signal)
+
+        expect(received).to eq([task])
+      end
+    end
+
     context "with a class-level callable" do
       it "invokes #call with the task" do
         handler = Class.new do
@@ -511,6 +568,26 @@ RSpec.describe CMDx::Callbacks do
       expect do
         callbacks.around(:around_execution, task) { :unreached }
       end.to raise_error(CMDx::CallbackError, /around_execution callback did not invoke its continuation/)
+    end
+  end
+
+  describe "POST_WORK_EVENTS" do
+    it "is frozen" do
+      expect(described_class::POST_WORK_EVENTS).to be_frozen
+    end
+
+    it "includes every post-work lifecycle hook but not pre-work or around hooks" do
+      expect(described_class::POST_WORK_EVENTS).to contain_exactly(
+        :after_execution,
+        :on_complete,
+        :on_interrupted,
+        :on_success,
+        :on_skipped,
+        :on_failed,
+        :on_ok,
+        :on_ko
+      )
+      expect(described_class::POST_WORK_EVENTS).not_to include(:before_execution, :before_validation, :around_execution)
     end
   end
 

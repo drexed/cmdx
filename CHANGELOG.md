@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [2.x.x] - UNRELEASED
 
 ### Added
+- Post-work lifecycle callbacks (`after_execution`, every `on_*` hook) receive the finalized `Signal` as their second argument — `reason`, `cause`, `metadata`, `origin`, and `backtrace` are available before `Result` construction. Pre-work hooks and `around_execution` keep the single-`task` arity
 - `Input#allow_nil` — permit `nil` after defaults without coercion, transform, or validation
 
 ## [2.1.1] - 2026-07-26
