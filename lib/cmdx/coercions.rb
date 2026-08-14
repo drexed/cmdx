@@ -22,6 +22,7 @@ module CMDx
         complex: Coercions::Complex,
         date: Coercions::Date,
         date_time: Coercions::DateTime,
+        decimal: Coercions::BigDecimal,
         float: Coercions::Float,
         hash: Coercions::Hash,
         integer: Coercions::Integer,
