@@ -445,7 +445,8 @@ value on success, or a <span class='object_link'><a href="Coercions/Failure.html
 30
 31
 32
-33</pre>
+33
+34</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 17</span>
@@ -458,6 +459,7 @@ value on success, or a <span class='object_link'><a href="Coercions/Failure.html
     <span class='label'>complex:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Complex.html" title="CMDx::Coercions::Complex (module)">Complex</a></span></span><span class='comma'>,</span>
     <span class='label'>date:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Date.html" title="CMDx::Coercions::Date (module)">Date</a></span></span><span class='comma'>,</span>
     <span class='label'>date_time:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/DateTime.html" title="CMDx::Coercions::DateTime (module)">DateTime</a></span></span><span class='comma'>,</span>
+    <span class='label'>decimal:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/BigDecimal.html" title="CMDx::Coercions::BigDecimal (module)">BigDecimal</a></span></span><span class='comma'>,</span>
     <span class='label'>float:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Float.html" title="CMDx::Coercions::Float (module)">Float</a></span></span><span class='comma'>,</span>
     <span class='label'>hash:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span></span><span class='comma'>,</span>
     <span class='label'>integer:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span></span><span class='comma'>,</span>
@@ -628,7 +630,6 @@ recorded; otherwise the last individual failure is used.</p>
       <pre class="lines">
 
 
-143
 144
 145
 146
@@ -655,10 +656,11 @@ recorded; otherwise the last individual failure is used.</p>
 167
 168
 169
-170</pre>
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 143</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 144</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_coerce'>coerce</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_rules'>rules</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span> <span class='kw'>if</span> <span class='id identifier rubyid_rules'>rules</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -748,13 +750,13 @@ recorded; otherwise the last individual failure is used.</p>
       <pre class="lines">
 
 
-69
 70
 71
-72</pre>
+72
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 70</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
@@ -802,12 +804,12 @@ recorded; otherwise the last individual failure is used.</p>
       <pre class="lines">
 
 
-124
 125
-126</pre>
+126
+127</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 124</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 125</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -913,7 +915,6 @@ callable.</p>
       <pre class="lines">
 
 
-100
 101
 102
 103
@@ -934,10 +935,11 @@ callable.</p>
 118
 119
 120
-121</pre>
+121
+122</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 100</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 101</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract'>extract</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='const'>EMPTY_ARRAY</span> <span class='kw'>if</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -1008,12 +1010,12 @@ callable.</p>
       <pre class="lines">
 
 
-37
 38
-39</pre>
+39
+40</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 38</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
@@ -1078,12 +1080,12 @@ callable.</p>
       <pre class="lines">
 
 
-76
 77
-78</pre>
+78
+79</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 77</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
@@ -1164,17 +1166,17 @@ callable.</p>
       <pre class="lines">
 
 
-83
 84
 85
 86
 87
 88
 89
-90</pre>
+90
+91</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 83</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 84</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
@@ -1305,7 +1307,6 @@ when the resolved coercion isn't callable</p></div>
       <pre class="lines">
 
 
-51
 52
 53
 54
@@ -1319,10 +1320,11 @@ when the resolved coercion isn't callable</p></div>
 62
 63
 64
-65</pre>
+65
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 51</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 52</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_coercion'>coercion</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
@@ -1381,12 +1383,12 @@ when the resolved coercion isn't callable</p></div>
       <pre class="lines">
 
 
-129
 130
-131</pre>
+131
+132</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 129</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 130</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1401,7 +1403,7 @@ when the resolved coercion isn't callable</p></div>
 </div>
 
       <div id="footer">
-  Generated on Mon Aug 10 17:58:23 2026 by
+  Generated on Fri Aug 14 02:32:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.10).
 </div>
