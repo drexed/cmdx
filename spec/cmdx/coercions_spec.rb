@@ -75,7 +75,7 @@ RSpec.describe CMDx::Coercions do
   describe "#empty? / #size" do
     it "reflects the registry" do
       expect(coercions).not_to be_empty
-      expect(coercions.size).to eq(13)
+      expect(coercions.size).to eq(14)
     end
   end
 
