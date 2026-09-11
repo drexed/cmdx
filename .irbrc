@@ -2,7 +2,7 @@
 
 require "pp"
 
-# rubocop:disable Style/MixinUsage
+# rubocop:disable-next Style/MixinUsage
 unless defined?(CMDx)
   require_relative "lib/cmdx"
 
@@ -11,7 +11,6 @@ unless defined?(CMDx)
   include CMDx::Testing::TaskBuilders
   include CMDx::Testing::WorkflowBuilders
 end
-# rubocop:enable Style/MixinUsage
 
 def reload!
   exec("irb")

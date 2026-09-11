@@ -101,7 +101,7 @@ end
 warn "[#{version}] Running IPS: workflow execution..."
 results[:suites][:ips_workflows] = capture_ips do |x|
   x.report("workflow success (3 tasks)") { successful_workflow.execute }
-  x.report("workflow failure (halting)")  { failing_workflow.execute }
+  x.report("workflow failure (halting)") { failing_workflow.execute }
 end
 
 # ---------------------------------------------------------------------------
