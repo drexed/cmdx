@@ -2496,6 +2496,16 @@
 <td><code>I18nProxy.tr(result.reason)</code> — translates i18n keys, otherwise uses the string as-is; falls back to localized <code>cmdx.reasons.unspecified</code> when reason is <code>nil</code></td>
 </tr>
 <tr>
+<td><code>fault.detailed_message</code></td>
+<td><code>String</code></td>
+<td>Stdlib detailed message plus an <code>errors:</code> block (when <code>result.errors</code> is non-empty) and an <code>origin:</code> line (when <code>result.origin</code> is set) — use in IRB or with <code>full_message</code>; does not change <code>message</code></td>
+</tr>
+<tr>
+<td><code>fault.inspect</code></td>
+<td><code>String</code></td>
+<td>Compact debug view: task class, raw <code>result.reason</code>, and <code>result.errors.to_h</code></td>
+</tr>
+<tr>
 <td><code>fault.backtrace</code></td>
 <td><code>Array&lt;String&gt;</code></td>
 <td>From <code>result.backtrace</code> or <code>result.cause&amp;.backtrace_locations</code>, cleaned with <code>task.settings.backtrace_cleaner</code> when set</td>

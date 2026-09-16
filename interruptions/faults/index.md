@@ -6,14 +6,16 @@ A fault wraps the **originating** failed `Result` — the leaf at the bottom of 
 
 ## What's on a Fault
 
-| Accessor          | Returns             | Notes                                                                                                                                                          |
-| ----------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fault.result`    | `CMDx::Result`      | The failed result that started the problem (after walking `origin`)                                                                                            |
-| `fault.task`      | `Class<CMDx::Task>` | The failing task **class** (`fault.result.task`)                                                                                                               |
-| `fault.context`   | `CMDx::Context`     | The failing task's frozen context                                                                                                                              |
-| `fault.chain`     | `CMDx::Chain`       | Every result produced during the run                                                                                                                           |
-| `fault.message`   | `String`            | `I18nProxy.tr(result.reason)` — translates i18n keys, otherwise uses the string as-is; falls back to localized `cmdx.reasons.unspecified` when reason is `nil` |
-| `fault.backtrace` | `Array<String>`     | From `result.backtrace` or `result.cause&.backtrace_locations`, cleaned with `task.settings.backtrace_cleaner` when set                                        |
+| Accessor                 | Returns             | Notes                                                                                                                                                                                                  |
+| ------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fault.result`           | `CMDx::Result`      | The failed result that started the problem (after walking `origin`)                                                                                                                                    |
+| `fault.task`             | `Class<CMDx::Task>` | The failing task **class** (`fault.result.task`)                                                                                                                                                       |
+| `fault.context`          | `CMDx::Context`     | The failing task's frozen context                                                                                                                                                                      |
+| `fault.chain`            | `CMDx::Chain`       | Every result produced during the run                                                                                                                                                                   |
+| `fault.message`          | `String`            | `I18nProxy.tr(result.reason)` — translates i18n keys, otherwise uses the string as-is; falls back to localized `cmdx.reasons.unspecified` when reason is `nil`                                         |
+| `fault.detailed_message` | `String`            | Stdlib detailed message plus an `errors:` block (when `result.errors` is non-empty) and an `origin:` line (when `result.origin` is set) — use in IRB or with `full_message`; does not change `message` |
+| `fault.inspect`          | `String`            | Compact debug view: task class, raw `result.reason`, and `result.errors.to_h`                                                                                                                          |
+| `fault.backtrace`        | `Array<String>`     | From `result.backtrace` or `result.cause&.backtrace_locations`, cleaned with `task.settings.backtrace_cleaner` when set                                                                                |
 
 For day-to-day debugging, read `fault.result` for `reason`, `metadata`, `cause`, `origin`, `state`, and `status`.
 
