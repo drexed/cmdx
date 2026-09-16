@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - Post-work lifecycle callbacks (`after_execution`, every `on_*` hook) receive the finalized `Signal` as their second argument — `reason`, `cause`, `metadata`, `origin`, and `backtrace` are available before `Result` construction. Pre-work hooks and `around_execution` keep the single-`task` arity
 - `Input#allow_nil` — permit `nil` after defaults without coercion, transform, or validation
+- `Fault#detailed_message` — appends validation errors and propagation `origin` to the stdlib detailed message for IRB and debug formatters without changing `message`
+- `Fault#inspect` — compact task/reason/errors summary for console debugging
 
 ## [2.1.1] - 2026-07-26
 

@@ -46,6 +46,66 @@ RSpec.describe CMDx::Fault do
     end
   end
 
+  describe "#detailed_message" do
+    let(:signal) { CMDx::Signal.failed("boom") }
+    let(:result) { build_result(signal) }
+
+    it "includes the stdlib detailed message" do
+      fault = described_class.new(result)
+
+      expect(fault.detailed_message.lines.first).to include("boom")
+      expect(fault.detailed_message).not_to include("errors:")
+      expect(fault.detailed_message).not_to include("origin:")
+    end
+
+    it "appends validation errors when present" do
+      instance = task_class.new
+      instance.errors.add(:email, "is invalid")
+      instance.errors.add(:name, "is required")
+      result_with_errors = CMDx::Result.new(chain, instance, CMDx::Signal.failed)
+
+      detailed = described_class.new(result_with_errors).detailed_message
+
+      expect(detailed).to include("errors:")
+      expect(detailed).to include("email: is invalid")
+      expect(detailed).to include("name: is required")
+    end
+
+    it "does not change message when errors are present" do
+      instance = task_class.new
+      instance.errors.add(:email, "is invalid")
+      result_with_errors = CMDx::Result.new(chain, instance, CMDx::Signal.failed)
+
+      fault = described_class.new(result_with_errors)
+
+      expect(fault.message).to eq(CMDx::I18nProxy.t("cmdx.reasons.unspecified"))
+      expect(fault.detailed_message).to include("email: is invalid")
+    end
+
+    it "appends the upstream origin when the failure was echoed" do
+      origin_task = create_task_class(name: "OriginTask")
+      origin_instance = origin_task.new
+      origin_result = CMDx::Result.new(chain, origin_instance, CMDx::Signal.failed("origin boom"))
+      echoed = CMDx::Signal.echoed(origin_result, origin: origin_result)
+      result_with_origin = build_result(echoed)
+
+      detailed = described_class.new(result_with_origin).detailed_message
+
+      expect(detailed).to include("origin: #{origin_task.name} (origin boom)")
+    end
+  end
+
+  describe "#inspect" do
+    it "includes task, tid, reason, and errors" do
+      instance = task_class.new
+      instance.errors.add(:email, "is invalid")
+      result = CMDx::Result.new(chain, instance, CMDx::Signal.failed("boom"))
+
+      expect(described_class.new(result).inspect)
+        .to eq("#<CMDx::Fault task=#{task_class.name} tid=#{result.tid} cid=#{result.cid} xid=#{result.xid} reason=\"boom\" errors={email: [\"is invalid\"]}>")
+    end
+  end
+
   describe "backtrace handling" do
     context "when the signal carries a backtrace" do
       it "applies it to the fault" do

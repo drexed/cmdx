@@ -124,5 +124,43 @@ module CMDx
       @result.chain
     end
 
+    # Enriches the stdlib detailed message with validation errors and
+    # propagation context for IRB and other debug formatters. {#message} is
+    # unchanged.
+    #
+    # @param highlight [Boolean] forwarded to `Exception#detailed_message`
+    # @param order [Symbol] forwarded to `Exception#detailed_message`
+    # @return [String]
+    def detailed_message(highlight: true, order: :top)
+      lines = [super]
+      append_errors_lines(lines)
+      append_origin_line(lines)
+      lines.join("\n")
+    end
+
+    # @return [String] human-readable representation
+    def inspect
+      "#<#{self.class} task=#{task.name} tid=#{result.tid} cid=#{result.cid} xid=#{result.xid} reason=#{result.reason.inspect} errors=#{result.errors.to_h}>"
+    end
+
+    private
+
+    def append_errors_lines(lines)
+      return if result.errors.empty?
+
+      lines << "  errors:"
+      result.errors.each do |key, messages|
+        messages.each { |message| lines << "    #{key}: #{message}" }
+      end
+    end
+
+    def append_origin_line(lines)
+      origin = result.origin
+      return unless origin
+
+      reason = origin.reason || "no reason"
+      lines << "  origin: #{origin.task.name} (#{reason})"
+    end
+
   end
 end
