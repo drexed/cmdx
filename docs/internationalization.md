@@ -98,4 +98,36 @@ CMDx::I18nProxy.register(File.expand_path("lib/locales", __dir__))
 
 ## Available locales
 
-The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem bundles community translations for **85+** locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your `Gemfile` and those locales show up wherever CMDx calls `I18n.translate`. The gem’s README lists the exact set.
+The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem bundles community translations for **85+** locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your `Gemfile` and those locales show up wherever CMDx calls `I18n.translate`—no copying YAML for every `cmdx.*` key yourself. The gem’s README lists the exact set.
+
+A few things you get for free once the gem is installed:
+
+```ruby
+# Gemfile
+gem "cmdx-i18n"
+```
+
+**Localized coercion and validation copy** follows `I18n.locale` (or `I18n.with_locale`) with no extra wiring in Rails—the railtie adds locale files for languages you list in `config.i18n.available_locales`:
+
+```ruby
+I18n.with_locale(:es) do
+  result = ProcessQuote.execute(price: "invalid")
+  result.errors[:price]   #=> ["no se pudo convertir en un flotante"]
+  result.reason             #=> "price no se pudo convertir en un flotante"
+end
+```
+
+**Scripts and workers without the `i18n` gem** can still ship in another language—require the gem and set `default_locale`:
+
+```ruby
+require "cmdx/i18n"
+
+CMDx.configure { |c| c.default_locale = "de" }
+# Built-in messages resolve from the bundled YAML via CMDx::I18nProxy
+```
+
+**Need to tweak wording for one locale?** Vendor a file into your app and edit keys in place:
+
+```bash
+rails generate cmdx:i18n:locale fr
+```
