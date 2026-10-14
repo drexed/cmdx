@@ -2493,7 +2493,27 @@
 <p><code>register</code> only affects the <strong>no-i18n-gem</strong> path. When <code>i18n</code> is loaded, CMDx delegates to <code>I18n.translate</code>—add your paths to <code>I18n.load_path</code> instead.</p>
 </div>
 <h2 id="available-locales">Available locales<a class="headerlink" href="#available-locales" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> gem bundles community translations for <strong>85+</strong> locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your <code>Gemfile</code> and those locales show up wherever CMDx calls <code>I18n.translate</code>. The gem’s README lists the exact set.</p>
+<p>The <a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> gem bundles community translations for <strong>85+</strong> locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your <code>Gemfile</code> and those locales show up wherever CMDx calls <code>I18n.translate</code>—no copying YAML for every <code>cmdx.*</code> key yourself. The gem’s README lists the exact set.</p>
+<p>A few things you get for free once the gem is installed:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Gemfile</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">gem</span><span class="w"> </span><span class="s2">"cmdx-i18n"</span>
+</span></code></pre></div>
+<p><strong>Localized coercion and validation copy</strong> follows <code>I18n.locale</code> (or <code>I18n.with_locale</code>) with no extra wiring in Rails—the railtie adds locale files for languages you list in <code>config.i18n.available_locales</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">I18n</span><span class="o">.</span><span class="n">with_locale</span><span class="p">(</span><span class="ss">:es</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessQuote</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">price</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid"</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="w">   </span><span class="c1">#=&gt; ["no se pudo convertir en un flotante"]</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">             </span><span class="c1">#=&gt; "price no se pudo convertir en un flotante"</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<p><strong>Scripts and workers without the <code>i18n</code> gem</strong> can still ship in another language—require the gem and set <code>default_locale</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"cmdx/i18n"</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">c</span><span class="o">|</span><span class="w"> </span><span class="n">c</span><span class="o">.</span><span class="n">default_locale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"de"</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Built-in messages resolve from the bundled YAML via CMDx::I18nProxy</span>
+</span></code></pre></div>
+<p><strong>Need to tweak wording for one locale?</strong> Vendor a file into your app and edit keys in place:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:i18n:locale<span class="w"> </span>fr
+</span></code></pre></div>
 
 
 

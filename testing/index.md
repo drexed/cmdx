@@ -296,3 +296,49 @@ Note
 ## RSpec matchers
 
 The [cmdx-rspec](https://github.com/drexed/cmdx-rspec) gem bundles RSpec matchers and helpers for asserting task and workflow behavior — result state, errors, faults, callbacks, retries, chains, and more — including stubs that avoid running real `work` blocks. Add it to your `Gemfile` (test group), `require "cmdx/rspec"` in `spec_helper`, and matchers such as `be_successful`, `have_failed`, and `raise_cmdx_fault` are available under `RSpec::Matchers`. The gem’s README lists the full set.
+
+This page sticks to RSpec’s built-in predicate matchers (`be_success` → `success?`, and so on). The gem goes further when you want **both** `state` and `status` pinned, or when you are tired of hand-rolling fault expectations and workflow doubles:
+
+```ruby
+# Gemfile (test group)
+gem "cmdx-rspec"
+
+# spec_helper.rb
+require "cmdx/rspec"
+```
+
+**Stricter result assertions** — keyword args match `result.to_h`, so metadata and reason ride along in one expectation:
+
+```ruby
+expect(result).to be_successful(metadata: { receipt_id: 42 })
+expect(result).to have_failed(reason: /invalid/, cause: be_a(CMDx::Fault))
+expect(result).to have_errors_on(:email, "cannot be empty")
+```
+
+**`execute!` in one line** — chain task, reason, and underlying cause instead of a verbose `raise_error` block:
+
+```ruby
+expect { ProcessPayment.execute!(amount: -1) }
+  .to raise_cmdx_fault(ProcessPayment)
+  .with_reason(/amount/)
+```
+
+**Workflow tests without running every `work` block** — stub the pipeline, then flip one step to fail or skip:
+
+```ruby
+stub_workflow_tasks(PaymentWorkflow) do |task|
+  stub_task_success(task) unless task == ValidateCard
+end
+stub_task_fail(ValidateCard, reason: "invalid card")
+
+result = PaymentWorkflow.execute(card: bad_card)
+expect(result).to have_chain_size(2)
+expect(result.caused_failure.task).to eq(ValidateCard)
+```
+
+**Smoke-test declarations** — inputs, callbacks, and pipeline order without executing the task:
+
+```ruby
+expect(CreateUser).to have_input(:email, required: true)
+expect(OnboardingWorkflow).to have_pipeline_tasks(CreateProfile, SetupPreferences, SendWelcome)
+```
