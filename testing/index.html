@@ -1802,6 +1802,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#rspec-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RSpec matchers
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2459,6 +2470,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#rspec-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RSpec matchers
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2782,6 +2804,8 @@
 <p class="admonition-title">Note</p>
 <p><code>Result#deconstruct</code> is <code>to_h.to_a</code> — a list of <code>[key, value]</code> pairs in hash insertion order, not a fixed-size tuple. Prefer "find" patterns like <code>in [*, [:status, "success"], *]</code> instead of counting positions by hand.</p>
 </div>
+<h2 id="rspec-matchers">RSpec matchers<a class="headerlink" href="#rspec-matchers" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/drexed/cmdx-rspec">cmdx-rspec</a> gem bundles RSpec matchers and helpers for asserting task and workflow behavior — result state, errors, faults, callbacks, retries, chains, and more — including stubs that avoid running real <code>work</code> blocks. Add it to your <code>Gemfile</code> (test group), <code>require "cmdx/rspec"</code> in <code>spec_helper</code>, and matchers such as <code>be_successful</code>, <code>have_failed</code>, and <code>raise_cmdx_fault</code> are available under <code>RSpec::Matchers</code>. The gem’s README lists the full set.</p>
 
 
 
