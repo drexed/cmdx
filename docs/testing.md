@@ -292,3 +292,7 @@ end
 !!! note
 
     `Result#deconstruct` is `to_h.to_a` — a list of `[key, value]` pairs in hash insertion order, not a fixed-size tuple. Prefer "find" patterns like `in [*, [:status, "success"], *]` instead of counting positions by hand.
+
+## RSpec matchers
+
+The [cmdx-rspec](https://github.com/drexed/cmdx-rspec) gem bundles RSpec matchers and helpers for asserting task and workflow behavior — result state, errors, faults, callbacks, retries, chains, and more — including stubs that avoid running real `work` blocks. Add it to your `Gemfile` (test group), `require "cmdx/rspec"` in `spec_helper`, and matchers such as `be_successful`, `have_failed`, and `raise_cmdx_fault` are available under `RSpec::Matchers`. The gem’s README lists the full set.
