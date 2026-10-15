@@ -293,77 +293,40 @@ end
 
     `Result#deconstruct` is `to_h.to_a` — a list of `[key, value]` pairs in hash insertion order, not a fixed-size tuple. Prefer "find" patterns like `in [*, [:status, "success"], *]` instead of counting positions by hand.
 
-## RSpec matchers
+## cmdx-rspec
 
-The [cmdx-rspec](https://github.com/drexed/cmdx-rspec) gem bundles RSpec matchers and helpers for asserting task and workflow behavior — result state, errors, faults, callbacks, retries, chains, and task execution — without invoking real `work` blocks. Add it to your `Gemfile` (test group), `require "cmdx/rspec"` in `spec_helper`, then **include** `CMDx::RSpec::Matchers` and `CMDx::RSpec::Helpers` in the example groups that need them (requiring the library alone does not mix matchers into examples). The gem’s README lists the full matcher index.
-
-This page sticks to RSpec’s built-in predicate matchers (`be_success` → `success?`, and so on). The gem goes further when you want **both** `state` and `status` pinned via `result.to_h`, **`raise_fault`** for `execute!`, or **`execute` / `execute!` message matchers** to stub collaborators and spy with `have_executed` (same mental model as `receive` / `have_received`):
+Everything below works with stock RSpec (`be_success`, `be_failed`, and friends on `CMDx::Result`). When specs start stubbing lots of collaborator tasks, the [cmdx-rspec](https://github.com/drexed/cmdx-rspec) gem adds matchers that speak CMDx: stub or spy `execute` / `execute!` without running collaborator `work` unless you ask for it, build real `Result` fixtures, and assert chains, declarations, logs, and telemetry.
 
 ```ruby
-# Gemfile (test group)
-gem "cmdx-rspec"
+# Gemfile
+gem "cmdx-rspec", group: :test
+```
 
+```ruby
 # spec/spec_helper.rb
 require "cmdx/rspec"
 
-RSpec.configure do |config|
-  config.include CMDx::RSpec::Helpers
-  config.include CMDx::RSpec::Matchers
-end
+RSpec.configure { |config| config.include CMDx::RSpec::Matchers }
 ```
 
-**Stub a collaborator, run the subject, assert result + spy** — keyword args on `execute` constrain the call and seed context:
+**Stub a dependency, assert your task and the call history**
 
 ```ruby
-RSpec.describe ChargeCard do
-  it "validates before charging" do
-    allow(ValidateCard).to execute(card_id: 1).and_succeed
+allow(ValidateCard).to execute(card_id: 1).and_succeed
 
-    result = ChargeCard.execute(card_id: 1)
+result = ChargeCard.execute(card_id: 1)
 
-    expect(result).to be_successful
-    expect(ValidateCard).to have_executed(card_id: 1).once
-  end
-end
+expect(result).to be_successful
+expect(ValidateCard).to have_executed(card_id: 1).once
 ```
 
-Use `expect(Task).to execute` when the call itself is the assertion, or `allow(Task).to execute.and_call_original` when the real `work` body should run.
-
-**Stricter result assertions** — extra keyword args on `be_successful`, `have_skipped`, and `have_failed` match `result.to_h`:
+**Strict mode and workflows**
 
 ```ruby
-expect(result).to be_successful(metadata: { receipt_id: 42 })
-expect(result).to have_failed(reason: /invalid/)
-expect(result).to have_errors_on(:email, "cannot be empty")
+allow(RiskCheck).to execute!.and_fail(reason: "blocked")
+expect { Checkout.execute! }.to raise_fault(Checkout).with_reason("blocked")
+
+allow(OnboardingWorkflow).to execute_pipeline.and_succeed
 ```
 
-**`execute!` in one line** — `raise_fault` chains task, reason, and cause:
-
-```ruby
-expect { ProcessPayment.execute!(amount: -1) }
-  .to raise_fault(ProcessPayment)
-  .with_reason(/amount/)
-```
-
-**Workflow tests without running every `work` block** — `stub_workflow_tasks` plus `allow(...).to execute` outcome chains:
-
-```ruby
-stub_workflow_tasks(PaymentWorkflow) do |task|
-  if task == ValidateCard
-    allow(task).to execute.and_fail(reason: "invalid card")
-  else
-    allow(task).to execute.and_succeed
-  end
-end
-
-result = PaymentWorkflow.execute(card: bad_card)
-expect(result).to have_chain_size(2)
-expect(result.caused_failure.task).to eq(ValidateCard)
-```
-
-**Smoke-test declarations** — inputs, callbacks, and pipeline order without executing the task:
-
-```ruby
-expect(CreateUser).to have_input(:email, required: true)
-expect(OnboardingWorkflow).to have_pipeline_tasks(CreateProfile, SetupPreferences, SendWelcome)
-```
+Matcher catalog and patterns: [cmdx-rspec README](https://github.com/drexed/cmdx-rspec).

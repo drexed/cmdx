@@ -96,38 +96,33 @@ CMDx::I18nProxy.register(File.expand_path("lib/locales", __dir__))
 
     `register` only affects the **no-i18n-gem** path. When `i18n` is loaded, CMDx delegates to `I18n.translate`—add your paths to `I18n.load_path` instead.
 
-## Available locales
+## cmdx-i18n
 
-The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem bundles community translations for **85+** locales (Arabic, Chinese, French, German, Japanese, Portuguese, Spanish, and more). Add it to your `Gemfile` and those locales show up wherever CMDx calls `I18n.translate`—no copying YAML for every `cmdx.*` key yourself. The gem’s README lists the exact set.
-
-A few things you get for free once the gem is installed:
+The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem ships **86 locales** for built-in coercion, validator, and fault messages. In Rails, its Railtie loads bundled YAML for locales you already list in `config.i18n.available_locales` — no extra wiring. Outside Rails, `require "cmdx/i18n"` registers the files with `CMDx::I18nProxy` so CMDx can translate even when the `i18n` gem is not loaded.
 
 ```ruby
-# Gemfile
 gem "cmdx-i18n"
 ```
-
-**Localized coercion and validation copy** follows `I18n.locale` (or `I18n.with_locale`) with no extra wiring in Rails—the railtie adds locale files for languages you list in `config.i18n.available_locales`:
-
-```ruby
-I18n.with_locale(:es) do
-  result = ProcessQuote.execute(price: "invalid")
-  result.errors[:price]   #=> ["no se pudo convertir en un flotante"]
-  result.reason             #=> "price no se pudo convertir en un flotante"
-end
-```
-
-**Scripts and workers without the `i18n` gem** can still ship in another language—require the gem and set `default_locale`:
 
 ```ruby
 require "cmdx/i18n"
 
-CMDx.configure { |c| c.default_locale = "de" }
-# Built-in messages resolve from the bundled YAML via CMDx::I18nProxy
+CMDx.configure { |c| c.default_locale = "fr" }
 ```
 
-**Need to tweak wording for one locale?** Vendor a file into your app and edit keys in place:
+Flip locale and the same task surfaces localized errors (the French example under [Usage](#usage) works out of the box once the gem is installed):
+
+```ruby
+I18n.with_locale(:ja) do
+  result = ProcessQuote.execute(price: "not-a-number")
+  # => Japanese coercion message on result.errors[:price]
+end
+```
+
+Need to customize one language? Copy a locale into your app and edit keys under `cmdx.*`:
 
 ```bash
 rails generate cmdx:i18n:locale fr
 ```
+
+Full locale list and setup notes: [cmdx-i18n on GitHub](https://github.com/drexed/cmdx-i18n).
