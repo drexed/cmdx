@@ -295,41 +295,66 @@ Note
 
 ## RSpec matchers
 
-The [cmdx-rspec](https://github.com/drexed/cmdx-rspec) gem bundles RSpec matchers and helpers for asserting task and workflow behavior — result state, errors, faults, callbacks, retries, chains, and more — including stubs that avoid running real `work` blocks. Add it to your `Gemfile` (test group), `require "cmdx/rspec"` in `spec_helper`, and matchers such as `be_successful`, `have_failed`, and `raise_cmdx_fault` are available under `RSpec::Matchers`. The gem’s README lists the full set.
+The [cmdx-rspec](https://github.com/drexed/cmdx-rspec) gem bundles RSpec matchers and helpers for asserting task and workflow behavior — result state, errors, faults, callbacks, retries, chains, and task execution — without invoking real `work` blocks. Add it to your `Gemfile` (test group), `require "cmdx/rspec"` in `spec_helper`, then **include** `CMDx::RSpec::Matchers` and `CMDx::RSpec::Helpers` in the example groups that need them (requiring the library alone does not mix matchers into examples). The gem’s README lists the full matcher index.
 
-This page sticks to RSpec’s built-in predicate matchers (`be_success` → `success?`, and so on). The gem goes further when you want **both** `state` and `status` pinned, or when you are tired of hand-rolling fault expectations and workflow doubles:
+This page sticks to RSpec’s built-in predicate matchers (`be_success` → `success?`, and so on). The gem goes further when you want **both** `state` and `status` pinned via `result.to_h`, **`raise_fault`** for `execute!`, or **`execute` / `execute!` message matchers** to stub collaborators and spy with `have_executed` (same mental model as `receive` / `have_received`):
 
 ```ruby
 # Gemfile (test group)
 gem "cmdx-rspec"
 
-# spec_helper.rb
+# spec/spec_helper.rb
 require "cmdx/rspec"
+
+RSpec.configure do |config|
+  config.include CMDx::RSpec::Helpers
+  config.include CMDx::RSpec::Matchers
+end
 ```
 
-**Stricter result assertions** — keyword args match `result.to_h`, so metadata and reason ride along in one expectation:
+**Stub a collaborator, run the subject, assert result + spy** — keyword args on `execute` constrain the call and seed context:
+
+```ruby
+RSpec.describe ChargeCard do
+  it "validates before charging" do
+    allow(ValidateCard).to execute(card_id: 1).and_succeed
+
+    result = ChargeCard.execute(card_id: 1)
+
+    expect(result).to be_successful
+    expect(ValidateCard).to have_executed(card_id: 1).once
+  end
+end
+```
+
+Use `expect(Task).to execute` when the call itself is the assertion, or `allow(Task).to execute.and_call_original` when the real `work` body should run.
+
+**Stricter result assertions** — extra keyword args on `be_successful`, `have_skipped`, and `have_failed` match `result.to_h`:
 
 ```ruby
 expect(result).to be_successful(metadata: { receipt_id: 42 })
-expect(result).to have_failed(reason: /invalid/, cause: be_a(CMDx::Fault))
+expect(result).to have_failed(reason: /invalid/)
 expect(result).to have_errors_on(:email, "cannot be empty")
 ```
 
-**`execute!` in one line** — chain task, reason, and underlying cause instead of a verbose `raise_error` block:
+**`execute!` in one line** — `raise_fault` chains task, reason, and cause:
 
 ```ruby
 expect { ProcessPayment.execute!(amount: -1) }
-  .to raise_cmdx_fault(ProcessPayment)
+  .to raise_fault(ProcessPayment)
   .with_reason(/amount/)
 ```
 
-**Workflow tests without running every `work` block** — stub the pipeline, then flip one step to fail or skip:
+**Workflow tests without running every `work` block** — `stub_workflow_tasks` plus `allow(...).to execute` outcome chains:
 
 ```ruby
 stub_workflow_tasks(PaymentWorkflow) do |task|
-  stub_task_success(task) unless task == ValidateCard
+  if task == ValidateCard
+    allow(task).to execute.and_fail(reason: "invalid card")
+  else
+    allow(task).to execute.and_succeed
+  end
 end
-stub_task_fail(ValidateCard, reason: "invalid card")
 
 result = PaymentWorkflow.execute(card: bad_card)
 expect(result).to have_chain_size(2)
