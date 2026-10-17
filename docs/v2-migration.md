@@ -1033,7 +1033,6 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Tasks
 
-- **`idempotent_by`** — declare a stable key from context so retries short-circuit safely.
 - **`circuit_break`** — flip a task open/closed after repeated failures without bolting Stoplight into every class.
 - **`concurrency_limit`** — cap how many instances of a task may run at once across the process.
 - **`execute_async`** — return a future-like object instead of always blocking the caller.

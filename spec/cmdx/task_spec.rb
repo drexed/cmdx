@@ -32,6 +32,23 @@ RSpec.describe CMDx::Task do
     end
   end
 
+  describe "idempotent_by" do
+    it "defaults to a disabled Idempotency" do
+      klass = create_task_class
+      expect(klass.idempotent_by).to be_a(CMDx::Idempotency)
+      expect(klass.idempotent_by).not_to be_enabled
+    end
+
+    it "stores a key and options" do
+      klass = create_task_class
+      klass.idempotent_by :payment_id, ttl: 60
+
+      expect(klass.idempotent_by).to be_enabled
+      expect(klass.idempotent_by.key).to eq(:payment_id)
+      expect(klass.idempotent_by.ttl).to eq(60)
+    end
+  end
+
   describe "retry_on" do
     it "defaults to a new Retry with no exceptions" do
       klass = create_task_class

@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - `CMDx::Stores` — `get` / `set` / `incr` / `del` with optional TTL, delegating to `CMDx.configuration.store`; ships with `Stores::Memory` (default) and `Stores::Redis` (Redis-compatible client + namespace prefix)
+- `Task.idempotent_by` — declare a stable key from context (or a callable) so duplicate invocations short-circuit via `CMDx::Stores` before `work` runs; releases the claim on failure so `retry_on` can retry safely
 
 ## [2.2.0] - 2026-10-17
 

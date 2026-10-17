@@ -3,7 +3,7 @@
 module CMDx
   # Base class for all units of work. Subclasses override `#work` and
   # declare their contract via `required`, `optional`, `output`, `callbacks`,
-  # `retry_on`, `deprecation`, and `settings`. Invoked via {.execute} (safe)
+  # `retry_on`, `idempotent_by`, `deprecation`, and `settings`. Invoked via {.execute} (safe)
   # or {.execute!} (strict, raises on failure).
   #
   # Inheritance: every registry accessor (middlewares, callbacks, coercions,
@@ -41,6 +41,35 @@ module CMDx
         return @retry_on if exceptions.empty?
 
         @retry_on = @retry_on.build(exceptions, options, &)
+      end
+
+      # Declares a stable idempotency key from context (or a callable). Builds on
+      # the superclass's {Idempotency}. Passing no `key` and no options returns the
+      # current (possibly inherited) configuration.
+      #
+      # @param key [Symbol, String, Proc, #call, nil] context key or resolver
+      # @param options [Hash{Symbol => Object}] see {Idempotency#initialize}
+      # @option options [Integer] :ttl (see {Idempotency#initialize})
+      # @option options [String] :namespace (see {Idempotency#initialize})
+      # @option options [Symbol] :on_duplicate (see {Idempotency#initialize})
+      # @option options [Symbol, Proc, #call] :if gate `(task)` for claiming
+      # @option options [Symbol, Proc, #call] :unless gate `(task)` for claiming
+      # @yieldparam task [Task] optional first argument when the block is
+      #   `instance_exec`'d (same as callbacks)
+      # @return [Idempotency]
+      # @see Idempotency#process
+      def idempotent_by(key = nil, **options, &block)
+        @idempotent_by ||=
+          if superclass.respond_to?(:idempotent_by)
+            superclass.idempotent_by
+          else
+            Idempotency.disabled
+          end
+
+        resolver = key || block
+        return @idempotent_by if resolver.nil? && options.empty?
+
+        @idempotent_by = @idempotent_by.build(resolver, options)
       end
 
       # Reads or extends this class's {Settings}. Inherits from the superclass.

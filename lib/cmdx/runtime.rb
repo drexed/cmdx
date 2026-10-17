@@ -3,8 +3,8 @@
 module CMDx
   # Orchestrates a task's full lifecycle: chain acquisition, middlewares,
   # telemetry, deprecation, callbacks, input resolution, `work` (wrapped in
-  # retry), output verification, rollback on failure, result finalization,
-  # and teardown (freeze + chain clear).
+  # {Idempotency} when declared, then {Retry}), output verification, rollback
+  # on failure, result finalization, and teardown (freeze + chain clear).
   #
   # Signal propagation: `work` and the surrounding middleware/callback chain
   # both run inside `catch(Signal::TAG)`, so `success!` / `skip!` / `fail!` /
@@ -170,7 +170,9 @@ module CMDx
     def perform_work
       @signal = catch(Signal::TAG) do
         resolve_inputs!
-        retry_execution { @task.work }
+        idempotent_execution do
+          retry_execution { @task.work }
+        end
         verify_outputs!
         Signal.success(nil, metadata: @task.metadata)
       rescue Fault => e
@@ -196,6 +198,13 @@ module CMDx
 
       inputs.resolve(@task)
       signal_errors!
+    end
+
+    def idempotent_execution(&)
+      idem = @task.class.idempotent_by
+      return yield unless idem.enabled?
+
+      idem.process(@task, &)
     end
 
     def retry_execution

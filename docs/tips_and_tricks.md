@@ -204,7 +204,6 @@ Real-world recipes live in the repo — grab the one closest to what you are bui
 - [PubSub Task Chaining](https://github.com/drexed/cmdx/blob/main/examples/pub_sub_task_chaining.md)
 - [Pundit Authorization](https://github.com/drexed/cmdx/blob/main/examples/pundit_authorization.md)
 - [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md)
-- [Redis Idempotency](https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md)
 - [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
 - [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
 - [Stoplight Circuit Breaker](https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md)

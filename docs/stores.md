@@ -120,9 +120,10 @@ CMDx.configure { |c| c.store = NullStore.new }
 
 ## Patterns (today)
 
-Higher-level helpers (`idempotent_by`, `circuit_break`, …) are still on the roadmap. Until then, middleware built on `CMDx::Stores` replaces hand-rolled Redis calls:
+- [Idempotency](idempotency.md) — `idempotent_by` on tasks, backed by `CMDx::Stores`
 
-- [Redis Idempotency](https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md) — duplicate request guard with `set(..., nx: true)`
+Other helpers (`circuit_break`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond `idempotent_by`:
+
 - [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) — `incr` + TTL window
 - [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md) — wrap Memory/Redis for tests or instrumentation
 
