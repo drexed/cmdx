@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.x.x] - UNRELEASED
+## UNRELEASED
+
+## [2.2.0] - UNRELEASED
 
 ### Added
 - Post-work lifecycle callbacks (`after_execution`, every `on_*` hook) receive the finalized `Signal` as their second argument — `reason`, `cause`, `metadata`, `origin`, and `backtrace` are available before `Result` construction. Pre-work hooks and `around_execution` keep the single-`task` arity
