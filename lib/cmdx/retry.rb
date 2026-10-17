@@ -4,8 +4,18 @@ module CMDx
   # Configurable retry-on-exception wrapper around a task's `work`. Supports
   # exception list, attempt `:limit`, base `:delay`, `:max_delay` cap, and
   # `:jitter` strategy (symbol, proc, or a configured block). Declared via
-  # `Task.retry_on` and accumulates across inheritance.
+  # {Task.retry_on} and accumulates across inheritance; {Task.retry_on} with
+  # `false` selects {Retry.disabled}.
   class Retry
+
+    class << self
+
+      # @return [Retry] disabled configuration (no exceptions)
+      def disabled
+        DISABLED
+      end
+
+    end
 
     attr_reader :exceptions
 
@@ -67,6 +77,11 @@ module CMDx
       @options[:jitter] || @block
     end
 
+    # @return [Boolean]
+    def enabled?
+      !exceptions.empty?
+    end
+
     # Sleeps `attempt`'s jittered/bounded delay. No-op when the base delay is zero.
     #
     # Custom jitter callables (registry, task Symbol method, `Proc` / block via
@@ -125,7 +140,7 @@ module CMDx
     # @return [Object] the block's successful return value
     # @raise [Exception] the last caught exception once retries exhaust
     def process(task = nil, &)
-      return yield(0) if exceptions.empty? || !limit.positive?
+      return yield(0) if !enabled? || !limit.positive?
 
       prev_delay = nil
       (limit + 1).times do |attempt|
@@ -147,6 +162,9 @@ module CMDx
         CMDx.configuration.retriers
       end
     end
+
+    DISABLED = new([], EMPTY_HASH).freeze
+    private_constant :DISABLED
 
   end
 end

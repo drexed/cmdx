@@ -135,5 +135,17 @@ RSpec.describe "Task retry", type: :feature do
 
       expect(child.execute).to have_attributes(status: CMDx::Signal::SUCCESS, retries: 2)
     end
+
+    it "disables inherited retries when passed false" do
+      parent = create_successful_task(name: "ParentRetry3") do
+        retry_on CMDx::TestError, limit: 5, delay: 0
+      end
+
+      child = create_flaky_task(base: parent, name: "ChildRetry3", failures: 1) do
+        retry_on false
+      end
+
+      expect(child.execute).to have_attributes(status: CMDx::Signal::FAILED, retries: 0, retried?: false)
+    end
   end
 end

@@ -25,14 +25,14 @@ module CMDx
     # @raise [DeprecationError] when `value` is `:error`
     # @raise [ArgumentError] when `value` is an unsupported type
     def execute(task)
-      return if @value.nil?
-      return unless Util.satisfied?(@options[:if], @options[:unless], task)
+      return if @value.nil? || !Util.satisfied?(@options[:if], @options[:unless], task)
 
       yield
 
       case @value
       when Symbol
         registry = deprecators_registry(task)
+
         if registry.key?(@value)
           registry.lookup(@value).call(task)
         else

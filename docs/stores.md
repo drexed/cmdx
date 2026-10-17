@@ -121,8 +121,9 @@ CMDx.configure { |c| c.store = NullStore.new }
 ## Patterns (today)
 
 - [Idempotency](idempotency.md) — `idempotent_by` on tasks, backed by `CMDx::Stores`
+- [Circuit breaker](circuit_breaker.md) — `circuit_breaker` on tasks, failure counting and open flags via `CMDx::Stores`
 
-Other helpers (`circuit_break`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond `idempotent_by`:
+Other helpers (`concurrency_limit`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond the built-in declarations:
 
 - [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) — `incr` + TTL window
 - [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md) — wrap Memory/Redis for tests or instrumentation

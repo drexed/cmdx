@@ -103,7 +103,7 @@ module CMDx
       return yield unless enabled?
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
 
-      segment = resolve_segment(task)
+      segment = StoreKey.segment(task, key)
       return yield if segment.nil?
 
       store_key = StoreKey.compose(namespace, task.class.name, segment)
@@ -122,27 +122,7 @@ module CMDx
       end
     end
 
-    DISABLED = new(nil).freeze
-    private_constant :DISABLED
-
     private
-
-    def resolve_segment(task)
-      raw =
-        case key
-        when Symbol
-          task.context[key]
-        when Proc
-          task.instance_exec(task, &key)
-        else
-          return key.call(task) if key.respond_to?(:call)
-
-          key
-        end
-
-      str = raw&.to_s
-      str if str && !str.empty?
-    end
 
     def duplicate!(task, store_key)
       state    = Stores.get(store_key)
@@ -161,6 +141,9 @@ module CMDx
         MSG
       end
     end
+
+    DISABLED = new(nil).freeze
+    private_constant :DISABLED
 
   end
 end

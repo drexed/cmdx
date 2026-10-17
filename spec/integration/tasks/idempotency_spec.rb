@@ -14,6 +14,25 @@ RSpec.describe "Task idempotency", type: :feature do
     expect(child.idempotent_by.ttl).to eq(120)
   end
 
+  it "can be disabled on a subclass" do
+    parent = create_task_class(name: "ParentIdemEnabled") do
+      idempotent_by :payment_id
+    end
+    child = create_task_class(base: parent, name: "ChildIdemDisabled") do
+      idempotent_by false
+      required :payment_id, coerce: :string
+
+      define_method(:work) { context.touched = true }
+    end
+
+    expect(child.idempotent_by).not_to be_enabled
+    child.execute(payment_id: "pay-1")
+    result = child.execute(payment_id: "pay-1")
+
+    expect(result).to be_ok
+    expect(result.context.touched).to be(true)
+  end
+
   it "lets subclasses override the key resolver" do
     parent = create_task_class(name: "ParentKey") do
       idempotent_by :parent_id

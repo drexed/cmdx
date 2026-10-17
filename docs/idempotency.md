@@ -78,7 +78,7 @@ Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in 
 
 ## Inheritance
 
-Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list).
+Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` with no arguments returns the current (possibly inherited) configuration. Calling it again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list). Pass `idempotent_by false` on a subclass to disable.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -87,6 +87,10 @@ end
 
 class ChargeCustomer < ApplicationTask
   idempotent_by :payment_id # resolver → payment_id, ttl stays 600
+end
+
+class PreviewCharge < ApplicationTask
+  idempotent_by false # no store claim; work runs every time
 end
 ```
 

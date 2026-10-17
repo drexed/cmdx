@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - `CMDx::Stores` — `get` / `set` / `incr` / `del` with optional TTL, delegating to `CMDx.configuration.store`; ships with `Stores::Memory` (default) and `Stores::Redis` (Redis-compatible client + namespace prefix)
-- `Task.idempotent_by` — declare a stable key from context (or a callable) so duplicate invocations short-circuit via `CMDx::Stores` before `work` runs; releases the claim on failure so `retry_on` can retry safely
+- `Task.idempotent_by` — declare a stable key from context (or a callable) so duplicate invocations short-circuit via `CMDx::Stores` before `work` runs; releases the claim on failure so `retry_on` can retry safely; pass `false` on a subclass to disable
+- `Task.circuit_breaker` — shared failure counter and open flag via `CMDx::Stores` so repeated `StandardError` outcomes open the circuit until `cool_off` elapses; wraps `idempotent_by` and the `retry_on` loop in `Runtime`; pass `false` on a subclass to disable
+- `Task.retry_on` — pass `false` on a subclass to disable inherited retries (`Retry.disabled`, `Retry#enabled?`)
 
 ## [2.2.0] - 2026-10-17
 

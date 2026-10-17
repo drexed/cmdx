@@ -121,7 +121,7 @@ plugins:
           - basics/chain.md: Execution chain tracking for related tasks within threads
         Interruptions:
           - interruptions/signals.md: Intentional task interruption using skip! and fail! methods
-          - interruptions/faults.md: CMDx::Fault raised by execute! with task class, signal, and cleaned backtrace
+          - interruptions/faults.md: execute! exceptions for failed tasks with result, task, context, chain, and cleaned backtrace
           - interruptions/exceptions.md: Complete exception hierarchy (Error, DeprecationError, ImplementationError, MiddlewareError, Fault) and execute vs execute! semantics
         Outcomes:
           - outcomes/result.md: Result objects exposing execution state, status, context, and metadata
@@ -141,7 +141,8 @@ plugins:
           - logging.md: Structured logging with multiple formatters (JSON, KeyValue, Logstash, Line, Raw)
           - internationalization.md: Multi-language support for error messages and validations (90+ locales)
           - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
-          - idempotency.md: Duplicate request guards via idempotent_by and CMDx::Stores
+          - idempotency.md: Preventing duplicate execution for retried jobs and webhooks with idempotent_by
+          - circuit_breaker.md: Automatic circuit breaking for failing dependencies with threshold, cool-off, and window options
           - stores.md: Shared key/value store for idempotency, rate limits, and cross-worker coordination
           - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
           - outputs.md: Declaring expected context outputs that must be set after task execution
@@ -184,6 +185,7 @@ nav:
       - Internationalization: internationalization.md
       - Retries: retries.md
       - Idempotency: idempotency.md
+      - Circuit breaker: circuit_breaker.md
       - Stores: stores.md
       - Deprecation: deprecation.md
       - Outputs: outputs.md

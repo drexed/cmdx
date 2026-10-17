@@ -32,6 +32,33 @@ RSpec.describe CMDx::Task do
     end
   end
 
+  describe "circuit_breaker" do
+    it "defaults to a disabled CircuitBreaker" do
+      klass = create_task_class
+      expect(klass.circuit_breaker).to be_a(CMDx::CircuitBreaker)
+      expect(klass.circuit_breaker).not_to be_enabled
+    end
+
+    it "stores options and enables with :class" do
+      klass = create_task_class
+      klass.circuit_breaker threshold: 3, cool_off: 10
+
+      expect(klass.circuit_breaker).to be_enabled
+      expect(klass.circuit_breaker.key).to eq(:class)
+      expect(klass.circuit_breaker.threshold).to eq(3)
+      expect(klass.circuit_breaker.cool_off).to eq(10)
+    end
+
+    it "disables when passed false" do
+      parent = create_task_class
+      parent.circuit_breaker :class, threshold: 1
+      child = create_task_class(base: parent)
+      child.circuit_breaker false
+
+      expect(child.circuit_breaker).not_to be_enabled
+    end
+  end
+
   describe "idempotent_by" do
     it "defaults to a disabled Idempotency" do
       klass = create_task_class
@@ -46,6 +73,15 @@ RSpec.describe CMDx::Task do
       expect(klass.idempotent_by).to be_enabled
       expect(klass.idempotent_by.key).to eq(:payment_id)
       expect(klass.idempotent_by.ttl).to eq(60)
+    end
+
+    it "disables when passed false" do
+      parent = create_task_class
+      parent.idempotent_by :request_id
+      child = create_task_class(base: parent)
+      child.idempotent_by false
+
+      expect(child.idempotent_by).not_to be_enabled
     end
   end
 
@@ -62,6 +98,16 @@ RSpec.describe CMDx::Task do
 
       expect(klass.retry_on.exceptions).to include(err)
       expect(klass.retry_on.limit).to eq(2)
+    end
+
+    it "disables when passed false" do
+      parent = create_task_class
+      err = Class.new(StandardError)
+      parent.retry_on(err, limit: 2)
+      child = create_task_class(base: parent)
+      child.retry_on false
+
+      expect(child.retry_on).not_to be_enabled
     end
   end
 

@@ -51,7 +51,7 @@ end
 
 ## Inheritance
 
-Subclasses **add** to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.
+Subclasses inherit the parent’s retry policy. Calling `retry_on` with no exception classes and no options returns the current (possibly inherited) configuration. Further calls **add** exception types and **merge** options — including option-only updates such as `retry_on limit: 5` on the subclass. Pass `retry_on false` on a subclass to disable retries entirely (even when the parent declared them).
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -62,7 +62,13 @@ class FetchProfile < ApplicationTask
   retry_on Net::ReadTimeout, max_delay: 5.0
   # Effective: [Net::OpenTimeout, Net::ReadTimeout], limit: 2, max_delay: 5.0
 end
+
+class DryRunFetch < ApplicationTask
+  retry_on false # no retries; first failure surfaces immediately
+end
 ```
+
+`Retry#enabled?` is `false` when retries are disabled (no exception list). `CMDx::Retry.disabled` is the shared empty configuration used at the root of the hierarchy and after `retry_on false`.
 
 ## Jitter
 

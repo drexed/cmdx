@@ -366,7 +366,7 @@ end
 
 ### Retry
 
-`retry_on` stacks across inheritance — list the exceptions, cap attempts, pick jitter. Full menu of options: [Retries](retries.md).
+`retry_on` stacks across inheritance — list the exceptions, cap attempts, pick jitter. Pass `retry_on false` on a subclass to turn off inherited retries. Full menu of options: [Retries](retries.md).
 
 ```ruby
 class FetchInvoice < CMDx::Task

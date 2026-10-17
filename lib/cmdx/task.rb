@@ -3,8 +3,8 @@
 module CMDx
   # Base class for all units of work. Subclasses override `#work` and
   # declare their contract via `required`, `optional`, `output`, `callbacks`,
-  # `retry_on`, `idempotent_by`, `deprecation`, and `settings`. Invoked via {.execute} (safe)
-  # or {.execute!} (strict, raises on failure).
+  # `retry_on`, `idempotent_by`, `circuit_breaker`, `deprecation`, and `settings`.
+  # Invoked via {.execute} (safe) or {.execute!} (strict, raises on failure).
   #
   # Inheritance: every registry accessor (middlewares, callbacks, coercions,
   # validators, executors, mergers, telemetry, inputs, outputs) lazily clones from the
@@ -18,9 +18,11 @@ module CMDx
     class << self
 
       # Declares exceptions to retry on. Builds on the superclass's `Retry`.
-      # Passing no exceptions returns the current (possibly inherited) Retry.
+      # Passing no exceptions and no options returns the current (possibly
+      # inherited) Retry. Pass `false` to disable retries on this class.
       #
-      # @param exceptions [Array<Class>]
+      # @param exceptions [Array<Class, false>] exception classes; `false` alone
+      #   disables retries on this class
       # @param options [Hash{Symbol => Object}] see {Retry#initialize}
       # @option options [Integer] :limit (see {Retry#initialize})
       # @option options [Float] :delay (see {Retry#initialize})
@@ -33,21 +35,25 @@ module CMDx
       def retry_on(*exceptions, **options, &)
         @retry_on ||=
           if superclass.respond_to?(:retry_on)
-            superclass.retry_on.build(exceptions, options, &)
+            superclass.retry_on
           else
-            Retry.new(exceptions, options, &)
+            Retry.disabled
           end
 
-        return @retry_on if exceptions.empty?
-
-        @retry_on = @retry_on.build(exceptions, options, &)
+        @retry_on =
+          if exceptions == [false]
+            Retry.disabled
+          else
+            @retry_on.build(exceptions, options, &)
+          end
       end
 
       # Declares a stable idempotency key from context (or a callable). Builds on
       # the superclass's {Idempotency}. Passing no `key` and no options returns the
-      # current (possibly inherited) configuration.
+      # current (possibly inherited) configuration. Pass `false` to disable.
       #
-      # @param key [Symbol, String, Proc, #call, nil] context key or resolver
+      # @param key [Symbol, String, Proc, #call, false, nil] context key or
+      #   resolver; `false` disables idempotency on this class
       # @param options [Hash{Symbol => Object}] see {Idempotency#initialize}
       # @option options [Integer] :ttl (see {Idempotency#initialize})
       # @option options [String] :namespace (see {Idempotency#initialize})
@@ -66,10 +72,47 @@ module CMDx
             Idempotency.disabled
           end
 
-        resolver = key || block
-        return @idempotent_by if resolver.nil? && options.empty?
+        @idempotent_by =
+          if key == false
+            Idempotency.disabled
+          else
+            @idempotent_by.build(key || block, options)
+          end
+      end
 
-        @idempotent_by = @idempotent_by.build(resolver, options)
+      # Declares a shared circuit breaker for the task. Builds on the
+      # superclass's {CircuitBreaker}. Passing no `key` and no options returns the
+      # current (possibly inherited) configuration. Pass `false` to disable.
+      #
+      # @param key [Symbol, String, Proc, #call, false, nil] `:class` scopes one
+      #   breaker per task class; other forms resolve a store segment like
+      #   {Idempotency}; `false` disables the breaker on this class
+      # @param options [Hash{Symbol => Object}] see {CircuitBreaker#initialize}
+      # @option options [Integer] :threshold (see {CircuitBreaker#initialize})
+      # @option options [Integer] :cool_off (see {CircuitBreaker#initialize})
+      # @option options [Integer] :window (see {CircuitBreaker#initialize})
+      # @option options [String] :namespace (see {CircuitBreaker#initialize})
+      # @option options [Symbol] :on_open (see {CircuitBreaker#initialize})
+      # @option options [Symbol, Proc, #call] :if gate `(task)` before checking
+      # @option options [Symbol, Proc, #call] :unless gate `(task)` before checking
+      # @yieldparam task [Task] optional first argument when the block is
+      #   `instance_exec`'d (same as callbacks)
+      # @return [CircuitBreaker]
+      # @see CircuitBreaker#process
+      def circuit_breaker(key = nil, **options, &block)
+        @circuit_breaker ||=
+          if superclass.respond_to?(:circuit_breaker)
+            superclass.circuit_breaker
+          else
+            CircuitBreaker.disabled
+          end
+
+        @circuit_breaker =
+          if key == false
+            CircuitBreaker.disabled
+          else
+            @circuit_breaker.build(key || block, options)
+          end
       end
 
       # Reads or extends this class's {Settings}. Inherits from the superclass.
