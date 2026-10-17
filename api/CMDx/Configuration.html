@@ -475,6 +475,31 @@ cached their copy yet.</p>
       <li class="public ">
   <span class="summary_signature">
     
+      <a href="#store-instance_method" title="#store (instance method)">#<strong>store</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute store.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#strict_context-instance_method" title="#strict_context (instance method)">#<strong>strict_context</strong>  &#x21d2; Object </a>
     
 
@@ -640,7 +665,8 @@ cached their copy yet.</p>
 39
 40
 41
-42</pre>
+42
+43</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 17</span>
@@ -655,6 +681,7 @@ cached their copy yet.</p>
   <span class='ivar'>@retriers</span>    <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Retriers.html" title="CMDx::Retriers (class)">Retriers</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Retriers.html#initialize-instance_method" title="CMDx::Retriers#initialize (method)">new</a></span></span>
   <span class='ivar'>@deprecators</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Deprecators.html" title="CMDx::Deprecators (class)">Deprecators</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Deprecators.html#initialize-instance_method" title="CMDx::Deprecators#initialize (method)">new</a></span></span>
   <span class='ivar'>@telemetry</span>   <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Telemetry.html" title="CMDx::Telemetry (class)">Telemetry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Telemetry.html#initialize-instance_method" title="CMDx::Telemetry#initialize (method)">new</a></span></span>
+  <span class='ivar'>@store</span>       <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Stores/Memory.html" title="CMDx::Stores::Memory (class)">Memory</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Stores/Memory.html#initialize-instance_method" title="CMDx::Stores::Memory#initialize (method)">new</a></span></span>
 
   <span class='ivar'>@correlation_id</span>    <span class='op'>=</span> <span class='kw'>nil</span>
   <span class='ivar'>@default_locale</span>    <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en</span><span class='tstring_end'>&quot;</span></span>
@@ -1256,6 +1283,47 @@ cached their copy yet.</p>
 </div>
     
       
+      <span id="store=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="store-instance_method">
+  
+    #<strong>store</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute store.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_store'>store</span>
+  <span class='ivar'>@store</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
       <span id="strict_context=-instance_method"></span>
       <div class="method_details ">
   <h3 class="signature " id="strict_context-instance_method">
@@ -1384,7 +1452,7 @@ cached their copy yet.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 12:34:58 2026 by
+  Generated on Sat Oct 17 16:14:00 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

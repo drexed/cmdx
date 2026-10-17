@@ -1426,6 +1426,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../idempotency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../deprecation/" class="md-nav__link">
         
   
@@ -2413,17 +2469,6 @@
     <span class="md-ellipsis">
       
         Workflows
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#observability-tooling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Observability / tooling
       
     </span>
   </a>
@@ -3535,17 +3580,6 @@
     <span class="md-ellipsis">
       
         Workflows
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#observability-tooling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Observability / tooling
       
     </span>
   </a>
@@ -4855,13 +4889,11 @@
 <p>Everything below is <strong>ideas on the roadmap</strong>, not shipped promises. Names and APIs may move.</p>
 <h3 id="infrastructure-primitives">Infrastructure primitives<a class="headerlink" href="#infrastructure-primitives" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>CMDx::Stores</code></strong> — a tiny key/value abstraction (<code>get</code> / <code>set</code> / <code>incr</code> / <code>del</code> + TTL) with in-memory and Redis-style adapters. Think shared scratch space for idempotency keys, rate limits, circuit breakers, checkpoints, and cached results.</li>
 <li><strong><code>CMDx::Cache</code></strong> — <code>cache_result key: -&gt;(t) { ... }, ttl: 60</code> memoizes a successful run keyed by inputs.</li>
 <li><strong><code>CMDx::Locks</code></strong> — <code>lock_with key: ..., ttl: ..., wait: ...</code> prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.</li>
 </ul>
 <h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>idempotent_by</code></strong> — declare a stable key from context so retries short-circuit safely.</li>
 <li><strong><code>circuit_break</code></strong> — flip a task open/closed after repeated failures without bolting Stoplight into every class.</li>
 <li><strong><code>concurrency_limit</code></strong> — cap how many instances of a task may run at once across the process.</li>
 <li><strong><code>execute_async</code></strong> — return a future-like object instead of always blocking the caller.</li>
@@ -4871,13 +4903,6 @@
 <ul>
 <li><strong>Checkpoint / resume</strong> — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with <code>idempotent_by</code>).</li>
 </ul>
-<h3 id="observability-tooling">Observability / tooling<a class="headerlink" href="#observability-tooling" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><code>Chain#to_mermaid</code> / <code>#to_dot</code></strong> — pretty diagrams for gnarly chains.</li>
-<li><strong><code>Chain#to_timeline</code></strong> — rows of <code>(task, start, end, status)</code> for dashboards.</li>
-<li><strong><code>Result#pretty_print</code></strong> — multi-line REPL output with indentation and optional color.</li>
-</ul>
-<p>None of the above exists in the gem yet; treat it as a peek at where maintainers are thinking, not a contract.</p>
 
 
 

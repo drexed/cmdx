@@ -1025,13 +1025,11 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Infrastructure primitives
 
-- **`CMDx::Stores`** — a tiny key/value abstraction (`get` / `set` / `incr` / `del` + TTL) with in-memory and Redis-style adapters. Think shared scratch space for idempotency keys, rate limits, circuit breakers, checkpoints, and cached results.
 - **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
 - **`CMDx::Locks`** — `lock_with key: ..., ttl: ..., wait: ...` prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.
 
 ### Tasks
 
-- **`idempotent_by`** — declare a stable key from context so retries short-circuit safely.
 - **`circuit_break`** — flip a task open/closed after repeated failures without bolting Stoplight into every class.
 - **`concurrency_limit`** — cap how many instances of a task may run at once across the process.
 - **`execute_async`** — return a future-like object instead of always blocking the caller.
@@ -1039,13 +1037,5 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Workflows
 
-- **Checkpoint / resume** — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with `idempotent_by`).
-
-### Observability / tooling
-
-- **`Chain#to_mermaid` / `#to_dot`** — pretty diagrams for gnarly chains.
-- **`Chain#to_timeline`** — rows of `(task, start, end, status)` for dashboards.
-- **`Result#pretty_print`** — multi-line REPL output with indentation and optional color.
-
-None of the above exists in the gem yet; treat it as a peek at where maintainers are thinking, not a contract.```
+- **Checkpoint / resume** — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with `idempotent_by`).```
 ````

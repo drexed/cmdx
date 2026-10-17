@@ -45,6 +45,10 @@ Important
 
 Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
 
+Idempotency
+
+When `idempotent_by` is declared, the store claim wraps the **entire** retry loop — a failed attempt releases the claim so the next retry can run `work` again. See [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md).
+
 ## Inheritance
 
 Subclasses **add** to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.

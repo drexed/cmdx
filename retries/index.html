@@ -18,7 +18,7 @@
         <link rel="prev" href="../internationalization/">
       
       
-        <link rel="next" href="../deprecation/">
+        <link rel="next" href="../idempotency/">
       
       
         
@@ -1624,6 +1624,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../idempotency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../deprecation/" class="md-nav__link">
         
   
@@ -2580,6 +2636,10 @@
 <p class="admonition-title">Important</p>
 <p>Only exceptions you listed in <code>retry_on</code> get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with <code>result.cause</code> under <code>execute</code>), or blows up under <code>execute!</code> once the lifecycle finishes.</p>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Idempotency</p>
+<p>When <code>idempotent_by</code> is declared, the store claim wraps the <strong>entire</strong> retry loop — a failed attempt releases the claim so the next retry can run <code>work</code> again. See <a href="../idempotency/">Idempotency</a>.</p>
+</div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
 <p>Subclasses <strong>add</strong> to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -2829,13 +2889,13 @@
         
         
           
-          <a href="../deprecation/" class="md-footer__link md-footer__link--next" aria-label="Next: Deprecation">
+          <a href="../idempotency/" class="md-footer__link md-footer__link--next" aria-label="Next: Idempotency">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Deprecation
+                Idempotency
               </div>
             </div>
             <div class="md-footer__button md-icon">

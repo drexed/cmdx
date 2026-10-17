@@ -304,7 +304,7 @@ If something in this guide felt fast, pick a link from the table above and read 
 
 # Configuration
 
-This page is about **telling CMDx how to behave**: loggers, telemetry, middleware, custom coercers — the whole backstage crew.
+This page is about **telling CMDx how to behave**: loggers, telemetry, middleware, shared stores, custom coercers — the whole backstage crew.
 
 There are two “floors” to the building:
 
@@ -343,6 +343,7 @@ Class-level registries **copy lazily** from the parent the first time you touch 
 | `mergers`           | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`)            | How parallel branches merge into context                                        |
 | `retriers`          | `Retriers.new` (7 built-ins)                                              | Named retry / jitter strategies                                                 |
 | `deprecators`       | `Deprecators.new` (`:log`, `:warn`, `:error`)                             | How deprecations surface                                                        |
+| `store`             | `Stores::Memory.new`                                                      | Key/value backend for `CMDx::Stores` (idempotency, rate limits, …)              |
 | `telemetry`         | `Telemetry.new` (empty)                                                   | Pub/sub bus for runtime events                                                  |
 
 ### Default locale
@@ -572,6 +573,25 @@ end
 ```
 
 More: [Inputs - Validations](https://drexed.github.io/cmdx/inputs/validations/index.md).
+
+### Store
+
+Shared **key/value scratch space** for cross-request state: idempotency keys, rate-limit counters, circuit-breaker flags, cached snapshots. Application code usually calls `CMDx::Stores.get` / `set` / `incr` / `del`; those methods delegate to `config.store`.
+
+Default: `CMDx::Stores::Memory` (process-local, thread-safe). Production multi-worker setups typically swap in `CMDx::Stores::Redis` with your existing Redis connection.
+
+```ruby
+CMDx.configure do |config|
+  config.store = CMDx::Stores::Redis.new(
+    redis: Redis.current,
+    namespace: "cmdx:store"
+  )
+end
+
+CMDx::Stores.set("idem:invoice:99", "done", nx: true, ttl: 300)
+```
+
+Full API, adapters, testing notes, and example patterns: [Stores](https://drexed.github.io/cmdx/stores/index.md).
 
 ### Executors
 
@@ -4380,6 +4400,10 @@ Important
 
 Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
 
+Idempotency
+
+When `idempotent_by` is declared, the store claim wraps the **entire** retry loop — a failed attempt releases the claim so the next retry can run `work` again. See [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md).
+
 ## Inheritance
 
 Subclasses **add** to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.
@@ -4598,6 +4622,253 @@ if result.failed?
   Rails.logger.error("Failed after #{result.retries} retries: #{result.reason}")
 end
 ```
+
+# Idempotency
+
+Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. For operations that must not run twice (charging a card, sending an email), you need a **stable key** from the payload and a shared claim so the second caller stops before `work` runs.
+
+`idempotent_by` wires that pattern into {Stores} using `set(..., nx: true)` to claim a slot and `xx: true` to mark completion — without registering middleware yourself.
+
+Important nuance: the claim runs **after inputs are resolved** and **wraps the whole `retry_on` loop**, not each attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can call `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
+
+## Basic usage
+
+Resolve a key from context (after coercion) or from a block/callable:
+
+```ruby
+class ChargeCustomer < CMDx::Task
+  idempotent_by :payment_id
+
+  required :payment_id,   coerce: :string
+  required :amount_cents, coerce: :integer
+
+  def work
+    context.charge = Stripe::Charge.create(
+      amount:          amount_cents,
+      currency:        "usd",
+      idempotency_key: payment_id
+    )
+  end
+end
+
+ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # success
+ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: duplicate
+```
+
+| Option            | Default       | Plain-English meaning                                                                        |
+| ----------------- | ------------- | -------------------------------------------------------------------------------------------- |
+| `ttl:`            | `300`         | Seconds until the store entry expires (re-claims allowed after expiry)                       |
+| `namespace:`      | `"cmdx:idem"` | First segment of the store key (see [Store keys](#store-keys))                               |
+| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`) |
+| `if:` / `unless:` | `nil`         | Gates on the task before claiming (same `Util.satisfied?` shape as other features)           |
+
+### Key resolvers
+
+| Form                          | How the segment is resolved                                   |
+| ----------------------------- | ------------------------------------------------------------- |
+| `Symbol` (e.g. `:payment_id`) | `context[payment_id]` after inputs run                        |
+| `String`                      | Used literally as the segment                                 |
+| Block / `Proc`                | `instance_exec` on the task — `self` is the task; optional \` |
+| Other `#call`                 | `call(task)` — e.g. a small resolver object                   |
+
+```ruby
+idempotent_by { "#{user_id}:#{context.idempotency_key}" }
+
+idempotent_by ->(task) { "#{task.context.user_id}:#{task.context.idempotency_key}" }
+```
+
+When the resolved segment is blank (`nil` or empty string), idempotency is **not** applied and `work` runs normally (no store write).
+
+## Store keys
+
+Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced with the same rules as `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
+
+Example: `cmdx:idem:ChargeCustomer:pay_123`
+
+While work is in flight the value is `"processing"`; after a successful run it becomes `"completed"`. Duplicates read the current value for the skip/fail message (`state=processing` or `state=completed`).
+
+## Interaction with `retry_on`
+
+```text
+resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs!
+```
+
+If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. When retries eventually succeed, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
+
+Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+
+TTL and crashes
+
+If a worker dies after claiming but before success or cleanup, the key expires after `ttl:` and another caller may run `work` again. Tune `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
+
+## Inheritance
+
+Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list).
+
+```ruby
+class ApplicationTask < CMDx::Task
+  idempotent_by :request_id, ttl: 600
+end
+
+class ChargeCustomer < ApplicationTask
+  idempotent_by :payment_id # resolver → payment_id, ttl stays 600
+end
+```
+
+## Skip vs fail on duplicates
+
+`:skip` fits when the second call means "already handled" (idempotent no-op, HTTP 2xx). `:fail` fits when callers need an explicit rejection (for example HTTP 409).
+
+Both attach `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` with the full store key.
+
+Signals
+
+Duplicates invoke `skip!` or `fail!` inside the `catch` around `work`, so control does not return to your resolver — you get a `Result` with `skipped?` or `failed?` under `execute`, or a fault under `execute!`.
+
+# Stores
+
+Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. You need a **small, shared key/value layer** — not your primary database — for idempotency tokens, rate-limit counters, circuit-breaker state, and (eventually) workflow checkpoints.
+
+`CMDx::Stores` is that layer: `get`, `set`, `incr`, and `del`, with optional TTL and Redis-style conditional writes (`nx` / `xx`). Call the module methods directly, or swap the backend on `CMDx.configuration.store`.
+
+## Configuration
+
+The process default is an in-memory adapter — fine for tests and single-process dev, **not** shared across Sidekiq workers.
+
+```ruby
+CMDx.configure do |config|
+  config.store = CMDx::Stores::Redis.new(
+    redis: Redis.current,
+    namespace: "cmdx:store"
+  )
+end
+```
+
+| Setting | Default              | In plain English             |
+| ------- | -------------------- | ---------------------------- |
+| `store` | `Stores::Memory.new` | Backend for `CMDx::Stores.*` |
+
+`CMDx.reset_configuration!` (common in specs) restores a fresh in-memory store along with the rest of global config.
+
+See also: [Configuration – Store](https://drexed.github.io/cmdx/configuration/#store).
+
+## Module API
+
+All methods delegate to `CMDx.configuration.store`. Keys are coerced with `to_s`; empty keys raise `ArgumentError`.
+
+### `get(key)`
+
+Returns the stored **string**, or `nil` when the key is missing or expired.
+
+```ruby
+CMDx::Stores.get(:session)
+```
+
+### `set(key, value, ttl: nil, nx: false, xx: false)`
+
+Writes `value` (coerced with `to_s`). Returns whether the write happened.
+
+| Option     | Meaning                                                    |
+| ---------- | ---------------------------------------------------------- |
+| `ttl:`     | Positive integer seconds until expiry (`nil` = no expiry)  |
+| `nx: true` | Set only if the key is **absent** (compare Redis `SET NX`) |
+| `xx: true` | Set only if the key is **present**                         |
+
+`nx` and `xx` cannot both be `true`.
+
+```ruby
+# Claim an idempotency slot for five minutes
+claimed = CMDx::Stores.set("idem:pay_123", "processing", nx: true, ttl: 300)
+
+# Mark complete only if we still own the key
+CMDx::Stores.set("idem:pay_123", "done", xx: true, ttl: 300)
+```
+
+### `incr(key, ttl: nil)`
+
+Atomically increments a counter (starts at `1`). Returns the **integer** count after increment.
+
+When `ttl:` is set, expiry applies **only when the counter is first created** (count becomes `1`) — the same pattern as sliding-window rate limits in the [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) example.
+
+```ruby
+hits = CMDx::Stores.incr("rl:user:42", ttl: 60)
+```
+
+### `del(key)`
+
+Removes the key. Returns `1` if a key was removed, `0` otherwise.
+
+```ruby
+CMDx::Stores.del("idem:pay_123")
+```
+
+## Adapters
+
+### `CMDx::Stores::Memory`
+
+Thread-safe, process-local hash with monotonic-clock TTL. Used by default and in specs unless you assign another backend.
+
+```ruby
+memory = CMDx::Stores::Memory.new
+memory.set(:k, "v", ttl: 30)
+```
+
+Note
+
+Each Puma worker, Sidekiq process, and console session has its **own** memory store. Do not rely on it for cross-worker coordination.
+
+### `CMDx::Stores::Redis`
+
+Wraps any client that quacks like `redis-rb`: `get`, `set` (with `ex:`, `nx:`, `xx:`), `incr`, `expire`, and `del`. CMDx does **not** add a Redis gem dependency — you pass the connection your app already uses.
+
+Every key is prefixed with `namespace` (default `"cmdx:store"`) so CMDx data stays namespaced in a shared Redis instance.
+
+```ruby
+CMDx::Stores::Redis.new(redis: Redis.current, namespace: "myapp:cmdx")
+# writes "myapp:cmdx:token" in Redis
+```
+
+## Custom backends
+
+Any object that implements the four methods with the same signatures can be assigned to `config.store`. Use that for Memcached, DynamoDB, observability wrappers, or an in-test spy.
+
+Walkthrough with a recording store for specs and an instrumented Redis wrapper: [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md).
+
+```ruby
+class NullStore
+  def get(_key) = nil
+  def set(_key, _value, ttl: nil, nx: false, xx: false) = true
+  def incr(_key, ttl: nil) = 1
+  def del(_key) = 0
+end
+
+CMDx.configure { |c| c.store = NullStore.new }
+```
+
+## Patterns (today)
+
+- [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) — `idempotent_by` on tasks, backed by `CMDx::Stores`
+
+Other helpers (`circuit_break`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond `idempotent_by`:
+
+- [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) — `incr` + TTL window
+- [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md) — wrap Memory/Redis for tests or instrumentation
+
+Refactoring those examples to call `CMDx::Stores` instead of `Redis.current` keeps behavior the same while staying adapter-agnostic.
+
+## Testing
+
+Specs call `CMDx.reset_configuration!` in `spec_helper`, so `CMDx::Stores` starts on a clean in-memory backend every example. To assert against an isolated instance without touching global config:
+
+```ruby
+store = CMDx::Stores::Memory.new
+CMDx.configuration.store = store
+
+store.set(:token, "abc")
+expect(CMDx::Stores.get(:token)).to eq("abc")
+```
+
+For integration tests against Redis semantics, assign `CMDx::Stores::Redis.new(redis: …)` in a `before` block and point `redis` at `MockRedis` or a dedicated test Redis URL.
 
 # Task Deprecation
 
@@ -5897,6 +6168,7 @@ Real-world recipes live in the repo — grab the one closest to what you are bui
 - [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 - [Active Support Instrumentation](https://github.com/drexed/cmdx/blob/main/examples/active_support_instrumentation.md)
+- [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md)
 - [dry-monads Interop](https://github.com/drexed/cmdx/blob/main/examples/dry_monads_interop.md)
 - [Flipper Feature Flags](https://github.com/drexed/cmdx/blob/main/examples/flipper_feature_flags.md)
 - [GraphQL Resolvers](https://github.com/drexed/cmdx/blob/main/examples/graphql_resolvers.md)
@@ -5906,7 +6178,6 @@ Real-world recipes live in the repo — grab the one closest to what you are bui
 - [PubSub Task Chaining](https://github.com/drexed/cmdx/blob/main/examples/pub_sub_task_chaining.md)
 - [Pundit Authorization](https://github.com/drexed/cmdx/blob/main/examples/pundit_authorization.md)
 - [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md)
-- [Redis Idempotency](https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md)
 - [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
 - [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
 - [Stoplight Circuit Breaker](https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md)
@@ -6978,13 +7249,11 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Infrastructure primitives
 
-- **`CMDx::Stores`** — a tiny key/value abstraction (`get` / `set` / `incr` / `del` + TTL) with in-memory and Redis-style adapters. Think shared scratch space for idempotency keys, rate limits, circuit breakers, checkpoints, and cached results.
 - **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
 - **`CMDx::Locks`** — `lock_with key: ..., ttl: ..., wait: ...` prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.
 
 ### Tasks
 
-- **`idempotent_by`** — declare a stable key from context so retries short-circuit safely.
 - **`circuit_break`** — flip a task open/closed after repeated failures without bolting Stoplight into every class.
 - **`concurrency_limit`** — cap how many instances of a task may run at once across the process.
 - **`execute_async`** — return a future-like object instead of always blocking the caller.
@@ -6992,13 +7261,5 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Workflows
 
-- **Checkpoint / resume** — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with `idempotent_by`).
-
-### Observability / tooling
-
-- **`Chain#to_mermaid` / `#to_dot`** — pretty diagrams for gnarly chains.
-- **`Chain#to_timeline`** — rows of `(task, start, end, status)` for dashboards.
-- **`Result#pretty_print`** — multi-line REPL output with indentation and optional color.
-
-None of the above exists in the gem yet; treat it as a peek at where maintainers are thinking, not a contract.```
+- **Checkpoint / resume** — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with `idempotent_by`).```
 ````
