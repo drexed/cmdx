@@ -78,6 +78,10 @@ ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: du
 
 ## Notes
 
+!!! tip "Built-in store"
+
+    The same `set` / `get` / `del` semantics are available as `CMDx::Stores` with a pluggable backend — see [Stores](https://drexed.github.io/cmdx/stores/). Point `CMDx.configuration.store` at `CMDx::Stores::Redis` and call `CMDx::Stores.set(..., nx: true, ttl: …)` inside middleware instead of `Redis.current` directly.
+
 !!! tip "Skip vs fail"
 
     `skip!` produces a `skipped?` result — appropriate for idempotent no-ops where the second call is "the work already happened, nothing more to do". Swap to `fail!("duplicate", code: :duplicate)` when callers need to know the request was actively rejected (e.g. to surface a 409 instead of a 2xx).

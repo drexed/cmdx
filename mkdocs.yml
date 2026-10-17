@@ -141,6 +141,7 @@ plugins:
           - logging.md: Structured logging with multiple formatters (JSON, KeyValue, Logstash, Line, Raw)
           - internationalization.md: Multi-language support for error messages and validations (90+ locales)
           - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
+          - stores.md: Shared key/value store for idempotency, rate limits, and cross-worker coordination
           - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
           - outputs.md: Declaring expected context outputs that must be set after task execution
           - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
@@ -181,6 +182,7 @@ nav:
       - Logging: logging.md
       - Internationalization: internationalization.md
       - Retries: retries.md
+      - Stores: stores.md
       - Deprecation: deprecation.md
       - Outputs: outputs.md
       - Workflows: workflows.md

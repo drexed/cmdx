@@ -1,6 +1,6 @@
 # Configuration
 
-This page is about **telling CMDx how to behave**: loggers, telemetry, middleware, custom coercers — the whole backstage crew.
+This page is about **telling CMDx how to behave**: loggers, telemetry, middleware, shared stores, custom coercers — the whole backstage crew.
 
 There are two “floors” to the building:
 
@@ -39,6 +39,7 @@ CMDx keeps **global** defaults and lets each **task class** override or extend t
 | `mergers` | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`) | How parallel branches merge into context |
 | `retriers` | `Retriers.new` (7 built-ins) | Named retry / jitter strategies |
 | `deprecators` | `Deprecators.new` (`:log`, `:warn`, `:error`) | How deprecations surface |
+| `store` | `Stores::Memory.new` | Key/value backend for `CMDx::Stores` (idempotency, rate limits, …) |
 | `telemetry` | `Telemetry.new` (empty) | Pub/sub bus for runtime events |
 
 ### Default locale
@@ -268,6 +269,25 @@ end
 ```
 
 More: [Inputs - Validations](inputs/validations.md).
+
+### Store
+
+Shared **key/value scratch space** for cross-request state: idempotency keys, rate-limit counters, circuit-breaker flags, cached snapshots. Application code usually calls `CMDx::Stores.get` / `set` / `incr` / `del`; those methods delegate to `config.store`.
+
+Default: `CMDx::Stores::Memory` (process-local, thread-safe). Production multi-worker setups typically swap in `CMDx::Stores::Redis` with your existing Redis connection.
+
+```ruby
+CMDx.configure do |config|
+  config.store = CMDx::Stores::Redis.new(
+    redis: Redis.current,
+    namespace: "cmdx:store"
+  )
+end
+
+CMDx::Stores.set("idem:invoice:99", "done", nx: true, ttl: 300)
+```
+
+Full API, adapters, testing notes, and example patterns: [Stores](stores.md).
 
 ### Executors
 

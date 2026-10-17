@@ -10,7 +10,7 @@ module CMDx
   class Configuration
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators, :executors,
-      :mergers, :retriers, :deprecators, :telemetry, :correlation_id, :default_locale,
+      :mergers, :retriers, :deprecators, :telemetry, :store, :correlation_id, :default_locale,
       :strict_context, :backtrace_cleaner, :log_exclusions, :log_formatter,
       :log_level, :logger
 
@@ -24,6 +24,7 @@ module CMDx
       @retriers    = Retriers.new
       @deprecators = Deprecators.new
       @telemetry   = Telemetry.new
+      @store       = Stores::Memory.new
 
       @correlation_id    = nil
       @default_locale    = "en"

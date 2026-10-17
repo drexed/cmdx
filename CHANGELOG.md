@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## UNRELEASED
 
-## [2.2.0] - UNRELEASED
+### Added
+- `CMDx::Stores` — `get` / `set` / `incr` / `del` with optional TTL, delegating to `CMDx.configuration.store`; ships with `Stores::Memory` (default) and `Stores::Redis` (Redis-compatible client + namespace prefix)
+
+## [2.2.0] - 2026-10-17
 
 ### Added
 - Post-work lifecycle callbacks (`after_execution`, every `on_*` hook) receive the finalized `Signal` as their second argument — `reason`, `cause`, `metadata`, `origin`, and `backtrace` are available before `Result` construction. Pre-work hooks and `around_execution` keep the single-`task` arity

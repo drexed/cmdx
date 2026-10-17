@@ -169,6 +169,16 @@ CMDx.configure do |config|
   # end)
 
   # ===========================================================================
+  # Store
+  # https://drexed.github.io/cmdx/configuration/#store
+  # ===========================================================================
+  # Shared key/value scratch space (`CMDx::Stores.get/set/incr/del`) for
+  # idempotency keys, rate limits, and similar cross-request state. Defaults to
+  # an in-memory adapter; point at Redis in production.
+  #
+  # config.store = CMDx::Stores::Redis.new(redis: Redis.current, namespace: "cmdx:store")
+
+  # ===========================================================================
   # Executors
   # https://drexed.github.io/cmdx/workflows/#parallel-execution
   # ===========================================================================

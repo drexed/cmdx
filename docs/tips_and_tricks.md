@@ -194,6 +194,7 @@ Real-world recipes live in the repo — grab the one closest to what you are bui
 - [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 - [Active Support Instrumentation](https://github.com/drexed/cmdx/blob/main/examples/active_support_instrumentation.md)
+- [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md)
 - [dry-monads Interop](https://github.com/drexed/cmdx/blob/main/examples/dry_monads_interop.md)
 - [Flipper Feature Flags](https://github.com/drexed/cmdx/blob/main/examples/flipper_feature_flags.md)
 - [GraphQL Resolvers](https://github.com/drexed/cmdx/blob/main/examples/graphql_resolvers.md)
