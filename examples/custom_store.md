@@ -1,6 +1,6 @@
 # Custom Store
 
-`CMDx.configuration.store` accepts any object that implements `get`, `set`, `incr`, and `del` with the same keyword options as `CMDx::Stores`. Swap the backend for tests (spy / null), wrap Redis with observability, or bridge to `Rails.cache` without forking the framework.
+`CMDx.configuration.store` accepts any object that implements `get`, `set`, `incr`, and `del` with the same keyword options as `CMDx::Stores`. Optional `ttl` enables `CMDx::Stores.remaining_ttl` (for example circuit breaker `retry_after` metadata). Swap the backend for tests (spy / null), wrap Redis with observability, or bridge to `Rails.cache` without forking the framework.
 
 ## Contract
 
@@ -8,8 +8,9 @@
 |--------|---------|--------|
 | `get(key)` | `String` or `nil` | Missing and expired keys → `nil` |
 | `set(key, value, ttl:, nx:, xx:)` | `Boolean` | `true` when a value was written; `nx` / `xx` follow Redis `SET` semantics |
-| `incr(key, ttl:)` | `Integer` | Counter after increment; when `ttl` is set, apply expiry only if the key was created on this call (count `1`) |
+| `incr(key, ttl:)` | `Integer` | Counter after increment; when `ttl` is set, refresh expiry on every increment (built-in adapters) |
 | `del(key)` | `Integer` | `1` if a key was removed, `0` otherwise |
+| `ttl(key)` *(optional)* | `Integer` or `nil` | Seconds until expiry; omit when unsupported |
 
 Keys arrive as `String` or `Symbol`; coerce with `to_s`. Reject blank keys with `ArgumentError` if you want to match built-in adapters.
 

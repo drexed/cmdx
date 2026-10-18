@@ -5,7 +5,7 @@ module CMDx
     # Delegates to a Redis-compatible client (`redis-rb`, `MockRedis`, etc.).
     # Keys are prefixed to avoid collisions with unrelated application data.
     #
-    # The client must respond to `get`, `set`, `incr`, `expire`, and `del`.
+    # The client must respond to `get`, `set`, `incr`, `expire`, `ttl`, and `del`.
     class Redis
 
       # @param redis [#get, #set, #incr, #expire, #del] backing client
@@ -55,8 +55,16 @@ module CMDx
         ttl = Stores.ttl!(ttl) if ttl
 
         count = @redis.incr(key)
-        @redis.expire(key, ttl) if ttl && count == 1
+        @redis.expire(key, ttl) if ttl
         count
+      end
+
+      # @param key [String, Symbol]
+      # @return [Integer, nil] seconds until expiry, or `nil` when missing or expired
+      def ttl(key)
+        key = prefixed(key)
+        seconds = @redis.ttl(key)
+        seconds if seconds.is_a?(Integer) && seconds.positive?
       end
 
       # @param key [String, Symbol]

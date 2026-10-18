@@ -93,6 +93,7 @@ module CMDx
       # @option options [Integer] :window (see {CircuitBreaker#initialize})
       # @option options [String] :namespace (see {CircuitBreaker#initialize})
       # @option options [Symbol] :on_open (see {CircuitBreaker#initialize})
+      # @option options [Array<Class>] :on (see {CircuitBreaker#initialize})
       # @option options [Symbol, Proc, #call] :if gate `(task)` before checking
       # @option options [Symbol, Proc, #call] :unless gate `(task)` before checking
       # @yieldparam task [Task] optional first argument when the block is

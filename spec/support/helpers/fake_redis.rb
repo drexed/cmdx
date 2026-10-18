@@ -5,11 +5,11 @@ module CMDx
     # Minimal Redis-compatible client for store adapter specs.
     class FakeRedis
 
-      attr_reader :data, :ttl
+      attr_reader :data, :expiries
 
       def initialize
         @data = {}
-        @ttl = {}
+        @expiries = {}
       end
 
       def get(key)
@@ -21,11 +21,11 @@ module CMDx
         expire!(key)
         present = @data.key?(key)
 
-        return nil if nx && present
-        return nil if xx && !present
+        return if nx && present
+        return if xx && !present
 
         @data[key] = value
-        @ttl[key] = ex if ex
+        @expiries[key] = ex if ex
         true
       end
 
@@ -35,21 +35,31 @@ module CMDx
       end
 
       def expire(key, seconds) # rubocop:disable Naming/PredicateMethod -- Redis EXPIRE contract
-        @ttl[key] = seconds
+        @expiries[key] = seconds
         true
+      end
+
+      def ttl(key)
+        expire!(key)
+        return -2 unless @data.key?(key)
+
+        seconds = @expiries[key]
+        return -1 unless seconds
+
+        seconds
       end
 
       def del(key)
         existed = @data.key?(key)
         @data.delete(key)
-        @ttl.delete(key)
+        @expiries.delete(key)
         existed ? 1 : 0
       end
 
       private
 
       def expire!(key)
-        return unless @ttl[key]
+        return unless @expiries[key]
 
         nil
       end

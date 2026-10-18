@@ -29,7 +29,7 @@ module CMDx
       end
 
       # @param key [String, Symbol]
-      # @param ttl [Integer, nil] expiry in seconds when the counter is first created
+      # @param ttl [Integer, nil] when set, refreshes expiry on every increment
       # @return [Integer] value after increment
       # @raise [ArgumentError] when `key` is blank or `ttl` is invalid
       def incr(key, ttl: nil)
@@ -49,6 +49,18 @@ module CMDx
       # @raise [ArgumentError] when `key` is blank
       def del(key)
         CMDx.configuration.store.del(key)
+      end
+
+      # @param key [String, Symbol]
+      # @return [Integer, nil] seconds until expiry when the backend supports
+      #   {#ttl}; `nil` when the key is missing, expired, or TTL is unavailable
+      # @raise [ArgumentError] when `key` is blank
+      def remaining_ttl(key)
+        store = CMDx.configuration.store
+        return unless store.respond_to?(:ttl)
+
+        seconds = store.ttl(key)
+        seconds if seconds.is_a?(Integer) && seconds.positive?
       end
 
       # @param key [String, Symbol]

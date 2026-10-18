@@ -30,9 +30,11 @@ module CMDx
     # @param options [Hash{Symbol => Object}]
     # @option options [Integer] :threshold (5) failures before the circuit opens
     # @option options [Integer] :cool_off (30) seconds the circuit stays open
-    # @option options [Integer] :window (60) seconds the failure counter lives
+    # @option options [Integer] :window (60) sliding window for the failure counter
     # @option options [String] :namespace ("cmdx:cb") first segment of store keys
     # @option options [Symbol] :on_open (:fail) `:fail` or `:skip` when open
+    # @option options [Array<Class>] :on (`[StandardError]`) exception classes that
+    #   increment the failure counter
     # @option options [Symbol, Proc, #call] :if gate `(task)` before checking
     # @option options [Symbol, Proc, #call] :unless gate `(task)` before checking
     def initialize(key, options = EMPTY_HASH)
@@ -58,6 +60,11 @@ module CMDx
     # @return [Integer]
     def window
       @options[:window] || 60
+    end
+
+    # @return [Array<Class>]
+    def on_exceptions
+      @options.fetch(:on) { [StandardError] }.flatten
     end
 
     # @return [Symbol] `:fail` or `:skip`
@@ -104,8 +111,8 @@ module CMDx
     end
 
     # Runs the given block when the circuit is closed (or inactive). Records
-    # failures on `StandardError` and clears the failure counter after a
-    # successful run.
+    # failures for configured exception classes and clears the failure counter
+    # after a successful run.
     #
     # @param task [Task]
     # @yield invoked when the circuit is closed or the breaker is inactive
@@ -119,19 +126,19 @@ module CMDx
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
 
       base = store_base(task)
-      open_key = StoreKey.compose(base, OPEN)
+      return yield if base.nil?
 
-      open!(task, base) if Stores.get(open_key)
-
+      open_key     = StoreKey.compose(base, OPEN)
       failures_key = StoreKey.compose(base, FAILURES)
+      open!(task, open_key) if circuit_open?(open_key)
 
       begin
         yield
-      rescue StandardError
-        trip_open(failures_key, open_key)
-        raise
+      rescue StandardError => e
+        record_failure(e, failures_key, open_key)
+        raise e
       else
-        Stores.del(failures_key)
+        clear_failures(failures_key)
       end
     end
 
@@ -139,9 +146,41 @@ module CMDx
 
     def store_base(task)
       segment = StoreKey.segment(task, key, skip: CLASS_KEY)
-      return StoreKey.compose(namespace, task.class.name) if segment.nil?
+
+      if segment.nil?
+        return StoreKey.compose(namespace, task.class.name) if key == CLASS_KEY
+
+        return nil
+      end
 
       StoreKey.compose(namespace, task.class.name, segment)
+    end
+
+    def circuit_open?(open_key)
+      Stores.get(open_key)
+    rescue StandardError
+      false
+    end
+
+    def record_failure(exception, failures_key, open_key)
+      return unless counts_as_failure?(exception)
+
+      trip_open(failures_key, open_key)
+    rescue StandardError
+      nil
+    end
+
+    def clear_failures(failures_key)
+      Stores.del(failures_key)
+    rescue StandardError
+      nil
+    end
+
+    def counts_as_failure?(exception)
+      list = on_exceptions
+      return false if list.empty?
+
+      list.any? { |klass| exception.is_a?(klass) }
     end
 
     def trip_open(failures_key, open_key)
@@ -152,9 +191,15 @@ module CMDx
       Stores.del(failures_key)
     end
 
-    def open!(task, base)
-      message  = "circuit open"
-      metadata = { code: :circuit_open, circuit_breaker_key: base }
+    def open!(task, open_key)
+      message = "circuit open"
+      metadata = {
+        code: :circuit_open,
+        circuit_breaker_key: open_key
+      }
+
+      remaining = Stores.remaining_ttl(open_key)
+      metadata[:retry_after] = remaining if remaining
 
       case on_open
       when :fail

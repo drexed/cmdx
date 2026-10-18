@@ -23,15 +23,25 @@ RSpec.describe CMDx::Stores::Redis do
     it "passes nx and ttl to the client" do
       expect(store.set(:token, "a", nx: true, ttl: 60)).to be(true)
       expect(store.set(:token, "b", nx: true, ttl: 60)).to be(false)
-      expect(redis.ttl["cmdx:test:token"]).to eq(60)
+      expect(redis.expiries["cmdx:test:token"]).to eq(60)
     end
   end
 
   describe "#incr" do
-    it "increments via the client and sets ttl on the first count" do
+    it "increments via the client and refreshes ttl on every increment" do
       expect(store.incr(:hits, ttl: 30)).to eq(1)
-      expect(store.incr(:hits)).to eq(2)
-      expect(redis.ttl["cmdx:test:hits"]).to eq(30)
+      expect(redis.expiries["cmdx:test:hits"]).to eq(30)
+
+      expect(store.incr(:hits, ttl: 30)).to eq(2)
+      expect(redis.expiries["cmdx:test:hits"]).to eq(30)
+    end
+  end
+
+  describe "#ttl" do
+    it "returns remaining seconds for a key with expiry" do
+      store.set(:token, "x", ttl: 45)
+
+      expect(store.ttl(:token)).to eq(45)
     end
   end
 

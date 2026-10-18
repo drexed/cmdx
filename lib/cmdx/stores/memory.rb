@@ -18,8 +18,8 @@ module CMDx
         key = Stores.key!(key)
         @mutex.synchronize do
           entry = @entries[key]
-          return nil unless entry
-          return nil if expired?(entry)
+          return unless entry
+          return if expired?(entry)
 
           entry[:value]
         end
@@ -51,8 +51,7 @@ module CMDx
       end
 
       # @param key [String, Symbol]
-      # @param ttl [Integer, nil] when set, expiry is applied only if the key is
-      #   created by this call (count becomes `1`)
+      # @param ttl [Integer, nil] when set, refreshes expiry on every increment
       # @return [Integer] value after increment
       # @raise [ArgumentError] when `ttl` is invalid
       def incr(key, ttl: nil)
@@ -67,11 +66,27 @@ module CMDx
           end
 
           count = entry ? entry[:value].to_i + 1 : 1
-          expires_at = entry&.fetch(:expires_at, nil)
-          expires_at = monotonic_now + ttl if ttl && count == 1
+          expires_at = (monotonic_now + ttl if ttl)
 
           @entries[key] = { value: count.to_s, expires_at: }
           count
+        end
+      end
+
+      # @param key [String, Symbol]
+      # @return [Integer, nil] whole seconds until expiry, or `nil` when missing or expired
+      def ttl(key)
+        key = Stores.key!(key)
+        @mutex.synchronize do
+          entry = @entries[key]
+          return unless entry
+          return if expired?(entry)
+
+          expires_at = entry[:expires_at]
+          return unless expires_at
+
+          remaining = expires_at - monotonic_now
+          remaining.positive? ? remaining.ceil : nil
         end
       end
 

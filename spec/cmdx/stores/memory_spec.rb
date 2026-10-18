@@ -81,13 +81,39 @@ RSpec.describe CMDx::Stores::Memory do
       expect(store.incr(:n)).to eq(3)
     end
 
-    it "applies ttl only when the counter is first created" do
+    it "expires the counter after the ttl elapses" do
       store.incr(:n, ttl: 1)
 
       sleep 1.1
 
       expect(store.get(:n)).to be_nil
       expect(store.incr(:n)).to eq(1)
+    end
+
+    it "refreshes ttl on every increment when ttl is set" do
+      store.incr(:n, ttl: 2)
+      sleep 1.1
+      store.incr(:n, ttl: 2)
+
+      sleep 1.1
+
+      expect(store.get(:n)).not_to be_nil
+
+      sleep 1.1
+
+      expect(store.get(:n)).to be_nil
+    end
+  end
+
+  describe "#ttl" do
+    it "returns nil for a missing key" do
+      expect(store.ttl(:missing)).to be_nil
+    end
+
+    it "returns remaining seconds for a key with expiry" do
+      store.set(:k, "v", ttl: 30)
+
+      expect(store.ttl(:k)).to be_between(1, 30)
     end
   end
 
