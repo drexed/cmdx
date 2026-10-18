@@ -65,10 +65,10 @@ While work is in flight the value is `"processing"`; after a successful run it b
 ## Interaction with `retry_on`
 
 ```text
-resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs!
+resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
 ```
 
-If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. When retries eventually succeed, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
+If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. The claim is also released when `work` signals `skip!` or `fail!`, or when output verification fails, so a later invocation can run again. When the wrapped block finishes successfully, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
 
 Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](stores.md).
 

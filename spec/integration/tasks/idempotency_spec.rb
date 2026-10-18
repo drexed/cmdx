@@ -50,6 +50,61 @@ RSpec.describe "Task idempotency", type: :feature do
     expect(result).to be_skipped
   end
 
+  it "does not mark completed when output verification fails" do
+    attempts = 0
+    store_key = "cmdx:idem:IdemOutputTask:pay_1"
+    klass = create_task_class(name: "IdemOutputTask") do
+      idempotent_by :payment_id
+      required :payment_id, coerce: :string
+      output :token
+
+      define_method(:work) { attempts += 1 }
+    end
+
+    first = klass.execute(payment_id: "pay_1")
+    second = klass.execute(payment_id: "pay_1")
+
+    expect(first).to be_ko
+    expect(second).to be_ko
+    expect(second).not_to be_skipped
+    expect(attempts).to eq(2)
+    expect(CMDx::Stores.get(store_key)).not_to eq(CMDx::Idempotency::COMPLETED)
+  end
+
+  it "releases the claim when work signals skip!" do
+    attempts = 0
+    klass = create_task_class(name: "IdemSkipRelease") do
+      idempotent_by :payment_id
+      required :payment_id, coerce: :string
+
+      define_method(:work) do
+        attempts += 1
+        skip!("noop") if attempts == 1
+      end
+    end
+
+    expect(klass.execute(payment_id: "pay_1")).to be_skipped
+    expect(klass.execute(payment_id: "pay_1")).to be_ok
+    expect(klass.execute(payment_id: "pay_1")).to be_skipped
+  end
+
+  it "releases the claim when work signals fail!" do
+    attempts = 0
+    klass = create_task_class(name: "IdemFailRelease") do
+      idempotent_by :payment_id
+      required :payment_id, coerce: :string
+
+      define_method(:work) do
+        attempts += 1
+        fail!("nope") if attempts == 1
+      end
+    end
+
+    expect(klass.execute(payment_id: "pay_1")).to be_ko
+    expect(klass.execute(payment_id: "pay_1")).to be_ok
+    expect(klass.execute(payment_id: "pay_1")).to be_skipped
+  end
+
   context "with retry_on" do
     it "releases the claim on failure so retries can run work again" do
       attempts = 0

@@ -91,4 +91,20 @@ RSpec.describe CMDx::Idempotency do
       expect(result.metadata[:code]).to eq(:duplicate)
     end
   end
+
+  describe "#mark_completed!" do
+    it "raises IdempotencyError and releases the claim when the store refuses the transition" do
+      store_key = "cmdx:idem:IdempotentTask:pay_completion"
+      config = described_class.new(:payment_id, ttl: 300)
+      CMDx::Stores.set(store_key, described_class::PROCESSING, ttl: 300)
+
+      allow(CMDx::Stores).to receive(:set)
+        .with(store_key, described_class::COMPLETED, xx: true, ttl: 300)
+        .and_return(false)
+
+      expect { config.send(:mark_completed!, store_key) }
+        .to raise_error(CMDx::IdempotencyError, /failed to mark idempotency key completed/)
+      expect(CMDx::Stores.get(store_key)).to be_nil
+    end
+  end
 end

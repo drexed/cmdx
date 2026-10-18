@@ -3,7 +3,8 @@
 module CMDx
   # Orchestrates a task's full lifecycle: chain acquisition, middlewares,
   # telemetry, deprecation, callbacks, input resolution, `work` (wrapped in
-  # {CircuitBreaker} and {Idempotency} when declared, then {Retry}), output verification,
+  # {CircuitBreaker} and {Idempotency} when declared, then {Retry}; output
+  # verification runs inside the idempotency claim when enabled),
   # rollback on failure, result finalization, and teardown (freeze + chain clear).
   #
   # Signal propagation: `work` and the surrounding middleware/callback chain
@@ -174,10 +175,9 @@ module CMDx
         circuit_execution do
           idempotent_execution do
             retry_execution { @task.work }
+            verify_outputs!
           end
         end
-
-        verify_outputs!
 
         Signal.success(nil, metadata: @task.metadata)
       rescue Fault => e

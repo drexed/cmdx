@@ -6,8 +6,10 @@ module CMDx
   # invocations with the same logical key short-circuit before `work` repeats.
   #
   # Store keys are `namespace:TaskName:segment` (see {StoreKey.compose}). Values
-  # move `processing` → `completed` on success; the key is deleted on
-  # `StandardError` so retries can reclaim.
+  # move `processing` → `completed` after the wrapped block returns (including
+  # output verification when invoked from {Runtime}); the key is deleted on
+  # `StandardError` or non-success signals (`skip!` / `fail!`) so retries can
+  # reclaim.
   class Idempotency
 
     PROCESSING = "processing"
@@ -89,8 +91,9 @@ module CMDx
     end
 
     # Runs the given block behind a store claim when {#enabled?} and gates pass.
-    # Releases the claim on `StandardError` so `retry_on` can run `work` again;
-    # marks the slot `completed` after the block returns successfully.
+    # Releases the claim on `StandardError` or a non-returning exit (`skip!`,
+    # `fail!`) so `retry_on` can run `work` again; marks the slot `completed`
+    # after the block returns successfully.
     #
     # @param task [Task]
     # @yield invoked when the claim succeeds or idempotency is inactive
@@ -99,6 +102,7 @@ module CMDx
     # @note On duplicate keys, signals `skip!` or `fail!` on `task` — control
     #   does not return to the caller of {#process}.
     # @raise [ArgumentError] when `on_duplicate` is not `:skip` or `:fail`
+    # @raise [IdempotencyError] when the store refuses the `completed` transition
     def process(task)
       return yield unless enabled?
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
@@ -109,20 +113,32 @@ module CMDx
       store_key = StoreKey.compose(namespace, task.class.name, segment)
 
       if Stores.set(store_key, PROCESSING, nx: true, ttl:)
+        succeeded = false
+
         begin
           yield
+          succeeded = true
         rescue StandardError
           Stores.del(store_key)
           raise
-        else
-          Stores.set(store_key, COMPLETED, xx: true, ttl:)
+        ensure
+          Stores.del(store_key) unless succeeded
         end
+
+        mark_completed!(store_key)
       else
         duplicate!(task, store_key)
       end
     end
 
     private
+
+    def mark_completed!(store_key)
+      return if Stores.set(store_key, COMPLETED, xx: true, ttl:)
+
+      Stores.del(store_key)
+      raise IdempotencyError, "failed to mark idempotency key completed (#{store_key})"
+    end
 
     def duplicate!(task, store_key)
       state    = Stores.get(store_key)
