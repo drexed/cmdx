@@ -4,7 +4,7 @@ module CMDx
   # Builds colon-separated store keys with the same non-empty coercion as
   # {Stores.key!}. Used by {Idempotency} (`namespace:TaskName:segment`),
   # {CircuitBreaker} (`namespace:TaskName` with `:failures` / `:open` suffixes),
-  # and other store-backed helpers.
+  # {Lock} (`namespace:TaskName:segment`), and other store-backed helpers.
   module StoreKey
 
     extend self

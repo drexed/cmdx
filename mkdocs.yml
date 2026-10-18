@@ -185,6 +185,7 @@ nav:
       - Internationalization: internationalization.md
       - Retries: retries.md
       - Idempotency: idempotency.md
+      - Locks: locks.md
       - Circuit breaker: circuit_breaker.md
       - Stores: stores.md
       - Deprecation: deprecation.md

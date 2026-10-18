@@ -59,6 +59,33 @@ RSpec.describe CMDx::Task do
     end
   end
 
+  describe "lock_with" do
+    it "defaults to a disabled Lock" do
+      klass = create_task_class
+      expect(klass.lock_with).to be_a(CMDx::Lock)
+      expect(klass.lock_with).not_to be_enabled
+    end
+
+    it "stores a key and options" do
+      klass = create_task_class
+      klass.lock_with :resource_id, ttl: 60, wait: 1.5
+
+      expect(klass.lock_with).to be_enabled
+      expect(klass.lock_with.key).to eq(:resource_id)
+      expect(klass.lock_with.ttl).to eq(60)
+      expect(klass.lock_with.wait).to eq(1.5)
+    end
+
+    it "disables when passed false" do
+      parent = create_task_class
+      parent.lock_with :request_id
+      child = create_task_class(base: parent)
+      child.lock_with false
+
+      expect(child.lock_with).not_to be_enabled
+    end
+  end
+
   describe "idempotent_by" do
     it "defaults to a disabled Idempotency" do
       klass = create_task_class

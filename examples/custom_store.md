@@ -10,6 +10,7 @@
 | `set(key, value, ttl:, nx:, xx:)` | `Boolean` | `true` when a value was written; `nx` / `xx` follow Redis `SET` semantics |
 | `incr(key, ttl:)` | `Integer` | Counter after increment; when `ttl` is set, refresh expiry on every increment (built-in adapters) |
 | `del(key)` | `Integer` | `1` if a key was removed, `0` otherwise |
+| `del_if(key, expected)` | `Boolean` | `true` when the key was removed because the value matched; required for `lock_with` release |
 | `ttl(key)` *(optional)* | `Integer` or `nil` | Seconds until expiry; omit when unsupported |
 
 Keys arrive as `String` or `Symbol`; coerce with `to_s`. Reject blank keys with `ArgumentError` if you want to match built-in adapters.

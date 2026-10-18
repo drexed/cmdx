@@ -53,4 +53,16 @@ RSpec.describe CMDx::Stores::Redis do
       expect(store.get(:token)).to be_nil
     end
   end
+
+  describe "#del_if" do
+    it "deletes only when the value matches" do
+      store.set(:token, "mine")
+
+      expect(store.del_if(:token, "other")).to be(false)
+      expect(store.get(:token)).to eq("mine")
+
+      expect(store.del_if(:token, "mine")).to be(true)
+      expect(store.get(:token)).to be_nil
+    end
+  end
 end

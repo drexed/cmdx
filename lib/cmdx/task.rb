@@ -3,7 +3,8 @@
 module CMDx
   # Base class for all units of work. Subclasses override `#work` and
   # declare their contract via `required`, `optional`, `output`, `callbacks`,
-  # `retry_on`, `idempotent_by`, `circuit_breaker`, `deprecation`, and `settings`.
+  # `retry_on`, `idempotent_by`, `lock_with`, `circuit_breaker`, `deprecation`,
+  # and `settings`.
   # Invoked via {.execute} (safe) or {.execute!} (strict, raises on failure).
   #
   # Inheritance: every registry accessor (middlewares, callbacks, coercions,
@@ -77,6 +78,39 @@ module CMDx
             Idempotency.disabled
           else
             @idempotent_by.build(key || block, options)
+          end
+      end
+
+      # Declares a distributed lock from context (or a callable). Builds on the
+      # superclass's {Lock}. Passing no `key` and no options returns the current
+      # (possibly inherited) configuration. Pass `false` to disable.
+      #
+      # @param key [Symbol, String, Proc, #call, false, nil] context key or
+      #   resolver; `false` disables locking on this class
+      # @param options [Hash{Symbol => Object}] see {Lock#initialize}
+      # @option options [Integer] :ttl (see {Lock#initialize})
+      # @option options [String] :namespace (see {Lock#initialize})
+      # @option options [Numeric, false, nil] :wait (see {Lock#initialize})
+      # @option options [Symbol] :on_busy (see {Lock#initialize})
+      # @option options [Symbol, Proc, #call] :if gate `(task)` for acquiring
+      # @option options [Symbol, Proc, #call] :unless gate `(task)` for acquiring
+      # @yieldparam task [Task] optional first argument when the block is
+      #   `instance_exec`'d (same as callbacks)
+      # @return [Lock]
+      # @see Lock#process
+      def lock_with(key = nil, **options, &block)
+        @lock_with ||=
+          if superclass.respond_to?(:lock_with)
+            superclass.lock_with
+          else
+            Lock.disabled
+          end
+
+        @lock_with =
+          if key == false
+            Lock.disabled
+          else
+            @lock_with.build(key || block, options)
           end
       end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Key/value scratch space for idempotency keys, rate limits, circuit breakers,
+  # Key/value scratch space for idempotency keys, locks, rate limits, circuit breakers,
   # checkpoints, and cached results. {Stores} delegates to
   # {Configuration#store}; swap the configured backend (for example
   # {Stores::Memory} or {Stores::Redis}) at boot.
@@ -49,6 +49,18 @@ module CMDx
       # @raise [ArgumentError] when `key` is blank
       def del(key)
         CMDx.configuration.store.del(key)
+      end
+
+      # @param key [String, Symbol]
+      # @param expected [#to_s] value that must match the stored string for deletion
+      # @return [Boolean] whether the key was removed
+      # @raise [ArgumentError] when `key` is blank
+      # @raise [NotImplementedError] when the configured store does not implement {#del_if}
+      def del_if(key, expected)
+        store = CMDx.configuration.store
+        raise NotImplementedError, "store must implement del_if(key, expected) for lock release" unless store.respond_to?(:del_if)
+
+        store.del_if(key, expected)
       end
 
       # @param key [String, Symbol]

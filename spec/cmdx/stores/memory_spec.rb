@@ -144,4 +144,24 @@ RSpec.describe CMDx::Stores::Memory do
       expect(store.get(:k)).to be_nil
     end
   end
+
+  describe "#del_if" do
+    it "returns false when the key is missing" do
+      expect(store.del_if(:k, "v")).to be(false)
+    end
+
+    it "returns false when the value does not match" do
+      store.set(:k, "a")
+
+      expect(store.del_if(:k, "b")).to be(false)
+      expect(store.get(:k)).to eq("a")
+    end
+
+    it "returns true and removes the key when the value matches" do
+      store.set(:k, "a")
+
+      expect(store.del_if(:k, "a")).to be(true)
+      expect(store.get(:k)).to be_nil
+    end
+  end
 end

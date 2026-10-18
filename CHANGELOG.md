@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## UNRELEASED
 
 ### Added
+- `Task.lock_with` — distributed lease via `CMDx::Stores` so only one worker runs the same logical key at a time; optional `wait:` polling, `on_busy:` `:fail` / `:skip`, and `if` / `unless` gates; wraps `idempotent_by` and the `retry_on` loop in `Runtime`; pass `false` on a subclass to disable
 - `CMDx::Stores` — `get` / `set` / `incr` / `del` with optional TTL, delegating to `CMDx.configuration.store`; ships with `Stores::Memory` (default) and `Stores::Redis` (Redis-compatible client + namespace prefix)
 - `Task.idempotent_by` — declare a stable key from context (or a callable) so duplicate invocations short-circuit via `CMDx::Stores` before `work` runs; releases the claim on failure so `retry_on` can retry safely; pass `false` on a subclass to disable
 - `Task.circuit_breaker` — shared failure counter and open flag via `CMDx::Stores` so repeated `StandardError` outcomes open the circuit until `cool_off` elapses; wraps `idempotent_by` and the `retry_on` loop in `Runtime`; pass `false` on a subclass to disable

@@ -45,9 +45,13 @@ end
 
     Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
 
-!!! tip "Idempotency"
+!!! tip "Locks and idempotency during retries"
 
-    When `idempotent_by` is declared, the store claim wraps the **entire** retry loop — a failed attempt releases the claim so the next retry can run `work` again. See [Idempotency](idempotency.md).
+    `lock_with` and `idempotent_by` wrap the **entire** `retry_on` loop in `Runtime`. A retried attempt does **not** release the lock or idempotency claim between tries — the same invocation keeps the lease until `work` (and output verification) finish, the run halts via `skip!` / `fail!`, or an uncaught error leaves the wrapped block.
+
+    Size `lock_with ttl:` for worst-case hold time (work, retry sleeps, verification). See [Locks — Lease lifetime and `ttl`](locks.md#lease-lifetime-and-ttl).
+
+    When retries are exhausted and the error propagates, idempotency deletes its claim so a **new** job delivery can try again; the lock is released in `ensure` after acquire. See [Locks](locks.md) and [Idempotency](idempotency.md).
 
 ## Inheritance
 

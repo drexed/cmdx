@@ -127,6 +127,22 @@ module CMDx
         end
       end
 
+      # @param key [String, Symbol]
+      # @param expected [#to_s]
+      # @return [Boolean] whether the key was removed
+      def del_if(key, expected)
+        key = Stores.key!(key)
+        expected = expected.to_s
+        @mutex.synchronize do
+          entry = @entries[key]
+          return false unless entry && !expired?(entry)
+          return false unless entry[:value] == expected
+
+          @entries.delete(key)
+          true
+        end
+      end
+
       private
 
       def expired?(entry)

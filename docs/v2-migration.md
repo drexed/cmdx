@@ -1029,7 +1029,6 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 ### Infrastructure primitives
 
 - **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
-- **`CMDx::Locks`** — `lock_with key: ..., ttl: ..., wait: ...` prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.
 
 ### Tasks
 

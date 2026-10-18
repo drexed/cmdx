@@ -5,10 +5,18 @@ module CMDx
     # Delegates to a Redis-compatible client (`redis-rb`, `MockRedis`, etc.).
     # Keys are prefixed to avoid collisions with unrelated application data.
     #
-    # The client must respond to `get`, `set`, `incr`, `expire`, `ttl`, and `del`.
+    # The client must respond to `get`, `set`, `incr`, `expire`, `ttl`, `del`, and `eval`.
     class Redis
 
-      # @param redis [#get, #set, #incr, #expire, #del] backing client
+      DEL_IF_SCRIPT = <<~LUA
+        if redis.call('GET', KEYS[1]) == ARGV[1] then
+          return redis.call('DEL', KEYS[1])
+        else
+          return 0
+        end
+      LUA
+
+      # @param redis [#get, #set, #incr, #expire, #del, #eval] backing client
       # @param namespace [String] prepended to every key (trailing `:` added when missing)
       def initialize(redis:, namespace: "cmdx:store")
         @redis = redis
@@ -80,6 +88,16 @@ module CMDx
       # @return [Integer]
       def del(key)
         @redis.del(prefixed(key))
+      end
+
+      # @param key [String, Symbol]
+      # @param expected [#to_s]
+      # @return [Boolean] whether the key was removed
+      def del_if(key, expected) # rubocop:disable Naming/PredicateMethod -- store delete contract
+        key = prefixed(key)
+        expected = expected.to_s
+        deleted = @redis.eval(DEL_IF_SCRIPT, keys: [key], argv: [expected])
+        deleted.to_i.positive?
       end
 
       private

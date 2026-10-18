@@ -56,6 +56,14 @@ module CMDx
         existed ? 1 : 0
       end
 
+      def eval(script, keys:, argv:)
+        key = keys.first
+        expected = argv.first
+        return 0 unless get(key) == expected
+
+        del(key)
+      end
+
       private
 
       def expire!(key)

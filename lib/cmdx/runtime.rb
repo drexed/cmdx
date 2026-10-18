@@ -3,8 +3,9 @@
 module CMDx
   # Orchestrates a task's full lifecycle: chain acquisition, middlewares,
   # telemetry, deprecation, callbacks, input resolution, `work` (wrapped in
-  # {CircuitBreaker} and {Idempotency} when declared, then {Retry}; output
-  # verification runs inside the idempotency claim when enabled),
+  # {CircuitBreaker}, {Lock}, and {Idempotency} when declared, then {Retry};
+  # output verification runs inside the lock lease and idempotency claim when
+  # enabled),
   # rollback on failure, result finalization, and teardown (freeze + chain clear).
   #
   # Signal propagation: `work` and the surrounding middleware/callback chain
@@ -173,9 +174,11 @@ module CMDx
         resolve_inputs!
 
         circuit_execution do
-          idempotent_execution do
-            retry_execution { @task.work }
-            verify_outputs!
+          lock_execution do
+            idempotent_execution do
+              retry_execution { @task.work }
+              verify_outputs!
+            end
           end
         end
 
@@ -210,6 +213,13 @@ module CMDx
       return yield unless breaker.enabled?
 
       breaker.process(@task, &)
+    end
+
+    def lock_execution(&)
+      lock = @task.class.lock_with
+      return yield unless lock.enabled?
+
+      lock.process(@task, &)
     end
 
     def idempotent_execution(&)
