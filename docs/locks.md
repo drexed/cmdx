@@ -98,6 +98,31 @@ With both enabled, a second worker usually **waits** on the lock. When the first
 
 Both set `metadata[:code] == :busy` and `metadata[:lock_key]` to the full store key. When the backend supports it, you also get `holder` (who has the lease) and `retry_after` (seconds until the key may expire).
 
+## Telemetry
+
+When locking is active for a run (enabled, gates pass, segment non-blank), CMDx emits [telemetry](configuration.md#telemetry) only if someone subscribed — unused events cost nothing.
+
+| Event | When | Extra `event.payload` keys |
+|-------|------|----------------------------|
+| `:lock_acquired` | Lease taken, right before idempotency / retries / `work` | `lock_key` |
+| `:lock_busy` | Lease not acquired within `wait:` | `code: :busy`, `lock_key`, `on_busy:`; optional `holder`, `retry_after` |
+
+Each event also carries the usual `Telemetry::Event` fields (`cid`, `xid`, `tid`, `task`, `timestamp`, …).
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:lock_busy, ->(event) {
+    StatsD.increment("cmdx.lock.busy", tags: ["task:#{event.task}"])
+  })
+
+  config.telemetry.subscribe(:lock_acquired, ->(event) {
+    Rails.logger.info("[cmdx] lock #{event.payload[:lock_key]} held by #{event.tid}")
+  })
+end
+```
+
+`:lock_busy` fires **before** `skip!` / `fail!`, so you can metric contention even when the final result is skipped.
+
 ## Inheritance
 
 Subclasses inherit the parent's lock. `lock_with` with no arguments returns the current config. A new key resolver **replaces** the old one; option-only calls **merge**. `lock_with false` on a subclass turns locking off.

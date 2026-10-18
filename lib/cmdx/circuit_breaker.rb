@@ -135,10 +135,10 @@ module CMDx
       begin
         yield
       rescue StandardError => e
-        record_failure(e, failures_key, open_key)
+        record_failure(e, failures_key, open_key, task)
         raise e
       else
-        clear_failures(failures_key)
+        clear_failures(failures_key, task)
       end
     end
 
@@ -162,16 +162,17 @@ module CMDx
       false
     end
 
-    def record_failure(exception, failures_key, open_key)
+    def record_failure(exception, failures_key, open_key, task)
       return unless counts_as_failure?(exception)
 
-      trip_open(failures_key, open_key)
+      trip_open(failures_key, open_key, task)
     rescue StandardError
       nil
     end
 
-    def clear_failures(failures_key)
-      Stores.del(failures_key)
+    def clear_failures(failures_key, task)
+      cleared = Stores.del(failures_key)
+      Telemetry.emit_for(task, :circuit_failures_cleared, failures_key:) if cleared
     rescue StandardError
       nil
     end
@@ -183,12 +184,22 @@ module CMDx
       list.any? { |klass| exception.is_a?(klass) }
     end
 
-    def trip_open(failures_key, open_key)
+    def trip_open(failures_key, open_key, task)
       count = Stores.incr(failures_key, ttl: window)
       return unless count >= threshold
 
       Stores.set(open_key, OPEN, ttl: cool_off)
       Stores.del(failures_key)
+
+      Telemetry.emit_for(
+        task,
+        :circuit_tripped,
+        circuit_breaker_key: open_key,
+        failures_key:,
+        failure_count: count,
+        threshold:,
+        cool_off:
+      )
     end
 
     def open!(task, open_key)
@@ -200,6 +211,8 @@ module CMDx
 
       remaining = Stores.remaining_ttl(open_key)
       metadata[:retry_after] = remaining if remaining
+
+      Telemetry.emit_for(task, :circuit_open, **metadata, on_open:)
 
       case on_open
       when :fail

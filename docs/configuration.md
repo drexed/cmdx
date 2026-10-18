@@ -205,6 +205,14 @@ Simple mental model: **publish events, subscribe with lambdas**. Each event deli
 | `:task_retried` | `{ attempt: Integer }` |
 | `:task_rolled_back` | empty |
 | `:task_executed` | `{ result: Result }` |
+| `:lock_acquired` | `{ lock_key: String }` |
+| `:lock_busy` | `{ code: :busy, lock_key:, holder:, retry_after:, on_busy: }` (optional keys omitted when unknown) |
+| `:idempotency_claimed` | `{ idempotency_key: String }` |
+| `:idempotency_completed` | `{ idempotency_key: String }` |
+| `:idempotency_duplicate` | `{ code: :duplicate, idempotency_key:, state: }` |
+| `:circuit_open` | `{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }` |
+| `:circuit_tripped` | `{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }` |
+| `:circuit_failures_cleared` | `{ failures_key: String }` |
 
 ```ruby
 CMDx.configure do |config|

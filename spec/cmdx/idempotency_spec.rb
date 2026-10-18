@@ -182,9 +182,44 @@ RSpec.describe CMDx::Idempotency do
         .with(store_key, described_class::COMPLETED, xx: true, ttl: 300)
         .and_return(false)
 
-      expect { config.send(:mark_completed!, store_key) }
+      task = task_class.new(payment_id: "pay_completion")
+
+      expect { config.send(:mark_completed!, store_key, task) }
         .to raise_error(CMDx::IdempotencyError, /failed to mark idempotency key completed/)
       expect(CMDx::Stores.get(store_key)).to be_nil
+    end
+  end
+
+  describe "telemetry" do
+    it "emits claimed and completed on a successful run" do
+      events = []
+      task_class.idempotent_by :payment_id
+      task_class.telemetry.subscribe(:idempotency_claimed) { |e| events << e }
+      task_class.telemetry.subscribe(:idempotency_completed) { |e| events << e }
+
+      task_class.execute(payment_id: "pay_telemetry")
+
+      expect(events.map(&:name)).to eq(%i[idempotency_claimed idempotency_completed])
+      store_key = "cmdx:idem:#{task_class.name}:pay_telemetry"
+      expect(events.first.payload[:idempotency_key]).to eq(store_key)
+      expect(events.last.payload[:idempotency_key]).to eq(store_key)
+    end
+
+    it "emits idempotency_duplicate when the slot is already claimed" do
+      events = []
+      task_class.idempotent_by :payment_id
+      task_class.telemetry.subscribe(:idempotency_duplicate) { |e| events << e }
+      store_key = "cmdx:idem:#{task_class.name}:pay_dup"
+      CMDx::Stores.set(store_key, described_class::COMPLETED, ttl: 300)
+
+      task_class.execute(payment_id: "pay_dup")
+
+      expect(events.size).to eq(1)
+      expect(events.first.payload).to include(
+        code: :duplicate,
+        idempotency_key: store_key,
+        state: described_class::COMPLETED
+      )
     end
   end
 end

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Pub/sub for runtime lifecycle events (see {EVENTS}). Subscribers are
-  # callables receiving an {Event} data object. Runtime emits events only when
-  # subscribers are registered so telemetry has zero cost when unused.
+  # Pub/sub for runtime lifecycle and infrastructure events (see {EVENTS}).
+  # Subscribers are callables receiving an {Event} data object. {emit_for}
+  # dispatches only when subscribers are registered so telemetry has zero cost
+  # when unused.
   class Telemetry
 
     # Immutable event payload passed to subscribers.
@@ -23,14 +24,43 @@ module CMDx
       end
     end
 
-    # Lifecycle event names Runtime emits.
+    # Lifecycle and infrastructure event names the runtime and store-backed
+    # helpers emit.
     EVENTS = %i[
       task_started
       task_deprecated
       task_retried
       task_rolled_back
       task_executed
+      lock_acquired
+      lock_busy
+      idempotency_claimed
+      idempotency_completed
+      idempotency_duplicate
+      circuit_open
+      circuit_tripped
+      circuit_failures_cleared
     ].freeze
+
+    class << self
+
+      # Dispatches `payload` when `task`'s telemetry registry has subscribers
+      # for `name`. No-op when nothing is subscribed.
+      #
+      # @param task [Task]
+      # @param name [Symbol] one of {EVENTS}
+      # @param root [Boolean] whether this task started the active chain
+      # @param payload [Hash{Symbol => Object}] extra fields merged into the event payload
+      # @return [void]
+      def emit_for(task, name, root: false, **payload)
+        telemetry = task.class.telemetry
+        return unless telemetry.subscribed?(name)
+
+        event = Event.build(task, name, root:, payload:)
+        telemetry.emit(name, event)
+      end
+
+    end
 
     attr_reader :registry
 

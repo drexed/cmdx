@@ -190,6 +190,13 @@ Events (`CMDx::Telemetry::EVENTS`):
 | `:task_retried` | `attempt:` (Integer) |
 | `:task_rolled_back` | — |
 | `:task_executed` | `result:` (finalized `Result`) |
+| `:lock_acquired` | `lock_key:` |
+| `:lock_busy` | `code:`, `lock_key:`, optional `holder:`, `retry_after:`, `on_busy:` |
+| `:idempotency_claimed` / `:idempotency_completed` | `idempotency_key:` |
+| `:idempotency_duplicate` | `code:`, `idempotency_key:`, `state:` |
+| `:circuit_open` | `code:`, `circuit_breaker_key:`, optional `retry_after:`, `on_open:` |
+| `:circuit_tripped` | `circuit_breaker_key:`, `failures_key:`, `failure_count:`, `threshold:`, `cool_off:` |
+| `:circuit_failures_cleared` | `failures_key:` |
 
 Shared `Event` fields: `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`.
 

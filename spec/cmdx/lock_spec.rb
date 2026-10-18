@@ -290,4 +290,36 @@ RSpec.describe CMDx::Lock do
       expect(CMDx::Stores.get(store_key)).to be_nil
     end
   end
+
+  describe "telemetry" do
+    it "emits lock_acquired when the lease is taken" do
+      events = []
+      task_class.lock_with :resource_id
+      task_class.telemetry.subscribe(:lock_acquired) { |e| events << e }
+
+      task_class.execute(resource_id: "r1")
+
+      expect(events.map(&:name)).to eq([:lock_acquired])
+      expect(events.first.payload[:lock_key]).to eq("cmdx:lock:#{task_class.name}:r1")
+    end
+
+    it "emits lock_busy when the lease cannot be acquired" do
+      events = []
+      task_class.lock_with :resource_id, on_busy: :skip
+      task_class.telemetry.subscribe(:lock_busy) { |e| events << e }
+      store_key = "cmdx:lock:#{task_class.name}:busy_telemetry"
+      CMDx::Stores.set(store_key, "holder", ttl: 300)
+
+      task_class.execute(resource_id: "busy_telemetry")
+
+      expect(events.map(&:name)).to eq([:lock_busy])
+      expect(events.first.payload).to include(code: :busy, lock_key: store_key, holder: "holder", on_busy: :skip)
+    end
+
+    it "does not emit when nothing is subscribed" do
+      task_class.lock_with :resource_id
+
+      expect { task_class.execute(resource_id: "r1") }.not_to raise_error
+    end
+  end
 end

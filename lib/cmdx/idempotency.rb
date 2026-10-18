@@ -113,6 +113,8 @@ module CMDx
       store_key = StoreKey.compose(namespace, task.class.name, segment)
 
       if Stores.set(store_key, PROCESSING, nx: true, ttl:)
+        Telemetry.emit_for(task, :idempotency_claimed, idempotency_key: store_key)
+
         succeeded = false
 
         begin
@@ -125,7 +127,7 @@ module CMDx
           Stores.del(store_key) unless succeeded
         end
 
-        mark_completed!(store_key)
+        mark_completed!(store_key, task)
       else
         duplicate!(task, store_key)
       end
@@ -133,8 +135,11 @@ module CMDx
 
     private
 
-    def mark_completed!(store_key)
-      return if Stores.set(store_key, COMPLETED, xx: true, ttl:)
+    def mark_completed!(store_key, task)
+      if Stores.set(store_key, COMPLETED, xx: true, ttl:)
+        Telemetry.emit_for(task, :idempotency_completed, idempotency_key: store_key)
+        return
+      end
 
       Stores.del(store_key)
       raise IdempotencyError, "failed to mark idempotency key completed (#{store_key})"
@@ -143,7 +148,9 @@ module CMDx
     def duplicate!(task, store_key)
       state    = Stores.get(store_key)
       message  = "duplicate request (state=#{state})"
-      metadata = { code: :duplicate, idempotency_key: store_key }
+      metadata = { code: :duplicate, idempotency_key: store_key, state: }
+
+      Telemetry.emit_for(task, :idempotency_duplicate, **metadata)
 
       case on_duplicate
       when :fail

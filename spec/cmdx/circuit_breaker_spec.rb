@@ -263,4 +263,77 @@ RSpec.describe CMDx::CircuitBreaker do
       expect(result.metadata[:code]).not_to eq(:circuit_open)
     end
   end
+
+  describe "telemetry" do
+    it "emits circuit_tripped when the failure threshold is reached" do
+      err = Class.new(StandardError)
+      events = []
+      klass = create_task_class(name: "TripTelemetryTask") do
+        circuit_breaker :class, threshold: 2, cool_off: 60, window: 60
+        required :sku, coerce: :string
+        telemetry.subscribe(:circuit_tripped) { |e| events << e }
+
+        define_method(:work) { raise err }
+      end
+
+      klass.execute(sku: "A")
+      klass.execute(sku: "A")
+
+      expect(events.size).to eq(1)
+      expect(events.first.name).to eq(:circuit_tripped)
+      expect(events.first.payload).to include(
+        circuit_breaker_key: "cmdx:cb:#{klass.name}:open",
+        failure_count: 2,
+        threshold: 2,
+        cool_off: 60
+      )
+    end
+
+    it "emits circuit_open when work is blocked by an open circuit" do
+      err = Class.new(StandardError)
+      events = []
+      klass = create_task_class(name: "OpenTelemetryTask") do
+        circuit_breaker :class, threshold: 1, cool_off: 60, on_open: :skip
+        required :sku, coerce: :string
+        telemetry.subscribe(:circuit_open) { |e| events << e }
+
+        define_method(:work) { raise err }
+      end
+
+      klass.execute(sku: "A")
+      klass.execute(sku: "A")
+
+      expect(events.size).to eq(1)
+      expect(events.first.payload).to include(
+        code: :circuit_open,
+        circuit_breaker_key: "cmdx:cb:#{klass.name}:open",
+        on_open: :skip
+      )
+      expect(events.first.payload[:retry_after]).to be_between(1, 60)
+    end
+
+    it "emits circuit_failures_cleared after a successful run" do
+      err = Class.new(StandardError)
+      attempts = 0
+      events = []
+      klass = create_task_class(name: "ClearTelemetryTask") do
+        circuit_breaker :class, threshold: 3, cool_off: 60, window: 60
+        required :sku, coerce: :string
+        telemetry.subscribe(:circuit_failures_cleared) { |e| events << e }
+
+        define_method(:work) do
+          attempts += 1
+          raise err if attempts == 1
+
+          context.ok = true
+        end
+      end
+
+      klass.execute(sku: "A")
+      klass.execute(sku: "A")
+
+      expect(events.size).to eq(1)
+      expect(events.first.payload[:failures_key]).to eq("cmdx:cb:#{klass.name}:failures")
+    end
+  end
 end

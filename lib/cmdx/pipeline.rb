@@ -151,7 +151,7 @@ module CMDx
         new_opts = old_opts.merge(rolled_back: true).freeze
         result.instance_variable_set(:@options, new_opts)
 
-        emit_telemetry(instance, :task_rolled_back)
+        Telemetry.emit_for(instance, :task_rolled_back, root: false)
 
         begin
           instance.rollback
@@ -164,14 +164,6 @@ module CMDx
       end
 
       raise first_rollback_error if first_rollback_error
-    end
-
-    def emit_telemetry(instance, name, payload = EMPTY_HASH)
-      telemetry = instance.class.telemetry
-      return unless telemetry.subscribed?(name)
-
-      event = Telemetry::Event.build(instance, name, root: false, payload:)
-      telemetry.emit(name, event)
     end
 
     def aggregate(failures, continue:)

@@ -111,3 +111,28 @@ Both set `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` to the
 !!! note "Signals"
 
     Duplicates call `skip!` or `fail!` inside the `catch` around `work`, so your resolver does not keep running — under `execute` you get a `Result` with `skipped?` or `failed?`; under `execute!` you get a fault.
+
+## Telemetry
+
+When idempotency is active for a run (enabled, gates pass, segment non-blank), CMDx emits [telemetry](configuration.md#telemetry) only if someone subscribed.
+
+| Event | When | Extra `event.payload` keys |
+|-------|------|----------------------------|
+| `:idempotency_claimed` | `processing` slot claimed (`nx: true`) | `idempotency_key` |
+| `:idempotency_completed` | Slot marked `completed` after the wrapped block succeeds | `idempotency_key` |
+| `:idempotency_duplicate` | Key already held (`processing` or `completed`) | `code: :duplicate`, `idempotency_key`, `state` |
+
+`:idempotency_claimed` and `:idempotency_completed` bracket a successful run (claim → work, retries, and output verification → completed). Failed runs delete the claim and do **not** emit `:idempotency_completed`.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:idempotency_duplicate, ->(event) {
+    StatsD.increment("cmdx.idempotency.duplicate", tags: [
+      "task:#{event.task}",
+      "state:#{event.payload[:state]}"
+    ])
+  })
+end
+```
+
+`:idempotency_duplicate` fires **before** `skip!` / `fail!`, matching the metadata on the final `Result`.
