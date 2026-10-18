@@ -105,6 +105,28 @@ RSpec.describe "Task idempotency", type: :feature do
     expect(klass.execute(payment_id: "pay_1")).to be_skipped
   end
 
+  it "honors if and unless gates on the task class" do
+    runs = 0
+    gated = create_task_class(name: "GatedIdem") do
+      idempotent_by :payment_id, if: :idem_active?, unless: :idem_paused?
+      required :payment_id, coerce: :string
+      optional :active, default: true
+      optional :paused, default: false
+
+      define_method(:work) { runs += 1 }
+      define_method(:idem_active?) { active }
+      define_method(:idem_paused?) { paused }
+    end
+
+    gated.execute(payment_id: "pay-1", active: false)
+    gated.execute(payment_id: "pay-1", active: true, paused: true)
+    gated.execute(payment_id: "pay-1", active: true, paused: false)
+    result = gated.execute(payment_id: "pay-1", active: true, paused: false)
+
+    expect(runs).to eq(3)
+    expect(result).to be_skipped
+  end
+
   context "with retry_on" do
     it "releases the claim on failure so retries can run work again" do
       attempts = 0

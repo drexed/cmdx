@@ -39,6 +39,16 @@ RSpec.describe CMDx::CircuitBreaker do
       config = described_class.new(:class)
       expect(config.build(nil, {})).to be(config)
     end
+
+    it "merges options while keeping the key on an enabled config" do
+      base = described_class.new(:sku, threshold: 3, window: 30)
+      built = base.build(nil, threshold: 7, cool_off: 15)
+
+      expect(built.key).to eq(:sku)
+      expect(built.threshold).to eq(7)
+      expect(built.cool_off).to eq(15)
+      expect(built.window).to eq(30)
+    end
   end
 
   describe "#process" do
@@ -147,6 +157,86 @@ RSpec.describe CMDx::CircuitBreaker do
       3.times { klass.execute(sku: "A") }
 
       expect(klass.execute(sku: "A").metadata[:code]).not_to eq(:circuit_open)
+    end
+
+    it "isolates circuits per keyed segment" do
+      err = Class.new(StandardError)
+      klass = create_task_class(name: "PerSkuTask") do
+        circuit_breaker :sku, threshold: 2, cool_off: 60, window: 60
+        required :sku, coerce: :string
+
+        define_method(:work) { raise err }
+      end
+
+      klass.execute(sku: "A")
+      klass.execute(sku: "A")
+      expect(klass.execute(sku: "B")).to be_ko
+      expect(klass.execute(sku: "B").metadata[:code]).not_to eq(:circuit_open)
+      expect(klass.execute(sku: "A")).to be_ko
+      expect(klass.execute(sku: "A").metadata[:code]).to eq(:circuit_open)
+    end
+
+    it "skips checking when the if-guard is false" do
+      err = Class.new(StandardError)
+      attempts = 0
+      klass = create_task_class(name: "IfGatedTask") do
+        circuit_breaker :class, threshold: 1, cool_off: 60, if: :breaker_enabled?
+        required :sku, coerce: :string
+
+        define_method(:work) do
+          attempts += 1
+          raise err
+        end
+
+        define_method(:breaker_enabled?) { false }
+      end
+
+      3.times { klass.execute(sku: "A") }
+
+      expect(attempts).to eq(3)
+    end
+
+    it "treats the circuit as closed when the open-key read fails" do
+      err = Class.new(StandardError)
+      open_key = "cmdx:cb:TreatClosedTask:open"
+      CMDx::Stores.set(open_key, described_class::OPEN, ttl: 60)
+
+      klass = create_task_class(name: "TreatClosedTask") do
+        circuit_breaker :class, threshold: 5, cool_off: 60, on_open: :skip
+        required :sku, coerce: :string
+
+        define_method(:work) { raise err }
+      end
+
+      allow(CMDx::Stores).to receive(:get).and_call_original
+      allow(CMDx::Stores).to receive(:get).with(open_key).and_raise(StandardError, "store read failed")
+
+      result = klass.execute(sku: "A")
+
+      expect(result).to be_ko
+      expect(result.metadata[:code]).not_to eq(:circuit_open)
+    end
+
+    it "does not trip when on: is an empty list" do
+      err = Class.new(StandardError)
+      klass = create_task_class(name: "NoOnTask") do
+        circuit_breaker :class, threshold: 1, cool_off: 60, on: []
+        required :sku, coerce: :string
+
+        define_method(:work) { raise err }
+      end
+
+      3.times { klass.execute(sku: "A") }
+
+      expect(klass.execute(sku: "A").metadata[:code]).not_to eq(:circuit_open)
+    end
+
+    it "raises ArgumentError when on_open is invalid" do
+      config = described_class.new(:class, on_open: :halt)
+      task = task_class.new(sku: "A")
+
+      expect { config.send(:open!, task, "cmdx:cb:Example:open") }
+        .to raise_error(ArgumentError, /on_open must be :fail or :skip/)
     end
 
     it "re-raises the work exception when the store fails during trip_open" do

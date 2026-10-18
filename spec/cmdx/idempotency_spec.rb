@@ -31,6 +31,16 @@ RSpec.describe CMDx::Idempotency do
       config = described_class.new(:payment_id)
       expect(config.build(nil, {})).to be(config)
     end
+
+    it "merges options while keeping the key when new_key is nil" do
+      base = described_class.new(:payment_id, ttl: 100, on_duplicate: :skip)
+      built = base.build(nil, ttl: 200, namespace: "custom")
+
+      expect(built.key).to eq(:payment_id)
+      expect(built.ttl).to eq(200)
+      expect(built.namespace).to eq("custom")
+      expect(built.on_duplicate).to eq(:skip)
+    end
   end
 
   describe "#process" do
@@ -89,6 +99,76 @@ RSpec.describe CMDx::Idempotency do
 
       expect(result).to be_ko
       expect(result.metadata[:code]).to eq(:duplicate)
+    end
+
+    it "skips claiming when the if-guard is false" do
+      task = task_class.new(payment_id: "pay_1")
+      task.define_singleton_method(:active?) { false }
+      config = described_class.new(:payment_id, if: :active?)
+
+      config.process(task) { task.work }
+      config.process(task) { task.work }
+
+      expect(task.context.runs).to eq(2)
+    end
+
+    it "skips claiming when the unless-guard is true" do
+      task = task_class.new(payment_id: "pay_1")
+      task.define_singleton_method(:active?) { true }
+      config = described_class.new(:payment_id, unless: :active?)
+
+      2.times { config.process(task) { task.work } }
+
+      expect(task.context.runs).to eq(2)
+    end
+
+    it "uses a static string segment in the store key" do
+      klass = create_task_class(name: "StaticIdemTask") do
+        idempotent_by "shared-segment", namespace: "app:idem"
+        required :payment_id, coerce: :string
+
+        define_method(:work) { nil }
+      end
+
+      klass.execute(payment_id: "pay_1")
+
+      expect(CMDx::Stores.get("app:idem:#{klass.name}:shared-segment"))
+        .to eq(described_class::COMPLETED)
+    end
+
+    it "releases the claim when work raises StandardError" do
+      store_key = "cmdx:idem:IdempotentTask:pay_err"
+      config = described_class.new(:payment_id)
+      task = task_class.new(payment_id: "pay_err")
+
+      expect { config.process(task) { raise StandardError, "boom" } }
+        .to raise_error(StandardError, "boom")
+      expect(CMDx::Stores.get(store_key)).to be_nil
+    end
+
+    it "skips in-flight duplicates with processing state metadata" do
+      klass = create_task_class(name: "InflightIdemTask") do
+        idempotent_by :payment_id
+        required :payment_id, coerce: :string
+
+        define_method(:work) { nil }
+      end
+      store_key = "cmdx:idem:#{klass.name}:pay_inflight"
+      CMDx::Stores.set(store_key, described_class::PROCESSING, ttl: 300)
+
+      result = klass.execute(payment_id: "pay_inflight")
+
+      expect(result).to be_skipped
+      expect(result.reason).to include("state=processing")
+      expect(result.metadata[:idempotency_key]).to eq(store_key)
+    end
+
+    it "raises ArgumentError when on_duplicate is invalid" do
+      config = described_class.new(:payment_id, on_duplicate: :reject)
+      task = task_class.new(payment_id: "pay_bad")
+
+      expect { config.send(:duplicate!, task, "cmdx:idem:Example:pay_bad") }
+        .to raise_error(ArgumentError, /on_duplicate must be :skip or :fail/)
     end
   end
 
