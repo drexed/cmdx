@@ -1,10 +1,14 @@
 # Circuit breaker
 
-When a downstream dependency fails repeatedly, every caller still pays for timeouts and retries. A **circuit breaker** counts failures, opens after a threshold, and rejects new work until a cool-off elapses — so a partial outage does not keep hammering the dependency.
+The inventory API is down. Every task still waits, times out, retries, and piles onto the same unhappy dependency.
+
+A **circuit breaker** is the bouncer at the door: it counts failures, **opens** after too many in a row, and sends new work away until a cool-off passes. Callers stop paying for timeouts while the dependency is clearly struggling.
+
+`circuit_breaker` adds that pattern to your task using [Stores](stores.md) — one breaker config per task class by default, or scoped per tenant/service when you pass a key resolver.
 
 ## Basic usage
 
-One breaker per task class (default):
+One breaker per task class (the default):
 
 ```ruby
 class FetchInventory < CMDx::Task
@@ -24,37 +28,39 @@ FetchInventory.execute(sku: "ABC-123") # failed: circuit open (work not run)
 
 | Option | Default | Plain-English meaning |
 |--------|---------|----------------------|
-| `threshold:` | `5` | Failures within `window:` before the circuit opens |
-| `cool_off:` | `30` | Seconds the circuit stays open |
+| `threshold:` | `5` | How many failures inside `window:` before the circuit opens |
+| `cool_off:` | `30` | How long (seconds) the circuit stays open |
 | `window:` | `60` | Sliding window (seconds) for the failure counter |
-| `namespace:` | `"cmdx:cb"` | First segment of store keys |
-| `on:` | `StandardError` | Exception classes that increment the failure counter |
+| `namespace:` | `"cmdx:cb"` | First piece of store keys |
+| `on:` | `StandardError` | Exception classes that count as “this dependency failed” |
 | `on_open:` | `:fail` | `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :circuit_open`) |
-| `if:` / `unless:` | `nil` | Gates on the task before checking the circuit |
+| `if:` / `unless:` | `nil` | Turn the breaker on or off for this run |
 
-Pass a key resolver to scope breakers per downstream service or tenant (same shapes as [Idempotency](idempotency.md#key-resolvers)):
+### Scoping the breaker
+
+Pass a key resolver when one task talks to several downstreams (or tenants). Same shapes as [Idempotency key resolvers](idempotency.md#key-resolvers):
 
 ```ruby
 circuit_breaker :stripe_account, threshold: 3, cool_off: 30
 ```
 
-Use `:class` explicitly for one breaker per task type:
+Explicit “one breaker per task type”:
 
 ```ruby
 circuit_breaker :class, threshold: 5
 ```
 
-Count only dependency failures:
+Count only real dependency pain — not every `StandardError` in your app:
 
 ```ruby
 circuit_breaker :class, threshold: 3, on: [Stripe::APIError, Timeout::Error]
 ```
 
-When the resolver is not `:class` and the segment is blank (missing context value), the breaker is **inactive** for that run — same as [Idempotency](idempotency.md) skipping a blank segment.
+When the resolver is not `:class` and the segment is blank (missing context value), the breaker **steps aside** for that run — same as [Idempotency](idempotency.md) with a blank key.
 
 ## Store keys
 
-Closed-state failure counts use `CMDx::StoreKey.compose(base, "failures")`; the open flag uses `…:open` with value `"open"` and TTL `cool_off:`.
+Failure counts (circuit **closed**) use `CMDx::StoreKey.compose(base, "failures")`. The open flag uses `…:open` with value `"open"` and TTL `cool_off:`.
 
 Examples:
 
@@ -62,38 +68,42 @@ Examples:
 - `cmdx:cb:FetchInventory:open`
 - `cmdx:cb:ChargeCustomer:acct_123:failures` (with `circuit_breaker :stripe_account`)
 
-When the circuit is open, results include `metadata[:circuit_breaker_key]` (full `…:open` store key) and, when the store backend supports TTL reads, `metadata[:retry_after]` (seconds until the open flag expires).
+When the circuit is open, results include `metadata[:circuit_breaker_key]` (the full `…:open` key) and, when the backend supports TTL reads, `metadata[:retry_after]` (seconds until the open flag expires).
 
 ### Failure window
 
-`window:` is a **sliding** window: each counted failure calls `Stores.incr` with `ttl: window`, and built-in adapters refresh expiry on every increment. After `window` seconds without a new failure, the counter key expires and the next failure starts from `1` again.
+`window:` is **sliding**, not “reset at midnight.” Each counted failure calls `Stores.incr` with `ttl: window`, and built-in adapters refresh expiry on every bump. Go `window` seconds without a new failure and the counter key disappears — the next failure starts from `1` again.
 
 ## Interaction with `retry_on`
+
+Breakers run early; idempotency (if any) sits just inside:
 
 ```text
 resolve_inputs! → circuit check → idempotent claim → retry loop { work } → verify_outputs!
 ```
 
-Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on each retry attempt. A successful run clears the failure counter. Logical failures that only use `fail!` / validation errors do not increment the breaker.
+Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on every retry swing. A successful run clears the failure counter. Logical failures that only use `fail!` or validation errors do **not** trip the breaker.
 
-Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](stores.md).
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](stores.md).
 
 ## Store availability
 
+When the store itself is flaky, CMDx picks a side — on purpose:
+
 | Situation | Behavior |
 |-----------|----------|
-| Circuit **open** | Work is not run; `on_open:` applies. |
+| Circuit **open** | `work` does not run; `on_open:` applies. |
 | **Read** fails while checking open | Treated as **closed** (fail-open): work runs. |
-| **Write** fails after a failed run | The work exception is still raised; the failure may not be counted. |
+| **Write** fails after a failed run | The work exception still raises; the failure might not be counted. |
 | **Write** fails after a successful run | The failure counter might not clear; the next error may open the circuit sooner. |
 
 ## Concurrency
 
-The breaker re-checks the open flag immediately before running work. There is no distributed lock: a task can still start just before another process opens the circuit, and many workers can call the dependency when the `:open` TTL expires at once.
+The breaker peeks at the open flag again right before `work`. There is no distributed lock — a task can still start moments before another process opens the circuit, and when the `:open` TTL expires many workers may call the dependency at once. Plan for that at the dependency layer if you need stricter guarantees.
 
 ## Inheritance
 
-Subclasses inherit the parent's breaker. Calling `circuit_breaker` with no arguments returns the current (possibly inherited) configuration. Calling it again **replaces** the key when you pass a new one and **merges** options — including option-only updates such as `circuit_breaker threshold: 3` (key stays `:class` when the parent enabled the breaker that way). Pass `circuit_breaker false` on a subclass to disable.
+Subclasses inherit the parent’s breaker. `circuit_breaker` with no arguments returns the current config (including inherited). Pass a new key to **replace** it; pass only options to **merge** (e.g. `circuit_breaker threshold: 3` keeps `:class` when the parent enabled the breaker that way). `circuit_breaker false` on a subclass turns it off.
 
 ```ruby
 class ExternalApiTask < CMDx::Task
@@ -104,7 +114,7 @@ class FetchInventory < ExternalApiTask
   circuit_breaker threshold: 3 # key stays :class, threshold → 3
 end
 
-class PreviewCharge < ApplicationTask
-  circuit_breaker false # no store claim; work runs every time
+class PreviewInventory < ExternalApiTask
+  circuit_breaker false # no breaker; work runs every time
 end
 ```

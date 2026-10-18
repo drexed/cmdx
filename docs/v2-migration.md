@@ -1033,7 +1033,6 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Tasks
 
-- **`concurrency_limit`** — cap how many instances of a task may run at once across the process.
 - **`execute_async`** — return a future-like object instead of always blocking the caller.
 - **Background-job adapter** — `perform_async` / `perform_in` / `perform_at` helpers for Sidekiq, ActiveJob, GoodJob, etc., with JSON-safe payloads at enqueue time.
 
