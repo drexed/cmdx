@@ -184,7 +184,7 @@ class ProcessInvoice < ApplicationTask
 end
 ```
 
-**How stacking works (without the scary words):** lists generally **grow** as you go down the inheritance chain — new entries append (or replace by name where that applies). `retry_on` and `settings` **merge**: the child adds or overrides keys without throwing away the parent. Need to drop something from mom or dad? `deregister` is the escape hatch — for example `deregister :callback, :before_execution, :ensure_current_tenant!`.
+**How stacking works (without the scary words):** lists generally **grow** as you go down the inheritance chain — new entries append (or replace by name where that applies). `retry_on` and `settings` **merge**: the child adds or overrides keys without throwing away the parent. To turn off inherited retries, idempotency, or circuit breaking on a subclass, pass `false` to `retry_on`, `idempotent_by`, or `circuit_breaker` respectively. Need to drop something from mom or dad? `deregister` is the escape hatch — for example `deregister :callback, :before_execution, :ensure_current_tenant!`.
 
 ## Useful examples
 
@@ -206,5 +206,4 @@ Real-world recipes live in the repo — grab the one closest to what you are bui
 - [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md)
 - [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
 - [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
-- [Stoplight Circuit Breaker](https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md)
 - [Timeout Guard](https://github.com/drexed/cmdx/blob/main/examples/timeout_guard.md)

@@ -106,7 +106,7 @@
   <div class="discussion">
     <p>Delegates to a Redis-compatible client (<code>redis-rb</code>, <code>MockRedis</code>, etc.).
 Keys are prefixed to avoid collisions with unrelated application data.</p>
-<p>The client must respond to <code>get</code>, <code>set</code>, <code>incr</code>, <code>expire</code>, and <code>del</code>.</p>
+<p>The client must respond to <code>get</code>, <code>set</code>, <code>incr</code>, <code>expire</code>, <code>ttl</code>, and <code>del</code>.</p>
 
   </div>
 </div>
@@ -262,6 +262,28 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ttl-instance_method" title="#ttl (instance method)">#<strong>ttl</strong>(key)  &#x21d2; Integer<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Seconds until expiry, or <code>nil</code> when missing or expired.</p></div></span>
+  
+</li>
+
+      
     </ul>
     
   
@@ -403,15 +425,15 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-64
-65
-66
-67
-68
-69</pre>
+72
+73
+74
+75
+76
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_decr'>decr</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -476,12 +498,12 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-73
-74
-75</pre>
+81
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 73</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_del'>del</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_del'>del</span><span class='lparen'>(</span><span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -656,7 +678,7 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
   <span class='id identifier rubyid_ttl'>ttl</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_ttl!'><span class='object_link'><a href="../Stores.html#ttl!-class_method" title="CMDx::Stores.ttl! (method)">ttl!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_ttl'>ttl</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_ttl'>ttl</span>
 
   <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_incr'>incr</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
-  <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_expire'>expire</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_ttl'>ttl</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>1</span>
+  <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_expire'>expire</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_ttl'>ttl</span>
   <span class='id identifier rubyid_count'>count</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -825,12 +847,86 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="ttl-instance_method">
+  
+    #<strong>ttl</strong>(key)  &#x21d2; <tt>Integer</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns seconds until expiry, or <code>nil</code> when missing or expired.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>seconds until expiry, or <code>nil</code> when missing or expired</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_seconds'>seconds</span> <span class='op'>=</span> <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_ttl'>ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_seconds'>seconds</span> <span class='kw'>if</span> <span class='id identifier rubyid_seconds'>seconds</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_seconds'>seconds</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:14:00 2026 by
+  Generated on Sun Oct 18 02:16:27 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

@@ -108,8 +108,10 @@
 store slot and runs the <code>retry_on</code> loop inside that claim so duplicate
 invocations with the same logical key short-circuit before <code>work</code> repeats.</p>
 <p>Store keys are <code>namespace:TaskName:segment</code> (see <span class='object_link'><a href="StoreKey.html#compose-instance_method" title="CMDx::StoreKey#compose (method)">StoreKey#compose</a></span>). Values
-move <code>processing</code> → <code>completed</code> on success; the key is deleted on
-<code>StandardError</code> so retries can reclaim.</p>
+move <code>processing</code> → <code>completed</code> after the wrapped block returns (including
+output verification when invoked from <span class='object_link'><a href="Runtime.html" title="CMDx::Runtime (class)">Runtime</a></span>); the key is deleted on
+<code>StandardError</code> or non-success signals (<code>skip!</code> / <code>fail!</code>) so retries can
+reclaim.</p>
 
   </div>
 </div>
@@ -558,13 +560,13 @@ slot is already claimed</p></div>
       <pre class="lines">
 
 
-39
-40
 41
-42</pre>
+42
+43
+44</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 39</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 41</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='ivar'>@key</span>     <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span>
@@ -606,12 +608,12 @@ slot is already claimed</p></div>
       <pre class="lines">
 
 
-25
-26
-27</pre>
+27
+28
+29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 25</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 27</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key'>key</span>
   <span class='ivar'>@key</span>
@@ -668,12 +670,12 @@ slot is already claimed</p></div>
       <pre class="lines">
 
 
-19
-20
-21</pre>
+21
+22
+23</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 19</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 21</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_disabled'>disabled</span>
   <span class='const'>DISABLED</span>
@@ -755,17 +757,17 @@ updates such as <code>idempotent_by ttl: 600</code>).</p>
       <pre class="lines">
 
 
-82
-83
 84
 85
 86
 87
 88
-89</pre>
+89
+90
+91</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 82</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 84</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_new_key'>new_key</span><span class='comma'>,</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_key'>new_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -817,12 +819,12 @@ updates such as <code>idempotent_by ttl: 600</code>).</p>
       <pre class="lines">
 
 
-60
-61
-62</pre>
+62
+63
+64</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 60</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 62</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_condition_if'>condition_if</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span>
@@ -869,12 +871,12 @@ updates such as <code>idempotent_by ttl: 600</code>).</p>
       <pre class="lines">
 
 
-65
-66
-67</pre>
+67
+68
+69</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_condition_unless'>condition_unless</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span>
@@ -921,12 +923,12 @@ updates such as <code>idempotent_by ttl: 600</code>).</p>
       <pre class="lines">
 
 
-70
-71
-72</pre>
+72
+73
+74</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
   <span class='op'>!</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -973,12 +975,12 @@ updates such as <code>idempotent_by ttl: 600</code>).</p>
       <pre class="lines">
 
 
-45
-46
-47</pre>
+47
+48
+49</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 45</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 47</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_namespace'>namespace</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:namespace</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx:idem</span><span class='tstring_end'>&quot;</span></span>
@@ -1028,12 +1030,12 @@ updates such as <code>idempotent_by ttl: 600</code>).</p>
       <pre class="lines">
 
 
-50
-51
-52</pre>
+52
+53
+54</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 50</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 52</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_duplicate'>on_duplicate</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:on_duplicate</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:skip</span>
@@ -1062,8 +1064,9 @@ does not return to the caller of <span class='object_link'><a href="#process-ins
   </div>
 
 <p>Runs the given block behind a store claim when <span class='object_link'><a href="#enabled%3F-instance_method" title="CMDx::Idempotency#enabled? (method)">#enabled?</a></span> and gates pass.
-Releases the claim on <code>StandardError</code> so <code>retry_on</code> can run <code>work</code> again;
-marks the slot <code>completed</code> after the block returns successfully.</p>
+Releases the claim on <code>StandardError</code> or a non-returning exit (<code>skip!</code>,
+<code>fail!</code>) so <code>retry_on</code> can run <code>work</code> again; marks the slot <code>completed</code>
+after the block returns successfully.</p>
 
   </div>
 </div>
@@ -1147,6 +1150,18 @@ marks the slot <code>completed</code> after the block returns successfully.</p>
       
     </li>
   
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#IdempotencyError-constant" title="CMDx::IdempotencyError (constant)">IdempotencyError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when the store refuses the <code>completed</code> transition</p></div>
+      
+    </li>
+  
 </ul>
 
 </div><table class="source_code">
@@ -1155,10 +1170,6 @@ marks the slot <code>completed</code> after the block returns successfully.</p>
       <pre class="lines">
 
 
-102
-103
-104
-105
 106
 107
 108
@@ -1176,29 +1187,43 @@ marks the slot <code>completed</code> after the block returns successfully.</p>
 120
 121
 122
-123</pre>
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 102</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 106</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>unless</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
   <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_condition_if'>condition_if</span><span class='comma'>,</span> <span class='id identifier rubyid_condition_unless'>condition_unless</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
 
-  <span class='id identifier rubyid_segment'>segment</span> <span class='op'>=</span> <span class='id identifier rubyid_resolve_segment'>resolve_segment</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_segment'>segment</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_segment'><span class='object_link'><a href="StoreKey.html#segment-instance_method" title="CMDx::StoreKey#segment (method)">segment</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>if</span> <span class='id identifier rubyid_segment'>segment</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
 
   <span class='id identifier rubyid_store_key'>store_key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_compose'><span class='object_link'><a href="StoreKey.html#compose-instance_method" title="CMDx::StoreKey#compose (method)">compose</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_namespace'>namespace</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_segment'>segment</span><span class='rparen'>)</span>
 
   <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_set'><span class='object_link'><a href="Stores.html#set-class_method" title="CMDx::Stores.set (method)">set</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#PROCESSING-constant" title="CMDx::Idempotency::PROCESSING (constant)">PROCESSING</a></span></span><span class='comma'>,</span> <span class='label'>nx:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>ttl:</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_succeeded'>succeeded</span> <span class='op'>=</span> <span class='kw'>false</span>
+
     <span class='kw'>begin</span>
       <span class='kw'>yield</span>
+      <span class='id identifier rubyid_succeeded'>succeeded</span> <span class='op'>=</span> <span class='kw'>true</span>
     <span class='kw'>rescue</span> <span class='const'>StandardError</span>
       <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_del'><span class='object_link'><a href="Stores.html#del-class_method" title="CMDx::Stores.del (method)">del</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
       <span class='id identifier rubyid_raise'>raise</span>
-    <span class='kw'>else</span>
-      <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_set'><span class='object_link'><a href="Stores.html#set-class_method" title="CMDx::Stores.set (method)">set</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#COMPLETED-constant" title="CMDx::Idempotency::COMPLETED (constant)">COMPLETED</a></span></span><span class='comma'>,</span> <span class='label'>xx:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>ttl:</span><span class='rparen'>)</span>
+    <span class='kw'>ensure</span>
+      <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_del'><span class='object_link'><a href="Stores.html#del-class_method" title="CMDx::Stores.del (method)">del</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_succeeded'>succeeded</span>
     <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_mark_completed!'>mark_completed!</span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
     <span class='id identifier rubyid_duplicate!'>duplicate!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
@@ -1245,12 +1270,12 @@ marks the slot <code>completed</code> after the block returns successfully.</p>
       <pre class="lines">
 
 
-55
-56
-57</pre>
+57
+58
+59</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 55</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 57</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ttl'>ttl</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:ttl</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>300</span>
@@ -1265,7 +1290,7 @@ marks the slot <code>completed</code> after the block returns successfully.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:14:00 2026 by
+  Generated on Sun Oct 18 02:16:27 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

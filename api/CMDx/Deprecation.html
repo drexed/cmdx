@@ -404,14 +404,14 @@ mark the result as deprecated for telemetry.</p>
       <pre class="code"><span class="info file"># File 'lib/cmdx/deprecation.rb', line 27</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='ivar'>@value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
-  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='ivar'>@value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='op'>!</span><span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
 
   <span class='kw'>yield</span>
 
   <span class='kw'>case</span> <span class='ivar'>@value</span>
   <span class='kw'>when</span> <span class='const'>Symbol</span>
     <span class='id identifier rubyid_registry'>registry</span> <span class='op'>=</span> <span class='id identifier rubyid_deprecators_registry'>deprecators_registry</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
+
     <span class='kw'>if</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='ivar'>@value</span><span class='rparen'>)</span>
       <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='ivar'>@value</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
     <span class='kw'>else</span>
@@ -438,7 +438,7 @@ mark the result as deprecated for telemetry.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:14:00 2026 by
+  Generated on Sun Oct 18 02:16:27 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

@@ -65,10 +65,10 @@ While work is in flight the value is `"processing"`; after a successful run it b
 ## Interaction with `retry_on`
 
 ```text
-resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs!
+resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
 ```
 
-If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. When retries eventually succeed, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
+If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. The claim is also released when `work` signals `skip!` or `fail!`, or when output verification fails, so a later invocation can run again. When the wrapped block finishes successfully, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
 
 Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
 
@@ -78,7 +78,7 @@ If a worker dies after claiming but before success or cleanup, the key expires a
 
 ## Inheritance
 
-Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list).
+Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` with no arguments returns the current (possibly inherited) configuration. Calling it again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list). Pass `idempotent_by false` on a subclass to disable.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -87,6 +87,10 @@ end
 
 class ChargeCustomer < ApplicationTask
   idempotent_by :payment_id # resolver → payment_id, ttl stays 600
+end
+
+class PreviewCharge < ApplicationTask
+  idempotent_by false # no store claim; work runs every time
 end
 ```
 

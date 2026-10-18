@@ -61,11 +61,15 @@ CMDx::Stores.set("idem:pay_123", "done", xx: true, ttl: 300)
 
 Atomically increments a counter (starts at `1`). Returns the **integer** count after increment.
 
-When `ttl:` is set, expiry applies **only when the counter is first created** (count becomes `1`) — the same pattern as sliding-window rate limits in the [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) example.
+When `ttl:` is set, built-in adapters **refresh** expiry on every increment — a sliding window for rate limits and [circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md) failure counts.
 
 ```ruby
 hits = CMDx::Stores.incr("rl:user:42", ttl: 60)
 ```
+
+### `remaining_ttl(key)`
+
+Returns seconds until expiry when the configured backend implements `ttl` (`Stores::Memory`, `Stores::Redis`); otherwise `nil`. Used for `metadata[:retry_after]` on open circuits.
 
 ### `del(key)`
 
@@ -121,8 +125,9 @@ CMDx.configure { |c| c.store = NullStore.new }
 ## Patterns (today)
 
 - [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) — `idempotent_by` on tasks, backed by `CMDx::Stores`
+- [Circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md) — `circuit_breaker` on tasks, failure counting and open flags via `CMDx::Stores`
 
-Other helpers (`circuit_break`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond `idempotent_by`:
+Other helpers (`concurrency_limit`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond the built-in declarations:
 
 - [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) — `incr` + TTL window
 - [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md) — wrap Memory/Redis for tests or instrumentation

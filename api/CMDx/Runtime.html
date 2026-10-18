@@ -112,8 +112,9 @@
 
 <p>Orchestrates a task's full lifecycle: chain acquisition, middlewares,
 telemetry, deprecation, callbacks, input resolution, <code>work</code> (wrapped in
-<span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> when declared, then <span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span>), output verification, rollback
-on failure, result finalization, and teardown (freeze + chain clear).</p>
+<span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span> and <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> when declared, then <span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span>; output
+verification runs inside the idempotency claim when enabled),
+rollback on failure, result finalization, and teardown (freeze + chain clear).</p>
 <p>Signal propagation: <code>work</code> and the surrounding middleware/callback chain
 both run inside <code>catch(Signal::TAG)</code>, so <code>success!</code> / <code>skip!</code> / <code>fail!</code> /
 <code>throw!</code> halt cleanly from anywhere. Raised Faults become echoed signals
@@ -289,13 +290,13 @@ failed.</p>
       <pre class="lines">
 
 
-37
 38
 39
-40</pre>
+40
+41</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 38</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='ivar'>@task</span>   <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
@@ -400,12 +401,12 @@ failed.</p>
       <pre class="lines">
 
 
-29
 30
-31</pre>
+31
+32</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 29</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>strict:</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span>
@@ -476,7 +477,6 @@ when strict mode re-raises.</p>
       <pre class="lines">
 
 
-48
 49
 50
 51
@@ -489,10 +489,11 @@ when strict mode re-raises.</p>
 58
 59
 60
-61</pre>
+61
+62</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 48</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/runtime.rb', line 49</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span>
   <span class='id identifier rubyid_acquire_chain'>acquire_chain</span>
@@ -518,7 +519,7 @@ when strict mode re-raises.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:13:59 2026 by
+  Generated on Sun Oct 18 02:16:27 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

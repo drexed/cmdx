@@ -1652,6 +1652,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../circuit_breaker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Circuit breaker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stores/" class="md-nav__link">
         
   
@@ -2641,7 +2669,7 @@
 <p>When <code>idempotent_by</code> is declared, the store claim wraps the <strong>entire</strong> retry loop — a failed attempt releases the claim so the next retry can run <code>work</code> again. See <a href="../idempotency/">Idempotency</a>.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subclasses <strong>add</strong> to the parent’s retry rules; they do not wipe the slate clean. Exceptions accumulate; options merge sensibly.</p>
+<p>Subclasses inherit the parent’s retry policy. Calling <code>retry_on</code> with no exception classes and no options returns the current (possibly inherited) configuration. Further calls <strong>add</strong> exception types and <strong>merge</strong> options — including option-only updates such as <code>retry_on limit: 5</code> on the subclass. Pass <code>retry_on false</code> on a subclass to disable retries entirely (even when the parent declared them).</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
@@ -2650,7 +2678,12 @@
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">max_delay</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="c1"># Effective: [Net::OpenTimeout, Net::ReadTimeout], limit: 2, max_delay: 5.0</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">end</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">DryRunFetch</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="kp">false</span><span class="w"> </span><span class="c1"># no retries; first failure surfaces immediately</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">end</span>
 </span></code></pre></div>
+<p><code>Retry#enabled?</code> is <code>false</code> when retries are disabled (no exception list). <code>CMDx::Retry.disabled</code> is the shared empty configuration used at the root of the hierarchy and after <code>retry_on false</code>.</p>
 <h2 id="jitter">Jitter<a class="headerlink" href="#jitter" title="Permanent link">&para;</a></h2>
 <p>“Jitter” is a fancy word for <strong>random-ish spacing</strong> so many clients do not all wake up at the exact same millisecond.</p>
 <p>Built-in strategies receive <code>(attempt, delay, prev_delay)</code> where <code>attempt</code> is zero-based, <code>delay</code> is your base delay, and <code>prev_delay</code> is the last computed sleep (or <code>nil</code> on the first wait in a run). Most built-ins ignore <code>prev_delay</code> except <code>:decorrelated_jitter</code>. The computed sleep is clamped by <code>max_delay</code> when you set it.</p>

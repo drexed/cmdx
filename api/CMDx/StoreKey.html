@@ -99,8 +99,9 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     <p>Builds colon-separated store keys with the same non-empty coercion as
-<span class='object_link'><a href="Stores.html#key!-class_method" title="CMDx::Stores.key! (method)">CMDx::Stores.key!</a></span>. Used by <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> (<code>namespace:TaskName:segment</code>) and
-other store-backed helpers.</p>
+<span class='object_link'><a href="Stores.html#key!-class_method" title="CMDx::Stores.key! (method)">CMDx::Stores.key!</a></span>. Used by <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> (<code>namespace:TaskName:segment</code>),
+<span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span> (<code>namespace:TaskName</code> with <code>:failures</code> / <code>:open</code> suffixes),
+and other store-backed helpers.</p>
 
   </div>
 </div>
@@ -140,6 +141,28 @@ other store-backed helpers.</p>
 
   
     <span class="summary_desc"><div class='inline'><p>Joined key.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#segment-instance_method" title="#segment (instance method)">#<strong>segment</strong>(task, resolver, skip: nil)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Resolves a store key segment from a task.</p></div></span>
   
 </li>
 
@@ -228,15 +251,144 @@ other store-backed helpers.</p>
       <pre class="lines">
 
 
-14
 15
-16</pre>
+16
+17</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 14</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 15</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_compose'>compose</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_segments'>segments</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_segments'>segments</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_segment'>segment</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="Stores.html#key!-class_method" title="CMDx::Stores.key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_segment'>segment</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_segments'>segments</span><span class='period'>.</span><span class='id identifier rubyid_filter_map'>filter_map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="Stores.html#key!-class_method" title="CMDx::Stores.key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="segment-instance_method">
+  
+    #<strong>segment</strong>(task, resolver, skip: nil)  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Resolves a store key segment from a task. Used by <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span>,
+<span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span>, and other store-backed declarations.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>task</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>resolver</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>, <tt>Proc</tt>, <tt>#call</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>skip</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>resolver == skip</code>, returns <code>nil</code> without
+reading context (for example <code>CircuitBreaker::CLASS_KEY</code>)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>non-empty segment, or <code>nil</code> when blank or skipped</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_segment'>segment</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='comma'>,</span> <span class='label'>skip:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_skip'>skip</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_resolver'>resolver</span> <span class='op'>==</span> <span class='id identifier rubyid_skip'>skip</span>
+
+  <span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_resolver'>resolver</span>
+    <span class='kw'>when</span> <span class='const'>Symbol</span>
+      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span><span class='lbracket'>[</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='const'>Proc</span>
+      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_instance_exec'>instance_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_resolver'>resolver</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_resolver'>resolver</span>
+    <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_raw'>raw</span><span class='op'>&amp;.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='kw'>if</span> <span class='id identifier rubyid_str'>str</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -248,7 +400,7 @@ other store-backed helpers.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:13:58 2026 by
+  Generated on Sun Oct 18 02:16:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

@@ -1785,6 +1785,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../circuit_breaker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Circuit breaker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stores/" class="md-nav__link">
         
   
@@ -3245,7 +3273,7 @@
 <p><code>settings</code> only stores logging / tracing-ish keys (<code>:logger</code>, <code>:log_formatter</code>, <code>:log_level</code>, <code>:log_exclusions</code>, <code>:backtrace_cleaner</code>, <code>:tags</code>, <code>:strict_context</code>, <code>:correlation_id</code>). Retries and deprecations use their own DSLs.</p>
 </div>
 <h3 id="retry">Retry<a class="headerlink" href="#retry" title="Permanent link">&para;</a></h3>
-<p><code>retry_on</code> stacks across inheritance — list the exceptions, cap attempts, pick jitter. Full menu of options: <a href="../retries/">Retries</a>.</p>
+<p><code>retry_on</code> stacks across inheritance — list the exceptions, cap attempts, pick jitter. Pass <code>retry_on false</code> on a subclass to turn off inherited retries. Full menu of options: <a href="../retries/">Retries</a>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchInvoice</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>

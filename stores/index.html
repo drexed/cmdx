@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/stores/">
       
       
-        <link rel="prev" href="../idempotency/">
+        <link rel="prev" href="../circuit_breaker/">
       
       
         <link rel="next" href="../deprecation/">
@@ -1451,6 +1451,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../circuit_breaker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Circuit breaker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1565,6 +1593,17 @@
     <span class="md-ellipsis">
       
         incr(key, ttl: nil)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remaining_ttlkey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remaining_ttl(key)
       
     </span>
   </a>
@@ -2384,6 +2423,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#remaining_ttlkey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remaining_ttl(key)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#delkey" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2626,9 +2676,11 @@
 </span></code></pre></div>
 <h3 id="incrkey-ttl-nil"><code>incr(key, ttl: nil)</code><a class="headerlink" href="#incrkey-ttl-nil" title="Permanent link">&para;</a></h3>
 <p>Atomically increments a counter (starts at <code>1</code>). Returns the <strong>integer</strong> count after increment.</p>
-<p>When <code>ttl:</code> is set, expiry applies <strong>only when the counter is first created</strong> (count becomes <code>1</code>) — the same pattern as sliding-window rate limits in the <a href="https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md">Rate Limit</a> example.</p>
+<p>When <code>ttl:</code> is set, built-in adapters <strong>refresh</strong> expiry on every increment — a sliding window for rate limits and <a href="../circuit_breaker/">circuit breaker</a> failure counts.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">hits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">"rl:user:42"</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span>
 </span></code></pre></div>
+<h3 id="remaining_ttlkey"><code>remaining_ttl(key)</code><a class="headerlink" href="#remaining_ttlkey" title="Permanent link">&para;</a></h3>
+<p>Returns seconds until expiry when the configured backend implements <code>ttl</code> (<code>Stores::Memory</code>, <code>Stores::Redis</code>); otherwise <code>nil</code>. Used for <code>metadata[:retry_after]</code> on open circuits.</p>
 <h3 id="delkey"><code>del(key)</code><a class="headerlink" href="#delkey" title="Permanent link">&para;</a></h3>
 <p>Removes the key. Returns <code>1</code> if a key was removed, <code>0</code> otherwise.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">del</span><span class="p">(</span><span class="s2">"idem:pay_123"</span><span class="p">)</span>
@@ -2664,8 +2716,9 @@
 <h2 id="patterns-today">Patterns (today)<a class="headerlink" href="#patterns-today" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../idempotency/">Idempotency</a> — <code>idempotent_by</code> on tasks, backed by <code>CMDx::Stores</code></li>
+<li><a href="../circuit_breaker/">Circuit breaker</a> — <code>circuit_breaker</code> on tasks, failure counting and open flags via <code>CMDx::Stores</code></li>
 </ul>
-<p>Other helpers (<code>circuit_break</code>, …) are still on the roadmap. Middleware built on <code>CMDx::Stores</code> remains appropriate when you need custom claim semantics beyond <code>idempotent_by</code>:</p>
+<p>Other helpers (<code>concurrency_limit</code>, …) are still on the roadmap. Middleware built on <code>CMDx::Stores</code> remains appropriate when you need custom claim semantics beyond the built-in declarations:</p>
 <ul>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md">Rate Limit</a> — <code>incr</code> + TTL window</li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/custom_store.md">Custom Store</a> — wrap Memory/Redis for tests or instrumentation</li>
@@ -2717,7 +2770,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../idempotency/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Idempotency">
+          <a href="../circuit_breaker/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Circuit breaker">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2727,7 +2780,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Idempotency
+                Circuit breaker
               </div>
             </div>
           </a>

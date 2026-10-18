@@ -18,7 +18,7 @@
         <link rel="prev" href="../retries/">
       
       
-        <link rel="next" href="../stores/">
+        <link rel="next" href="../circuit_breaker/">
       
       
         
@@ -1575,6 +1575,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../circuit_breaker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Circuit breaker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stores/" class="md-nav__link">
         
   
@@ -2505,16 +2533,16 @@
 <p>Example: <code>cmdx:idem:ChargeCustomer:pay_123</code></p>
 <p>While work is in flight the value is <code>"processing"</code>; after a successful run it becomes <code>"completed"</code>. Duplicates read the current value for the skip/fail message (<code>state=processing</code> or <code>state=completed</code>).</p>
 <h2 id="interaction-with-retry_on">Interaction with <code>retry_on</code><a class="headerlink" href="#interaction-with-retry_on" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs!
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
 </span></code></pre></div>
-<p>If <code>work</code> raises <code>StandardError</code>, the claim is <strong>deleted</strong> before the exception propagates into <code>retry_on</code>. When retries eventually succeed, the slot is marked <code>completed</code>. A later invocation with the same key short-circuits without running <code>work</code>.</p>
+<p>If <code>work</code> raises <code>StandardError</code>, the claim is <strong>deleted</strong> before the exception propagates into <code>retry_on</code>. The claim is also released when <code>work</code> signals <code>skip!</code> or <code>fail!</code>, or when output verification fails, so a later invocation can run again. When the wrapped block finishes successfully, the slot is marked <code>completed</code>. A later invocation with the same key short-circuits without running <code>work</code>.</p>
 <p>Configure <code>CMDx.configuration.store</code> with a shared backend (<code>Stores::Redis</code>) in production — the in-memory default is per-process only. See <a href="../stores/">Stores</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">TTL and crashes</p>
 <p>If a worker dies after claiming but before success or cleanup, the key expires after <code>ttl:</code> and another caller may run <code>work</code> again. Tune <code>ttl:</code> for your worst-case runtime (and deploy pauses), not just HTTP timeouts.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subclasses inherit the parent's idempotency configuration. Calling <code>idempotent_by</code> again <strong>replaces</strong> the key resolver when you pass a new one and <strong>merges</strong> options — including option-only updates such as <code>idempotent_by ttl: 600</code> (same layering idea as <code>retry_on</code>, but the key resolver is singular, not a list).</p>
+<p>Subclasses inherit the parent's idempotency configuration. Calling <code>idempotent_by</code> with no arguments returns the current (possibly inherited) configuration. Calling it again <strong>replaces</strong> the key resolver when you pass a new one and <strong>merges</strong> options — including option-only updates such as <code>idempotent_by ttl: 600</code> (same layering idea as <code>retry_on</code>, but the key resolver is singular, not a list). Pass <code>idempotent_by false</code> on a subclass to disable.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">idempotent_by</span><span class="w"> </span><span class="ss">:request_id</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
@@ -2522,6 +2550,10 @@
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChargeCustomer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">idempotent_by</span><span class="w"> </span><span class="ss">:payment_id</span><span class="w"> </span><span class="c1"># resolver → payment_id, ttl stays 600</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">PreviewCharge</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="n">idempotent_by</span><span class="w"> </span><span class="kp">false</span><span class="w"> </span><span class="c1"># no store claim; work runs every time</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="skip-vs-fail-on-duplicates">Skip vs fail on duplicates<a class="headerlink" href="#skip-vs-fail-on-duplicates" title="Permanent link">&para;</a></h2>
 <p><code>:skip</code> fits when the second call means "already handled" (idempotent no-op, HTTP 2xx). <code>:fail</code> fits when callers need an explicit rejection (for example HTTP 409).</p>
@@ -2584,13 +2616,13 @@
         
         
           
-          <a href="../stores/" class="md-footer__link md-footer__link--next" aria-label="Next: Stores">
+          <a href="../circuit_breaker/" class="md-footer__link md-footer__link--next" aria-label="Next: Circuit breaker">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Stores
+                Circuit breaker
               </div>
             </div>
             <div class="md-footer__button md-icon">

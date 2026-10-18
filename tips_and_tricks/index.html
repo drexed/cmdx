@@ -1454,6 +1454,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../circuit_breaker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Circuit breaker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stores/" class="md-nav__link">
         
   
@@ -2615,7 +2643,7 @@
 </span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">end</span>
 </span></code></pre></div>
-<p><strong>How stacking works (without the scary words):</strong> lists generally <strong>grow</strong> as you go down the inheritance chain — new entries append (or replace by name where that applies). <code>retry_on</code> and <code>settings</code> <strong>merge</strong>: the child adds or overrides keys without throwing away the parent. Need to drop something from mom or dad? <code>deregister</code> is the escape hatch — for example <code>deregister :callback, :before_execution, :ensure_current_tenant!</code>.</p>
+<p><strong>How stacking works (without the scary words):</strong> lists generally <strong>grow</strong> as you go down the inheritance chain — new entries append (or replace by name where that applies). <code>retry_on</code> and <code>settings</code> <strong>merge</strong>: the child adds or overrides keys without throwing away the parent. To turn off inherited retries, idempotency, or circuit breaking on a subclass, pass <code>false</code> to <code>retry_on</code>, <code>idempotent_by</code>, or <code>circuit_breaker</code> respectively. Need to drop something from mom or dad? <code>deregister</code> is the escape hatch — for example <code>deregister :callback, :before_execution, :ensure_current_tenant!</code>.</p>
 <h2 id="useful-examples">Useful examples<a class="headerlink" href="#useful-examples" title="Permanent link">&para;</a></h2>
 <p>Real-world recipes live in the repo — grab the one closest to what you are building:</p>
 <ul>
@@ -2635,7 +2663,6 @@
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md">Rate Limit</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md">Sentry Error Tracking</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md">Sidekiq Async Execution</a></li>
-<li><a href="https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md">Stoplight Circuit Breaker</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/timeout_guard.md">Timeout Guard</a></li>
 </ul>
 

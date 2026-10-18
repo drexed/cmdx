@@ -106,8 +106,8 @@
   <div class="discussion">
     <p>Base class for all units of work. Subclasses override <code>#work</code> and
 declare their contract via <code>required</code>, <code>optional</code>, <code>output</code>, <code>callbacks</code>,
-<code>retry_on</code>, <code>idempotent_by</code>, <code>deprecation</code>, and <code>settings</code>. Invoked via <span class='object_link'><a href="#execute-class_method" title="CMDx::Task.execute (method)">Task.execute</a></span> (safe)
-or <span class='object_link'><a href="#execute!-class_method" title="CMDx::Task.execute! (method)">Task.execute!</a></span> (strict, raises on failure).</p>
+<code>retry_on</code>, <code>idempotent_by</code>, <code>circuit_breaker</code>, <code>deprecation</code>, and <code>settings</code>.
+Invoked via <span class='object_link'><a href="#execute-class_method" title="CMDx::Task.execute (method)">Task.execute</a></span> (safe) or <span class='object_link'><a href="#execute!-class_method" title="CMDx::Task.execute! (method)">Task.execute!</a></span> (strict, raises on failure).</p>
 <p>Inheritance: every registry accessor (middlewares, callbacks, coercions,
 validators, executors, mergers, telemetry, inputs, outputs) lazily clones from the
 superclass's registry (or the global configuration at the top of the
@@ -297,6 +297,28 @@ hierarchy), so subclasses extend rather than replace.</p>
 
   
     <span class="summary_desc"><div class='inline'><p>Cloned from superclass/configuration on first call.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#circuit_breaker-class_method" title="circuit_breaker (class method)">.<strong>circuit_breaker</strong>(key = nil, **options) {|task| ... } &#x21d2; CircuitBreaker </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Declares a shared circuit breaker for the task.</p></div></span>
   
 </li>
 
@@ -1060,17 +1082,17 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-473
-474
-475
-476
-477
-478
-479
-480</pre>
+517
+518
+519
+520
+521
+522
+523
+524</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 473</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 517</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
@@ -1120,12 +1142,12 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-465
-466
-467</pre>
+509
+510
+511</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 465</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 509</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_context'>context</span>
   <span class='ivar'>@context</span>
@@ -1161,12 +1183,12 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-465
-466
-467</pre>
+509
+510
+511</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 465</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 509</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_errors'>errors</span>
   <span class='ivar'>@errors</span>
@@ -1202,12 +1224,12 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-465
-466
-467</pre>
+509
+510
+511</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 465</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 509</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_metadata'>metadata</span>
   <span class='ivar'>@metadata</span>
@@ -1243,12 +1265,12 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-465
-466
-467</pre>
+509
+510
+511</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 465</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 509</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tid'>tid</span>
   <span class='ivar'>@tid</span>
@@ -1336,12 +1358,12 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-418
-419
-420</pre>
+462
+463
+464</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 418</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 462</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>strict:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1391,17 +1413,17 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-113
-114
-115
-116
-117
-118
-119
-120</pre>
+157
+158
+159
+160
+161
+162
+163
+164</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 157</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_callbacks'>callbacks</span>
   <span class='ivar'>@callbacks</span> <span class='op'>||=</span>
@@ -1409,6 +1431,251 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_callbacks'>callbacks</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
     <span class='kw'>else</span>
       <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_callbacks'><span class='object_link'><a href="Configuration.html#callbacks-instance_method" title="CMDx::Configuration#callbacks (method)">callbacks</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+    <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="circuit_breaker-class_method">
+  
+    .<strong>circuit_breaker</strong>(key = nil, **options) {|task| ... } &#x21d2; <tt><span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Declares a shared circuit breaker for the task. Builds on the
+superclass's <span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span>. Passing no <code>key</code> and no options returns the
+current (possibly inherited) configuration. Pass <code>false</code> to disable.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>, <tt>Proc</tt>, <tt>#<span class='object_link'><a href="#call-class_method" title="CMDx::Task.call (method)">call</a></span></tt>, <tt>false</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p><code>:class</code> scopes one
+breaker per task class; other forms resolve a store segment like
+<span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span>; <code>false</code> disables the breaker on this class</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>see <span class='object_link'><a href="CircuitBreaker.html#initialize-instance_method" title="CMDx::CircuitBreaker#initialize (method)">CircuitBreaker#initialize</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:threshold</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {CircuitBreaker#initialize}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:cool_off</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {CircuitBreaker#initialize}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:window</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {CircuitBreaker#initialize}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:namespace</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {CircuitBreaker#initialize}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:on_open</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {CircuitBreaker#initialize}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:on</span>
+          <span class="type">(<tt>Array&lt;Class&gt;</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>see {CircuitBreaker#initialize}</tt>
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:if</span>
+          <span class="type">(<tt>Symbol</tt>, <tt>Proc</tt>, <tt>#<span class='object_link'><a href="#call-class_method" title="CMDx::Task.call (method)">call</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>gate <code>(task)</code> before checking</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:unless</span>
+          <span class="type">(<tt>Symbol</tt>, <tt>Proc</tt>, <tt>#<span class='object_link'><a href="#call-class_method" title="CMDx::Task.call (method)">call</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>gate <code>(task)</code> before checking</p></div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>task</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Task (class)">Task</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>optional first argument when the block is
+<code>instance_exec</code>'d (same as callbacks)</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="CircuitBreaker.html#process-instance_method" title="CMDx::CircuitBreaker#process (method)">CircuitBreaker#process</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_circuit_breaker'>circuit_breaker</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='ivar'>@circuit_breaker</span> <span class='op'>||=</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:circuit_breaker</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_circuit_breaker'>circuit_breaker</span>
+    <span class='kw'>else</span>
+      <span class='const'><span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span></span><span class='period'>.</span><span class='id identifier rubyid_disabled'><span class='object_link'><a href="CircuitBreaker.html#disabled-class_method" title="CMDx::CircuitBreaker.disabled (method)">disabled</a></span></span>
+    <span class='kw'>end</span>
+
+  <span class='ivar'>@circuit_breaker</span> <span class='op'>=</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='kw'>false</span>
+      <span class='const'><span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span></span><span class='period'>.</span><span class='id identifier rubyid_disabled'><span class='object_link'><a href="CircuitBreaker.html#disabled-class_method" title="CMDx::CircuitBreaker.disabled (method)">disabled</a></span></span>
+    <span class='kw'>else</span>
+      <span class='ivar'>@circuit_breaker</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
     <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1456,17 +1723,17 @@ raise <code>NoMethodError</code> instead of returning <code>nil</code>.</p></div
       <pre class="lines">
 
 
-139
-140
-141
-142
-143
-144
-145
-146</pre>
+183
+184
+185
+186
+187
+188
+189
+190</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 139</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 183</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_coercions'>coercions</span>
   <span class='ivar'>@coercions</span> <span class='op'>||=</span>
@@ -1618,18 +1885,18 @@ the locally defined one, or the superclass's.</p>
       <pre class="lines">
 
 
-281
-282
-283
-284
-285
-286
-287
-288
-289</pre>
+325
+326
+327
+328
+329
+330
+331
+332
+333</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 281</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 325</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deprecation'>deprecation</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
@@ -1685,17 +1952,17 @@ the locally defined one, or the superclass's.</p>
       <pre class="lines">
 
 
-189
-190
-191
-192
-193
-194
-195
-196</pre>
+233
+234
+235
+236
+237
+238
+239
+240</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 233</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deprecators'>deprecators</span>
   <span class='ivar'>@deprecators</span> <span class='op'>||=</span>
@@ -1781,39 +2048,39 @@ the locally defined one, or the superclass's.</p>
       <pre class="lines">
 
 
-239
-240
-241
-242
-243
-244
-245
-246
-247
-248
-249
-250
-251
-252
-253
-254
-255
-256
-257
-258
-259
-260
-261
-262
-263
-264
-265
-266
-267
-268</pre>
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 239</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 283</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_type'>type</span>
@@ -1923,12 +2190,12 @@ the locally defined one, or the superclass's.</p>
       <pre class="lines">
 
 
-415
-416
-417</pre>
+459
+460
+461</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 415</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 459</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>strict:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -2028,12 +2295,12 @@ failure; otherwise identical to <span class='object_link'><a href="#execute-clas
       <pre class="lines">
 
 
-427
-428
-429</pre>
+471
+472
+473</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 427</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 471</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute!'>execute!</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>strict:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -2083,17 +2350,17 @@ failure; otherwise identical to <span class='object_link'><a href="#execute-clas
       <pre class="lines">
 
 
-159
-160
-161
-162
-163
-164
-165
-166</pre>
+203
+204
+205
+206
+207
+208
+209
+210</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 159</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 203</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_executors'>executors</span>
   <span class='ivar'>@executors</span> <span class='op'>||=</span>
@@ -2121,7 +2388,7 @@ failure; otherwise identical to <span class='object_link'><a href="#execute-clas
   <div class="discussion">
     <p>Declares a stable idempotency key from context (or a callable). Builds on
 the superclass's <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span>. Passing no <code>key</code> and no options returns the
-current (possibly inherited) configuration.</p>
+current (possibly inherited) configuration. Pass <code>false</code> to disable.</p>
 
   </div>
 </div>
@@ -2134,14 +2401,15 @@ current (possibly inherited) configuration.</p>
         <span class='name'>key</span>
       
       
-        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>, <tt>Proc</tt>, <tt>#<span class='object_link'><a href="#call-class_method" title="CMDx::Task.call (method)">call</a></span></tt>, <tt>nil</tt>)</span>
+        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>, <tt>Proc</tt>, <tt>#<span class='object_link'><a href="#call-class_method" title="CMDx::Task.call (method)">call</a></span></tt>, <tt>false</tt>, <tt>nil</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>nil</tt>)</em>
       
       
         &mdash;
-        <div class='inline'><p>context key or resolver</p></div>
+        <div class='inline'><p>context key or
+resolver; <code>false</code> disables idempotency on this class</p></div>
       
     </li>
   
@@ -2276,22 +2544,24 @@ current (possibly inherited) configuration.</p>
       <pre class="lines">
 
 
-61
-62
-63
-64
-65
-66
 67
 68
 69
 70
 71
 72
-73</pre>
+73
+74
+75
+76
+77
+78
+79
+80
+81</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 61</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_idempotent_by'>idempotent_by</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='ivar'>@idempotent_by</span> <span class='op'>||=</span>
@@ -2301,10 +2571,12 @@ current (possibly inherited) configuration.</p>
       <span class='const'><span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span></span><span class='period'>.</span><span class='id identifier rubyid_disabled'><span class='object_link'><a href="Idempotency.html#disabled-class_method" title="CMDx::Idempotency.disabled (method)">disabled</a></span></span>
     <span class='kw'>end</span>
 
-  <span class='id identifier rubyid_resolver'>resolver</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
-  <span class='kw'>return</span> <span class='ivar'>@idempotent_by</span> <span class='kw'>if</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
-
-  <span class='ivar'>@idempotent_by</span> <span class='op'>=</span> <span class='ivar'>@idempotent_by</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_resolver'>resolver</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='ivar'>@idempotent_by</span> <span class='op'>=</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='kw'>false</span>
+      <span class='const'><span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span></span><span class='period'>.</span><span class='id identifier rubyid_disabled'><span class='object_link'><a href="Idempotency.html#disabled-class_method" title="CMDx::Idempotency.disabled (method)">disabled</a></span></span>
+    <span class='kw'>else</span>
+      <span class='ivar'>@idempotent_by</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2551,21 +2823,21 @@ with names, registers them and defines accessors.</p>
       <pre class="lines">
 
 
-311
-312
-313
-314
-315
-316
-317
-318
-319
-320
-321
-322</pre>
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 311</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 355</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inputs'>inputs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@inputs</span> <span class='op'>||=</span>
@@ -2624,12 +2896,12 @@ with names, registers them and defines accessors.</p>
       <pre class="lines">
 
 
-372
-373
-374</pre>
+416
+417
+418</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 372</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 416</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inputs_schema'>inputs_schema</span>
   <span class='id identifier rubyid_inputs'>inputs</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_transform_values'>transform_values</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_h</span><span class='rparen'>)</span>
@@ -2679,17 +2951,17 @@ with names, registers them and defines accessors.</p>
       <pre class="lines">
 
 
-169
-170
-171
-172
-173
-174
-175
-176</pre>
+213
+214
+215
+216
+217
+218
+219
+220</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 169</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 213</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_mergers'>mergers</span>
   <span class='ivar'>@mergers</span> <span class='op'>||=</span>
@@ -2744,17 +3016,17 @@ with names, registers them and defines accessors.</p>
       <pre class="lines">
 
 
-103
-104
-105
-106
-107
-108
-109
-110</pre>
+147
+148
+149
+150
+151
+152
+153
+154</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 103</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 147</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_middlewares'>middlewares</span>
   <span class='ivar'>@middlewares</span> <span class='op'>||=</span>
@@ -2984,12 +3256,12 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-344
-345
-346</pre>
+388
+389
+390</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 344</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 388</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_optional'>optional</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='symbol'>:input</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>required:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -3119,21 +3391,21 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-385
-386
-387
-388
-389
-390
-391
-392
-393
-394
-395
-396</pre>
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 385</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 429</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_outputs'>outputs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='ivar'>@outputs</span> <span class='op'>||=</span>
@@ -3192,12 +3464,12 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-400
-401
-402</pre>
+444
+445
+446</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 400</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 444</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_outputs_schema'>outputs_schema</span>
   <span class='id identifier rubyid_outputs'>outputs</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_transform_values'>transform_values</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_h</span><span class='rparen'>)</span>
@@ -3278,39 +3550,39 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-203
-204
-205
-206
-207
-208
-209
-210
-211
-212
-213
-214
-215
-216
-217
-218
-219
-220
-221
-222
-223
-224
-225
-226
-227
-228
-229
-230
-231
-232</pre>
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 203</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 247</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_type'>type</span>
@@ -3562,12 +3834,12 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-367
-368
-369</pre>
+411
+412
+413</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 367</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 411</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required'>required</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='symbol'>:input</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>required:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -3617,17 +3889,17 @@ you need to set the flag dynamically.</p>
       <pre class="lines">
 
 
-179
-180
-181
-182
-183
-184
-185
-186</pre>
+223
+224
+225
+226
+227
+228
+229
+230</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 179</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 223</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_retriers'>retriers</span>
   <span class='ivar'>@retriers</span> <span class='op'>||=</span>
@@ -3654,7 +3926,8 @@ you need to set the flag dynamically.</p>
 </h3><div class="docstring">
   <div class="discussion">
     <p>Declares exceptions to retry on. Builds on the superclass's <code>Retry</code>.
-Passing no exceptions returns the current (possibly inherited) Retry.</p>
+Passing no exceptions and no options returns the current (possibly
+inherited) Retry. Pass <code>false</code> to disable retries on this class.</p>
 
   </div>
 </div>
@@ -3667,9 +3940,13 @@ Passing no exceptions returns the current (possibly inherited) Retry.</p>
         <span class='name'>exceptions</span>
       
       
-        <span class='type'>(<tt>Array&lt;Class&gt;</tt>)</span>
+        <span class='type'>(<tt>Array&lt;Class, false&gt;</tt>)</span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>exception classes; <code>false</code> alone
+disables retries on this class</p></div>
       
     </li>
   
@@ -3806,8 +4083,6 @@ Passing no exceptions returns the current (possibly inherited) Retry.</p>
       <pre class="lines">
 
 
-33
-34
 35
 36
 37
@@ -3817,22 +4092,30 @@ Passing no exceptions returns the current (possibly inherited) Retry.</p>
 41
 42
 43
-44</pre>
+44
+45
+46
+47
+48
+49</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_retry_on'>retry_on</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_exceptions'>exceptions</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@retry_on</span> <span class='op'>||=</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:retry_on</span><span class='rparen'>)</span>
-      <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_retry_on'>retry_on</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_exceptions'>exceptions</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_retry_on'>retry_on</span>
     <span class='kw'>else</span>
-      <span class='const'><span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Retry.html#initialize-instance_method" title="CMDx::Retry#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_exceptions'>exceptions</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
+      <span class='const'><span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_disabled'><span class='object_link'><a href="Retry.html#disabled-class_method" title="CMDx::Retry.disabled (method)">disabled</a></span></span>
     <span class='kw'>end</span>
 
-  <span class='kw'>return</span> <span class='ivar'>@retry_on</span> <span class='kw'>if</span> <span class='id identifier rubyid_exceptions'>exceptions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
-
-  <span class='ivar'>@retry_on</span> <span class='op'>=</span> <span class='ivar'>@retry_on</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_exceptions'>exceptions</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
+  <span class='ivar'>@retry_on</span> <span class='op'>=</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_exceptions'>exceptions</span> <span class='op'>==</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='rbracket'>]</span>
+      <span class='const'><span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_disabled'><span class='object_link'><a href="Retry.html#disabled-class_method" title="CMDx::Retry.disabled (method)">disabled</a></span></span>
+    <span class='kw'>else</span>
+      <span class='ivar'>@retry_on</span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_exceptions'>exceptions</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4002,21 +4285,21 @@ as <code>result.xid</code> (see <span class='object_link'><a href="Settings.html
       <pre class="lines">
 
 
-89
-90
-91
-92
-93
-94
-95
-96
-97
-98
-99
-100</pre>
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 89</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 133</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_settings'>settings</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='ivar'>@settings</span> <span class='op'>||=</span>
@@ -4075,17 +4358,17 @@ as <code>result.xid</code> (see <span class='object_link'><a href="Settings.html
       <pre class="lines">
 
 
-129
-130
-131
-132
-133
-134
-135
-136</pre>
+173
+174
+175
+176
+177
+178
+179
+180</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 129</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 173</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_telemetry'>telemetry</span>
   <span class='ivar'>@telemetry</span> <span class='op'>||=</span>
@@ -4140,12 +4423,12 @@ as <code>result.xid</code> (see <span class='object_link'><a href="Settings.html
       <pre class="lines">
 
 
-405
-406
-407</pre>
+449
+450
+451</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 405</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 449</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
   <span class='ivar'>@type</span> <span class='op'>||=</span> <span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Workflow</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task</span><span class='tstring_end'>&quot;</span></span>
@@ -4195,17 +4478,17 @@ as <code>result.xid</code> (see <span class='object_link'><a href="Settings.html
       <pre class="lines">
 
 
-149
-150
-151
-152
-153
-154
-155
-156</pre>
+193
+194
+195
+196
+197
+198
+199
+200</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 149</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 193</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_validators'>validators</span>
   <span class='ivar'>@validators</span> <span class='op'>||=</span>
@@ -4323,13 +4606,13 @@ otherwise the <span class='object_link'><a href="Result.html" title="CMDx::Resul
       <pre class="lines">
 
 
-490
-491
-492
-493</pre>
+534
+535
+536
+537</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 490</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 534</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Runtime.html" title="CMDx::Runtime (class)">Runtime</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'><span class='object_link'><a href="Runtime.html#execute-class_method" title="CMDx::Runtime.execute (method)">execute</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='label'>strict:</span><span class='rparen'>)</span>
@@ -4416,20 +4699,20 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
       <pre class="lines">
 
 
-559
-560
-561
-562
-563
-564
-565
-566
-567
-568
-569</pre>
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 559</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 603</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4487,12 +4770,12 @@ caller frames for the <span class='object_link'><a href="Fault.html" title="CMDx
       <pre class="lines">
 
 
-497
-498
-499</pre>
+541
+542
+543</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 497</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 541</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
   <span class='ivar'>@logger</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="LoggerProxy.html" title="CMDx::LoggerProxy (module)">LoggerProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="LoggerProxy.html#logger-instance_method" title="CMDx::LoggerProxy#logger (method)">logger</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -4577,20 +4860,20 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
       <pre class="lines">
 
 
-539
-540
-541
-542
-543
-544
-545
-546
-547
-548
-549</pre>
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 539</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 583</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4683,20 +4966,20 @@ onto <span class='object_link'><a href="#metadata-instance_method" title="CMDx::
       <pre class="lines">
 
 
-520
-521
-522
-523
-524
-525
-526
-527
-528
-529
-530</pre>
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 520</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 564</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_success!'>success!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4806,22 +5089,22 @@ thrown.</p>
       <pre class="lines">
 
 
-581
-582
-583
-584
-585
-586
-587
-588
-589
-590
-591
-592
-593</pre>
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 581</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 625</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_frozen?'>frozen?</span>
@@ -4885,15 +5168,15 @@ thrown.</p>
       <pre class="lines">
 
 
-506
-507
-508
-509
-510
-511</pre>
+550
+551
+552
+553
+554
+555</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 506</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 550</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#ImplementationError-constant" title="CMDx::ImplementationError (constant)">ImplementationError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
@@ -4911,7 +5194,7 @@ thrown.</p>
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:13:58 2026 by
+  Generated on Sun Oct 18 02:16:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

@@ -260,6 +260,28 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#remaining_ttl-class_method" title="remaining_ttl (class method)">.<strong>remaining_ttl</strong>(key)  &#x21d2; Integer<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Seconds until expiry when the backend supports #ttl; <code>nil</code> when the key is missing, expired, or TTL is unavailable.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#set-class_method" title="set (class method)">.<strong>set</strong>(key, value, ttl: nil, nx: false, xx: false)  &#x21d2; Boolean </a>
     
 
@@ -634,7 +656,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       
       
         &mdash;
-        <div class='inline'><p>expiry in seconds when the counter is first created</p></div>
+        <div class='inline'><p>when set, refreshes expiry on every increment</p></div>
       
     </li>
   
@@ -766,15 +788,15 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       <pre class="lines">
 
 
-58
-59
-60
-61
-62
-63</pre>
+70
+71
+72
+73
+74
+75</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 70</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key!'>key!</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
@@ -857,19 +879,115 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       <pre class="lines">
 
 
-80
-81
-82
-83
-84</pre>
+92
+93
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 92</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_nx_xx!'>nx_xx!</span><span class='lparen'>(</span><span class='id identifier rubyid_nx'>nx</span><span class='comma'>,</span> <span class='id identifier rubyid_xx'>xx</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_nx'>nx</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_xx'>xx</span>
 
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>store set cannot use nx and xx together</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remaining_ttl-class_method">
+  
+    .<strong>remaining_ttl</strong>(key)  &#x21d2; <tt>Integer</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns seconds until expiry when the backend supports
+#ttl; <code>nil</code> when the key is missing, expired, or TTL is unavailable.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>seconds until expiry when the backend supports
+#ttl; <code>nil</code> when the key is missing, expired, or TTL is unavailable</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>key</code> is blank</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remaining_ttl'>remaining_ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_store'>store</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_store'><span class='object_link'><a href="Configuration.html#store-instance_method" title="CMDx::Configuration#store (method)">store</a></span></span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_store'>store</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:ttl</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_seconds'>seconds</span> <span class='op'>=</span> <span class='id identifier rubyid_store'>store</span><span class='period'>.</span><span class='id identifier rubyid_ttl'>ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_seconds'>seconds</span> <span class='kw'>if</span> <span class='id identifier rubyid_seconds'>seconds</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_seconds'>seconds</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1084,14 +1202,14 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       <pre class="lines">
 
 
-69
-70
-71
-72
-73</pre>
+81
+82
+83
+84
+85</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ttl!'>ttl!</span><span class='lparen'>(</span><span class='id identifier rubyid_ttl'>ttl</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>store ttl must be a positive Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
@@ -1108,7 +1226,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
 
       <div id="footer">
-  Generated on Sat Oct 17 16:13:58 2026 by
+  Generated on Sun Oct 18 02:16:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
