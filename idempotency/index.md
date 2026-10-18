@@ -4,7 +4,7 @@ Same `payment_id`. The webhook fires again. Sidekiq retries because the worker d
 
 For work that must happen **at most once** — charge a card, send the email, reserve inventory — you need a **stable key** from the payload and a shared “already handled” claim. The second caller should stop **before** `work` runs.
 
-`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself.
+`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself. To serialize concurrent workers without blocking repeat runs later, see [Locks](https://drexed.github.io/cmdx/locks/index.md).
 
 Important
 

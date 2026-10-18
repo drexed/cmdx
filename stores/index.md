@@ -79,6 +79,10 @@ Removes the key. Returns `1` if a key was removed, `0` otherwise.
 CMDx::Stores.del("idem:pay_123")
 ```
 
+### `del_if(key, expected)`
+
+Removes the key only when the stored value equals `expected` (string comparison after `to_s`). Returns whether a key was removed. Built-in adapters implement this atomically (Redis via `EVAL`). Used by `lock_with` so a late releaser cannot delete a newer holder's lease.
+
 ## Adapters
 
 ### `CMDx::Stores::Memory`

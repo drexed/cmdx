@@ -18,7 +18,7 @@
         <link rel="prev" href="../retries/">
       
       
-        <link rel="next" href="../circuit_breaker/">
+        <link rel="next" href="../locks/">
       
       
         
@@ -1575,6 +1575,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../locks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../circuit_breaker/" class="md-nav__link">
         
   
@@ -2444,7 +2472,7 @@
 <h1 id="idempotency">Idempotency<a class="headerlink" href="#idempotency" title="Permanent link">&para;</a></h1>
 <p>Same <code>payment_id</code>. The webhook fires again. Sidekiq retries because the worker died mid-flight.</p>
 <p>For work that must happen <strong>at most once</strong> — charge a card, send the email, reserve inventory — you need a <strong>stable key</strong> from the payload and a shared “already handled” claim. The second caller should stop <strong>before</strong> <code>work</code> runs.</p>
-<p><code>idempotent_by</code> wires that up with <a href="../stores/">Stores</a>: claim a slot using <code>set(..., nx: true)</code>, mark success with <code>xx: true</code>, and you do not register middleware yourself.</p>
+<p><code>idempotent_by</code> wires that up with <a href="../stores/">Stores</a>: claim a slot using <code>set(..., nx: true)</code>, mark success with <code>xx: true</code>, and you do not register middleware yourself. To serialize concurrent workers without blocking repeat runs later, see <a href="../locks/">Locks</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
 <p>The claim runs <strong>after</strong> inputs are resolved and <strong>wraps the whole <code>retry_on</code> loop</strong>, not each retry attempt. One successful run marks the slot <code>completed</code>; a raised error deletes the claim so retries can hit <code>work</code> again. See <a href="../retries/">Retries</a> for what retries do <em>not</em> re-run (inputs, most callbacks).</p>
@@ -2622,13 +2650,13 @@
         
         
           
-          <a href="../circuit_breaker/" class="md-footer__link md-footer__link--next" aria-label="Next: Circuit breaker">
+          <a href="../locks/" class="md-footer__link md-footer__link--next" aria-label="Next: Locks">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Circuit breaker
+                Locks
               </div>
             </div>
             <div class="md-footer__button md-icon">

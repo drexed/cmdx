@@ -106,7 +106,7 @@
   <div class="discussion">
     <p>Delegates to a Redis-compatible client (<code>redis-rb</code>, <code>MockRedis</code>, etc.).
 Keys are prefixed to avoid collisions with unrelated application data.</p>
-<p>The client must respond to <code>get</code>, <code>set</code>, <code>incr</code>, <code>expire</code>, <code>ttl</code>, and <code>del</code>.</p>
+<p>The client must respond to <code>get</code>, <code>set</code>, <code>incr</code>, <code>expire</code>, <code>ttl</code>, <code>del</code>, and <code>eval</code>.</p>
 
   </div>
 </div>
@@ -114,6 +114,28 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
   
 
 </div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEL_IF_SCRIPT-constant" class="">DEL_IF_SCRIPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='heredoc_beg'>&lt;&lt;~LUA</span>
+<span class='tstring_content'>  if redis.call(&#39;GET&#39;, KEYS[1]) == ARGV[1] then
+</span><span class='tstring_content'>    return redis.call(&#39;DEL&#39;, KEYS[1])
+</span><span class='tstring_content'>  else
+</span><span class='tstring_content'>    return 0
+</span><span class='tstring_content'>  end
+</span><span class='heredoc_end'>LUA</span></pre></dd>
+      
+    </dl>
+  
+
 
 
 
@@ -168,6 +190,28 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
 
   
     <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#del_if-instance_method" title="#del_if (instance method)">#<strong>del_if</strong>(key, expected)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether the key was removed.</p></div></span>
   
 </li>
 
@@ -315,7 +359,7 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
         <span class='name'>redis</span>
       
       
-        <span class='type'>(<tt>#<span class='object_link'><a href="#get-instance_method" title="CMDx::Stores::Redis#get (method)">get</a></span></tt>, <tt>#<span class='object_link'><a href="#set-instance_method" title="CMDx::Stores::Redis#set (method)">set</a></span></tt>, <tt>#<span class='object_link'><a href="#incr-instance_method" title="CMDx::Stores::Redis#incr (method)">incr</a></span></tt>, <tt>#expire</tt>, <tt>#<span class='object_link'><a href="#del-instance_method" title="CMDx::Stores::Redis#del (method)">del</a></span></tt>)</span>
+        <span class='type'>(<tt>#<span class='object_link'><a href="#get-instance_method" title="CMDx::Stores::Redis#get (method)">get</a></span></tt>, <tt>#<span class='object_link'><a href="#set-instance_method" title="CMDx::Stores::Redis#set (method)">set</a></span></tt>, <tt>#<span class='object_link'><a href="#incr-instance_method" title="CMDx::Stores::Redis#incr (method)">incr</a></span></tt>, <tt>#expire</tt>, <tt>#<span class='object_link'><a href="#del-instance_method" title="CMDx::Stores::Redis#del (method)">del</a></span></tt>, <tt>#eval</tt>)</span>
       
       
       
@@ -349,13 +393,13 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-13
-14
-15
-16</pre>
+21
+22
+23
+24</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 21</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>redis:</span><span class='comma'>,</span> <span class='label'>namespace:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx:store</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
   <span class='ivar'>@redis</span> <span class='op'>=</span> <span class='id identifier rubyid_redis'>redis</span>
@@ -425,15 +469,15 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-72
-73
-74
-75
-76
-77</pre>
+80
+81
+82
+83
+84
+85</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 72</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 80</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_decr'>decr</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -498,15 +542,102 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-81
-82
-83</pre>
+89
+90
+91</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 81</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 89</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_del'>del</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_del'>del</span><span class='lparen'>(</span><span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="del_if-instance_method">
+  
+    #<strong>del_if</strong>(key, expected)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns whether the key was removed.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>expected</span>
+      
+      
+        <span class='type'>(<tt>#to_s</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>whether the key was removed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 96</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_del_if'>del_if</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_expected'>expected</span><span class='rparen'>)</span> <span class='comment'># rubocop:disable Naming/PredicateMethod -- store delete contract
+</span>  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_expected'>expected</span> <span class='op'>=</span> <span class='id identifier rubyid_expected'>expected</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>=</span> <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_eval'>eval</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#DEL_IF_SCRIPT-constant" title="CMDx::Stores::Redis::DEL_IF_SCRIPT (constant)">DEL_IF_SCRIPT</a></span></span><span class='comma'>,</span> <span class='label'>keys:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>argv:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_expected'>expected</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_deleted'>deleted</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -565,12 +696,12 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-20
-21
-22</pre>
+28
+29
+30</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 20</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 28</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='ivar'>@redis</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -661,17 +792,17 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-53
-54
-55
-56
-57
-58
-59
-60</pre>
+61
+62
+63
+64
+65
+66
+67
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 53</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 61</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_incr'>incr</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -804,14 +935,6 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-31
-32
-33
-34
-35
-36
-37
-38
 39
 40
 41
@@ -820,10 +943,18 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
 44
 45
 46
-47</pre>
+47
+48
+49
+50
+51
+52
+53
+54
+55</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 31</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 39</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>nx:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>xx:</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='comment'># rubocop:disable Naming/PredicateMethod -- Redis SET contract
 </span>  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -902,14 +1033,14 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
       <pre class="lines">
 
 
-64
-65
-66
-67
-68</pre>
+72
+73
+74
+75
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/redis.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_prefixed'>prefixed</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -926,7 +1057,7 @@ Keys are prefixed to avoid collisions with unrelated application data.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Oct 18 02:46:22 2026 by
+  Generated on Sun Oct 18 03:51:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

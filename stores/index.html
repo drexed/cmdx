@@ -1454,6 +1454,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../locks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../circuit_breaker/" class="md-nav__link">
         
   
@@ -1615,6 +1643,17 @@
     <span class="md-ellipsis">
       
         del(key)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#del_ifkey-expected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        del_if(key, expected)
       
     </span>
   </a>
@@ -2444,6 +2483,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#del_ifkey-expected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        del_if(key, expected)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2685,6 +2735,8 @@
 <p>Removes the key. Returns <code>1</code> if a key was removed, <code>0</code> otherwise.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">del</span><span class="p">(</span><span class="s2">"idem:pay_123"</span><span class="p">)</span>
 </span></code></pre></div>
+<h3 id="del_ifkey-expected"><code>del_if(key, expected)</code><a class="headerlink" href="#del_ifkey-expected" title="Permanent link">&para;</a></h3>
+<p>Removes the key only when the stored value equals <code>expected</code> (string comparison after <code>to_s</code>). Returns whether a key was removed. Built-in adapters implement this atomically (Redis via <code>EVAL</code>). Used by <code>lock_with</code> so a late releaser cannot delete a newer holder's lease.</p>
 <h2 id="adapters">Adapters<a class="headerlink" href="#adapters" title="Permanent link">&para;</a></h2>
 <h3 id="cmdxstoresmemory"><code>CMDx::Stores::Memory</code><a class="headerlink" href="#cmdxstoresmemory" title="Permanent link">&para;</a></h3>
 <p>Thread-safe, process-local hash with monotonic-clock TTL. Used by default and in specs unless you assign another backend.</p>

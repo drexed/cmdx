@@ -4400,9 +4400,13 @@ Important
 
 Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
 
-Idempotency
+Locks and idempotency during retries
 
-When `idempotent_by` is declared, the store claim wraps the **entire** retry loop — a failed attempt releases the claim so the next retry can run `work` again. See [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md).
+`lock_with` and `idempotent_by` wrap the **entire** `retry_on` loop in `Runtime`. A retried attempt does **not** release the lock or idempotency claim between tries — the same invocation keeps the lease until `work` (and output verification) finish, the run halts via `skip!` / `fail!`, or an uncaught error leaves the wrapped block.
+
+Size `lock_with ttl:` for worst-case hold time (work, retry sleeps, verification). See [Locks — Lease lifetime and `ttl`](https://drexed.github.io/cmdx/locks/#lease-lifetime-and-ttl).
+
+When retries are exhausted and the error propagates, idempotency deletes its claim so a **new** job delivery can try again; the lock is released in `ensure` after acquire. See [Locks](https://drexed.github.io/cmdx/locks/index.md) and [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md).
 
 ## Inheritance
 
@@ -4635,7 +4639,7 @@ Same `payment_id`. The webhook fires again. Sidekiq retries because the worker d
 
 For work that must happen **at most once** — charge a card, send the email, reserve inventory — you need a **stable key** from the payload and a shared “already handled” claim. The second caller should stop **before** `work` runs.
 
-`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself.
+`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself. To serialize concurrent workers without blocking repeat runs later, see [Locks](https://drexed.github.io/cmdx/locks/index.md).
 
 Important
 
@@ -4944,6 +4948,10 @@ Removes the key. Returns `1` if a key was removed, `0` otherwise.
 ```ruby
 CMDx::Stores.del("idem:pay_123")
 ```
+
+### `del_if(key, expected)`
+
+Removes the key only when the stored value equals `expected` (string comparison after `to_s`). Returns whether a key was removed. Built-in adapters implement this atomically (Redis via `EVAL`). Used by `lock_with` so a late releaser cannot delete a newer holder's lease.
 
 ## Adapters
 
@@ -7393,7 +7401,6 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 ### Infrastructure primitives
 
 - **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
-- **`CMDx::Locks`** — `lock_with key: ..., ttl: ..., wait: ...` prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.
 
 ### Tasks
 

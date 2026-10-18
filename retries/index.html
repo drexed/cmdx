@@ -1652,6 +1652,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../locks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../circuit_breaker/" class="md-nav__link">
         
   
@@ -2665,8 +2693,10 @@
 <p>Only exceptions you listed in <code>retry_on</code> get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with <code>result.cause</code> under <code>execute</code>), or blows up under <code>execute!</code> once the lifecycle finishes.</p>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">Idempotency</p>
-<p>When <code>idempotent_by</code> is declared, the store claim wraps the <strong>entire</strong> retry loop — a failed attempt releases the claim so the next retry can run <code>work</code> again. See <a href="../idempotency/">Idempotency</a>.</p>
+<p class="admonition-title">Locks and idempotency during retries</p>
+<p><code>lock_with</code> and <code>idempotent_by</code> wrap the <strong>entire</strong> <code>retry_on</code> loop in <code>Runtime</code>. A retried attempt does <strong>not</strong> release the lock or idempotency claim between tries — the same invocation keeps the lease until <code>work</code> (and output verification) finish, the run halts via <code>skip!</code> / <code>fail!</code>, or an uncaught error leaves the wrapped block.</p>
+<p>Size <code>lock_with ttl:</code> for worst-case hold time (work, retry sleeps, verification). See <a href="../locks/#lease-lifetime-and-ttl">Locks — Lease lifetime and <code>ttl</code></a>.</p>
+<p>When retries are exhausted and the error propagates, idempotency deletes its claim so a <strong>new</strong> job delivery can try again; the lock is released in <code>ensure</code> after acquire. See <a href="../locks/">Locks</a> and <a href="../idempotency/">Idempotency</a>.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
 <p>Subclasses inherit the parent’s retry policy. Calling <code>retry_on</code> with no exception classes and no options returns the current (possibly inherited) configuration. Further calls <strong>add</strong> exception types and <strong>merge</strong> options — including option-only updates such as <code>retry_on limit: 5</code> on the subclass. Pass <code>retry_on false</code> on a subclass to disable retries entirely (even when the parent declared them).</p>

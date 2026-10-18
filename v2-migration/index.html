@@ -1454,6 +1454,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../locks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../circuit_breaker/" class="md-nav__link">
         
   
@@ -4918,7 +4946,6 @@
 <h3 id="infrastructure-primitives">Infrastructure primitives<a class="headerlink" href="#infrastructure-primitives" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>CMDx::Cache</code></strong> — <code>cache_result key: -&gt;(t) { ... }, ttl: 60</code> memoizes a successful run keyed by inputs.</li>
-<li><strong><code>CMDx::Locks</code></strong> — <code>lock_with key: ..., ttl: ..., wait: ...</code> prevents two workers from running the same logical task at once. Different from idempotency: locks fight concurrency; idempotency fights duplicate side effects.</li>
 </ul>
 <h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
 <ul>

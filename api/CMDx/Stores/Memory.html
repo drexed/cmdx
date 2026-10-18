@@ -175,6 +175,28 @@ across workers.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#del_if-instance_method" title="#del_if (instance method)">#<strong>del_if</strong>(key, expected)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether the key was removed.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#get-instance_method" title="#get (instance method)">#<strong>get</strong>(key)  &#x21d2; String<sup>?</sup> </a>
     
 
@@ -536,6 +558,105 @@ across workers.</p>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-class_method" title="CMDx::Stores.key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
     <span class='ivar'>@entries</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='int'>1</span> <span class='op'>:</span> <span class='int'>0</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="del_if-instance_method">
+  
+    #<strong>del_if</strong>(key, expected)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns whether the key was removed.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>expected</span>
+      
+      
+        <span class='type'>(<tt>#to_s</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>whether the key was removed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_del_if'>del_if</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_expected'>expected</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-class_method" title="CMDx::Stores.key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_expected'>expected</span> <span class='op'>=</span> <span class='id identifier rubyid_expected'>expected</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='ivar'>@entries</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_expired?'>expired?</span><span class='lparen'>(</span><span class='id identifier rubyid_entry'>entry</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:value</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_expected'>expected</span>
+
+    <span class='ivar'>@entries</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>true</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1029,7 +1150,7 @@ across workers.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Oct 18 02:46:22 2026 by
+  Generated on Sun Oct 18 03:51:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
