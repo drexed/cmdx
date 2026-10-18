@@ -502,13 +502,21 @@ Class-level recipes: [Callbacks](https://drexed.github.io/cmdx/callbacks/index.m
 
 Simple mental model: **publish events, subscribe with lambdas**. Each event delivers a `Telemetry::Event` (`cid`, `xid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`).
 
-| Event               | Payload (extra)        |
-| ------------------- | ---------------------- |
-| `:task_started`     | empty                  |
-| `:task_deprecated`  | empty                  |
-| `:task_retried`     | `{ attempt: Integer }` |
-| `:task_rolled_back` | empty                  |
-| `:task_executed`    | `{ result: Result }`   |
+| Event                       | Payload (extra)                                                                                    |
+| --------------------------- | -------------------------------------------------------------------------------------------------- |
+| `:task_started`             | empty                                                                                              |
+| `:task_deprecated`          | empty                                                                                              |
+| `:task_retried`             | `{ attempt: Integer }`                                                                             |
+| `:task_rolled_back`         | empty                                                                                              |
+| `:task_executed`            | `{ result: Result }`                                                                               |
+| `:lock_acquired`            | `{ lock_key: String }`                                                                             |
+| `:lock_busy`                | `{ code: :busy, lock_key:, holder:, retry_after:, on_busy: }` (optional keys omitted when unknown) |
+| `:idempotency_claimed`      | `{ idempotency_key: String }`                                                                      |
+| `:idempotency_completed`    | `{ idempotency_key: String }`                                                                      |
+| `:idempotency_duplicate`    | `{ code: :duplicate, idempotency_key:, state: }`                                                   |
+| `:circuit_open`             | `{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }`                            |
+| `:circuit_tripped`          | `{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }`                   |
+| `:circuit_failures_cleared` | `{ failures_key: String }`                                                                         |
 
 ```ruby
 CMDx.configure do |config|
@@ -4747,6 +4755,31 @@ Signals
 
 Duplicates call `skip!` or `fail!` inside the `catch` around `work`, so your resolver does not keep running — under `execute` you get a `Result` with `skipped?` or `failed?`; under `execute!` you get a fault.
 
+## Telemetry
+
+When idempotency is active for a run (enabled, gates pass, segment non-blank), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
+
+| Event                    | When                                                     | Extra `event.payload` keys                     |
+| ------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
+| `:idempotency_claimed`   | `processing` slot claimed (`nx: true`)                   | `idempotency_key`                              |
+| `:idempotency_completed` | Slot marked `completed` after the wrapped block succeeds | `idempotency_key`                              |
+| `:idempotency_duplicate` | Key already held (`processing` or `completed`)           | `code: :duplicate`, `idempotency_key`, `state` |
+
+`:idempotency_claimed` and `:idempotency_completed` bracket a successful run (claim → work, retries, and output verification → completed). Failed runs delete the claim and do **not** emit `:idempotency_completed`.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:idempotency_duplicate, ->(event) {
+    StatsD.increment("cmdx.idempotency.duplicate", tags: [
+      "task:#{event.task}",
+      "state:#{event.payload[:state]}"
+    ])
+  })
+end
+```
+
+`:idempotency_duplicate` fires **before** `skip!` / `fail!`, matching the metadata on the final `Result`.
+
 # Circuit breaker
 
 The inventory API is down. Every task still waits, times out, retries, and piles onto the same unhappy dependency.
@@ -4867,6 +4900,37 @@ class PreviewInventory < ExternalApiTask
   circuit_breaker false # no breaker; work runs every time
 end
 ```
+
+## Telemetry
+
+When the breaker is active for a run (enabled, gates pass, key resolves), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
+
+| Event                       | When                                                         | Extra `event.payload` keys                                                       |
+| --------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `:circuit_open`             | Open flag present — `work` does not run                      | `code: :circuit_open`, `circuit_breaker_key`, `on_open:`; optional `retry_after` |
+| `:circuit_tripped`          | Failure count reached `threshold:` and the open flag was set | `circuit_breaker_key`, `failures_key`, `failure_count`, `threshold`, `cool_off`  |
+| `:circuit_failures_cleared` | Successful run removed the failure counter                   | `failures_key`                                                                   |
+
+`:circuit_tripped` fires on the run that **opens** the circuit (after the counting failure escapes the retry loop). The **next** run gets `:circuit_open` when it is turned away at the door.
+
+`:circuit_failures_cleared` only fires when a failure key was actually deleted — not on every success.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:circuit_tripped, ->(event) {
+    StatsD.increment("cmdx.circuit.tripped", tags: ["task:#{event.task}"])
+  })
+
+  config.telemetry.subscribe(:circuit_open, ->(event) {
+    StatsD.increment("cmdx.circuit.open", tags: [
+      "task:#{event.task}",
+      "on_open:#{event.payload[:on_open]}"
+    ])
+  })
+end
+```
+
+`:circuit_open` fires **before** `skip!` / `fail!`, same timing as `metadata[:code] == :circuit_open` on the result.
 
 # Stores
 

@@ -1599,6 +1599,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inheritance" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2417,6 +2428,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inheritance" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2649,19 +2671,54 @@
 <h2 id="skip-vs-fail-when-busy">Skip vs fail when busy<a class="headerlink" href="#skip-vs-fail-when-busy" title="Permanent link">&para;</a></h2>
 <p><code>:skip</code> is for “someone else has this — treat as a no-op” (for example HTTP 202 or “already in progress”). <code>:fail</code> is for “no, you may not run right now” (for example HTTP 409).</p>
 <p>Both set <code>metadata[:code] == :busy</code> and <code>metadata[:lock_key]</code> to the full store key. When the backend supports it, you also get <code>holder</code> (who has the lease) and <code>retry_after</code> (seconds until the key may expire).</p>
+<h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
+<p>When locking is active for a run (enabled, gates pass, segment non-blank), CMDx emits <a href="../configuration/#telemetry">telemetry</a> only if someone subscribed — unused events cost nothing.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>When</th>
+<th>Extra <code>event.payload</code> keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:lock_acquired</code></td>
+<td>Lease taken, right before idempotency / retries / <code>work</code></td>
+<td><code>lock_key</code></td>
+</tr>
+<tr>
+<td><code>:lock_busy</code></td>
+<td>Lease not acquired within <code>wait:</code></td>
+<td><code>code: :busy</code>, <code>lock_key</code>, <code>on_busy:</code>; optional <code>holder</code>, <code>retry_after</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each event also carries the usual <code>Telemetry::Event</code> fields (<code>cid</code>, <code>xid</code>, <code>tid</code>, <code>task</code>, <code>timestamp</code>, …).</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:lock_busy</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">"cmdx.lock.busy"</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">"task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">"</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:lock_acquired</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"[cmdx] lock </span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:lock_key</span><span class="o">]</span><span class="si">}</span><span class="s2"> held by </span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">tid</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
+</span></code></pre></div>
+<p><code>:lock_busy</code> fires <strong>before</strong> <code>skip!</code> / <code>fail!</code>, so you can metric contention even when the final result is skipped.</p>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
 <p>Subclasses inherit the parent's lock. <code>lock_with</code> with no arguments returns the current config. A new key resolver <strong>replaces</strong> the old one; option-only calls <strong>merge</strong>. <code>lock_with false</code> on a subclass turns locking off.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">lock_with</span><span class="w"> </span><span class="ss">:tenant_id</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReconcileAccount</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">lock_with</span><span class="w"> </span><span class="ss">:account_id</span><span class="w"> </span><span class="c1"># resolver → account_id, ttl stays 600</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">PreviewReconcile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="n">lock_with</span><span class="w"> </span><span class="kp">false</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">lock_with</span><span class="w"> </span><span class="ss">:tenant_id</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">end</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReconcileAccount</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">lock_with</span><span class="w"> </span><span class="ss">:account_id</span><span class="w"> </span><span class="c1"># resolver → account_id, ttl stays 600</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">end</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">PreviewReconcile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="n">lock_with</span><span class="w"> </span><span class="kp">false</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <p>Use a shared store in production (<code>Stores::Redis</code> on <code>CMDx.configuration.store</code>). The in-memory default only coordinates inside one process. See <a href="../stores/">Stores</a>.</p>
 

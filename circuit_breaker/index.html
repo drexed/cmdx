@@ -1643,6 +1643,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2439,6 +2450,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2663,6 +2685,50 @@
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">circuit_breaker</span><span class="w"> </span><span class="kp">false</span><span class="w"> </span><span class="c1"># no breaker; work runs every time</span>
 </span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">end</span>
 </span></code></pre></div>
+<h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
+<p>When the breaker is active for a run (enabled, gates pass, key resolves), CMDx emits <a href="../configuration/#telemetry">telemetry</a> only if someone subscribed.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>When</th>
+<th>Extra <code>event.payload</code> keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:circuit_open</code></td>
+<td>Open flag present — <code>work</code> does not run</td>
+<td><code>code: :circuit_open</code>, <code>circuit_breaker_key</code>, <code>on_open:</code>; optional <code>retry_after</code></td>
+</tr>
+<tr>
+<td><code>:circuit_tripped</code></td>
+<td>Failure count reached <code>threshold:</code> and the open flag was set</td>
+<td><code>circuit_breaker_key</code>, <code>failures_key</code>, <code>failure_count</code>, <code>threshold</code>, <code>cool_off</code></td>
+</tr>
+<tr>
+<td><code>:circuit_failures_cleared</code></td>
+<td>Successful run removed the failure counter</td>
+<td><code>failures_key</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>:circuit_tripped</code> fires on the run that <strong>opens</strong> the circuit (after the counting failure escapes the retry loop). The <strong>next</strong> run gets <code>:circuit_open</code> when it is turned away at the door.</p>
+<p><code>:circuit_failures_cleared</code> only fires when a failure key was actually deleted — not on every success.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:circuit_tripped</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">"cmdx.circuit.tripped"</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">"task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">"</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:circuit_open</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">"cmdx.circuit.open"</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">      </span><span class="s2">"task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">      </span><span class="s2">"on_open:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:on_open</span><span class="o">]</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="k">end</span>
+</span></code></pre></div>
+<p><code>:circuit_open</code> fires <strong>before</strong> <code>skip!</code> / <code>fail!</code>, same timing as <code>metadata[:code] == :circuit_open</code> on the result.</p>
 
 
 

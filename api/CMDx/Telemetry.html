@@ -104,9 +104,10 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Pub/sub for runtime lifecycle events (see <span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span>). Subscribers are
-callables receiving an <span class='object_link'><a href="Telemetry/Event.html" title="CMDx::Telemetry::Event (class)">Event</a></span> data object. Runtime emits events only when
-subscribers are registered so telemetry has zero cost when unused.</p>
+    <p>Pub/sub for runtime lifecycle and infrastructure events (see <span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span>).
+Subscribers are callables receiving an <span class='object_link'><a href="Telemetry/Event.html" title="CMDx::Telemetry::Event (class)">Event</a></span> data object. <span class='object_link'><a href="#emit_for-class_method" title="CMDx::Telemetry.emit_for (method)">Telemetry.emit_for</a></span>
+dispatches only when subscribers are registered so telemetry has zero cost
+when unused.</p>
 
   </div>
 </div>
@@ -135,7 +136,8 @@ subscribers are registered so telemetry has zero cost when unused.</p>
         <dt id="EVENTS-constant" class="">EVENTS =
           <div class="docstring">
   <div class="discussion">
-    <p>Lifecycle event names Runtime emits.</p>
+    <p>Lifecycle and infrastructure event names the runtime and store-backed
+helpers emit.</p>
 
   </div>
 </div>
@@ -150,6 +152,14 @@ subscribers are registered so telemetry has zero cost when unused.</p>
 </span><span class='words_sep'>  </span><span class='tstring_content'>task_retried</span><span class='words_sep'>
 </span><span class='words_sep'>  </span><span class='tstring_content'>task_rolled_back</span><span class='words_sep'>
 </span><span class='words_sep'>  </span><span class='tstring_content'>task_executed</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>lock_acquired</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>lock_busy</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>idempotency_claimed</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>idempotency_completed</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>idempotency_duplicate</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>circuit_open</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>circuit_tripped</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>circuit_failures_cleared</span><span class='words_sep'>
 </span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
       
     </dl>
@@ -193,6 +203,38 @@ subscribers are registered so telemetry has zero cost when unused.</p>
 
 
 
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#emit_for-class_method" title="emit_for (class method)">.<strong>emit_for</strong>(task, name, root: false, **payload)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Dispatches <code>payload</code> when <code>task</code>'s telemetry registry has subscribers for <code>name</code>.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
   
     <h2>
       Instance Method Summary
@@ -454,12 +496,12 @@ subscribers are registered so telemetry has zero cost when unused.</p>
       <pre class="lines">
 
 
-37
-38
-39</pre>
+67
+68
+69</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
@@ -500,12 +542,12 @@ subscribers are registered so telemetry has zero cost when unused.</p>
       <pre class="lines">
 
 
-35
-36
-37</pre>
+65
+66
+67</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 65</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_registry'>registry</span>
   <span class='ivar'>@registry</span>
@@ -517,6 +559,119 @@ subscribers are registered so telemetry has zero cost when unused.</p>
     
   </div>
 
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="emit_for-class_method">
+  
+    .<strong>emit_for</strong>(task, name, root: false, **payload)  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Dispatches <code>payload</code> when <code>task</code>'s telemetry registry has subscribers
+for <code>name</code>. No-op when nothing is subscribed.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>task</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>one of <span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>root</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>whether this task started the active chain</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>payload</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>extra fields merged into the event payload</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_emit_for'>emit_for</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>root:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_telemetry'>telemetry</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_telemetry'>telemetry</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_telemetry'>telemetry</span><span class='period'>.</span><span class='id identifier rubyid_subscribed?'>subscribed?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_event'>event</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Telemetry/Event.html" title="CMDx::Telemetry::Event (class)">Event</a></span></span><span class='period'>.</span><span class='id identifier rubyid_build'><span class='object_link'><a href="Telemetry/Event.html#build-class_method" title="CMDx::Telemetry::Event.build (method)">build</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>root:</span><span class='comma'>,</span> <span class='label'>payload:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_telemetry'>telemetry</span><span class='period'>.</span><span class='id identifier rubyid_emit'>emit</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
 
   <div id="instance_method_details" class="method_details_list">
     <h2>Instance Method Details</h2>
@@ -562,12 +717,12 @@ subscribers are registered so telemetry has zero cost when unused.</p>
       <pre class="lines">
 
 
-129
-130
-131</pre>
+159
+160
+161</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 129</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 159</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_count'>count</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:size</span><span class='rparen'>)</span>
@@ -628,17 +783,17 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-139
-140
-141
-142
-143
-144
-145
-146</pre>
+169
+170
+171
+172
+173
+174
+175
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 139</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 169</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_emit'>emit</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_empty?'>empty?</span>
@@ -690,12 +845,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-119
-120
-121</pre>
+149
+150
+151</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 119</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 149</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -747,12 +902,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-43
-44
-45</pre>
+73
+74
+75</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 43</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 73</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_transform_values'>transform_values</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:dup</span><span class='rparen'>)</span>
@@ -830,17 +985,17 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-109
-110
-111
-112
-113
-114
-115
-116</pre>
+139
+140
+141
+142
+143
+144
+145
+146</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 109</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 139</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
@@ -895,12 +1050,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-124
-125
-126</pre>
+154
+155
+156</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 124</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 154</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1030,29 +1185,29 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
       <pre class="lines">
 
 
-56
-57
-58
-59
-60
-61
-62
-63
-64
-65
-66
-67
-68
-69
-70
-71
-72
-73
-74
-75</pre>
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 86</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_subscribe'>subscribe</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_subscriber'>subscriber</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
@@ -1134,12 +1289,12 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
       <pre class="lines">
 
 
-102
-103
-104</pre>
+132
+133
+134</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 102</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 132</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_subscribed?'>subscribed?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
@@ -1238,24 +1393,24 @@ entirely when no subscribers remain.</p>
       <pre class="lines">
 
 
-84
-85
-86
-87
-88
-89
-90
-91
-92
-93
-94
-95
-96
-97
-98</pre>
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 84</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unsubscribe'>unsubscribe</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span><span class='rparen'>)</span>
   <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
@@ -1282,7 +1437,7 @@ entirely when no subscribers remain.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Oct 18 03:53:38 2026 by
+  Generated on Sun Oct 18 14:42:52 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

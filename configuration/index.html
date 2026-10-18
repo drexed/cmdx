@@ -3176,6 +3176,38 @@
 <td><code>:task_executed</code></td>
 <td><code>{ result: Result }</code></td>
 </tr>
+<tr>
+<td><code>:lock_acquired</code></td>
+<td><code>{ lock_key: String }</code></td>
+</tr>
+<tr>
+<td><code>:lock_busy</code></td>
+<td><code>{ code: :busy, lock_key:, holder:, retry_after:, on_busy: }</code> (optional keys omitted when unknown)</td>
+</tr>
+<tr>
+<td><code>:idempotency_claimed</code></td>
+<td><code>{ idempotency_key: String }</code></td>
+</tr>
+<tr>
+<td><code>:idempotency_completed</code></td>
+<td><code>{ idempotency_key: String }</code></td>
+</tr>
+<tr>
+<td><code>:idempotency_duplicate</code></td>
+<td><code>{ code: :duplicate, idempotency_key:, state: }</code></td>
+</tr>
+<tr>
+<td><code>:circuit_open</code></td>
+<td><code>{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }</code></td>
+</tr>
+<tr>
+<td><code>:circuit_tripped</code></td>
+<td><code>{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }</code></td>
+</tr>
+<tr>
+<td><code>:circuit_failures_cleared</code></td>
+<td><code>{ failures_key: String }</code></td>
+</tr>
 </tbody>
 </table>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>

@@ -1559,6 +1559,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2383,6 +2394,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2596,6 +2618,45 @@
 <p class="admonition-title">Signals</p>
 <p>Duplicates call <code>skip!</code> or <code>fail!</code> inside the <code>catch</code> around <code>work</code>, so your resolver does not keep running — under <code>execute</code> you get a <code>Result</code> with <code>skipped?</code> or <code>failed?</code>; under <code>execute!</code> you get a fault.</p>
 </div>
+<h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
+<p>When idempotency is active for a run (enabled, gates pass, segment non-blank), CMDx emits <a href="../configuration/#telemetry">telemetry</a> only if someone subscribed.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>When</th>
+<th>Extra <code>event.payload</code> keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:idempotency_claimed</code></td>
+<td><code>processing</code> slot claimed (<code>nx: true</code>)</td>
+<td><code>idempotency_key</code></td>
+</tr>
+<tr>
+<td><code>:idempotency_completed</code></td>
+<td>Slot marked <code>completed</code> after the wrapped block succeeds</td>
+<td><code>idempotency_key</code></td>
+</tr>
+<tr>
+<td><code>:idempotency_duplicate</code></td>
+<td>Key already held (<code>processing</code> or <code>completed</code>)</td>
+<td><code>code: :duplicate</code>, <code>idempotency_key</code>, <code>state</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>:idempotency_claimed</code> and <code>:idempotency_completed</code> bracket a successful run (claim → work, retries, and output verification → completed). Failed runs delete the claim and do <strong>not</strong> emit <code>:idempotency_completed</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:idempotency_duplicate</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">"cmdx.idempotency.duplicate"</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">      </span><span class="s2">"task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="s2">"state:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:state</span><span class="o">]</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">end</span>
+</span></code></pre></div>
+<p><code>:idempotency_duplicate</code> fires <strong>before</strong> <code>skip!</code> / <code>fail!</code>, matching the metadata on the final <code>Result</code>.</p>
 
 
 

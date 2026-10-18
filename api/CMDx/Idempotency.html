@@ -1196,7 +1196,9 @@ after the block returns successfully.</p>
 129
 130
 131
-132</pre>
+132
+133
+134</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/idempotency.rb', line 106</span>
@@ -1211,6 +1213,8 @@ after the block returns successfully.</p>
   <span class='id identifier rubyid_store_key'>store_key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_compose'><span class='object_link'><a href="StoreKey.html#compose-instance_method" title="CMDx::StoreKey#compose (method)">compose</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_namespace'>namespace</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_segment'>segment</span><span class='rparen'>)</span>
 
   <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_set'><span class='object_link'><a href="Stores.html#set-class_method" title="CMDx::Stores.set (method)">set</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#PROCESSING-constant" title="CMDx::Idempotency::PROCESSING (constant)">PROCESSING</a></span></span><span class='comma'>,</span> <span class='label'>nx:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>ttl:</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Telemetry.html" title="CMDx::Telemetry (class)">Telemetry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_emit_for'><span class='object_link'><a href="Telemetry.html#emit_for-class_method" title="CMDx::Telemetry.emit_for (method)">emit_for</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='symbol'>:idempotency_claimed</span><span class='comma'>,</span> <span class='label'>idempotency_key:</span> <span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
+
     <span class='id identifier rubyid_succeeded'>succeeded</span> <span class='op'>=</span> <span class='kw'>false</span>
 
     <span class='kw'>begin</span>
@@ -1223,7 +1227,7 @@ after the block returns successfully.</p>
       <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_del'><span class='object_link'><a href="Stores.html#del-class_method" title="CMDx::Stores.del (method)">del</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_succeeded'>succeeded</span>
     <span class='kw'>end</span>
 
-    <span class='id identifier rubyid_mark_completed!'>mark_completed!</span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mark_completed!'>mark_completed!</span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
     <span class='id identifier rubyid_duplicate!'>duplicate!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
@@ -1290,7 +1294,7 @@ after the block returns successfully.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Oct 18 03:53:38 2026 by
+  Generated on Sun Oct 18 14:42:53 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

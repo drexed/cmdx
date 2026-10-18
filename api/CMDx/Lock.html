@@ -1192,7 +1192,9 @@ is negative</p></div>
 128
 129
 130
-131</pre>
+131
+132
+133</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/lock.rb', line 112</span>
@@ -1208,6 +1210,8 @@ is negative</p></div>
   <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_tid'>tid</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_acquire_lock'>acquire_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='comma'>,</span> <span class='id identifier rubyid_token'>token</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Telemetry.html" title="CMDx::Telemetry (class)">Telemetry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_emit_for'><span class='object_link'><a href="Telemetry.html#emit_for-class_method" title="CMDx::Telemetry.emit_for (method)">emit_for</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='symbol'>:lock_acquired</span><span class='comma'>,</span> <span class='label'>lock_key:</span> <span class='id identifier rubyid_store_key'>store_key</span><span class='rparen'>)</span>
+
     <span class='kw'>begin</span>
       <span class='kw'>yield</span>
     <span class='kw'>ensure</span>
@@ -1337,7 +1341,7 @@ is negative</p></div>
 </div>
 
       <div id="footer">
-  Generated on Sun Oct 18 03:53:35 2026 by
+  Generated on Sun Oct 18 14:42:50 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

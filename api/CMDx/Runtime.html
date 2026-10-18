@@ -500,7 +500,7 @@ when strict mode re-raises.</p>
   <span class='id identifier rubyid_acquire_chain'>acquire_chain</span>
 
   <span class='id identifier rubyid_run_middlewares'>run_middlewares</span> <span class='kw'>do</span>
-    <span class='id identifier rubyid_emit_telemetry'>emit_telemetry</span><span class='lparen'>(</span><span class='symbol'>:task_started</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Telemetry.html" title="CMDx::Telemetry (class)">Telemetry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_emit_for'><span class='object_link'><a href="Telemetry.html#emit_for-class_method" title="CMDx::Telemetry.emit_for (method)">emit_for</a></span></span><span class='lparen'>(</span><span class='ivar'>@task</span><span class='comma'>,</span> <span class='symbol'>:task_started</span><span class='comma'>,</span> <span class='label'>root:</span> <span class='ivar'>@root</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_run_deprecation'>run_deprecation</span>
     <span class='id identifier rubyid_run_lifecycle'>run_lifecycle</span>
   <span class='kw'>end</span>
@@ -520,7 +520,7 @@ when strict mode re-raises.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Oct 18 03:53:37 2026 by
+  Generated on Sun Oct 18 14:42:52 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
