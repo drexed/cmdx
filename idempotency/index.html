@@ -2442,11 +2442,15 @@
 
 
 <h1 id="idempotency">Idempotency<a class="headerlink" href="#idempotency" title="Permanent link">&para;</a></h1>
-<p>Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. For operations that must not run twice (charging a card, sending an email), you need a <strong>stable key</strong> from the payload and a shared claim so the second caller stops before <code>work</code> runs.</p>
-<p><code>idempotent_by</code> wires that pattern into {Stores} using <code>set(..., nx: true)</code> to claim a slot and <code>xx: true</code> to mark completion — without registering middleware yourself.</p>
-<p>Important nuance: the claim runs <strong>after inputs are resolved</strong> and <strong>wraps the whole <code>retry_on</code> loop</strong>, not each attempt. One successful run marks the slot <code>completed</code>; a raised error deletes the claim so retries can call <code>work</code> again. See <a href="../retries/">Retries</a> for what retries do <em>not</em> re-run (inputs, most callbacks).</p>
+<p>Same <code>payment_id</code>. The webhook fires again. Sidekiq retries because the worker died mid-flight.</p>
+<p>For work that must happen <strong>at most once</strong> — charge a card, send the email, reserve inventory — you need a <strong>stable key</strong> from the payload and a shared “already handled” claim. The second caller should stop <strong>before</strong> <code>work</code> runs.</p>
+<p><code>idempotent_by</code> wires that up with <a href="../stores/">Stores</a>: claim a slot using <code>set(..., nx: true)</code>, mark success with <code>xx: true</code>, and you do not register middleware yourself.</p>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>The claim runs <strong>after</strong> inputs are resolved and <strong>wraps the whole <code>retry_on</code> loop</strong>, not each retry attempt. One successful run marks the slot <code>completed</code>; a raised error deletes the claim so retries can hit <code>work</code> again. See <a href="../retries/">Retries</a> for what retries do <em>not</em> re-run (inputs, most callbacks).</p>
+</div>
 <h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
-<p>Resolve a key from context (after coercion) or from a block/callable:</p>
+<p>Pick a key from context (after coercion) or build one in a block:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChargeCustomer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">idempotent_by</span><span class="w"> </span><span class="ss">:payment_id</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -2477,26 +2481,27 @@
 <tr>
 <td><code>ttl:</code></td>
 <td><code>300</code></td>
-<td>Seconds until the store entry expires (re-claims allowed after expiry)</td>
+<td>How long the store entry lives (seconds). After it expires, a new run can claim again.</td>
 </tr>
 <tr>
 <td><code>namespace:</code></td>
 <td><code>"cmdx:idem"</code></td>
-<td>First segment of the store key (see <a href="#store-keys">Store keys</a>)</td>
+<td>First piece of the store key (see <a href="#store-keys">Store keys</a>).</td>
 </tr>
 <tr>
 <td><code>on_duplicate:</code></td>
 <td><code>:skip</code></td>
-<td><code>:skip</code> → skipped result; <code>:fail</code> → failed result (both set <code>metadata[:code] == :duplicate</code>)</td>
+<td><code>:skip</code> → skipped result; <code>:fail</code> → failed result (both set <code>metadata[:code] == :duplicate</code>).</td>
 </tr>
 <tr>
 <td><code>if:</code> / <code>unless:</code></td>
 <td><code>nil</code></td>
-<td>Gates on the task before claiming (same <code>Util.satisfied?</code> shape as other features)</td>
+<td>Turn idempotency on or off for this run (same <code>Util.satisfied?</code> rules as other features).</td>
 </tr>
 </tbody>
 </table>
 <h3 id="key-resolvers">Key resolvers<a class="headerlink" href="#key-resolvers" title="Permanent link">&para;</a></h3>
+<p>Same idea as elsewhere in CMDx — pick the shape that reads best:</p>
 <table>
 <thead>
 <tr>
@@ -2527,22 +2532,23 @@
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">idempotent_by</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">:</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">idempotency_key</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>When the resolved segment is blank (<code>nil</code> or empty string), idempotency is <strong>not</strong> applied and <code>work</code> runs normally (no store write).</p>
+<p>If the resolved segment is blank (<code>nil</code> or empty string), idempotency <strong>steps aside</strong> — <code>work</code> runs every time and nothing is written to the store.</p>
 <h2 id="store-keys">Store keys<a class="headerlink" href="#store-keys" title="Permanent link">&para;</a></h2>
-<p>Keys are built with <code>CMDx::StoreKey.compose(namespace, task.class.name, segment)</code> — colon-separated, each segment coerced with the same rules as <code>CMDx::Stores.key!</code> (empty segments raise <code>ArgumentError</code>).</p>
+<p>Keys are built with <code>CMDx::StoreKey.compose(namespace, task.class.name, segment)</code> — colon-separated, each segment coerced like <code>CMDx::Stores.key!</code> (empty segments raise <code>ArgumentError</code>).</p>
 <p>Example: <code>cmdx:idem:ChargeCustomer:pay_123</code></p>
-<p>While work is in flight the value is <code>"processing"</code>; after a successful run it becomes <code>"completed"</code>. Duplicates read the current value for the skip/fail message (<code>state=processing</code> or <code>state=completed</code>).</p>
+<p>While work is running, the value is <code>"processing"</code>. After a successful run it becomes <code>"completed"</code>. Duplicates read that value for the message (<code>state=processing</code> or <code>state=completed</code>).</p>
 <h2 id="interaction-with-retry_on">Interaction with <code>retry_on</code><a class="headerlink" href="#interaction-with-retry_on" title="Permanent link">&para;</a></h2>
+<p>Think of one outer envelope around the whole attempt, retries included:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
 </span></code></pre></div>
-<p>If <code>work</code> raises <code>StandardError</code>, the claim is <strong>deleted</strong> before the exception propagates into <code>retry_on</code>. The claim is also released when <code>work</code> signals <code>skip!</code> or <code>fail!</code>, or when output verification fails, so a later invocation can run again. When the wrapped block finishes successfully, the slot is marked <code>completed</code>. A later invocation with the same key short-circuits without running <code>work</code>.</p>
-<p>Configure <code>CMDx.configuration.store</code> with a shared backend (<code>Stores::Redis</code>) in production — the in-memory default is per-process only. See <a href="../stores/">Stores</a>.</p>
+<p>If <code>work</code> raises <code>StandardError</code>, the claim is <strong>deleted</strong> before the exception reaches <code>retry_on</code>. The claim is also released when <code>work</code> calls <code>skip!</code> or <code>fail!</code>, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is <code>completed</code> and the next call with the same key never enters <code>work</code>.</p>
+<p>Use a shared store in production (<code>Stores::Redis</code> on <code>CMDx.configuration.store</code>). The in-memory default only sees your current process. See <a href="../stores/">Stores</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">TTL and crashes</p>
-<p>If a worker dies after claiming but before success or cleanup, the key expires after <code>ttl:</code> and another caller may run <code>work</code> again. Tune <code>ttl:</code> for your worst-case runtime (and deploy pauses), not just HTTP timeouts.</p>
+<p>If a worker dies after claiming but before success or cleanup, the key sticks around until <code>ttl:</code> expires — then another caller may run <code>work</code> again. Set <code>ttl:</code> for your worst-case runtime (and deploy pauses), not just HTTP timeouts.</p>
 </div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subclasses inherit the parent's idempotency configuration. Calling <code>idempotent_by</code> with no arguments returns the current (possibly inherited) configuration. Calling it again <strong>replaces</strong> the key resolver when you pass a new one and <strong>merges</strong> options — including option-only updates such as <code>idempotent_by ttl: 600</code> (same layering idea as <code>retry_on</code>, but the key resolver is singular, not a list). Pass <code>idempotent_by false</code> on a subclass to disable.</p>
+<p>Subclasses pick up the parent’s idempotency config. <code>idempotent_by</code> with no arguments returns what you have now (including inherited settings). Pass a new key resolver to <strong>replace</strong> the old one; pass only options to <strong>merge</strong> (e.g. <code>idempotent_by ttl: 600</code> keeps the same resolver). Same layering idea as <code>retry_on</code>, except the key resolver is singular, not a list. <code>idempotent_by false</code> on a subclass turns it off.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">idempotent_by</span><span class="w"> </span><span class="ss">:request_id</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
@@ -2556,11 +2562,11 @@
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="skip-vs-fail-on-duplicates">Skip vs fail on duplicates<a class="headerlink" href="#skip-vs-fail-on-duplicates" title="Permanent link">&para;</a></h2>
-<p><code>:skip</code> fits when the second call means "already handled" (idempotent no-op, HTTP 2xx). <code>:fail</code> fits when callers need an explicit rejection (for example HTTP 409).</p>
-<p>Both attach <code>metadata[:code] == :duplicate</code> and <code>metadata[:idempotency_key]</code> with the full store key.</p>
+<p><code>:skip</code> is for “already done — treat as success” (idempotent no-op, HTTP 2xx). <code>:fail</code> is for “no, you may not run this again” (for example HTTP 409).</p>
+<p>Both set <code>metadata[:code] == :duplicate</code> and <code>metadata[:idempotency_key]</code> to the full store key.</p>
 <div class="admonition note">
 <p class="admonition-title">Signals</p>
-<p>Duplicates invoke <code>skip!</code> or <code>fail!</code> inside the <code>catch</code> around <code>work</code>, so control does not return to your resolver — you get a <code>Result</code> with <code>skipped?</code> or <code>failed?</code> under <code>execute</code>, or a fault under <code>execute!</code>.</p>
+<p>Duplicates call <code>skip!</code> or <code>fail!</code> inside the <code>catch</code> around <code>work</code>, so your resolver does not keep running — under <code>execute</code> you get a <code>Result</code> with <code>skipped?</code> or <code>failed?</code>; under <code>execute!</code> you get a fault.</p>
 </div>
 
 

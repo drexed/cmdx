@@ -1524,6 +1524,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Basic usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scoping-the-breaker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scoping the breaker
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2303,6 +2320,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Basic usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scoping-the-breaker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scoping the breaker
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2464,9 +2498,11 @@
 
 
 <h1 id="circuit-breaker">Circuit breaker<a class="headerlink" href="#circuit-breaker" title="Permanent link">&para;</a></h1>
-<p>When a downstream dependency fails repeatedly, every caller still pays for timeouts and retries. A <strong>circuit breaker</strong> counts failures, opens after a threshold, and rejects new work until a cool-off elapses — so a partial outage does not keep hammering the dependency.</p>
+<p>The inventory API is down. Every task still waits, times out, retries, and piles onto the same unhappy dependency.</p>
+<p>A <strong>circuit breaker</strong> is the bouncer at the door: it counts failures, <strong>opens</strong> after too many in a row, and sends new work away until a cool-off passes. Callers stop paying for timeouts while the dependency is clearly struggling.</p>
+<p><code>circuit_breaker</code> adds that pattern to your task using <a href="../stores/">Stores</a> — one breaker config per task class by default, or scoped per tenant/service when you pass a key resolver.</p>
 <h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
-<p>One breaker per task class (default):</p>
+<p>One breaker per task class (the default):</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">circuit_breaker</span><span class="w"> </span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">cool_off</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -2493,12 +2529,12 @@
 <tr>
 <td><code>threshold:</code></td>
 <td><code>5</code></td>
-<td>Failures within <code>window:</code> before the circuit opens</td>
+<td>How many failures inside <code>window:</code> before the circuit opens</td>
 </tr>
 <tr>
 <td><code>cool_off:</code></td>
 <td><code>30</code></td>
-<td>Seconds the circuit stays open</td>
+<td>How long (seconds) the circuit stays open</td>
 </tr>
 <tr>
 <td><code>window:</code></td>
@@ -2508,12 +2544,12 @@
 <tr>
 <td><code>namespace:</code></td>
 <td><code>"cmdx:cb"</code></td>
-<td>First segment of store keys</td>
+<td>First piece of store keys</td>
 </tr>
 <tr>
 <td><code>on:</code></td>
 <td><code>StandardError</code></td>
-<td>Exception classes that increment the failure counter</td>
+<td>Exception classes that count as “this dependency failed”</td>
 </tr>
 <tr>
 <td><code>on_open:</code></td>
@@ -2523,37 +2559,40 @@
 <tr>
 <td><code>if:</code> / <code>unless:</code></td>
 <td><code>nil</code></td>
-<td>Gates on the task before checking the circuit</td>
+<td>Turn the breaker on or off for this run</td>
 </tr>
 </tbody>
 </table>
-<p>Pass a key resolver to scope breakers per downstream service or tenant (same shapes as <a href="../idempotency/#key-resolvers">Idempotency</a>):</p>
+<h3 id="scoping-the-breaker">Scoping the breaker<a class="headerlink" href="#scoping-the-breaker" title="Permanent link">&para;</a></h3>
+<p>Pass a key resolver when one task talks to several downstreams (or tenants). Same shapes as <a href="../idempotency/#key-resolvers">Idempotency key resolvers</a>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">circuit_breaker</span><span class="w"> </span><span class="ss">:stripe_account</span><span class="p">,</span><span class="w"> </span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">cool_off</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span>
 </span></code></pre></div>
-<p>Use <code>:class</code> explicitly for one breaker per task type:</p>
+<p>Explicit “one breaker per task type”:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">circuit_breaker</span><span class="w"> </span><span class="ss">:class</span><span class="p">,</span><span class="w"> </span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
 </span></code></pre></div>
-<p>Count only dependency failures:</p>
+<p>Count only real dependency pain — not every <code>StandardError</code> in your app:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">circuit_breaker</span><span class="w"> </span><span class="ss">:class</span><span class="p">,</span><span class="w"> </span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">on</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="no">Stripe</span><span class="o">::</span><span class="no">APIError</span><span class="p">,</span><span class="w"> </span><span class="no">Timeout</span><span class="o">::</span><span class="no">Error</span><span class="o">]</span>
 </span></code></pre></div>
-<p>When the resolver is not <code>:class</code> and the segment is blank (missing context value), the breaker is <strong>inactive</strong> for that run — same as <a href="../idempotency/">Idempotency</a> skipping a blank segment.</p>
+<p>When the resolver is not <code>:class</code> and the segment is blank (missing context value), the breaker <strong>steps aside</strong> for that run — same as <a href="../idempotency/">Idempotency</a> with a blank key.</p>
 <h2 id="store-keys">Store keys<a class="headerlink" href="#store-keys" title="Permanent link">&para;</a></h2>
-<p>Closed-state failure counts use <code>CMDx::StoreKey.compose(base, "failures")</code>; the open flag uses <code>…:open</code> with value <code>"open"</code> and TTL <code>cool_off:</code>.</p>
+<p>Failure counts (circuit <strong>closed</strong>) use <code>CMDx::StoreKey.compose(base, "failures")</code>. The open flag uses <code>…:open</code> with value <code>"open"</code> and TTL <code>cool_off:</code>.</p>
 <p>Examples:</p>
 <ul>
 <li><code>cmdx:cb:FetchInventory:failures</code></li>
 <li><code>cmdx:cb:FetchInventory:open</code></li>
 <li><code>cmdx:cb:ChargeCustomer:acct_123:failures</code> (with <code>circuit_breaker :stripe_account</code>)</li>
 </ul>
-<p>When the circuit is open, results include <code>metadata[:circuit_breaker_key]</code> (full <code>…:open</code> store key) and, when the store backend supports TTL reads, <code>metadata[:retry_after]</code> (seconds until the open flag expires).</p>
+<p>When the circuit is open, results include <code>metadata[:circuit_breaker_key]</code> (the full <code>…:open</code> key) and, when the backend supports TTL reads, <code>metadata[:retry_after]</code> (seconds until the open flag expires).</p>
 <h3 id="failure-window">Failure window<a class="headerlink" href="#failure-window" title="Permanent link">&para;</a></h3>
-<p><code>window:</code> is a <strong>sliding</strong> window: each counted failure calls <code>Stores.incr</code> with <code>ttl: window</code>, and built-in adapters refresh expiry on every increment. After <code>window</code> seconds without a new failure, the counter key expires and the next failure starts from <code>1</code> again.</p>
+<p><code>window:</code> is <strong>sliding</strong>, not “reset at midnight.” Each counted failure calls <code>Stores.incr</code> with <code>ttl: window</code>, and built-in adapters refresh expiry on every bump. Go <code>window</code> seconds without a new failure and the counter key disappears — the next failure starts from <code>1</code> again.</p>
 <h2 id="interaction-with-retry_on">Interaction with <code>retry_on</code><a class="headerlink" href="#interaction-with-retry_on" title="Permanent link">&para;</a></h2>
+<p>Breakers run early; idempotency (if any) sits just inside:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>resolve_inputs! → circuit check → idempotent claim → retry loop { work } → verify_outputs!
 </span></code></pre></div>
-<p>Failures are recorded when a matching <code>on:</code> exception escapes the <strong>retry loop</strong> (after attempts are exhausted), not on each retry attempt. A successful run clears the failure counter. Logical failures that only use <code>fail!</code> / validation errors do not increment the breaker.</p>
-<p>Configure <code>CMDx.configuration.store</code> with a shared backend (<code>Stores::Redis</code>) in production — the in-memory default is per-process only. See <a href="../stores/">Stores</a>.</p>
+<p>Failures are recorded when a matching <code>on:</code> exception escapes the <strong>retry loop</strong> (after attempts are exhausted), not on every retry swing. A successful run clears the failure counter. Logical failures that only use <code>fail!</code> or validation errors do <strong>not</strong> trip the breaker.</p>
+<p>Use a shared store in production (<code>Stores::Redis</code> on <code>CMDx.configuration.store</code>). The in-memory default only sees your current process. See <a href="../stores/">Stores</a>.</p>
 <h2 id="store-availability">Store availability<a class="headerlink" href="#store-availability" title="Permanent link">&para;</a></h2>
+<p>When the store itself is flaky, CMDx picks a side — on purpose:</p>
 <table>
 <thead>
 <tr>
@@ -2564,7 +2603,7 @@
 <tbody>
 <tr>
 <td>Circuit <strong>open</strong></td>
-<td>Work is not run; <code>on_open:</code> applies.</td>
+<td><code>work</code> does not run; <code>on_open:</code> applies.</td>
 </tr>
 <tr>
 <td><strong>Read</strong> fails while checking open</td>
@@ -2572,7 +2611,7 @@
 </tr>
 <tr>
 <td><strong>Write</strong> fails after a failed run</td>
-<td>The work exception is still raised; the failure may not be counted.</td>
+<td>The work exception still raises; the failure might not be counted.</td>
 </tr>
 <tr>
 <td><strong>Write</strong> fails after a successful run</td>
@@ -2581,9 +2620,9 @@
 </tbody>
 </table>
 <h2 id="concurrency">Concurrency<a class="headerlink" href="#concurrency" title="Permanent link">&para;</a></h2>
-<p>The breaker re-checks the open flag immediately before running work. There is no distributed lock: a task can still start just before another process opens the circuit, and many workers can call the dependency when the <code>:open</code> TTL expires at once.</p>
+<p>The breaker peeks at the open flag again right before <code>work</code>. There is no distributed lock — a task can still start moments before another process opens the circuit, and when the <code>:open</code> TTL expires many workers may call the dependency at once. Plan for that at the dependency layer if you need stricter guarantees.</p>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subclasses inherit the parent's breaker. Calling <code>circuit_breaker</code> with no arguments returns the current (possibly inherited) configuration. Calling it again <strong>replaces</strong> the key when you pass a new one and <strong>merges</strong> options — including option-only updates such as <code>circuit_breaker threshold: 3</code> (key stays <code>:class</code> when the parent enabled the breaker that way). Pass <code>circuit_breaker false</code> on a subclass to disable.</p>
+<p>Subclasses inherit the parent’s breaker. <code>circuit_breaker</code> with no arguments returns the current config (including inherited). Pass a new key to <strong>replace</strong> it; pass only options to <strong>merge</strong> (e.g. <code>circuit_breaker threshold: 3</code> keeps <code>:class</code> when the parent enabled the breaker that way). <code>circuit_breaker false</code> on a subclass turns it off.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExternalApiTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">circuit_breaker</span><span class="w"> </span><span class="ss">:class</span><span class="p">,</span><span class="w"> </span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">cool_off</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">end</span>
@@ -2592,8 +2631,8 @@
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">circuit_breaker</span><span class="w"> </span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="c1"># key stays :class, threshold → 3</span>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="k">end</span>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">PreviewCharge</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">circuit_breaker</span><span class="w"> </span><span class="kp">false</span><span class="w"> </span><span class="c1"># no store claim; work runs every time</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">PreviewInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ExternalApiTask</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">circuit_breaker</span><span class="w"> </span><span class="kp">false</span><span class="w"> </span><span class="c1"># no breaker; work runs every time</span>
 </span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">end</span>
 </span></code></pre></div>
 

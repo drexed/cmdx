@@ -4631,15 +4631,19 @@ end
 
 # Idempotency
 
-Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. For operations that must not run twice (charging a card, sending an email), you need a **stable key** from the payload and a shared claim so the second caller stops before `work` runs.
+Same `payment_id`. The webhook fires again. Sidekiq retries because the worker died mid-flight.
 
-`idempotent_by` wires that pattern into {Stores} using `set(..., nx: true)` to claim a slot and `xx: true` to mark completion — without registering middleware yourself.
+For work that must happen **at most once** — charge a card, send the email, reserve inventory — you need a **stable key** from the payload and a shared “already handled” claim. The second caller should stop **before** `work` runs.
 
-Important nuance: the claim runs **after inputs are resolved** and **wraps the whole `retry_on` loop**, not each attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can call `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
+`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself.
+
+Important
+
+The claim runs **after** inputs are resolved and **wraps the whole `retry_on` loop**, not each retry attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can hit `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
 
 ## Basic usage
 
-Resolve a key from context (after coercion) or from a block/callable:
+Pick a key from context (after coercion) or build one in a block:
 
 ```ruby
 class ChargeCustomer < CMDx::Task
@@ -4661,14 +4665,16 @@ ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # success
 ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: duplicate
 ```
 
-| Option            | Default       | Plain-English meaning                                                                        |
-| ----------------- | ------------- | -------------------------------------------------------------------------------------------- |
-| `ttl:`            | `300`         | Seconds until the store entry expires (re-claims allowed after expiry)                       |
-| `namespace:`      | `"cmdx:idem"` | First segment of the store key (see [Store keys](#store-keys))                               |
-| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`) |
-| `if:` / `unless:` | `nil`         | Gates on the task before claiming (same `Util.satisfied?` shape as other features)           |
+| Option            | Default       | Plain-English meaning                                                                         |
+| ----------------- | ------------- | --------------------------------------------------------------------------------------------- |
+| `ttl:`            | `300`         | How long the store entry lives (seconds). After it expires, a new run can claim again.        |
+| `namespace:`      | `"cmdx:idem"` | First piece of the store key (see [Store keys](#store-keys)).                                 |
+| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`). |
+| `if:` / `unless:` | `nil`         | Turn idempotency on or off for this run (same `Util.satisfied?` rules as other features).     |
 
 ### Key resolvers
+
+Same idea as elsewhere in CMDx — pick the shape that reads best:
 
 | Form                          | How the segment is resolved                                   |
 | ----------------------------- | ------------------------------------------------------------- |
@@ -4683,33 +4689,35 @@ idempotent_by { "#{user_id}:#{context.idempotency_key}" }
 idempotent_by ->(task) { "#{task.context.user_id}:#{task.context.idempotency_key}" }
 ```
 
-When the resolved segment is blank (`nil` or empty string), idempotency is **not** applied and `work` runs normally (no store write).
+If the resolved segment is blank (`nil` or empty string), idempotency **steps aside** — `work` runs every time and nothing is written to the store.
 
 ## Store keys
 
-Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced with the same rules as `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
+Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced like `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
 
 Example: `cmdx:idem:ChargeCustomer:pay_123`
 
-While work is in flight the value is `"processing"`; after a successful run it becomes `"completed"`. Duplicates read the current value for the skip/fail message (`state=processing` or `state=completed`).
+While work is running, the value is `"processing"`. After a successful run it becomes `"completed"`. Duplicates read that value for the message (`state=processing` or `state=completed`).
 
 ## Interaction with `retry_on`
+
+Think of one outer envelope around the whole attempt, retries included:
 
 ```text
 resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
 ```
 
-If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. The claim is also released when `work` signals `skip!` or `fail!`, or when output verification fails, so a later invocation can run again. When the wrapped block finishes successfully, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
+If `work` raises `StandardError`, the claim is **deleted** before the exception reaches `retry_on`. The claim is also released when `work` calls `skip!` or `fail!`, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is `completed` and the next call with the same key never enters `work`.
 
-Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
 
 TTL and crashes
 
-If a worker dies after claiming but before success or cleanup, the key expires after `ttl:` and another caller may run `work` again. Tune `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
+If a worker dies after claiming but before success or cleanup, the key sticks around until `ttl:` expires — then another caller may run `work` again. Set `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
 
 ## Inheritance
 
-Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` with no arguments returns the current (possibly inherited) configuration. Calling it again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list). Pass `idempotent_by false` on a subclass to disable.
+Subclasses pick up the parent’s idempotency config. `idempotent_by` with no arguments returns what you have now (including inherited settings). Pass a new key resolver to **replace** the old one; pass only options to **merge** (e.g. `idempotent_by ttl: 600` keeps the same resolver). Same layering idea as `retry_on`, except the key resolver is singular, not a list. `idempotent_by false` on a subclass turns it off.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -4727,21 +4735,25 @@ end
 
 ## Skip vs fail on duplicates
 
-`:skip` fits when the second call means "already handled" (idempotent no-op, HTTP 2xx). `:fail` fits when callers need an explicit rejection (for example HTTP 409).
+`:skip` is for “already done — treat as success” (idempotent no-op, HTTP 2xx). `:fail` is for “no, you may not run this again” (for example HTTP 409).
 
-Both attach `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` with the full store key.
+Both set `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` to the full store key.
 
 Signals
 
-Duplicates invoke `skip!` or `fail!` inside the `catch` around `work`, so control does not return to your resolver — you get a `Result` with `skipped?` or `failed?` under `execute`, or a fault under `execute!`.
+Duplicates call `skip!` or `fail!` inside the `catch` around `work`, so your resolver does not keep running — under `execute` you get a `Result` with `skipped?` or `failed?`; under `execute!` you get a fault.
 
 # Circuit breaker
 
-When a downstream dependency fails repeatedly, every caller still pays for timeouts and retries. A **circuit breaker** counts failures, opens after a threshold, and rejects new work until a cool-off elapses — so a partial outage does not keep hammering the dependency.
+The inventory API is down. Every task still waits, times out, retries, and piles onto the same unhappy dependency.
+
+A **circuit breaker** is the bouncer at the door: it counts failures, **opens** after too many in a row, and sends new work away until a cool-off passes. Callers stop paying for timeouts while the dependency is clearly struggling.
+
+`circuit_breaker` adds that pattern to your task using [Stores](https://drexed.github.io/cmdx/stores/index.md) — one breaker config per task class by default, or scoped per tenant/service when you pass a key resolver.
 
 ## Basic usage
 
-One breaker per task class (default):
+One breaker per task class (the default):
 
 ```ruby
 class FetchInventory < CMDx::Task
@@ -4761,37 +4773,39 @@ FetchInventory.execute(sku: "ABC-123") # failed: circuit open (work not run)
 
 | Option            | Default         | Plain-English meaning                                                                  |
 | ----------------- | --------------- | -------------------------------------------------------------------------------------- |
-| `threshold:`      | `5`             | Failures within `window:` before the circuit opens                                     |
-| `cool_off:`       | `30`            | Seconds the circuit stays open                                                         |
+| `threshold:`      | `5`             | How many failures inside `window:` before the circuit opens                            |
+| `cool_off:`       | `30`            | How long (seconds) the circuit stays open                                              |
 | `window:`         | `60`            | Sliding window (seconds) for the failure counter                                       |
-| `namespace:`      | `"cmdx:cb"`     | First segment of store keys                                                            |
-| `on:`             | `StandardError` | Exception classes that increment the failure counter                                   |
+| `namespace:`      | `"cmdx:cb"`     | First piece of store keys                                                              |
+| `on:`             | `StandardError` | Exception classes that count as “this dependency failed”                               |
 | `on_open:`        | `:fail`         | `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :circuit_open`) |
-| `if:` / `unless:` | `nil`           | Gates on the task before checking the circuit                                          |
+| `if:` / `unless:` | `nil`           | Turn the breaker on or off for this run                                                |
 
-Pass a key resolver to scope breakers per downstream service or tenant (same shapes as [Idempotency](https://drexed.github.io/cmdx/idempotency/#key-resolvers)):
+### Scoping the breaker
+
+Pass a key resolver when one task talks to several downstreams (or tenants). Same shapes as [Idempotency key resolvers](https://drexed.github.io/cmdx/idempotency/#key-resolvers):
 
 ```ruby
 circuit_breaker :stripe_account, threshold: 3, cool_off: 30
 ```
 
-Use `:class` explicitly for one breaker per task type:
+Explicit “one breaker per task type”:
 
 ```ruby
 circuit_breaker :class, threshold: 5
 ```
 
-Count only dependency failures:
+Count only real dependency pain — not every `StandardError` in your app:
 
 ```ruby
 circuit_breaker :class, threshold: 3, on: [Stripe::APIError, Timeout::Error]
 ```
 
-When the resolver is not `:class` and the segment is blank (missing context value), the breaker is **inactive** for that run — same as [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) skipping a blank segment.
+When the resolver is not `:class` and the segment is blank (missing context value), the breaker **steps aside** for that run — same as [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) with a blank key.
 
 ## Store keys
 
-Closed-state failure counts use `CMDx::StoreKey.compose(base, "failures")`; the open flag uses `…:open` with value `"open"` and TTL `cool_off:`.
+Failure counts (circuit **closed**) use `CMDx::StoreKey.compose(base, "failures")`. The open flag uses `…:open` with value `"open"` and TTL `cool_off:`.
 
 Examples:
 
@@ -4799,38 +4813,42 @@ Examples:
 - `cmdx:cb:FetchInventory:open`
 - `cmdx:cb:ChargeCustomer:acct_123:failures` (with `circuit_breaker :stripe_account`)
 
-When the circuit is open, results include `metadata[:circuit_breaker_key]` (full `…:open` store key) and, when the store backend supports TTL reads, `metadata[:retry_after]` (seconds until the open flag expires).
+When the circuit is open, results include `metadata[:circuit_breaker_key]` (the full `…:open` key) and, when the backend supports TTL reads, `metadata[:retry_after]` (seconds until the open flag expires).
 
 ### Failure window
 
-`window:` is a **sliding** window: each counted failure calls `Stores.incr` with `ttl: window`, and built-in adapters refresh expiry on every increment. After `window` seconds without a new failure, the counter key expires and the next failure starts from `1` again.
+`window:` is **sliding**, not “reset at midnight.” Each counted failure calls `Stores.incr` with `ttl: window`, and built-in adapters refresh expiry on every bump. Go `window` seconds without a new failure and the counter key disappears — the next failure starts from `1` again.
 
 ## Interaction with `retry_on`
+
+Breakers run early; idempotency (if any) sits just inside:
 
 ```text
 resolve_inputs! → circuit check → idempotent claim → retry loop { work } → verify_outputs!
 ```
 
-Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on each retry attempt. A successful run clears the failure counter. Logical failures that only use `fail!` / validation errors do not increment the breaker.
+Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on every retry swing. A successful run clears the failure counter. Logical failures that only use `fail!` or validation errors do **not** trip the breaker.
 
-Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
 
 ## Store availability
 
+When the store itself is flaky, CMDx picks a side — on purpose:
+
 | Situation                              | Behavior                                                                         |
 | -------------------------------------- | -------------------------------------------------------------------------------- |
-| Circuit **open**                       | Work is not run; `on_open:` applies.                                             |
+| Circuit **open**                       | `work` does not run; `on_open:` applies.                                         |
 | **Read** fails while checking open     | Treated as **closed** (fail-open): work runs.                                    |
-| **Write** fails after a failed run     | The work exception is still raised; the failure may not be counted.              |
+| **Write** fails after a failed run     | The work exception still raises; the failure might not be counted.               |
 | **Write** fails after a successful run | The failure counter might not clear; the next error may open the circuit sooner. |
 
 ## Concurrency
 
-The breaker re-checks the open flag immediately before running work. There is no distributed lock: a task can still start just before another process opens the circuit, and many workers can call the dependency when the `:open` TTL expires at once.
+The breaker peeks at the open flag again right before `work`. There is no distributed lock — a task can still start moments before another process opens the circuit, and when the `:open` TTL expires many workers may call the dependency at once. Plan for that at the dependency layer if you need stricter guarantees.
 
 ## Inheritance
 
-Subclasses inherit the parent's breaker. Calling `circuit_breaker` with no arguments returns the current (possibly inherited) configuration. Calling it again **replaces** the key when you pass a new one and **merges** options — including option-only updates such as `circuit_breaker threshold: 3` (key stays `:class` when the parent enabled the breaker that way). Pass `circuit_breaker false` on a subclass to disable.
+Subclasses inherit the parent’s breaker. `circuit_breaker` with no arguments returns the current config (including inherited). Pass a new key to **replace** it; pass only options to **merge** (e.g. `circuit_breaker threshold: 3` keeps `:class` when the parent enabled the breaker that way). `circuit_breaker false` on a subclass turns it off.
 
 ```ruby
 class ExternalApiTask < CMDx::Task
@@ -4841,8 +4859,8 @@ class FetchInventory < ExternalApiTask
   circuit_breaker threshold: 3 # key stays :class, threshold → 3
 end
 
-class PreviewCharge < ApplicationTask
-  circuit_breaker false # no store claim; work runs every time
+class PreviewInventory < ExternalApiTask
+  circuit_breaker false # no breaker; work runs every time
 end
 ```
 
@@ -7379,7 +7397,6 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Tasks
 
-- **`concurrency_limit`** — cap how many instances of a task may run at once across the process.
 - **`execute_async`** — return a future-like object instead of always blocking the caller.
 - **Background-job adapter** — `perform_async` / `perform_in` / `perform_at` helpers for Sidekiq, ActiveJob, GoodJob, etc., with JSON-safe payloads at enqueue time.
 

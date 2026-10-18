@@ -1,14 +1,18 @@
 # Idempotency
 
-Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. For operations that must not run twice (charging a card, sending an email), you need a **stable key** from the payload and a shared claim so the second caller stops before `work` runs.
+Same `payment_id`. The webhook fires again. Sidekiq retries because the worker died mid-flight.
 
-`idempotent_by` wires that pattern into {Stores} using `set(..., nx: true)` to claim a slot and `xx: true` to mark completion — without registering middleware yourself.
+For work that must happen **at most once** — charge a card, send the email, reserve inventory — you need a **stable key** from the payload and a shared “already handled” claim. The second caller should stop **before** `work` runs.
 
-Important nuance: the claim runs **after inputs are resolved** and **wraps the whole `retry_on` loop**, not each attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can call `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
+`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself.
+
+Important
+
+The claim runs **after** inputs are resolved and **wraps the whole `retry_on` loop**, not each retry attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can hit `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
 
 ## Basic usage
 
-Resolve a key from context (after coercion) or from a block/callable:
+Pick a key from context (after coercion) or build one in a block:
 
 ```ruby
 class ChargeCustomer < CMDx::Task
@@ -30,14 +34,16 @@ ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # success
 ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: duplicate
 ```
 
-| Option            | Default       | Plain-English meaning                                                                        |
-| ----------------- | ------------- | -------------------------------------------------------------------------------------------- |
-| `ttl:`            | `300`         | Seconds until the store entry expires (re-claims allowed after expiry)                       |
-| `namespace:`      | `"cmdx:idem"` | First segment of the store key (see [Store keys](#store-keys))                               |
-| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`) |
-| `if:` / `unless:` | `nil`         | Gates on the task before claiming (same `Util.satisfied?` shape as other features)           |
+| Option            | Default       | Plain-English meaning                                                                         |
+| ----------------- | ------------- | --------------------------------------------------------------------------------------------- |
+| `ttl:`            | `300`         | How long the store entry lives (seconds). After it expires, a new run can claim again.        |
+| `namespace:`      | `"cmdx:idem"` | First piece of the store key (see [Store keys](#store-keys)).                                 |
+| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`). |
+| `if:` / `unless:` | `nil`         | Turn idempotency on or off for this run (same `Util.satisfied?` rules as other features).     |
 
 ### Key resolvers
+
+Same idea as elsewhere in CMDx — pick the shape that reads best:
 
 | Form                          | How the segment is resolved                                   |
 | ----------------------------- | ------------------------------------------------------------- |
@@ -52,33 +58,35 @@ idempotent_by { "#{user_id}:#{context.idempotency_key}" }
 idempotent_by ->(task) { "#{task.context.user_id}:#{task.context.idempotency_key}" }
 ```
 
-When the resolved segment is blank (`nil` or empty string), idempotency is **not** applied and `work` runs normally (no store write).
+If the resolved segment is blank (`nil` or empty string), idempotency **steps aside** — `work` runs every time and nothing is written to the store.
 
 ## Store keys
 
-Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced with the same rules as `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
+Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced like `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
 
 Example: `cmdx:idem:ChargeCustomer:pay_123`
 
-While work is in flight the value is `"processing"`; after a successful run it becomes `"completed"`. Duplicates read the current value for the skip/fail message (`state=processing` or `state=completed`).
+While work is running, the value is `"processing"`. After a successful run it becomes `"completed"`. Duplicates read that value for the message (`state=processing` or `state=completed`).
 
 ## Interaction with `retry_on`
+
+Think of one outer envelope around the whole attempt, retries included:
 
 ```text
 resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
 ```
 
-If `work` raises `StandardError`, the claim is **deleted** before the exception propagates into `retry_on`. The claim is also released when `work` signals `skip!` or `fail!`, or when output verification fails, so a later invocation can run again. When the wrapped block finishes successfully, the slot is marked `completed`. A later invocation with the same key short-circuits without running `work`.
+If `work` raises `StandardError`, the claim is **deleted** before the exception reaches `retry_on`. The claim is also released when `work` calls `skip!` or `fail!`, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is `completed` and the next call with the same key never enters `work`.
 
-Configure `CMDx.configuration.store` with a shared backend (`Stores::Redis`) in production — the in-memory default is per-process only. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
 
 TTL and crashes
 
-If a worker dies after claiming but before success or cleanup, the key expires after `ttl:` and another caller may run `work` again. Tune `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
+If a worker dies after claiming but before success or cleanup, the key sticks around until `ttl:` expires — then another caller may run `work` again. Set `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
 
 ## Inheritance
 
-Subclasses inherit the parent's idempotency configuration. Calling `idempotent_by` with no arguments returns the current (possibly inherited) configuration. Calling it again **replaces** the key resolver when you pass a new one and **merges** options — including option-only updates such as `idempotent_by ttl: 600` (same layering idea as `retry_on`, but the key resolver is singular, not a list). Pass `idempotent_by false` on a subclass to disable.
+Subclasses pick up the parent’s idempotency config. `idempotent_by` with no arguments returns what you have now (including inherited settings). Pass a new key resolver to **replace** the old one; pass only options to **merge** (e.g. `idempotent_by ttl: 600` keeps the same resolver). Same layering idea as `retry_on`, except the key resolver is singular, not a list. `idempotent_by false` on a subclass turns it off.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -96,10 +104,10 @@ end
 
 ## Skip vs fail on duplicates
 
-`:skip` fits when the second call means "already handled" (idempotent no-op, HTTP 2xx). `:fail` fits when callers need an explicit rejection (for example HTTP 409).
+`:skip` is for “already done — treat as success” (idempotent no-op, HTTP 2xx). `:fail` is for “no, you may not run this again” (for example HTTP 409).
 
-Both attach `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` with the full store key.
+Both set `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` to the full store key.
 
 Signals
 
-Duplicates invoke `skip!` or `fail!` inside the `catch` around `work`, so control does not return to your resolver — you get a `Result` with `skipped?` or `failed?` under `execute`, or a fault under `execute!`.
+Duplicates call `skip!` or `fail!` inside the `catch` around `work`, so your resolver does not keep running — under `execute` you get a `Result` with `skipped?` or `failed?`; under `execute!` you get a fault.
