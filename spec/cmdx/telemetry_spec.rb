@@ -137,11 +137,11 @@ RSpec.describe CMDx::Telemetry do
     end
   end
 
-  describe ".emit_for" do
+  describe ".emit" do
     let(:task_class) { create_task_class(name: "EmitForTask") }
 
     it "is a no-op when nothing is subscribed" do
-      expect { described_class.emit_for(task_class.new, :lock_acquired) }.not_to raise_error
+      expect { described_class.emit(task_class.new, :lock_acquired) }.not_to raise_error
     end
 
     it "dispatches when a subscriber exists" do
@@ -149,7 +149,7 @@ RSpec.describe CMDx::Telemetry do
       task_class.telemetry.subscribe(:lock_acquired, ->(e) { received << e })
       CMDx::Chain.current = CMDx::Chain.new("req-1")
 
-      described_class.emit_for(task_class.new, :lock_acquired, root: false, lock_key: "k")
+      described_class.emit(task_class.new, :lock_acquired, root: false, lock_key: "k")
 
       expect(received.size).to eq(1)
       expect(received.first.payload[:lock_key]).to eq("k")

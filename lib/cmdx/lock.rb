@@ -120,7 +120,7 @@ module CMDx
       token = task.tid
 
       if acquire_lock(store_key, token)
-        Telemetry.emit_for(task, :lock_acquired, lock_key: store_key)
+        Telemetry.emit(task, :lock_acquired, lock_key: store_key)
 
         begin
           yield
@@ -169,7 +169,7 @@ module CMDx
         retry_after:
       }.compact
 
-      Telemetry.emit_for(task, :lock_busy, **metadata, on_busy:)
+      Telemetry.emit(task, :lock_busy, **metadata, on_busy:)
 
       case on_busy
       when :fail

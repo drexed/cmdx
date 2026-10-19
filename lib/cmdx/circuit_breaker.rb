@@ -172,7 +172,7 @@ module CMDx
 
     def clear_failures(failures_key, task)
       cleared = Stores.del(failures_key)
-      Telemetry.emit_for(task, :circuit_reset, failures_key:) if cleared
+      Telemetry.emit(task, :circuit_reset, failures_key:) if cleared
     rescue StandardError
       nil
     end
@@ -191,7 +191,7 @@ module CMDx
       Stores.set(open_key, OPEN, ttl: cool_off)
       Stores.del(failures_key)
 
-      Telemetry.emit_for(
+      Telemetry.emit(
         task,
         :circuit_tripped,
         circuit_breaker_key: open_key,
@@ -212,7 +212,7 @@ module CMDx
       remaining = Stores.remaining_ttl(open_key)
       metadata[:retry_after] = remaining if remaining
 
-      Telemetry.emit_for(task, :circuit_open, **metadata, on_open:)
+      Telemetry.emit(task, :circuit_open, **metadata, on_open:)
 
       case on_open
       when :fail

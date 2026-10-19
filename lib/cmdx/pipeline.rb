@@ -151,7 +151,7 @@ module CMDx
         new_opts = old_opts.merge(rolled_back: true).freeze
         result.instance_variable_set(:@options, new_opts)
 
-        Telemetry.emit_for(instance, :task_rolled_back, root: false)
+        Telemetry.emit(instance, :task_rolled_back, root: false)
 
         begin
           instance.rollback

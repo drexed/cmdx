@@ -2,7 +2,7 @@
 
 module CMDx
   # Pub/sub for runtime lifecycle and infrastructure events (see {EVENTS}).
-  # Subscribers are callables receiving an {Event} data object. {emit_for}
+  # Subscribers are callables receiving an {Event} data object. {emit}
   # dispatches only when subscribers are registered so telemetry has zero cost
   # when unused.
   class Telemetry
@@ -52,7 +52,7 @@ module CMDx
       # @param root [Boolean] whether this task started the active chain
       # @param payload [Hash{Symbol => Object}] extra fields merged into the event payload
       # @return [void]
-      def emit_for(task, name, root: false, **payload)
+      def emit(task, name, root: false, **payload)
         telemetry = task.class.telemetry
         return unless telemetry.subscribed?(name)
 

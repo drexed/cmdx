@@ -51,7 +51,7 @@ module CMDx
       acquire_chain
 
       run_middlewares do
-        Telemetry.emit_for(@task, :task_started, root: @root)
+        Telemetry.emit(@task, :task_started, root: @root)
         run_deprecation
         run_lifecycle
       end
@@ -86,7 +86,7 @@ module CMDx
 
       deprecation.execute(@task) do
         @deprecated = true
-        Telemetry.emit_for(@task, :task_deprecated, root: @root)
+        Telemetry.emit(@task, :task_deprecated, root: @root)
       end
     end
 
@@ -129,7 +129,7 @@ module CMDx
         duration: @duration
       ).tap do |result|
         @root ? Chain.current.unshift(result) : Chain.current.push(result)
-        Telemetry.emit_for(@task, :task_executed, root: @root, result:)
+        Telemetry.emit(@task, :task_executed, root: @root, result:)
         @task.logger.info do
           exclusions = @task.class.settings.log_exclusions
           exclusions.empty? ? result : result.to_h.except(*exclusions)
@@ -196,7 +196,7 @@ module CMDx
       return unless @task.respond_to?(:rollback)
 
       @rolled_back = true
-      Telemetry.emit_for(@task, :task_rolled_back, root: @root)
+      Telemetry.emit(@task, :task_rolled_back, root: @root)
       @task.rollback
     end
 
@@ -232,7 +232,7 @@ module CMDx
     def retry_execution
       @task.class.retry_on.process(@task) do |attempt|
         @retries = attempt
-        Telemetry.emit_for(@task, :task_retried, root: @root, attempt:) if attempt.positive?
+        Telemetry.emit(@task, :task_retried, root: @root, attempt:) if attempt.positive?
         yield
       end
 
