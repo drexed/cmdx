@@ -2392,24 +2392,6 @@
   line-height: 1.6;
 }
 
-/* Hero chain */
-.hero-chain {
-  margin: 0 auto 2.5rem;
-  max-width: 720px;
-  padding: 0 1rem;
-}
-
-.hero-chain svg { width: 100%; height: auto; display: block; }
-
-.chain-node circle { fill: var(--cmdx-terminal-surface); stroke: var(--cmdx-terminal-border); stroke-width: 1.5; }
-.chain-node text { fill: var(--cmdx-terminal-dim); font-family: var(--cmdx-mono); font-size: 9px; text-anchor: middle; }
-.chain-line { stroke: var(--cmdx-terminal-border); stroke-width: 1.5; fill: none; }
-
-.chain-signal {
-  fill: var(--cmdx-red);
-  filter: drop-shadow(0 0 6px var(--cmdx-red-glow));
-}
-
 /* Buttons */
 .hero-cta {
   display: flex;
@@ -2417,6 +2399,17 @@
   justify-content: center;
   flex-wrap: wrap;
   font-family: var(--cmdx-mono);
+}
+
+.hero-install {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.hero-install .install-box {
+  font-size: 0.92rem;
+  padding: 0.7rem 0.85rem 0.7rem 1rem;
 }
 
 .cmd-btn {
@@ -2452,21 +2445,6 @@
 .cmd-btn.ghost:hover {
   border-color: var(--cmdx-red);
   color: var(--cmdx-red) !important;
-}
-
-.hero-caret {
-  display: inline-block;
-  margin-top: 1.75rem;
-  font-family: var(--cmdx-mono);
-  font-size: 0.9rem;
-  color: var(--cmdx-terminal-dim);
-}
-.hero-caret .blink {
-  display: inline-block;
-  width: 8px; height: 1rem;
-  background: var(--cmdx-terminal-fg);
-  vertical-align: text-bottom;
-  margin-left: 3px;
 }
 
 /* ============================================================
@@ -3365,27 +3343,10 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes blink {
-  0%, 49%   { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-
-@keyframes signalPulse {
-  0%   { offset-distance: 0%;   opacity: 0; }
-  8%   { opacity: 1; }
-  92%  { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
-}
-
 @keyframes ceroPulse {
   0%   { transform: translate(0, -50%) scaleX(0); opacity: 0; transform-origin: left; }
   20%  { opacity: 1; }
   100% { transform: translate(0, -50%) scaleX(1); opacity: 0; transform-origin: left; }
-}
-
-@keyframes chainDotFlash {
-  0%, 100% { fill: var(--cmdx-terminal-surface); }
-  50%      { fill: var(--cmdx-green); }
 }
 
 @keyframes scrollLogs {
@@ -3398,28 +3359,14 @@
   .hero .tagline,
   .hero-cta,
   .hero-badge,
-  .hero-chain,
-  .hero-caret {
+  .hero-install {
     animation: fadeUp 0.7s ease-out both;
   }
-  .hero-badge    { animation-delay: 0s; }
-  .hero h1       { animation-delay: 0.08s; }
-  .hero .tagline { animation-delay: 0.16s; }
-  .hero-chain    { animation-delay: 0.24s; }
-  .hero-cta      { animation-delay: 0.32s; }
-  .hero-caret    { animation-delay: 0.4s; }
-
-  .hero-caret .blink { animation: blink 1.1s steps(1) infinite; }
-
-  .chain-signal {
-    offset-path: path("M 50,30 L 190,30 L 330,30 L 470,30 L 610,30");
-    animation: signalPulse 5.5s ease-in-out infinite;
-  }
-
-  .chain-node.n1 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 0.2s; }
-  .chain-node.n2 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 1.4s; }
-  .chain-node.n3 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 2.6s; }
-  .chain-node.n4 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 3.8s; }
+  .hero-badge     { animation-delay: 0s; }
+  .hero h1        { animation-delay: 0.08s; }
+  .hero .tagline  { animation-delay: 0.16s; }
+  .hero-cta       { animation-delay: 0.24s; }
+  .hero-install   { animation-delay: 0.32s; }
 
   .cero-pulse { animation: ceroPulse 4s ease-in-out infinite; }
 
@@ -3466,50 +3413,16 @@
 <section class="hero">
   <div class="hero-inner">
 
-    <a class="hero-badge" href="v2-migration/">
-      <span class="dot"></span>
-      <span>v2.0 &middot; Runtime Signals</span>
-      <span class="arrow">&rarr;</span>
-    </a>
-
     <h1>
-      Wild logic,<br>
-      <span class="accent">tamed objects.</span>
+      Messy workflows,<br>
+      <span class="accent">clear outcomes.</span>
     </h1>
 
     <p class="tagline">
-      A framework for making service-style Ruby feel predictable:
-      <code>define</code> the work, <code>execute</code> the task, handle the <code>result</code>
+      A framework for making Ruby service objects feel predictable and reusable.
+      <br>
+      One class, one call, one outcome.
     </p>
-
-    <div class="hero-chain" aria-hidden="true">
-      <svg viewBox="0 0 660 60" preserveAspectRatio="xMidYMid meet">
-        <line class="chain-line" x1="50" y1="30" x2="610" y2="30" />
-
-        <g class="chain-node n1">
-          <circle cx="50" cy="30" r="12" />
-          <text x="50" y="55">compose</text>
-        </g>
-        <g class="chain-node n2">
-          <circle cx="190" cy="30" r="12" />
-          <text x="190" y="55">execute</text>
-        </g>
-        <g class="chain-node n3">
-          <circle cx="330" cy="30" r="12" />
-          <text x="330" y="55">react</text>
-        </g>
-        <g class="chain-node n4">
-          <circle cx="470" cy="30" r="12" />
-          <text x="470" y="55">observe</text>
-        </g>
-        <g class="chain-node n5">
-          <circle cx="610" cy="30" r="12" style="stroke: var(--cmdx-red);" />
-          <text x="610" y="55" style="fill: var(--cmdx-red);">done</text>
-        </g>
-
-        <circle class="chain-signal" cx="0" cy="0" r="5" />
-      </svg>
-    </div>
 
     <div class="hero-cta">
       <a href="getting_started/" class="cmd-btn primary">
@@ -3522,8 +3435,15 @@
       </a>
     </div>
 
-    <div class="hero-caret">
-      <span>$ gem install cmdx</span><span class="blink"></span>
+    <div class="hero-install">
+      <div class="install-box">
+        <span class="prompt">$</span>
+        <code id="heroInstallCmd">gem install cmdx</code>
+        <button class="copy-btn" type="button" data-copy-target="#heroInstallCmd" aria-label="Copy install command">
+          <span class="icon">&#x2398;</span>
+          <span class="txt">copy</span>
+        </button>
+      </div>
     </div>
 
   </div>
@@ -3618,45 +3538,35 @@
   <span class="n">output</span> <span class="ss">:order</span>
 
   <span class="n">on_success</span> <span class="k">do</span>
-    <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
-    <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">order</span>.<span class="n">id</span>)
+    <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">context</span>.<span class="n">order</span>).<span class="n">deliver_later</span>
+    <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">context</span>.<span class="n">order</span>.<span class="n">id</span>)
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="n">work</span>
+    <span class="n">order</span> = <span class="n">user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">order_id</span>)
+    <span class="n">context</span>.<span class="n">order</span> = <span class="n">order</span>
     <span class="n">skip!</span>(<span class="s">"Already paid"</span>) <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>
 
     <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
-      <span class="n">fail!</span>(<span class="n">payment_intent</span>.<span class="n">last_payment_error</span>&amp;.<span class="n">message</span> <span class="o">||</span> <span class="s">"Card declined"</span>) <span class="k">if</span> <span class="n">payment_intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
-      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">payment_intent</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
+      <span class="n">intent</span> = <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
+        <span class="ss">amount:</span> <span class="n">order</span>.<span class="n">total_cents</span>, <span class="ss">currency:</span> <span class="s">"usd"</span>,
+        <span class="ss">payment_method:</span> <span class="n">payment_method_id</span>, <span class="ss">confirm:</span> <span class="n">true</span>,
+        <span class="ss">confirmation_method:</span> <span class="s">"manual"</span>, <span class="ss">idempotency_key:</span> <span class="s">"order-#{order.id}-pay"</span>
+      )
+      <span class="n">fail!</span>(<span class="n">intent</span>.<span class="n">last_payment_error</span>&amp;.<span class="n">message</span> <span class="o">||</span> <span class="s">"Card declined"</span>) <span class="k">if</span> <span class="n">intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
+
+      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">intent</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
       <span class="nc">AuditLog</span>.<span class="n">create!</span>(<span class="ss">user:</span> <span class="n">user</span>, <span class="ss">action:</span> <span class="s">"order_paid"</span>, <span class="ss">subject:</span> <span class="n">order</span>)
     <span class="k">end</span>
   <span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
-    <span class="nc">Sentry</span>.<span class="n">capture_exception</span>(<span class="n">e</span>)
     <span class="n">fail!</span>(<span class="n">e</span>.<span class="n">message</span>)
-  <span class="k">end</span>
-
-  <span class="k">private</span>
-
-  <span class="k">def</span> <span class="n">order</span>
-    <span class="n">context.order</span> <span class="o">||=</span> <span class="n">user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">order_id</span>)
-  <span class="k">end</span>
-
-  <span class="k">def</span> <span class="n">payment_intent</span>
-    <span class="n">@payment_intent</span> <span class="o">||=</span> <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
-      <span class="ss">amount:</span> <span class="n">order</span>.<span class="n">total_cents</span>,
-      <span class="ss">currency:</span> <span class="s">"usd"</span>,
-      <span class="ss">payment_method:</span> <span class="n">payment_method_id</span>,
-      <span class="ss">confirmation_method:</span> <span class="s">"manual"</span>,
-      <span class="ss">confirm:</span> <span class="n">true</span>,
-      <span class="ss">idempotency_key:</span> <span class="s">"order-#{order.id}-pay"</span>
-    )
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
         <ul class="problem-annos">
-          <li>inputs checked before <code>work</code> runs</li>
-          <li>one class, one story</li>
-          <li>call it from controllers, jobs, consoles</li>
-          <li>same three outcomes every time</li>
+          <li>bad params never reach <code>work</code></li>
+          <li>payment story in one class</li>
+          <li>reuse from controllers, jobs, consoles</li>
+          <li><code>success?</code> / <code>skipped?</code> / <code>failed?</code> every time</li>
         </ul>
       </div>
     </div>
@@ -3665,7 +3575,7 @@
     <div class="problem-panel problem-caller">
       <div class="caller-label">your controller stays boring (on purpose)</div>
       <pre class="problem-code"><code><span class="k">def</span> <span class="n">create</span>
-  <span class="n">result</span> = <span class="nc">PayOrder</span>.<span class="n">execute</span>(<span class="ss">**payment_params</span>, <span class="ss">user:</span> <span class="n">current_user</span>)
+  <span class="n">result</span> = <span class="nc">PayOrder</span>.<span class="n">execute</span>(<span class="ss">user:</span> <span class="n">current_user</span>, <span class="ss">**payment_params</span>)
 
   <span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
     <span class="n">redirect_to</span> <span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>, <span class="ss">notice:</span> <span class="n">"Payment received"</span>
@@ -3710,7 +3620,7 @@
       <div class="cero-stage">
         <div class="idx">02 &middot; E</div>
         <h3>Execute</h3>
-        <p>Call the same class from a controller, a background job, a rake task, or a test. One front door: <code style="display: inline;">execute</code>.</p>
+        <p>Call the same class from a controller, a background job, a rake task, another workflow, or a test. One front door: <code style="display: inline;">execute</code>.</p>
         <code>Task.<span class="tk">execute</span>(id: 42)</code>
       </div>
 
@@ -3739,7 +3649,7 @@
     <div class="section-head">
       <span class="section-eyebrow">&middot; 03 &middot; click around</span>
       <h2 class="section-title">Start with one task. Grow into full workflows.</h2>
-      <p class="section-sub">Flip the tabs like tiny files in an editor &mdash; same ideas, bigger scope.</p>
+      <p class="section-sub">Four tabs, one story: define a task, chain a workflow, run it, read the logs.</p>
     </div>
 
     <div class="showcase-frame">
@@ -3766,22 +3676,15 @@
           <div class="showcase-code">
             <pre><code><span class="k">class</span> <span class="nc">ApproveLoan</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
   <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">coerce:</span> <span class="ss">:integer</span>
-
-  <span class="n">optional</span> <span class="ss">:override_checks</span>, <span class="ss">default:</span> <span class="nb">false</span>
-
+  <span class="n">output</span> <span class="ss">:approved_at</span>
   <span class="n">on_success</span> <span class="ss">:notify_applicant!</span>
 
-  <span class="n">output</span> <span class="ss">:approved_at</span>
-
   <span class="k">def</span> <span class="n">work</span>
-    <span class="k">if</span> <span class="n">application</span>.<span class="n">nil?</span>
-      <span class="n">fail!</span>(<span class="s">"Application not found"</span>, <span class="ss">code:</span> <span class="mi">404</span>)
-    <span class="k">elsif</span> <span class="n">application</span>.<span class="n">approved?</span>
-      <span class="n">skip!</span>(<span class="s">"Already approved"</span>)
-    <span class="k">else</span>
-      <span class="n">application</span>.<span class="n">approve!</span>
-      <span class="n">context</span>.<span class="n">approved_at</span> = <span class="nc">Time</span>.<span class="n">current</span>
-    <span class="k">end</span>
+    <span class="n">fail!</span>(<span class="s">"Application not found"</span>, <span class="ss">code:</span> <span class="mi">404</span>) <span class="k">if</span> <span class="n">application</span>.<span class="n">nil?</span>
+    <span class="n">skip!</span>(<span class="s">"Already approved"</span>) <span class="k">if</span> <span class="n">application</span>.<span class="n">approved?</span>
+
+    <span class="n">application</span>.<span class="n">approve!</span>
+    <span class="n">context</span>.<span class="n">approved_at</span> = <span class="nc">Time</span>.<span class="n">current</span>
   <span class="k">end</span>
 
   <span class="k">private</span>
@@ -3803,20 +3706,13 @@
             <pre><code><span class="k">class</span> <span class="nc">OnboardCustomer</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
   <span class="k">include</span> <span class="nc">CMDx::Workflow</span>
 
-  <span class="c"># Run these one after another</span>
   <span class="n">task</span> <span class="nc">CreateAccount</span>
   <span class="n">task</span> <span class="nc">SetupBilling</span>
   <span class="n">task</span> <span class="nc">AssignPlan</span>
 
-  <span class="c"># Fire these at the same time</span>
-  <span class="n">tasks</span> <span class="nc">SendWelcomeEmail</span>,
-        <span class="nc">SendWelcomeSms</span>,
-        <span class="nc">CreateDashboard</span>,
-        <span class="ss">strategy:</span> <span class="ss">:parallel</span>
+  <span class="n">tasks</span> <span class="nc">SendWelcomeEmail</span>, <span class="nc">SendWelcomeSms</span>, <span class="ss">strategy:</span> <span class="ss">:parallel</span>
 
-  <span class="c"># Only run this when the predicate is true</span>
-  <span class="n">task</span> <span class="nc">ScheduleOnboardingCall</span>,
-       <span class="ss">if:</span> <span class="ss">:premium_plan?</span>
+  <span class="n">task</span> <span class="nc">ScheduleOnboardingCall</span>, <span class="ss">if:</span> <span class="ss">:premium_plan?</span>
 
   <span class="k">private</span>
 
@@ -3836,10 +3732,8 @@
 <span class="c"># Branch like normal Ruby</span>
 <span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
   <span class="n">puts</span> <span class="s">"Approved at </span><span class="c">#{</span><span class="n">result</span>.<span class="n">context</span>.<span class="n">approved_at</span><span class="c">}</span><span class="s">"</span>
-
 <span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
   <span class="n">puts</span> <span class="s">"Skipped: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
-
 <span class="k">elsif</span> <span class="n">result</span>.<span class="n">failed?</span>
   <span class="n">puts</span> <span class="s">"Failed: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
   <span class="n">puts</span> <span class="s">"Code: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">metadata</span>[<span class="ss">:code</span>]<span class="c">}</span><span class="s">"</span>
@@ -3873,8 +3767,6 @@
     ])
   <span class="k">end</span>
 <span class="k">end</span>
-
-<span class="c"># Each event carries ids, timing, and handy tags</span>
 
 <span class="c"># Logs show up without you wiring printf everywhere</span>
 <span class="nc">OnboardCustomer</span>.<span class="n">execute</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)</code></pre>
@@ -3976,6 +3868,41 @@
         </div>
         <h3>I18n messages</h3>
         <p>User-facing strings ride on plain Rails I18n. English ships inside the gem; drop in YAML for any other locale when you are ready.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path d="M8 11 V8 a4 4 0 0 1 8 0 v3" />
+          </svg>
+        </div>
+        <h3>Distributed locks</h3>
+        <p>Two workers, same key? <code>lock_with</code> grabs a short lease in your store so only one run is in the room at a time — then the next job is welcome once it finishes.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M5 12 h4" />
+            <path d="M15 12 h4" />
+          </svg>
+        </div>
+        <h3>Circuit breaker</h3>
+        <p>When a dependency is clearly down, stop paying for timeouts. <code>circuit_breaker</code> counts failures, opens the circuit, and fails fast until the cool-off passes.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="7" y="5" width="11" height="14" rx="2" />
+            <rect x="5" y="7" width="11" height="14" rx="2" />
+            <line x1="4" y1="20" x2="20" y2="4" />
+          </svg>
+        </div>
+        <h3>Idempotency</h3>
+        <p>Webhook redelivery or a retry mid-flight should not double-charge. <code>idempotent_by</code> claims a stable key and skips duplicate runs before <code>work</code> starts.</p>
       </div>
 
     </div>
@@ -4117,7 +4044,7 @@
   <div class="install-box">
     <span class="prompt">$</span>
     <code id="installCmd">gem install cmdx</code>
-    <button class="copy-btn" id="copyBtn" aria-label="Copy install command">
+    <button class="copy-btn" type="button" data-copy-target="#installCmd" aria-label="Copy install command">
       <span class="icon">&#x2398;</span>
       <span class="txt">copy</span>
     </button>
@@ -4190,17 +4117,20 @@
   /* -----------------------------------------------------------
      Copy-to-clipboard for gem install
      ----------------------------------------------------------- */
-  var copyBtn = document.getElementById("copyBtn");
-  var installCmd = document.getElementById("installCmd");
-  if (copyBtn && installCmd && navigator.clipboard) {
-    copyBtn.addEventListener("click", function () {
-      navigator.clipboard.writeText(installCmd.textContent.trim()).then(function () {
-        copyBtn.classList.add("copied");
-        copyBtn.querySelector(".txt").textContent = "copied";
-        setTimeout(function () {
-          copyBtn.classList.remove("copied");
-          copyBtn.querySelector(".txt").textContent = "copy";
-        }, 1600);
+  if (navigator.clipboard) {
+    document.querySelectorAll(".copy-btn[data-copy-target]").forEach(function (copyBtn) {
+      var target = document.querySelector(copyBtn.getAttribute("data-copy-target"));
+      if (!target) return;
+
+      copyBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(target.textContent.trim()).then(function () {
+          copyBtn.classList.add("copied");
+          copyBtn.querySelector(".txt").textContent = "copied";
+          setTimeout(function () {
+            copyBtn.classList.remove("copied");
+            copyBtn.querySelector(".txt").textContent = "copy";
+          }, 1600);
+        });
       });
     });
   }
