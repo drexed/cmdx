@@ -88,15 +88,30 @@ When you are ready to go deeper, this map points you at the right doc:
 
 | You want… | Read… | Quick idea |
 |-----------|--------|------------|
+| Global defaults | [Configuration](configuration.md) | `CMDx.configure { ... }` |
+| One class, one job | [Setup](basics/setup.md) | `class Foo < CMDx::Task` |
+| `required` / `optional` inputs | [Definitions](inputs/definitions.md) | `required :id, coerce: :integer` |
 | Safer input types | [Coercions](inputs/coercions.md) | `coerce: :integer` |
 | Rules on values | [Validations](inputs/validations.md) | `numeric: { min: 1 }` |
+| Values when omitted | [Defaults](inputs/defaults.md) | `optional :tier, default: "free"` |
+| Data in and out of `work` | [Context](basics/context.md) | `context.greeting = ...` |
+| `.execute` vs `.execute!` | [Execution](basics/execution.md) | Result object vs raise |
+| What happened? | [Result](outcomes/result.md) | `success?`, `reason`, `errors` |
 | Stop early on purpose | [Signals](interruptions/signals.md) | `skip!`, `fail!` |
+| Failures as exceptions | [Faults](interruptions/faults.md) | `Task.execute!` |
+| Declared outputs | [Outputs](outputs.md) | `output :user, :token` |
 | Several tasks in a row | [Workflows](workflows.md) | `include CMDx::Workflow` |
+| Who called whom | [Chain](basics/chain.md) | `cid` / `tid` in logs |
 | Cross-cutting stuff (timing, auth, etc.) | [Middlewares](middlewares.md) | `register :middleware` |
 | Hooks around run | [Callbacks](callbacks.md) | `on_success`, `before_execution` |
-| Declared outputs | [Outputs](outputs.md) | `output :user, :token` |
 | Automatic retries | [Retries](retries.md) | `retry_on Net::OpenTimeout, limit: 3` |
+| At-most-once side effects | [Idempotency](idempotency.md) | `idempotent_by :payment_id` |
+| One worker at a time | [Locks](locks.md) | `lock_with :account_id` |
+| Protect flaky dependencies | [Circuit breaker](circuit_breaker.md) | `circuit_breaker threshold: 3` |
+| Redis / memory backing | [Stores](stores.md) | `config.store = Stores::Redis.new(...)` |
 | What got logged | [Logging](logging.md) | Built-in structured lines |
+| RSpec patterns | [Testing](testing.md) | `be_success`, `be_failed` matchers |
+| Translated error messages | [Internationalization](internationalization.md) | Locale YAML under `cmdx` |
 
 ## The CERO Pattern
 
