@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## UNRELEASED
 
-## [3.0.0] - UNRELEASED
+## [2.3.0] - UNRELEASED
 
 ### Added
 - `Task.lock_with` — distributed lease via `CMDx::Stores` so only one worker runs the same logical key at a time; optional `wait:` polling, `on_busy:` `:fail` / `:skip`, and `if` / `unless` gates; wraps `idempotent_by` and the `retry_on` loop in `Runtime`; pass `false` on a subclass to disable
