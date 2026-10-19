@@ -138,15 +138,15 @@ module CMDx
       wait_seconds = wait
       raise ArgumentError, "lock_with wait must be >= 0 (got #{wait_seconds})" if wait_seconds.negative?
 
-      deadline = (Process.clock_gettime(Process::CLOCK_MONOTONIC) + wait_seconds if wait_seconds.positive?)
+      deadline = (Util.monotonic_now + wait_seconds if wait_seconds.positive?)
 
       loop do
         return true if Stores.set(store_key, token, nx: true, ttl:)
         return false unless deadline
 
-        break if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+        break if Util.monotonic_now >= deadline
 
-        sleep_interval = [0.05, deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)].min
+        sleep_interval = [0.05, deadline - Util.monotonic_now].min
         Kernel.sleep(sleep_interval) if sleep_interval.positive?
       end
 

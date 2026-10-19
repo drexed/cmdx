@@ -37,7 +37,7 @@ module CMDx
         ttl = Stores.ttl!(ttl) if ttl
         Stores.nx_xx!(nx, xx)
 
-        expires_at = ttl ? monotonic_now + ttl : nil
+        expires_at = ttl ? Util.monotonic_now + ttl : nil
         @mutex.synchronize do
           entry = @entries[key]
           present = entry && !expired?(entry)
@@ -66,7 +66,7 @@ module CMDx
           end
 
           count = entry ? entry[:value].to_i + 1 : 1
-          expires_at = (monotonic_now + ttl if ttl)
+          expires_at = (Util.monotonic_now + ttl if ttl)
 
           @entries[key] = { value: count.to_s, expires_at: }
           count
@@ -85,7 +85,7 @@ module CMDx
           expires_at = entry[:expires_at]
           return unless expires_at
 
-          remaining = expires_at - monotonic_now
+          remaining = expires_at - Util.monotonic_now
           remaining.positive? ? remaining.ceil : nil
         end
       end
@@ -147,11 +147,7 @@ module CMDx
 
       def expired?(entry)
         expires_at = entry[:expires_at]
-        expires_at && monotonic_now >= expires_at
-      end
-
-      def monotonic_now
-        Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        expires_at && Util.monotonic_now >= expires_at
       end
 
     end

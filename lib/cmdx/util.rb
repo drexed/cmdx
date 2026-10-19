@@ -69,6 +69,13 @@ module CMDx
         unless?(condition_unless, receiver, *args)
     end
 
+    # Returns the current time in seconds since the process started.
+    #
+    # @return [Float]
+    def monotonic_now(unit = :float_second)
+      Process.clock_gettime(Process::CLOCK_MONOTONIC, unit)
+    end
+
     # Recursively merges two Hash-like trees. When both values at a key are
     # Hashes, they merge recursively; otherwise the right-hand value wins
     # (last-write-wins). When either top-level operand is not a Hash, returns
