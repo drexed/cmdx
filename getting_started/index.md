@@ -82,17 +82,32 @@ result.errors.to_h       #=> { name: ["cannot be empty"] }
 
 When you are ready to go deeper, this map points you at the right doc:
 
-| You want…                                | Read…                                                                    | Quick idea                            |
-| ---------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------- |
-| Safer input types                        | [Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md)     | `coerce: :integer`                    |
-| Rules on values                          | [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md) | `numeric: { min: 1 }`                 |
-| Stop early on purpose                    | [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md)  | `skip!`, `fail!`                      |
-| Several tasks in a row                   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)            | `include CMDx::Workflow`              |
-| Cross-cutting stuff (timing, auth, etc.) | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)        | `register :middleware`                |
-| Hooks around run                         | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)            | `on_success`, `before_execution`      |
-| Declared outputs                         | [Outputs](https://drexed.github.io/cmdx/outputs/index.md)                | `output :user, :token`                |
-| Automatic retries                        | [Retries](https://drexed.github.io/cmdx/retries/index.md)                | `retry_on Net::OpenTimeout, limit: 3` |
-| What got logged                          | [Logging](https://drexed.github.io/cmdx/logging/index.md)                | Built-in structured lines             |
+| You want…                                | Read…                                                                               | Quick idea                              |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------- |
+| Global defaults                          | [Configuration](https://drexed.github.io/cmdx/configuration/index.md)               | `CMDx.configure { ... }`                |
+| One class, one job                       | [Setup](https://drexed.github.io/cmdx/basics/setup/index.md)                        | `class Foo < CMDx::Task`                |
+| `required` / `optional` inputs           | [Definitions](https://drexed.github.io/cmdx/inputs/definitions/index.md)            | `required :id, coerce: :integer`        |
+| Safer input types                        | [Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md)                | `coerce: :integer`                      |
+| Rules on values                          | [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md)            | `numeric: { min: 1 }`                   |
+| Values when omitted                      | [Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md)                  | `optional :tier, default: "free"`       |
+| Data in and out of `work`                | [Context](https://drexed.github.io/cmdx/basics/context/index.md)                    | `context.greeting = ...`                |
+| `.execute` vs `.execute!`                | [Execution](https://drexed.github.io/cmdx/basics/execution/index.md)                | Result object vs raise                  |
+| What happened?                           | [Result](https://drexed.github.io/cmdx/outcomes/result/index.md)                    | `success?`, `reason`, `errors`          |
+| Stop early on purpose                    | [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md)             | `skip!`, `fail!`                        |
+| Failures as exceptions                   | [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md)               | `Task.execute!`                         |
+| Declared outputs                         | [Outputs](https://drexed.github.io/cmdx/outputs/index.md)                           | `output :user, :token`                  |
+| Several tasks in a row                   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)                       | `include CMDx::Workflow`                |
+| Who called whom                          | [Chain](https://drexed.github.io/cmdx/basics/chain/index.md)                        | `cid` / `tid` in logs                   |
+| Cross-cutting stuff (timing, auth, etc.) | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)                   | `register :middleware`                  |
+| Hooks around run                         | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)                       | `on_success`, `before_execution`        |
+| Automatic retries                        | [Retries](https://drexed.github.io/cmdx/retries/index.md)                           | `retry_on Net::OpenTimeout, limit: 3`   |
+| At-most-once side effects                | [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md)                   | `idempotent_by :payment_id`             |
+| One worker at a time                     | [Locks](https://drexed.github.io/cmdx/locks/index.md)                               | `lock_with :account_id`                 |
+| Protect flaky dependencies               | [Circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md)           | `circuit_breaker threshold: 3`          |
+| Redis / memory backing                   | [Stores](https://drexed.github.io/cmdx/stores/index.md)                             | `config.store = Stores::Redis.new(...)` |
+| What got logged                          | [Logging](https://drexed.github.io/cmdx/logging/index.md)                           | Built-in structured lines               |
+| RSpec patterns                           | [Testing](https://drexed.github.io/cmdx/testing/index.md)                           | `be_success`, `be_failed` matchers      |
+| Translated error messages                | [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md) | Locale YAML under `cmdx`                |
 
 ## The CERO Pattern
 

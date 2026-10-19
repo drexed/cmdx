@@ -2682,6 +2682,21 @@
 </thead>
 <tbody>
 <tr>
+<td>Global defaults</td>
+<td><a href="../configuration/">Configuration</a></td>
+<td><code>CMDx.configure { ... }</code></td>
+</tr>
+<tr>
+<td>One class, one job</td>
+<td><a href="../basics/setup/">Setup</a></td>
+<td><code>class Foo &lt; CMDx::Task</code></td>
+</tr>
+<tr>
+<td><code>required</code> / <code>optional</code> inputs</td>
+<td><a href="../inputs/definitions/">Definitions</a></td>
+<td><code>required :id, coerce: :integer</code></td>
+</tr>
+<tr>
 <td>Safer input types</td>
 <td><a href="../inputs/coercions/">Coercions</a></td>
 <td><code>coerce: :integer</code></td>
@@ -2692,14 +2707,49 @@
 <td><code>numeric: { min: 1 }</code></td>
 </tr>
 <tr>
+<td>Values when omitted</td>
+<td><a href="../inputs/defaults/">Defaults</a></td>
+<td><code>optional :tier, default: "free"</code></td>
+</tr>
+<tr>
+<td>Data in and out of <code>work</code></td>
+<td><a href="../basics/context/">Context</a></td>
+<td><code>context.greeting = ...</code></td>
+</tr>
+<tr>
+<td><code>.execute</code> vs <code>.execute!</code></td>
+<td><a href="../basics/execution/">Execution</a></td>
+<td>Result object vs raise</td>
+</tr>
+<tr>
+<td>What happened?</td>
+<td><a href="../outcomes/result/">Result</a></td>
+<td><code>success?</code>, <code>reason</code>, <code>errors</code></td>
+</tr>
+<tr>
 <td>Stop early on purpose</td>
 <td><a href="../interruptions/signals/">Signals</a></td>
 <td><code>skip!</code>, <code>fail!</code></td>
 </tr>
 <tr>
+<td>Failures as exceptions</td>
+<td><a href="../interruptions/faults/">Faults</a></td>
+<td><code>Task.execute!</code></td>
+</tr>
+<tr>
+<td>Declared outputs</td>
+<td><a href="../outputs/">Outputs</a></td>
+<td><code>output :user, :token</code></td>
+</tr>
+<tr>
 <td>Several tasks in a row</td>
 <td><a href="../workflows/">Workflows</a></td>
 <td><code>include CMDx::Workflow</code></td>
+</tr>
+<tr>
+<td>Who called whom</td>
+<td><a href="../basics/chain/">Chain</a></td>
+<td><code>cid</code> / <code>tid</code> in logs</td>
 </tr>
 <tr>
 <td>Cross-cutting stuff (timing, auth, etc.)</td>
@@ -2712,19 +2762,44 @@
 <td><code>on_success</code>, <code>before_execution</code></td>
 </tr>
 <tr>
-<td>Declared outputs</td>
-<td><a href="../outputs/">Outputs</a></td>
-<td><code>output :user, :token</code></td>
-</tr>
-<tr>
 <td>Automatic retries</td>
 <td><a href="../retries/">Retries</a></td>
 <td><code>retry_on Net::OpenTimeout, limit: 3</code></td>
 </tr>
 <tr>
+<td>At-most-once side effects</td>
+<td><a href="../idempotency/">Idempotency</a></td>
+<td><code>idempotent_by :payment_id</code></td>
+</tr>
+<tr>
+<td>One worker at a time</td>
+<td><a href="../locks/">Locks</a></td>
+<td><code>lock_with :account_id</code></td>
+</tr>
+<tr>
+<td>Protect flaky dependencies</td>
+<td><a href="../circuit_breaker/">Circuit breaker</a></td>
+<td><code>circuit_breaker threshold: 3</code></td>
+</tr>
+<tr>
+<td>Redis / memory backing</td>
+<td><a href="../stores/">Stores</a></td>
+<td><code>config.store = Stores::Redis.new(...)</code></td>
+</tr>
+<tr>
 <td>What got logged</td>
 <td><a href="../logging/">Logging</a></td>
 <td>Built-in structured lines</td>
+</tr>
+<tr>
+<td>RSpec patterns</td>
+<td><a href="../testing/">Testing</a></td>
+<td><code>be_success</code>, <code>be_failed</code> matchers</td>
+</tr>
+<tr>
+<td>Translated error messages</td>
+<td><a href="../internationalization/">Internationalization</a></td>
+<td>Locale YAML under <code>cmdx</code></td>
 </tr>
 </tbody>
 </table>
