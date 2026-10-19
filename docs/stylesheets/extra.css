@@ -1,4 +1,4 @@
-:root  > * {
+:root > * {
   /* Primary color shades */
   --md-primary-fg-color:        #fe1817;
   --md-primary-fg-color--light: #fe1817;
@@ -203,6 +203,66 @@
   --md-mermaid-sequence-note-border-color: #d4a72c;
   --md-mermaid-sequence-number-bg-color:   #fe1817;
   --md-mermaid-sequence-number-fg-color:   #ffffff;
+}
+
+:root > * {
+  --cmdx-letter-spacing-body: -0.018em;
+  --cmdx-letter-spacing-heading: -0.032em;
+  --cmdx-letter-spacing-code: -0.022em;
+  --cmdx-letter-spacing-caps: 0.05em;
+  --cmdx-letter-spacing-prose: -0.03em;
+}
+
+body,
+.md-header,
+.md-tabs,
+.md-nav,
+.md-footer,
+.md-search__input,
+.md-dialog,
+.md-announce,
+.md-typeset,
+.home {
+  letter-spacing: var(--cmdx-letter-spacing-body);
+}
+
+.md-header__title,
+.md-nav__title,
+.md-tabs__link,
+.md-nav__link,
+.md-footer__title {
+  letter-spacing: var(--cmdx-letter-spacing-body);
+}
+
+.md-typeset {
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.md-typeset p,
+.md-typeset li,
+.md-typeset td,
+.md-typeset blockquote,
+.md-typeset .admonition p {
+  letter-spacing: var(--cmdx-letter-spacing-prose);
+}
+
+.md-typeset h1 {
+  letter-spacing: -0.04em;
+}
+
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6 {
+  letter-spacing: var(--cmdx-letter-spacing-heading);
+}
+
+.md-typeset code,
+.md-typeset pre,
+.md-typeset kbd,
+.md-typeset samp {
+  letter-spacing: var(--cmdx-letter-spacing-code);
 }
 
 /* Inline <code> matches <pre> background */

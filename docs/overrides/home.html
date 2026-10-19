@@ -31,7 +31,8 @@
   --cmdx-terminal-dim: #7a8290;
   --cmdx-terminal-border: rgba(255, 255, 255, 0.08);
   --cmdx-terminal-rule: rgba(255, 255, 255, 0.04);
-  --cmdx-mono: var(--md-code-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+  --cmdx-sans: var(--md-text-font-family, "DM Sans", system-ui, sans-serif);
+  --cmdx-mono: var(--md-code-font-family, "DM Mono", ui-monospace, monospace);
 }
 
 [data-md-color-scheme="default"] {
@@ -46,7 +47,7 @@
 .home {
   background: var(--cmdx-terminal-bg);
   color: var(--cmdx-terminal-fg);
-  font-family: var(--md-text-font-family);
+  font-family: var(--cmdx-sans);
 }
 
 .home a { text-decoration: none; }
@@ -113,7 +114,7 @@
 .win-tag {
   margin-left: auto;
   color: var(--cmdx-red);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   font-weight: 700;
   font-size: 0.72rem;
 }
@@ -160,7 +161,7 @@
   font-family: var(--cmdx-mono);
   font-size: 0.78rem;
   color: var(--cmdx-red) !important;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   margin-bottom: 2rem;
   text-transform: uppercase;
   text-decoration: none;
@@ -192,7 +193,7 @@
 .hero h1 {
   font-size: clamp(2.4rem, 6.5vw, 5rem);
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.045em;
   line-height: 1;
   margin: 0 0 1.25rem;
   color: var(--cmdx-terminal-fg);
@@ -302,7 +303,7 @@
   font-family: var(--cmdx-mono);
   font-size: 0.75rem;
   color: var(--cmdx-red);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 1rem;
 }
@@ -310,18 +311,25 @@
 .section-title {
   font-size: clamp(1.8rem, 3.5vw, 2.75rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   margin: 0 0 1rem;
   color: var(--cmdx-terminal-fg);
 }
 
+.section-sub,
+.feature-card p,
+.usecase-card p,
+.cero-stage p {
+  font-family: var(--cmdx-sans);
+  letter-spacing: -0.03em;
+}
+
 .section-sub {
   color: var(--cmdx-terminal-dim);
-  font-family: var(--cmdx-mono);
   font-size: 0.95rem;
   max-width: 620px;
-  line-height: 1.65;
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -395,7 +403,7 @@
   border-bottom: 1px solid var(--cmdx-terminal-border);
   font-family: var(--cmdx-mono);
   font-size: 0.72rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cmdx-terminal-dim);
   background: var(--cmdx-terminal-surface);
@@ -409,7 +417,7 @@
   padding: 0.18rem 0.5rem;
   border-radius: 999px;
   border: 1px solid currentColor;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   opacity: 0.85;
 }
 
@@ -504,7 +512,7 @@
   gap: 0.5rem;
   font-family: var(--cmdx-mono);
   font-size: 0.7rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cmdx-terminal-dim);
   padding: 0.85rem 1.35rem 0.25rem;
@@ -570,7 +578,7 @@
   font-family: var(--cmdx-mono);
   font-size: 0.7rem;
   color: var(--cmdx-red);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   margin-bottom: 0.5rem;
 }
 
@@ -583,7 +591,7 @@
 
 .cero-stage p {
   font-size: 0.85rem;
-  line-height: 1.55;
+  line-height: 1.5;
   color: var(--cmdx-terminal-dim);
   margin: 0 0 0.85rem;
 }
@@ -774,7 +782,7 @@
   display: block;
   color: #6a6a6a;
   font-size: 0.7rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 0.85rem;
 }
@@ -874,7 +882,7 @@
 
 .feature-card p {
   font-size: 0.88rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--cmdx-terminal-dim);
   margin: 0;
 }
@@ -929,7 +937,7 @@
   font-family: var(--cmdx-mono);
   font-size: 0.72rem;
   color: #7a8290;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -1064,7 +1072,7 @@
 
 .usecase-card p {
   font-size: 0.87rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--cmdx-terminal-dim);
   margin: 0;
 }
@@ -1099,7 +1107,7 @@
 .cta-footer h2 {
   font-size: clamp(1.6rem, 3vw, 2.25rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin: 0 0 2rem;
   color: var(--cmdx-terminal-fg);
 }
