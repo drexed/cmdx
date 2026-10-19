@@ -196,7 +196,7 @@ Events (`CMDx::Telemetry::EVENTS`):
 | `:idempotency_duplicate` | `code:`, `idempotency_key:`, `state:` |
 | `:circuit_open` | `code:`, `circuit_breaker_key:`, optional `retry_after:`, `on_open:` |
 | `:circuit_tripped` | `circuit_breaker_key:`, `failures_key:`, `failure_count:`, `threshold:`, `cool_off:` |
-| `:circuit_failures_cleared` | `failures_key:` |
+| `:circuit_reset` | `failures_key:` |
 
 Shared `Event` fields: `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`.
 

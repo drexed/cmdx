@@ -127,11 +127,11 @@ When the breaker is active for a run (enabled, gates pass, key resolves), CMDx e
 |-------|------|----------------------------|
 | `:circuit_open` | Open flag present — `work` does not run | `code: :circuit_open`, `circuit_breaker_key`, `on_open:`; optional `retry_after` |
 | `:circuit_tripped` | Failure count reached `threshold:` and the open flag was set | `circuit_breaker_key`, `failures_key`, `failure_count`, `threshold`, `cool_off` |
-| `:circuit_failures_cleared` | Successful run removed the failure counter | `failures_key` |
+| `:circuit_reset` | Successful run removed the failure counter | `failures_key` |
 
 `:circuit_tripped` fires on the run that **opens** the circuit (after the counting failure escapes the retry loop). The **next** run gets `:circuit_open` when it is turned away at the door.
 
-`:circuit_failures_cleared` only fires when a failure key was actually deleted — not on every success.
+`:circuit_reset` only fires when a failure key was actually deleted — not on every success.
 
 ```ruby
 CMDx.configure do |config|

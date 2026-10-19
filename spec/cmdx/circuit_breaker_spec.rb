@@ -312,14 +312,14 @@ RSpec.describe CMDx::CircuitBreaker do
       expect(events.first.payload[:retry_after]).to be_between(1, 60)
     end
 
-    it "emits circuit_failures_cleared after a successful run" do
+    it "emits circuit_reset after a successful run" do
       err = Class.new(StandardError)
       attempts = 0
       events = []
       klass = create_task_class(name: "ClearTelemetryTask") do
         circuit_breaker :class, threshold: 3, cool_off: 60, window: 60
         required :sku, coerce: :string
-        telemetry.subscribe(:circuit_failures_cleared) { |e| events << e }
+        telemetry.subscribe(:circuit_reset) { |e| events << e }
 
         define_method(:work) do
           attempts += 1

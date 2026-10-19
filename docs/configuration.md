@@ -212,7 +212,7 @@ Simple mental model: **publish events, subscribe with lambdas**. Each event deli
 | `:idempotency_duplicate` | `{ code: :duplicate, idempotency_key:, state: }` |
 | `:circuit_open` | `{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }` |
 | `:circuit_tripped` | `{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }` |
-| `:circuit_failures_cleared` | `{ failures_key: String }` |
+| `:circuit_reset` | `{ failures_key: String }` |
 
 ```ruby
 CMDx.configure do |config|

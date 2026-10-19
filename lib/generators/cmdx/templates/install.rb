@@ -101,18 +101,19 @@ CMDx.configure do |config|
   # fires if nobody's listening, so unused events cost nothing.
   #
   # Events and their extra payload keys:
-  #   :task_started      {}
-  #   :task_deprecated   {}
-  #   :task_retried      { attempt: Integer }
-  #   :task_rolled_back  {}
-  #   :task_executed     { result: CMDx::Result }
-  #   :lock_acquired     { lock_key: String }
-  #   :lock_busy         { code: :busy, lock_key:, holder:, retry_after:, on_busy: }
-  #   :idempotency_claimed / :idempotency_completed { idempotency_key: String }
+  #   :task_started          {}
+  #   :task_deprecated       {}
+  #   :task_retried          { attempt: Integer }
+  #   :task_rolled_back      {}
+  #   :task_executed         { result: CMDx::Result }
+  #   :lock_acquired         { lock_key: String }
+  #   :lock_busy             { code: :busy, lock_key:, holder:, retry_after:, on_busy: }
+  #   :idempotency_claimed   { idempotency_key: String }
+  #   :idempotency_completed { idempotency_key: String }
   #   :idempotency_duplicate { code: :duplicate, idempotency_key:, state: }
-  #   :circuit_open      { code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }
-  #   :circuit_tripped   { circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }
-  #   :circuit_failures_cleared { failures_key: String }
+  #   :circuit_open          { code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }
+  #   :circuit_tripped       { circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }
+  #   :circuit_reset         { failures_key: String }
   #
   # Every event also carries: event.cid, event.xid, event.tid, event.task,
   # event.type, event.name, event.root, event.payload, event.timestamp.

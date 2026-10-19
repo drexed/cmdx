@@ -39,7 +39,7 @@ module CMDx
       idempotency_duplicate
       circuit_open
       circuit_tripped
-      circuit_failures_cleared
+      circuit_reset
     ].freeze
 
     class << self

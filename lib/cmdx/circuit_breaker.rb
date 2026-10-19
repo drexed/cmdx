@@ -172,7 +172,7 @@ module CMDx
 
     def clear_failures(failures_key, task)
       cleared = Stores.del(failures_key)
-      Telemetry.emit_for(task, :circuit_failures_cleared, failures_key:) if cleared
+      Telemetry.emit_for(task, :circuit_reset, failures_key:) if cleared
     rescue StandardError
       nil
     end
