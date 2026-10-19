@@ -2827,26 +2827,31 @@
 <p>If you ship logs to durable storage, these entries become a time-ordered trail of “who did what, when”—great for audits and spooky production mysteries.</p>
 </div>
 <h2 id="task-lifecycle">Task lifecycle (the big picture)<a class="headerlink" href="#task-lifecycle" title="Permanent link">&para;</a></h2>
-<p>Every <code>Task.execute</code> walks the same path: setup, optional retries around <code>work</code>, output checks, callbacks, then a frozen <code>Result</code>. The diagram below is dense on purpose; bookmark it when you are debugging middleware, signals (<code>success!</code>, <code>skip!</code>, <code>fail!</code>, <code>throw!</code>), or rollbacks.</p>
+<p>Every <code>Task.execute</code> walks the same path: chain setup, a middleware-wrapped lifecycle (deprecation, callbacks, optional <a href="../circuit_breaker/">circuit breaker</a> / <a href="../locks/">lock</a> / <a href="../idempotency/">idempotency</a> guards, <code>work</code> with optional retries, output checks when <code>work</code> did not halt), result finalization <strong>outside</strong> middleware, then freeze and teardown. The diagram below is dense on purpose; bookmark it when you are debugging middleware, store-backed features, signals (<code>success!</code>, <code>skip!</code>, <code>fail!</code>, <code>throw!</code>), or rollbacks.</p>
 <pre class="mermaid"><code>flowchart TD
-    Invoke([Task.execute]) --&gt; Dep{Deprecation?}
+    Invoke([Task.execute]) --&gt; Acquire[Acquire chain if root]
+    Acquire --&gt; MW["Middlewares&lt;br/&gt;(catch Signal::TAG)"]
+    MW --&gt; TS[:task_started]
+    TS --&gt; Dep{Deprecation?}
     Dep --&gt;|":error"| Raise([raise DeprecationError])
-    Dep --&gt;|"none / :log / :warn"| Setup["Middlewares + before_execution&lt;br/&gt;+ before_validation + around_execution&lt;br/&gt;+ resolve inputs"]
-    Setup --&gt; Work["work (wrapped in retry_on)"]
-    Work --&gt;|"success! / skip!"| Verify[Verify outputs]
-    Work --&gt;|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
-    Work -.-&gt;|"raises Fault"| Rollback
-    Rollback --&gt;|yes| Cb["after_execution&lt;br/&gt;+ on_state / on_status / on_ok / on_ko"]
-    Rollback --&gt;|no| Cb
-    Verify --&gt; Cb
-    Cb --&gt; Finalize["Finalize Result + Chain&lt;br/&gt;emit :task_executed, freeze &amp; teardown"]
-    Finalize --&gt; Out([Frozen Result])</code></pre>
-<p><strong>Rules of thumb (memorize these four):</strong></p>
+    Dep --&gt;|"none / :log / :warn"| Pre[before_execution → before_validation]
+    Pre --&gt; Around[around_execution]
+    Around --&gt; PW["perform_work:&lt;br/&gt;resolve inputs → circuit_breaker → lock_with → idempotent_by&lt;br/&gt;→ retry_on &amp;#123; work &amp;#125; → verify outputs (unless halted)"]
+    PW --&gt; Rollback{"failed?&lt;br/&gt;#rollback?"}
+    Rollback --&gt;|yes| RB[#rollback]
+    Rollback --&gt;|no| Post
+    RB --&gt; Post["after_execution&lt;br/&gt;+ on_state / on_status / on_ok / on_ko"]
+    Post --&gt; MWend([leave middleware])
+    MWend --&gt; Finalize["Finalize Result + Chain&lt;br/&gt;:task_executed + lifecycle log"]
+    Finalize --&gt; Teardown["ensure: freeze + clear chain&lt;br/&gt;(execute! may re-raise here)"]
+    Teardown --&gt; Out([Frozen Result])</code></pre>
+<p><strong>Rules of thumb (memorize these five):</strong></p>
 <ul>
-<li><strong>Middleware wraps the whole <code>execute</code> trip</strong> — everything from callbacks through finalization runs inside that chain.</li>
-<li><strong>Retries only wrap <code>work</code></strong> — validating inputs and verifying outputs happen once per invocation, not on every retry attempt.</li>
-<li><strong>Rollback runs only on failure</strong>, before the result is finalized, so callbacks and telemetry already know whether rollback happened.</li>
-<li><strong>Teardown always runs</strong> (via <code>ensure</code>): the context is frozen, errors are captured, and fiber-local chain state is cleared—even when <code>execute!</code> re-raises.</li>
+<li><strong>Middleware wraps deprecation and the callback lifecycle</strong> — from <code>:task_started</code> through post-work hooks. Result finalization, lifecycle logging, and teardown run <strong>after</strong> the middleware chain returns (middleware can still halt with <code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code> before the inner lifecycle runs).</li>
+<li><strong>Retries only wrap <code>work</code></strong> — input resolution and output verification run once per invocation, not on every retry attempt (both still sit inside <code>lock_with</code> / <code>idempotent_by</code> when those are enabled).</li>
+<li><strong>Output verification runs only when <code>work</code> does not halt</strong> — <code>success!</code>, <code>skip!</code>, <code>fail!</code>, and <code>throw!</code> skip <code>verify_outputs!</code>; see <a href="../outputs/#verification-behavior">Outputs — Verification behavior</a>.</li>
+<li><strong>Rollback runs only on failure</strong>, inside <code>around_execution</code> and before post-work callbacks, so hooks and telemetry already know whether rollback happened.</li>
+<li><strong>Teardown always runs</strong> (via <code>ensure</code>): the task and context are frozen, errors are captured, and fiber-local chain state is cleared—even when <code>execute!</code> re-raises after finalization.</li>
 </ul>
 <h2 id="domain-driven-design">Domain-driven design<a class="headerlink" href="#domain-driven-design" title="Permanent link">&para;</a></h2>
 <p>You do not have to read a thick DDD book to benefit. CMDx nudges you toward three ideas that keep big apps sane:</p>

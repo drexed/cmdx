@@ -2589,7 +2589,7 @@
 <p>While work is running, the value is <code>"processing"</code>. After a successful run it becomes <code>"completed"</code>. Duplicates read that value for the message (<code>state=processing</code> or <code>state=completed</code>).</p>
 <h2 id="interaction-with-retry_on">Interaction with <code>retry_on</code><a class="headerlink" href="#interaction-with-retry_on" title="Permanent link">&para;</a></h2>
 <p>Think of one outer envelope around the whole attempt, retries included:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resolve_inputs! → idempotent claim → retry loop { work } → verify_outputs! → completed
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resolve_inputs! → circuit_breaker → lock_with → idempotent claim → retry loop { work } → verify_outputs! → completed
 </span></code></pre></div>
 <p>If <code>work</code> raises <code>StandardError</code>, the claim is <strong>deleted</strong> before the exception reaches <code>retry_on</code>. The claim is also released when <code>work</code> calls <code>skip!</code> or <code>fail!</code>, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is <code>completed</code> and the next call with the same key never enters <code>work</code>.</p>
 <p>Use a shared store in production (<code>Stores::Redis</code> on <code>CMDx.configuration.store</code>). The in-memory default only sees your current process. See <a href="../stores/">Stores</a>.</p>

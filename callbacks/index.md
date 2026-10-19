@@ -21,8 +21,8 @@ Picture the lifecycle like a sandwich:
 2. before_validation           # “Inputs are next; do any prep.”
 3. around_execution            # Wraps the real work (and rollback). You *must* call the continuation once.
 
-# --- CMDx resolves inputs, runs Task#work (retries if configured), checks outputs ---
-# --- If something fails, #rollback runs in here too ---
+# --- resolve inputs → circuit_breaker → lock_with → idempotent_by (when declared) ---
+# --- retry_on { work }; verify outputs unless halted; #rollback on failure ---
 
 4. after_execution             # “Work (and maybe rollback) is done.”
 5. on_[complete|interrupted]   # About *how* execution ended (lifecycle state)
