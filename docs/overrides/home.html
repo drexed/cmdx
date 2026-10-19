@@ -135,18 +135,46 @@
 
 .hero::before {
   content: "";
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background-image:
+    radial-gradient(circle at center, var(--cmdx-terminal-dim) 0.75px, transparent 0.75px),
     linear-gradient(var(--cmdx-terminal-rule) 1px, transparent 1px),
-    linear-gradient(90deg, var(--cmdx-terminal-rule) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+    linear-gradient(90deg, var(--cmdx-terminal-rule) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.065) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.065) 1px, transparent 1px);
+  background-size: 48px 48px, 12px 12px, 12px 12px, 48px 48px, 48px 48px;
+}
+
+[data-md-color-scheme="default"] .hero::before {
+  background-image:
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.12) 0.75px, transparent 0.75px),
+    linear-gradient(var(--cmdx-terminal-rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cmdx-terminal-rule) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 38%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(254, 24, 23, 0.35);
+  background: rgba(254, 24, 23, 0.07);
+  box-shadow: 0 0 24px rgba(254, 24, 23, 0.15);
   pointer-events: none;
 }
 
 .hero-inner {
   position: relative;
+  z-index: 1;
   max-width: 960px;
   margin: 0 auto;
 }
