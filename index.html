@@ -3775,9 +3775,11 @@
             <span class="label">&gt; stderr</span>
             <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.000]</span> <span class="kv">task</span>=<span class="val">CreateAccount</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=12</span>
             <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.050]</span> <span class="kv">task</span>=<span class="val">SetupBilling</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=45</span>
-            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.200]</span> <span class="kv">task</span>=<span class="val">SendWelcomeSms</span> <span class="kv">state</span>=<span class="val">interrupted</span> <span class="kv">status</span>=<span class="skv">skipped</span> <span class="kv">runtime</span>=2</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.100]</span> <span class="kv">task</span>=<span class="val">AssignPlan</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=22</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.200]</span> <span class="kv">task</span>=<span class="val">SendWelcomeSms</span> <span class="kv">state</span>=<span class="val">interrupted</span> <span class="kv">status</span>=<span class="skv">skipped</span> <span class="kv">runtime</span>=2 <span class="kv">reason</span>=<span class="val">"No phone on file"</span></span>
             <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.210]</span> <span class="kv">task</span>=<span class="val">SendWelcomeEmail</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=18</span>
             <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.250]</span> <span class="kv">task</span>=<span class="val">OnboardCustomer</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=250</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:02.001]</span> <span class="kv">task</span>=<span class="val">ProcessPayment</span> <span class="kv">state</span>=<span class="val">interrupted</span> <span class="kv">status</span>=<span class="erv">failed</span> <span class="kv">runtime</span>=140 <span class="kv">reason</span>=<span class="val">"Card declined"</span></span>
           </aside>
         </div>
 
@@ -4087,12 +4089,12 @@
       ['I', '14:22:01.000', 'CreateAccount',       'success', 12,  'ok'],
       ['I', '14:22:01.050', 'SetupBilling',        'success', 45,  'ok'],
       ['I', '14:22:01.100', 'AssignPlan',          'success', 22,  'ok'],
-      ['I', '14:22:01.200', 'SendWelcomeSms',      'skipped', 2,   'skip'],
+      ['I', '14:22:01.200', 'SendWelcomeSms',      'skipped', 2,   'skip', 'No phone on file'],
       ['I', '14:22:01.210', 'SendWelcomeEmail',    'success', 18,  'ok'],
       ['I', '14:22:01.215', 'CreateDashboard',     'success', 31,  'ok'],
       ['I', '14:22:01.220', 'ScheduleOnboardCall', 'success', 9,   'ok'],
       ['I', '14:22:01.250', 'OnboardCustomer',     'success', 250, 'ok'],
-      ['I', '14:22:02.001', 'ProcessPayment',      'failed',  140, 'err'],
+      ['I', '14:22:02.001', 'ProcessPayment',      'failed',  140, 'err', 'Card declined'],
       ['I', '14:22:02.190', 'ProcessPayment',      'success', 138, 'ok'],
       ['I', '14:22:03.000', 'ApproveLoan',         'success', 12,  'ok']
     ];
@@ -4108,6 +4110,7 @@
         '<span class="kv">task</span>=<span class="val">' + l[2] + '</span> ' +
         '<span class="kv">status</span>=<span class="' + statusClass[l[5]] + '">' + l[3] + '</span> ' +
         '<span class="kv">runtime</span>=' + l[4] +
+        (l[6] ? ' <span class="kv">reason</span>=<span class="val">"' + l[6] + '"</span>' : '') +
       '</span>';
     }
     var html = lines.map(renderLine).join('');

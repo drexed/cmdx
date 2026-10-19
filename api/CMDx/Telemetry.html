@@ -105,7 +105,7 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     <p>Pub/sub for runtime lifecycle and infrastructure events (see <span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span>).
-Subscribers are callables receiving an <span class='object_link'><a href="Telemetry/Event.html" title="CMDx::Telemetry::Event (class)">Event</a></span> data object. <span class='object_link'><a href="#emit_for-class_method" title="CMDx::Telemetry.emit_for (method)">Telemetry.emit_for</a></span>
+Subscribers are callables receiving an <span class='object_link'><a href="Telemetry/Event.html" title="CMDx::Telemetry::Event (class)">Event</a></span> data object. <span class='object_link'><a href="#emit-class_method" title="CMDx::Telemetry.emit (method)">Telemetry.emit</a></span>
 dispatches only when subscribers are registered so telemetry has zero cost
 when unused.</p>
 
@@ -214,7 +214,7 @@ helpers emit.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#emit_for-class_method" title="emit_for (class method)">.<strong>emit_for</strong>(task, name, root: false, **payload)  &#x21d2; void </a>
+      <a href="#emit-class_method" title="emit (class method)">.<strong>emit</strong>(task, name, root: false, **payload)  &#x21d2; void </a>
     
 
     
@@ -565,9 +565,9 @@ helpers emit.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="emit_for-class_method">
+  <h3 class="signature first" id="emit-class_method">
   
-    .<strong>emit_for</strong>(task, name, root: false, **payload)  &#x21d2; <tt>void</tt> 
+    .<strong>emit</strong>(task, name, root: false, **payload)  &#x21d2; <tt>void</tt> 
   
 
   
@@ -659,7 +659,7 @@ for <code>name</code>. No-op when nothing is subscribed.</p>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 55</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_emit_for'>emit_for</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>root:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_emit'>emit</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>root:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_telemetry'>telemetry</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_telemetry'>telemetry</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_telemetry'>telemetry</span><span class='period'>.</span><span class='id identifier rubyid_subscribed?'>subscribed?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
 
@@ -1437,7 +1437,7 @@ entirely when no subscribers remain.</p>
 </div>
 
       <div id="footer">
-  Generated on Mon Oct 19 05:40:09 2026 by
+  Generated on Mon Oct 19 15:57:06 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

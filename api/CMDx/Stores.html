@@ -71,10 +71,20 @@
 
   
   
+  <dl>
+      <dt>Extended by:</dt>
+      <dd><span class='object_link'><a href="" title="CMDx::Stores (module)">Stores</a></span></dd>
+  </dl>
+  
   
   
   
 
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="" title="CMDx::Stores (module)">Stores</a></span></dd>
+  </dl>
   
 
   
@@ -119,7 +129,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 
   
     <h2>
-      Class Method Summary
+      Instance Method Summary
       <small><a href="#" class="summary_toggle">collapse</a></small>
     </h2>
 
@@ -128,7 +138,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#decr-class_method" title="decr (class method)">.<strong>decr</strong>(key, ttl: nil)  &#x21d2; Integer </a>
+      <a href="#decr-instance_method" title="#decr (instance method)">#<strong>decr</strong>(key, ttl: nil)  &#x21d2; Integer </a>
     
 
     
@@ -150,7 +160,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#del-class_method" title="del (class method)">.<strong>del</strong>(key)  &#x21d2; Integer </a>
+      <a href="#del-instance_method" title="#del (instance method)">#<strong>del</strong>(key)  &#x21d2; Integer </a>
     
 
     
@@ -172,7 +182,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#del_if-class_method" title="del_if (class method)">.<strong>del_if</strong>(key, expected)  &#x21d2; Boolean </a>
+      <a href="#del_if-instance_method" title="#del_if (instance method)">#<strong>del_if</strong>(key, expected)  &#x21d2; Boolean </a>
     
 
     
@@ -194,7 +204,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#get-class_method" title="get (class method)">.<strong>get</strong>(key)  &#x21d2; String<sup>?</sup> </a>
+      <a href="#get-instance_method" title="#get (instance method)">#<strong>get</strong>(key)  &#x21d2; String<sup>?</sup> </a>
     
 
     
@@ -216,7 +226,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#incr-class_method" title="incr (class method)">.<strong>incr</strong>(key, ttl: nil)  &#x21d2; Integer </a>
+      <a href="#incr-instance_method" title="#incr (instance method)">#<strong>incr</strong>(key, ttl: nil)  &#x21d2; Integer </a>
     
 
     
@@ -238,7 +248,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#key!-class_method" title="key! (class method)">.<strong>key!</strong>(key)  &#x21d2; String </a>
+      <a href="#key!-instance_method" title="#key! (instance method)">#<strong>key!</strong>(key)  &#x21d2; String </a>
     
 
     
@@ -260,7 +270,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#nx_xx!-class_method" title="nx_xx! (class method)">.<strong>nx_xx!</strong>(nx, xx)  &#x21d2; void </a>
+      <a href="#nx_xx!-instance_method" title="#nx_xx! (instance method)">#<strong>nx_xx!</strong>(nx, xx)  &#x21d2; void </a>
     
 
     
@@ -282,7 +292,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#remaining_ttl-class_method" title="remaining_ttl (class method)">.<strong>remaining_ttl</strong>(key)  &#x21d2; Integer<sup>?</sup> </a>
+      <a href="#remaining_ttl-instance_method" title="#remaining_ttl (instance method)">#<strong>remaining_ttl</strong>(key)  &#x21d2; Integer<sup>?</sup> </a>
     
 
     
@@ -304,7 +314,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#set-class_method" title="set (class method)">.<strong>set</strong>(key, value, ttl: nil, nx: false, xx: false)  &#x21d2; Boolean </a>
+      <a href="#set-instance_method" title="#set (instance method)">#<strong>set</strong>(key, value, ttl: nil, nx: false, xx: false)  &#x21d2; Boolean </a>
     
 
     
@@ -326,7 +336,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#ttl!-class_method" title="ttl! (class method)">.<strong>ttl!</strong>(ttl)  &#x21d2; Integer </a>
+      <a href="#ttl!-instance_method" title="#ttl! (instance method)">#<strong>ttl!</strong>(ttl)  &#x21d2; Integer </a>
     
 
     
@@ -351,14 +361,14 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 
 
 
-  <div id="class_method_details" class="method_details_list">
-    <h2>Class Method Details</h2>
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="decr-class_method">
+  <h3 class="signature first" id="decr-instance_method">
   
-    .<strong>decr</strong>(key, ttl: nil)  &#x21d2; <tt>Integer</tt> 
+    #<strong>decr</strong>(key, ttl: nil)  &#x21d2; <tt>Integer</tt> 
   
 
   
@@ -397,7 +407,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       
       
         &mdash;
-        <div class='inline'><p>unused; accepted for API symmetry with #incr</p></div>
+        <div class='inline'><p>unused; accepted for API symmetry with <span class='object_link'><a href="#incr-instance_method" title="CMDx::Stores#incr (method)">#incr</a></span></p></div>
       
     </li>
   
@@ -458,9 +468,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="del-class_method">
+  <h3 class="signature " id="del-instance_method">
   
-    .<strong>del</strong>(key)  &#x21d2; <tt>Integer</tt> 
+    #<strong>del</strong>(key)  &#x21d2; <tt>Integer</tt> 
   
 
   
@@ -544,9 +554,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="del_if-class_method">
+  <h3 class="signature " id="del_if-instance_method">
   
-    .<strong>del_if</strong>(key, expected)  &#x21d2; <tt>Boolean</tt> 
+    #<strong>del_if</strong>(key, expected)  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -628,7 +638,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       
       
         &mdash;
-        <div class='inline'><p>when the configured store does not implement #del_if</p></div>
+        <div class='inline'><p>when the configured store does not implement <span class='object_link'><a href="#del_if-instance_method" title="CMDx::Stores#del_if (method)">#del_if</a></span></p></div>
       
     </li>
   
@@ -662,9 +672,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="get-class_method">
+  <h3 class="signature " id="get-instance_method">
   
-    .<strong>get</strong>(key)  &#x21d2; <tt>String</tt><sup>?</sup> 
+    #<strong>get</strong>(key)  &#x21d2; <tt>String</tt><sup>?</sup> 
   
 
   
@@ -755,9 +765,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="incr-class_method">
+  <h3 class="signature " id="incr-instance_method">
   
-    .<strong>incr</strong>(key, ttl: nil)  &#x21d2; <tt>Integer</tt> 
+    #<strong>incr</strong>(key, ttl: nil)  &#x21d2; <tt>Integer</tt> 
   
 
   
@@ -857,9 +867,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="key!-class_method">
+  <h3 class="signature " id="key!-instance_method">
   
-    .<strong>key!</strong>(key)  &#x21d2; <tt>String</tt> 
+    #<strong>key!</strong>(key)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -950,9 +960,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="nx_xx!-class_method">
+  <h3 class="signature " id="nx_xx!-instance_method">
   
-    .<strong>nx_xx!</strong>(nx, xx)  &#x21d2; <tt>void</tt> 
+    #<strong>nx_xx!</strong>(nx, xx)  &#x21d2; <tt>void</tt> 
   
 
   
@@ -1039,9 +1049,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="remaining_ttl-class_method">
+  <h3 class="signature " id="remaining_ttl-instance_method">
   
-    .<strong>remaining_ttl</strong>(key)  &#x21d2; <tt>Integer</tt><sup>?</sup> 
+    #<strong>remaining_ttl</strong>(key)  &#x21d2; <tt>Integer</tt><sup>?</sup> 
   
 
   
@@ -1135,9 +1145,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="set-class_method">
+  <h3 class="signature " id="set-instance_method">
   
-    .<strong>set</strong>(key, value, ttl: nil, nx: false, xx: false)  &#x21d2; <tt>Boolean</tt> 
+    #<strong>set</strong>(key, value, ttl: nil, nx: false, xx: false)  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -1271,9 +1281,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="ttl!-class_method">
+  <h3 class="signature " id="ttl!-instance_method">
   
-    .<strong>ttl!</strong>(ttl)  &#x21d2; <tt>Integer</tt> 
+    #<strong>ttl!</strong>(ttl)  &#x21d2; <tt>Integer</tt> 
   
 
   
@@ -1352,9 +1362,9 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
       <pre class="code"><span class="info file"># File 'lib/cmdx/stores.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ttl!'>ttl!</span><span class='lparen'>(</span><span class='id identifier rubyid_ttl'>ttl</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>store ttl must be a positive Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_ttl'>ttl</span> <span class='kw'>if</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
 
-  <span class='id identifier rubyid_ttl'>ttl</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>store ttl must be a positive Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ttl'>ttl</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1366,7 +1376,7 @@ checkpoints, and cached results. <span class='object_link'><a href="" title="CMD
 </div>
 
       <div id="footer">
-  Generated on Mon Oct 19 05:40:07 2026 by
+  Generated on Mon Oct 19 15:57:04 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
