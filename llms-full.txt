@@ -502,21 +502,21 @@ Class-level recipes: [Callbacks](https://drexed.github.io/cmdx/callbacks/index.m
 
 Simple mental model: **publish events, subscribe with lambdas**. Each event delivers a `Telemetry::Event` (`cid`, `xid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`).
 
-| Event                       | Payload (extra)                                                                                    |
-| --------------------------- | -------------------------------------------------------------------------------------------------- |
-| `:task_started`             | empty                                                                                              |
-| `:task_deprecated`          | empty                                                                                              |
-| `:task_retried`             | `{ attempt: Integer }`                                                                             |
-| `:task_rolled_back`         | empty                                                                                              |
-| `:task_executed`            | `{ result: Result }`                                                                               |
-| `:lock_acquired`            | `{ lock_key: String }`                                                                             |
-| `:lock_busy`                | `{ code: :busy, lock_key:, holder:, retry_after:, on_busy: }` (optional keys omitted when unknown) |
-| `:idempotency_claimed`      | `{ idempotency_key: String }`                                                                      |
-| `:idempotency_completed`    | `{ idempotency_key: String }`                                                                      |
-| `:idempotency_duplicate`    | `{ code: :duplicate, idempotency_key:, state: }`                                                   |
-| `:circuit_open`             | `{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }`                            |
-| `:circuit_tripped`          | `{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }`                   |
-| `:circuit_failures_cleared` | `{ failures_key: String }`                                                                         |
+| Event                    | Payload (extra)                                                                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------- |
+| `:task_started`          | empty                                                                                              |
+| `:task_deprecated`       | empty                                                                                              |
+| `:task_retried`          | `{ attempt: Integer }`                                                                             |
+| `:task_rolled_back`      | empty                                                                                              |
+| `:task_executed`         | `{ result: Result }`                                                                               |
+| `:lock_acquired`         | `{ lock_key: String }`                                                                             |
+| `:lock_busy`             | `{ code: :busy, lock_key:, holder:, retry_after:, on_busy: }` (optional keys omitted when unknown) |
+| `:idempotency_claimed`   | `{ idempotency_key: String }`                                                                      |
+| `:idempotency_completed` | `{ idempotency_key: String }`                                                                      |
+| `:idempotency_duplicate` | `{ code: :duplicate, idempotency_key:, state: }`                                                   |
+| `:circuit_open`          | `{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }`                            |
+| `:circuit_tripped`       | `{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }`                   |
+| `:circuit_reset`         | `{ failures_key: String }`                                                                         |
 
 ```ruby
 CMDx.configure do |config|
@@ -4905,15 +4905,15 @@ end
 
 When the breaker is active for a run (enabled, gates pass, key resolves), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
 
-| Event                       | When                                                         | Extra `event.payload` keys                                                       |
-| --------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| `:circuit_open`             | Open flag present — `work` does not run                      | `code: :circuit_open`, `circuit_breaker_key`, `on_open:`; optional `retry_after` |
-| `:circuit_tripped`          | Failure count reached `threshold:` and the open flag was set | `circuit_breaker_key`, `failures_key`, `failure_count`, `threshold`, `cool_off`  |
-| `:circuit_failures_cleared` | Successful run removed the failure counter                   | `failures_key`                                                                   |
+| Event              | When                                                         | Extra `event.payload` keys                                                       |
+| ------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `:circuit_open`    | Open flag present — `work` does not run                      | `code: :circuit_open`, `circuit_breaker_key`, `on_open:`; optional `retry_after` |
+| `:circuit_tripped` | Failure count reached `threshold:` and the open flag was set | `circuit_breaker_key`, `failures_key`, `failure_count`, `threshold`, `cool_off`  |
+| `:circuit_reset`   | Successful run removed the failure counter                   | `failures_key`                                                                   |
 
 `:circuit_tripped` fires on the run that **opens** the circuit (after the counting failure escapes the retry loop). The **next** run gets `:circuit_open` when it is turned away at the door.
 
-`:circuit_failures_cleared` only fires when a failure key was actually deleted — not on every success.
+`:circuit_reset` only fires when a failure key was actually deleted — not on every success.
 
 ```ruby
 CMDx.configure do |config|

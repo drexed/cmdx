@@ -2707,14 +2707,14 @@
 <td><code>circuit_breaker_key</code>, <code>failures_key</code>, <code>failure_count</code>, <code>threshold</code>, <code>cool_off</code></td>
 </tr>
 <tr>
-<td><code>:circuit_failures_cleared</code></td>
+<td><code>:circuit_reset</code></td>
 <td>Successful run removed the failure counter</td>
 <td><code>failures_key</code></td>
 </tr>
 </tbody>
 </table>
 <p><code>:circuit_tripped</code> fires on the run that <strong>opens</strong> the circuit (after the counting failure escapes the retry loop). The <strong>next</strong> run gets <code>:circuit_open</code> when it is turned away at the door.</p>
-<p><code>:circuit_failures_cleared</code> only fires when a failure key was actually deleted — not on every success.</p>
+<p><code>:circuit_reset</code> only fires when a failure key was actually deleted — not on every success.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:circuit_tripped</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">"cmdx.circuit.tripped"</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">"task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">"</span><span class="o">]</span><span class="p">)</span>
