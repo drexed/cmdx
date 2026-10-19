@@ -42,6 +42,7 @@ Answer: *What goes in, what comes out, and how is data transformed along the way
    - Context reads (`ctx[:key]`, `ctx.key`, `method_missing` delegates).
    - Context writes (`store`, `merge`, `delete`).
    - Signal emission (`success!`, `skip!`, `fail!`, `throw!`) and the data each carries.
+   - Store-backed gates (`lock_with`, `idempotent_by`, `circuit_breaker`) and which `CMDx::Stores` keys they read/write.
 
 Use compact notation when multiple data paths exist:
 
@@ -150,13 +151,14 @@ Use these terms consistently when explaining CMDx code:
 |---|---|
 | **Task** | A unit of work defined by a class with a `work` method |
 | **Context** | The shared data object (`ctx`) passed through task execution |
-| **Signal** | The halt mechanism (`success!`, `skip!`, `fail!`) that short-circuits via `catch`/`throw` |
+| **Signal** | The halt mechanism (`success!`, `skip!`, `fail!`, `throw!`) that short-circuits via `catch`/`throw` |
 | **Result** | The frozen outcome object containing state, status, reason, metadata, and context |
 | **Fault** | An exception subclass used for `execute!` error propagation |
 | **Runtime** | The execution wrapper that manages `catch`/`throw` flow and exception rescue |
 | **Chain** | Fiber-local collection of `Result`s for the active execution tree; supplies `xid`/`cid` to telemetry |
 | **Stores** | Shared key/value backend for locks, idempotency claims, and circuit state |
 | **Telemetry** | Pub/sub for lifecycle and store-backed events (`Telemetry::Event` payloads) |
+| **POST_WORK_EVENTS** | Callbacks that receive `(task, signal)` before `Result` construction |
 
 ## Anti-Patterns
 

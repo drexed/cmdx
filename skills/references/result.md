@@ -48,6 +48,7 @@ Convenience predicates:
 | `errors` | `Errors` container (frozen). |
 | `state`, `status` | Strings. |
 | `reason` | String passed to `success!`/`skip!`/`fail!`, `errors.to_s`, or `nil`. |
+| `error` | When `failed?`, `cause` if set, otherwise `reason` — convenience for logging/telemetry. |
 | `metadata` | Frozen Hash. |
 | `cause` | Rescued `StandardError` (or `nil`). Set when `execute!` re-raises. |
 | `origin` | Upstream failed `Result` this was echoed from (via `throw!` or rescued `Fault`), or `nil`. |

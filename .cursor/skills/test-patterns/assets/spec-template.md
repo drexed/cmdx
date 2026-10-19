@@ -80,7 +80,7 @@ RSpec.describe "Feature name", type: :feature do
       let(:task) { create_failing_task(reason: "something broke") }
 
       it "raises fault" do
-        expect { result }.to raise_error(CMDx::FailFault, "something broke")
+        expect { result }.to raise_error(CMDx::Fault, "something broke")
       end
     end
   end
@@ -100,8 +100,8 @@ RSpec.describe "Workflow feature name", type: :feature do
       let(:workflow) { create_successful_workflow }
 
       it "returns success" do
-        expect(result).to be_successful
-        expect(result).to have_matching_context(executed: %i[success inner middle outer success])
+        expect(result).to be_success
+        expect(result.context).to have_attributes(executed: %i[success inner middle outer success])
       end
     end
   end
@@ -113,7 +113,7 @@ RSpec.describe "Workflow feature name", type: :feature do
       let(:workflow) { create_failing_workflow }
 
       it "raises fault" do
-        expect { result }.to raise_error(CMDx::FailFault)
+        expect { result }.to raise_error(CMDx::Fault)
       end
     end
   end
@@ -140,7 +140,7 @@ RSpec.describe "Workflow feature name", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to be_successful
+      expect(result).to be_success
       expect(result.chain.results.size).to eq(3)
     end
   end

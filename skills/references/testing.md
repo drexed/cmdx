@@ -161,7 +161,7 @@ end
 
 ## Callbacks
 
-Test through observable side effects — `result` isn't available inside callbacks, so any direct unit test has to inspect `task.context`/`task.errors` instead.
+Post-work hooks receive `(task, signal)` — assert on `signal.status` / `signal.reason` in unit specs (`spec/cmdx/callbacks_spec.rb`). Integration specs usually observe side effects on `task.context`.
 
 ```ruby
 it "notifies on success" do
@@ -171,7 +171,41 @@ it "notifies on success" do
 
   expect(GuestNotifier).to have_received(:call)
 end
+
+it "passes the finalized signal to on_failed" do
+  received = []
+  klass = create_task_class(name: "SignalHook") do
+    on_failed ->(_task, signal) { received << signal }
+    define_method(:work) { fail!("boom") }
+  end
+
+  klass.execute
+
+  expect(received.first).to have_attributes(status: CMDx::Signal::FAILED, reason: "boom")
+end
 ```
+
+## Stores (locks, idempotency, circuits)
+
+`spec_helper` resets `CMDx.configuration.store` to `Stores::Memory` each example. For Redis adapter tests, use `CMDx::Testing::FakeRedis` (`spec/cmdx/stores/redis_spec.rb`).
+
+```ruby
+it "skips duplicate idempotent runs" do
+  klass = create_task_class(name: "IdempotentTask") do
+    idempotent_by :key
+    required :key, coerce: :string
+    define_method(:work) { context.count = (context.count || 0) + 1 }
+  end
+
+  klass.execute(key: "a")
+  result = klass.execute(key: "a")
+
+  expect(result).to be_skipped
+  expect(CMDx::Stores.get("cmdx:idem:IdempotentTask:a")).to eq("completed")
+end
+```
+
+Unit specs: `spec/cmdx/lock_spec.rb`, `idempotency_spec.rb`, `circuit_breaker_spec.rb`. Integration: `spec/integration/tasks/locks_spec.rb`, `idempotency_spec.rb`, `circuit_breaker_spec.rb`.
 
 ## Middlewares
 
@@ -229,9 +263,19 @@ it "pattern matches on failure" do
 end
 ```
 
+## Chain teardown
+
+When an example sets `CMDx::Chain.current` or runs parallel pipelines / workflows, clear fiber-local state:
+
+```ruby
+after { CMDx::Chain.clear }
+```
+
+`spec/cmdx/chain_spec.rb` uses `after { described_class.clear }`.
+
 ## Resetting state
 
-Use `CMDx.reset_configuration!` in test setup to clear global registries (middleware, callbacks, coercions, validators, telemetry). It only clears `Task`'s cached ivars; existing user-defined subclasses keep their own caches until class reload.
+`spec_helper` already runs `CMDx.reset_configuration!` in a global `before` (fresh `Stores::Memory`, cleared telemetry, registry caches on all `Task` subclasses). Add explicit resets only when a spec swaps `configuration.store` or mutates global config outside that hook.
 
 ```ruby
 RSpec.configure do |c|

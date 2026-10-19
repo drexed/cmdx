@@ -15,6 +15,8 @@ Subclasses **inherit** all three levels. Registries are duped lazily the first t
 ```ruby
 CMDx.configure do |config|
   config.default_locale    = "en"
+  config.correlation_id    = -> { Current.request_id }
+  config.store             = CMDx::Stores::Memory.new
   config.backtrace_cleaner = ->(frames) { Rails.backtrace_cleaner.clean(frames) }
   config.logger            = Logger.new($stdout)
   config.log_level         = Logger::INFO
@@ -36,14 +38,22 @@ All real `Configuration` attributes:
 | `callbacks` | `Callbacks.new` |
 | `coercions` | `Coercions.new` |
 | `validators` | `Validators.new` |
+| `executors` | `Executors.new` |
+| `mergers` | `Mergers.new` |
+| `retriers` | `Retriers.new` |
+| `deprecators` | `Deprecators.new` |
 | `telemetry` | `Telemetry.new` |
+| `store` | `Stores::Memory.new` |
+| `correlation_id` | `nil` |
+| `strict_context` | `false` |
+| `log_exclusions` | `[]` |
 | `default_locale` | `"en"` |
 | `backtrace_cleaner` | `nil` |
 | `logger` | `Logger.new($stdout)` |
 | `log_level` | `Logger::INFO` |
 | `log_formatter` | `CMDx::LogFormatters::Line.new` |
 
-`CMDx.reset_configuration!` replaces the configuration with a fresh instance and clears `Task`'s cached registry ivars so new lookups pick up the new config. Intended for test setup/teardown; it does **not** recurse into subclasses.
+`CMDx.config` aliases `CMDx.configuration`. `CMDx.reset_configuration!` replaces the configuration with a fresh instance and clears cached registry ivars on every `Task` subclass. Intended for test setup/teardown.
 
 ## Per-task `settings`
 
@@ -54,7 +64,10 @@ All real `Configuration` attributes:
 | `:logger` | Per-task Logger. |
 | `:log_formatter` | Per-task formatter. |
 | `:log_level` | Per-task severity. |
+| `:log_exclusions` | Keys omitted from runtime log payload (`Result#to_h` keys). |
 | `:backtrace_cleaner` | `#call(frames)`-able for `Fault` backtraces. |
+| `:strict_context` | Raise `UnknownAccessorError` on dynamic context read misses. |
+| `:correlation_id` | `#call` evaluated once when the root chain is created → `result.xid`. |
 | `:tags` | Array of `Symbol`/`String`, exposed on `result.to_h[:tags]`. |
 
 ```ruby
@@ -103,6 +116,18 @@ end
 Only the `work` block is wrapped. Inputs, outputs, callbacks, and middleware run once. `task.errors` persists across attempts; clear it at the start of `work` if you re-populate per attempt.
 
 Introspect: `result.retries`, `result.retried?`.
+
+## Locks, idempotency, circuit breakers
+
+Per-class DSL (not `settings` options). See [stores.md](stores.md).
+
+```ruby
+lock_with :payment_id, ttl: 30, on_busy: :skip
+idempotent_by :idempotency_key, ttl: 86_400
+circuit_breaker :class, threshold: 5, cool_off: 60
+```
+
+Each accepts `false` on a subclass to disable inheritance.
 
 ## Deprecation
 
@@ -167,9 +192,12 @@ No middleware is built into the gem.
 
 `:before_execution`, `:before_validation`, `:around_execution`, `:after_execution`, `:on_complete`, `:on_interrupted`, `:on_success`, `:on_skipped`, `:on_failed`, `:on_ok`, `:on_ko`. `:around_execution` callbacks wrap the lifecycle and must invoke their continuation (Symbol → `yield`; Proc/callable → `(task, continuation)`).
 
-Each event has a class-level DSL method: `before_execution :method_name`, `on_failed { |task| ... }`, etc. Callbacks accept Symbol (`task.send`), Proc (`instance_exec(task, &)`), or any `#call(task)`-able. Supports `if:`/`unless:` gates.
+Each event has a class-level DSL method: `before_execution :method_name`, `on_failed { |task, signal| ... }`, etc. Callbacks accept Symbol (`task.send`), Proc (`instance_exec`), or any `#call`-able.
 
-Unknown events raise `ArgumentError`. `result` is not yet built during callbacks — subscribe to `:task_executed` telemetry for finalized result data.
+- Pre-work and `around_execution`: `(task)` only (`around` also receives a continuation).
+- Post-work (`after_execution`, every `on_*`): `(task, signal)` — read `signal.reason`, `signal.cause`, `signal.metadata` before `Result` exists.
+
+Supports `if:`/`unless:` gates. Unknown events raise `UnknownEntryError`. Subscribe to `:task_executed` for the finalized `Result`.
 
 ## Rails integration
 
@@ -215,4 +243,4 @@ end
 - `settings`, `retry_on`, `deprecation`, and each registry are inherited via a lazy `dup` (`initialize_copy` on each).
 - Subclass changes do not mutate the parent.
 - Sibling subclasses are independent once they've cloned.
-- `CMDx.reset_configuration!` only invalidates `Task`'s cached ivars — existing subclass caches persist until Ruby reloads the class.
+- `CMDx.reset_configuration!` clears cached registry ivars on all `Task` subclasses and restores a fresh global configuration (including `Stores::Memory`).

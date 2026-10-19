@@ -1,6 +1,6 @@
 ---
 name: cmdx
-description: Build, debug, and document CMDx tasks and workflows in Ruby. Use when creating service/command objects with CMDx, composing tasks into workflows, handling halts and faults, or wiring inputs, outputs, callbacks, middleware, retries, and configuration. Don't use for generic Ruby refactors, Rails controller work, or non-CMDx service objects.
+description: Build, debug, and document CMDx tasks and workflows in Ruby. Use when creating service/command objects with CMDx, composing workflows, handling halts and faults, or wiring inputs, outputs, callbacks, middleware, retries, locks, idempotency, circuit breakers, stores, and configuration. Don't use for generic Ruby refactors, Rails controller work, or non-CMDx service objects.
 ---
 
 # CMDx Agent Skill
@@ -11,20 +11,21 @@ CMDx is a Ruby framework for composable command/service objects with declarative
 
 Every task runs through `CMDx::Runtime` in this order:
 
-1. **Middlewares** wrap everything (`call(task) { yield }` chain).
+1. **Middlewares** wrap the rest of the lifecycle inside `catch(CMDx::Signal::TAG)` — middleware may call `success!` / `skip!` / `fail!` / `throw!` and produce a normal `Result`.
 2. **Deprecation** check (may block or log).
-3. **`before_execution` callbacks**.
-4. **`before_validation` callbacks**.
-5. **Input resolution** — fetch, coerce, transform, validate.
-6. **`work`** runs inside `catch(CMDx::Signal::TAG)`, wrapped in `retry_on`.
-7. **Output verification** — coerce/validate declared outputs.
-8. **`rollback`** runs if the signal is `failed` and the task defines `#rollback`.
-9. **State callbacks** — `on_complete` or `on_interrupted`.
-10. **Status callbacks** — `on_success` / `on_skipped` / `on_failed`.
-11. **Outcome callbacks** — `on_ok` (success or skipped) or `on_ko` (skipped or failed).
-12. **Result finalize + teardown** — task, errors, and root context are frozen; chain is cleared.
+3. **`before_execution` callbacks** (task only — no `Signal` yet).
+4. **`before_validation` callbacks** (task only).
+5. **`around_execution`** wraps the work block:
+   - **Input resolution** — fetch, coerce, transform, validate.
+   - **`circuit_breaker`** (when declared) → **`lock_with`** → **`idempotent_by`** → **`retry_on` { `work` }** → **output verification** (all inside the lock lease and idempotency claim when enabled).
+   - **`rollback`** when the signal is `failed` and the task defines `#rollback`.
+6. **`after_execution`** — receives `(task, signal)`.
+7. **State callbacks** — `on_complete` or `on_interrupted` (with `signal`).
+8. **Status callbacks** — `on_success` / `on_skipped` / `on_failed` (with `signal`).
+9. **Outcome callbacks** — `on_ok` or `on_ko` (with `signal`).
+10. **Result finalize + teardown** — push/unshift on `Chain`, `:task_executed` telemetry, log; freeze task/errors/context (root); clear fiber-local chain.
 
-`success!` / `skip!` / `fail!` / `throw!` are control-flow tokens that `throw` a `CMDx::Signal` caught by Runtime — anything after a halt is unreachable. They only work inside the signal catch (input resolution, `work`, output verification); calling them from `before_execution` / `before_validation` callbacks or middleware bubbles past Runtime and never produces a `Result`. See [docs/basics/setup.md](docs/basics/setup.md) for the full state diagram.
+`success!` / `skip!` / `fail!` / `throw!` `throw` a `CMDx::Signal` caught by Runtime. They work from **middleware**, **input/output resolution**, and **`work`**. Calling them from `before_execution` / `before_validation` / `around_execution` callbacks (outside the inner work block) still bypasses the catch and will not produce a `Result` — use `errors.add` in validation hooks or move logic into `work`. See [docs/basics/setup.md](docs/basics/setup.md) for the full state diagram.
 
 ## DSL Surface
 
@@ -33,7 +34,7 @@ Every task runs through `CMDx::Runtime` in this order:
 | Inputs | `required`, `optional`, `input`, `inputs` |
 | Outputs | `output`, `outputs` |
 | Callbacks | `before_execution`, `before_validation`, `on_success`, `on_skipped`, `on_failed`, `on_complete`, `on_interrupted`, `on_ok`, `on_ko` |
-| Class config | `settings`, `retry_on`, `deprecation`, `register`, `deregister` |
+| Class config | `settings`, `retry_on`, `idempotent_by`, `lock_with`, `circuit_breaker`, `deprecation`, `register`, `deregister` |
 | Halts (inside `work`) | `success!`, `skip!`, `fail!`, `throw!` |
 | Workflow | `include CMDx::Workflow`, `task`, `tasks` |
 | Execution | `Task.execute`, `Task.execute!` (aliased `call` / `call!`) |
@@ -265,6 +266,7 @@ result.errors       # CMDx::Errors map
 result.reason       # reason string from success!/skip!/fail! (nil when unset)
 result.metadata     # frozen hash
 result.cause        # rescued StandardError (or nil)
+result.error        # `cause` when present, else `reason` — only when `failed?`
 result.origin       # upstream Result this was echoed from (or nil)
 result.retries      # Integer
 result.duration     # Float ms
@@ -308,7 +310,7 @@ The `Result` isn't built yet when callbacks run — for post-work hooks use the 
 
 ## Middleware
 
-Wraps the entire lifecycle. Interface: `call(task) { yield }` (or `&next_link` for Procs). Must yield or `CMDx::MiddlewareError` is raised.
+Wraps the entire lifecycle inside Runtime's outer `catch(Signal::TAG)`. Interface: `call(task) { yield }` (or `&next_link` for Procs). Must yield or `CMDx::MiddlewareError` is raised. Middleware may halt with `success!` / `skip!` / `fail!` / `throw!` the same way `work` does.
 
 ```ruby
 class AuditMiddleware
@@ -351,6 +353,27 @@ end
 
 Inspect with `result.retries` / `result.retried?`. Docs: [docs/retries.md](docs/retries.md).
 
+## Stores (locks, idempotency, circuits)
+
+`CMDx::Stores` delegates to `CMDx.configuration.store` (`Stores::Memory` by default; `Stores::Redis` for production). Task DSL helpers persist opaque strings — not full context blobs.
+
+```ruby
+CMDx.configure { |c| c.store = CMDx::Stores::Redis.new(redis: Redis.new, namespace: "myapp:cmdx:") }
+
+class ChargeCard < CMDx::Task
+  lock_with :payment_id, ttl: 30, on_busy: :skip, wait: 0.5
+  idempotent_by :idempotency_key, ttl: 86_400, on_duplicate: :skip
+  circuit_breaker :class, threshold: 5, cool_off: 60, on_open: :fail
+
+  required :payment_id, coerce: :string
+end
+```
+
+- Pass `false` on a subclass to disable an inherited `lock_with` / `idempotent_by` / `circuit_breaker` / `retry_on`.
+- Telemetry: `:lock_acquired`, `:lock_busy`, `:idempotency_*`, `:circuit_*` (same `subscribed?` gating as lifecycle events).
+
+Full reference: [references/stores.md](references/stores.md).
+
 ## Rollback
 
 Define `#rollback` to undo side effects. Runtime calls it after `work` when the signal is `failed` (before completion callbacks) and flags `result.rolled_back?`.
@@ -392,9 +415,11 @@ context.delete(:key)             # remove
 
 ```ruby
 CMDx.configure do |config|
-  config.default_locale = "en"
-  config.logger         = Logger.new($stdout)
-  config.log_formatter  = CMDx::LogFormatters::JSON.new
+  config.default_locale   = "en"
+  config.correlation_id   = -> { Current.request_id }
+  config.store            = CMDx::Stores::Memory.new
+  config.logger           = Logger.new($stdout)
+  config.log_formatter    = CMDx::LogFormatters::JSON.new
 
   config.middlewares.register MyGlobalMiddleware
   config.callbacks.register   :on_failed, ErrorTracker
@@ -404,7 +429,7 @@ CMDx.configure do |config|
 end
 
 class MyTask < CMDx::Task
-  settings(tags: ["critical"], log_level: Logger::DEBUG)
+  settings(tags: ["critical"], log_level: Logger::DEBUG, correlation_id: -> { context.trace_id })
 
   retry_on Net::OpenTimeout, limit: 3
   deprecation :warn, if: -> { Rails.env.production? }
@@ -425,8 +450,12 @@ StandardError
 └── CMDx::Error
     ├── CMDx::DefinitionError      # input name collides with existing method
     ├── CMDx::DeprecationError     # deprecation :error was triggered
+    ├── CMDx::FrozenTaskError      # halt signal after task freeze / double execution
     ├── CMDx::ImplementationError  # missing #work, or #work defined on a Workflow
     ├── CMDx::MiddlewareError      # middleware didn't yield
+    ├── CMDx::UnknownAccessorError # strict context read miss
+    ├── CMDx::UnknownEntryError    # registry / telemetry lookup miss
+    ├── CMDx::UnknownLocaleError   # locale file missing
     └── CMDx::Fault                # raised by execute! on failed? results
 ```
 
@@ -479,13 +508,13 @@ When `result.cause` is a non-`Fault` `StandardError` (e.g. an `ActiveRecord::Rec
 
 `context`, instance variables, and `task.errors` persist across retry attempts. If you re-add errors each time, clear them at the start of `work`, or the post-`work` check will still fail the task.
 
-### 9. `task.result` isn't available inside callbacks
+### 9. `Result` isn't available inside callbacks
 
-The `Result` is built *after* callbacks run. Inside callbacks, read `task.context` / `task.errors`; for finalized result data, subscribe to the `:task_executed` telemetry event.
+Callbacks run before `Result.new`. Post-work hooks receive `(task, signal)` — read `signal.reason`, `signal.cause`, and `signal.metadata` there. For the finalized `Result`, subscribe to `:task_executed`.
 
-### 10. Calling halt methods outside `work`
+### 10. Calling halt methods from the wrong hook
 
-The signal `catch` only wraps input resolution, `work`, and output verification. `success!` / `skip!` / `fail!` / `throw!` invoked from `before_execution` / `before_validation` callbacks or middleware bubble past Runtime and never produce a `Result`. Use `errors.add` from validation callbacks instead, or move the logic into `work`.
+Middleware and the input/output pipeline run inside Runtime's `catch`. `before_execution`, `before_validation`, and `around_execution` callbacks run **outside** the inner work `catch` unless you halt from middleware. Use `errors.add` in validation hooks, or move halts into `work` / middleware.
 
 ## References
 
@@ -495,4 +524,5 @@ The signal `catch` only wraps input resolution, `work`, and output verification.
 - [Interruptions](references/interruptions.md) — signals, faults, errors, propagation strategies
 - [Result](references/result.md) — states, statuses, handlers, pattern matching, chain analysis
 - [Configuration](references/configuration.md) — global config, settings, retries, deprecation, registries, telemetry, Rails
+- [Stores](references/stores.md) — `CMDx::Stores`, locks, idempotency, circuit breakers
 - [Testing](references/testing.md) — RSpec patterns using the real public API

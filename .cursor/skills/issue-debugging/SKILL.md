@@ -46,7 +46,8 @@ Determine which category the issue falls into — this guides where to look:
 
 | Category | Symptoms | Start Looking At |
 |---|---|---|
-| **Signal/Flow** | Wrong `state` or `status` on result; `success!`/`skip!`/`fail!` not halting | `lib/cmdx/task.rb` signal methods, `lib/cmdx/runtime.rb` `catch`/`throw` |
+| **Signal/Flow** | Wrong `state` or `status` on result; `success!`/`skip!`/`fail!` not halting | `lib/cmdx/task.rb` signal methods, `lib/cmdx/runtime.rb` outer `run_middlewares` + inner `perform_work` `catch`/`throw` |
+| **Middleware halt** | Halt from middleware ignored or becomes `UncaughtThrowError` | Confirm middleware runs inside `Runtime#run_middlewares` `catch`; pre-work callbacks do not |
 | **Context** | `nil` values, missing keys, wrong types, frozen context mutation | `lib/cmdx/context.rb` `method_missing`, `build`, `merge`, `freeze` |
 | **Fault propagation** | Exception not caught, wrong fault type rescued, `execute!` vs `execute` mismatch | `lib/cmdx/exceptions.rb`, `lib/cmdx/runtime.rb` rescue chain |
 | **Result** | Incorrect `reason`, `metadata`, `cause`; pattern match failures | `lib/cmdx/result.rb`, `lib/cmdx/signal.rb` |
@@ -74,7 +75,7 @@ Identify **why** the bug exists, not just **where**. Use evidence, not guesswork
 
 Check these common root causes in priority order:
 
-1. **Mismatched `execute` vs `execute!`** — `execute` swallows faults and returns a result; `execute!` re-raises as `SkipFault`/`FailFault`. Nested tasks using the wrong variant will silently swallow or unexpectedly raise.
+1. **Mismatched `execute` vs `execute!`** — `execute` returns a `Result` for failures; `execute!` raises `CMDx::Fault` (or re-raises `result.cause` when it is a non-Fault `StandardError`). Skips never raise. Nested tasks using the wrong variant will silently swallow or unexpectedly raise.
 2. **Signal already thrown** — calling `success!`/`skip!`/`fail!` after one was already thrown raises `"halt signal already thrown"`. Check for conditional branches that double-signal.
 3. **Context frozen after `Result#freeze`** — `Result.new` calls `freeze`, which cascades to `Context#freeze` → `@table.freeze`. Tasks that mutate context after a result is generated will hit `FrozenError`.
 4. **String key vs symbol key** — `Context` calls `transform_keys(&:to_sym)` on initialization. Passing string keys to `fetch` or `key?` without `.to_sym` returns `nil` or `false`.
@@ -84,6 +85,8 @@ Check these common root causes in priority order:
 8. **Leaked fiber-local chain** — `Chain.current` survives after an example when teardown did not run (`Chain.clear`). Later specs see the wrong `xid`/`cid` or populated `results`. Mirror integration specs: `after { CMDx::Chain.clear }`.
 9. **Shared store state** — `lock_with`, `idempotent_by`, and `circuit_breaker` persist keys in `CMDx.configuration.store`. Stale keys from a prior example (or parallel test order) change behavior. `spec_helper` resets configuration each example; for custom `store` assignments, reset in `after` or use isolated key segments.
 10. **Double-signaling after task freeze** — signaling again after execution raises `FrozenTaskError` (not stdlib `FrozenError`). Distinct from context freeze after `Result.new`.
+11. **Store wrapper order** — `circuit_breaker` → `lock_with` → `idempotent_by` → `retry_on` → outputs; a lock held through output verification can mask duplicate idempotency or vice versa when misconfigured.
+12. **Strict context typos** — with `settings(strict_context: true)` or global `strict_context`, dynamic reads raise `UnknownAccessorError` instead of returning `nil` from `method_missing`.
 
 **Step 5: Implement the Fix**
 

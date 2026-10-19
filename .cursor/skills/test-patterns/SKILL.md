@@ -92,7 +92,8 @@ Follow these matcher conventions:
 |---|---|
 | Result state/status | `have_attributes(state: CMDx::Signal::COMPLETE, status: CMDx::Signal::SUCCESS, ...)` |
 | Context values | `expect(result.context).to have_attributes(executed: %i[...])` or `be_empty` |
-| Exception raising | `expect { result }.to raise_error(CMDx::FailFault, "message")` |
+| Exception raising | `expect { task.execute! }.to raise_error(CMDx::Fault, "message")` or `raise_error(CMDx::Fault.for?(MyTask))` |
+| Result predicates | `be_success`, `be_skipped`, `be_failed`, `be_ok`, `be_ko`, `be_retried`, `be_root` (auto matchers from `success?`, etc.) |
 | Block yielding | `expect { \|b\| described_class.configure(&b) }.to yield_with_args(CMDx::Configuration)` |
 | Collection contents | `contain_exactly(...)` for unordered, `eq([...])` for ordered |
 | Identity | `be(object)` for same object, `eq(value)` for equality |
@@ -153,14 +154,15 @@ Cross-reference the completed spec against `references/checklist.md`.
 | Workflow conditional | Workflow conditionals spec | `task task1, if: :method?` / `if: proc { ... }` / `unless:` |
 | Workflow breakpoints | Workflow breakpoints spec | `settings(workflow_breakpoints: %w[skipped failed])` |
 | Group-level breakpoints | Workflow breakpoints spec | `tasks t1, t2, breakpoints: []` |
-| Bang vs non-bang execution | Workflow/task execution specs | `execute` returns result, `execute!` raises `CMDx::FailFault` |
+| Bang vs non-bang execution | Workflow/task execution specs | `execute` returns result; `execute!` raises `CMDx::Fault` (or re-raises `result.cause` when non-Fault) |
+| Post-work callbacks | `callbacks_spec.rb` | `on_failed { |task, signal| ... }`; unit-test via `Callbacks#process(:on_failed, task, signal)` |
 | Instance-level execution | Task/workflow specs that pre-build the instance | `task = klass.new(ctx); task.execute` (or `task.execute(strict: true)` to raise) |
 | Configuration reset | `cmdx_spec.rb` | `after { described_class.reset_configuration! }` (global `before` in `spec_helper` covers most specs) |
 | Runtime context mutation | Conditionals spec | Setup task writes to context, later task reads via `if: proc` |
 | Fiber-local chain teardown | Workflow / pipeline integration specs | `after { CMDx::Chain.clear }` |
 | Chain unit API | `chain_spec.rb` | `build_result` helper; fiber isolation via `Fiber.new { ... }`; concurrent `push`/`unshift` threads |
 | Telemetry subscribers | `integration/tasks/telemetry_spec.rb` | `task.telemetry.subscribe(:event, sub)`; assert `events.map(&:name)` and `event.payload` |
-| Store-backed DSL | `lock_spec`, `idempotency_spec`, `circuit_breaker_spec` | `task_class.lock_with` / `idempotent_by` / `circuit_breaker`; seed or assert keys with `CMDx::Stores` |
+| Store-backed DSL | `spec/cmdx/*_spec.rb`, `spec/integration/tasks/*` | `lock_with` / `idempotent_by` / `circuit_breaker`; assert keys with `CMDx::Stores`; `locks_spec.rb` for inheritance/disable |
 
 ## Error Handling
 

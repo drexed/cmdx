@@ -13,7 +13,7 @@ Four private methods on `Task` halt `work` by `throw`ing a `CMDx::Signal` caught
 | `fail!(reason = nil, **metadata)` | state: `interrupted`, status: `failed` | reason + metadata hash + signal backtrace |
 | `throw!(other_result, **metadata)` | re-throws `other_result`'s failed signal | must receive a `Result`; no-op unless `other_result.failed?` |
 
-All four raise `FrozenError` if called on a frozen task (i.e. after teardown). They only work inside `work`; calling them elsewhere bypasses the signal `catch`.
+All four raise `FrozenTaskError` if called on a frozen task (i.e. after teardown). They work anywhere Runtime's `catch(Signal::TAG)` is active — middleware, input/output resolution, and `work`. Halts from `before_execution` / `before_validation` / `around_execution` callbacks still bypass the catch.
 
 ```ruby
 def work
@@ -113,8 +113,12 @@ StandardError
 └── CMDx::Error
     ├── CMDx::DefinitionError      # input reader name collides with existing method
     ├── CMDx::DeprecationError     # deprecation :error path was taken
+    ├── CMDx::FrozenTaskError      # halt after task freeze
     ├── CMDx::ImplementationError  # missing #work, or #work defined on a Workflow
     ├── CMDx::MiddlewareError      # middleware didn't yield
+    ├── CMDx::UnknownAccessorError # strict context miss
+    ├── CMDx::UnknownEntryError    # registry / telemetry miss
+    ├── CMDx::UnknownLocaleError   # locale load failure
     └── CMDx::Fault                # raised by execute! on failed? results
 ```
 

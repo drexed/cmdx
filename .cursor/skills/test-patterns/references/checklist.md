@@ -29,7 +29,7 @@ Final audit before committing a new or modified spec. Every item must pass.
 
 - [ ] **Expect Syntax:** Only `expect(...).to` — no `should`.
 - [ ] **Aggregate Failures:** Multiple `expect` calls per example are fine (global `aggregate_failures`).
-- [ ] **Correct Matchers:** `be(obj)` for identity, `eq(val)` for equality, `have_attributes` for result state, `raise_error` for exceptions.
+- [ ] **Correct Matchers:** `be(obj)` for identity, `eq(val)` for equality, `have_attributes` for result state, `be_success`/`be_failed`/etc. for predicates, `raise_error(CMDx::Fault)` for strict execution.
 - [ ] **No Obvious Tests:** No specs that merely assert a value equals itself or test trivial getters.
 - [ ] **No Declarative Config Tests:** Settings DSL output is not tested as a standalone assertion.
 

@@ -1,6 +1,6 @@
 ---
-name: skill-creator
-description: Authors and structures professional-grade agent skills following the agentskills.io spec. Use when creating new skill directories, drafting procedural instructions, or optimizing metadata for discoverability. Don't use for general documentation, non-agentic library code, or README files.
+name: skill-patterns
+description: Authors and structures professional-grade agent skills following the agentskills.io spec. Use when creating new skill directories under .cursor/skills/, drafting procedural instructions, or optimizing metadata for discoverability. Don't use for general documentation, non-agentic library code, or README files.
 ---
 
 # Skill Authoring Procedure
