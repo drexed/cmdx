@@ -2486,56 +2486,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#future" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Future">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-primitives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Infrastructure primitives
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tasks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tasks
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#workflows_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Workflows
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -3594,56 +3544,6 @@
       
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Future">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#infrastructure-primitives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Infrastructure primitives
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tasks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tasks
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#workflows_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Workflows
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -4941,21 +4841,6 @@
 </span><span id="__span-29-154"><a id="__codelineno-29-154" name="__codelineno-29-154" href="#__codelineno-29-154"></a>If either fails and you can't resolve it from the rules above, stop and
 </span><span id="__span-29-155"><a id="__codelineno-29-155" name="__codelineno-29-155" href="#__codelineno-29-155"></a>report the failing file:line with a one-line diagnosis.
 </span></code></pre></div>
-<h2 id="future">Future<a class="headerlink" href="#future" title="Permanent link">&para;</a></h2>
-<p>Everything below is <strong>ideas on the roadmap</strong>, not shipped promises. Names and APIs may move.</p>
-<h3 id="infrastructure-primitives">Infrastructure primitives<a class="headerlink" href="#infrastructure-primitives" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><code>CMDx::Cache</code></strong> — <code>cache_result key: -&gt;(t) { ... }, ttl: 60</code> memoizes a successful run keyed by inputs.</li>
-</ul>
-<h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><code>execute_async</code></strong> — return a future-like object instead of always blocking the caller.</li>
-<li><strong>Background-job adapter</strong> — <code>perform_async</code> / <code>perform_in</code> / <code>perform_at</code> helpers for Sidekiq, ActiveJob, GoodJob, etc., with JSON-safe payloads at enqueue time.</li>
-</ul>
-<h3 id="workflows_1">Workflows<a class="headerlink" href="#workflows_1" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Checkpoint / resume</strong> — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with <code>idempotent_by</code>).</li>
-</ul>
 
 
 

@@ -1017,22 +1017,5 @@ Stop when BOTH of these hold:
 
 If either fails and you can't resolve it from the rules above, stop and report the failing file:line with a one-line diagnosis.
 
-````
-
-## Future
-
-Everything below is **ideas on the roadmap**, not shipped promises. Names and APIs may move.
-
-### Infrastructure primitives
-
-- **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
-
-### Tasks
-
-- **`execute_async`** — return a future-like object instead of always blocking the caller.
-- **Background-job adapter** — `perform_async` / `perform_in` / `perform_at` helpers for Sidekiq, ActiveJob, GoodJob, etc., with JSON-safe payloads at enqueue time.
-
-### Workflows
-
-- **Checkpoint / resume** — persist context after each step group so a restarted workflow can skip finished work (pairs nicely with `idempotent_by`).```
-````
+```
+```
