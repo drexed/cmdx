@@ -91,9 +91,9 @@ module CMDx
     # @raise [ArgumentError] when `ttl` is not a positive Integer
     # @api private
     def ttl!(ttl)
-      raise ArgumentError, "store ttl must be a positive Integer (got #{ttl.inspect})" unless ttl.is_a?(Integer) && ttl.positive?
+      return ttl if ttl.is_a?(Integer) && ttl.positive?
 
-      ttl
+      raise ArgumentError, "store ttl must be a positive Integer (got #{ttl.inspect})"
     end
 
     # @param nx [Boolean]
