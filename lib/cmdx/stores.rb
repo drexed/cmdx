@@ -109,6 +109,3 @@ module CMDx
 
   end
 end
-
-require_relative "stores/memory"
-require_relative "stores/redis"
