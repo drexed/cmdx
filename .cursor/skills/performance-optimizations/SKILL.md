@@ -45,7 +45,7 @@ Determine which category the fix falls into — prefer low-risk categories first
 |---|---|---|
 | **Allocation reduction** | Low | Frozen strings, `map!` vs `map`, reuse buffers, `EMPTY_HASH`/`EMPTY_ARRAY` |
 | **Algorithmic** | Medium | Hash lookup vs linear scan, early returns, `catch`/`throw` vs exceptions |
-| **Concurrency** | High | Thread-safe memoization, parallel task execution |
+| **Concurrency** | High | Thread-safe memoization, parallel task execution, `Chain` mutex on `push`/`unshift` |
 | **Architectural** | High | Structural change to context/runtime data flow |
 
 Then follow these rules in priority order:
@@ -120,6 +120,13 @@ EMPTY_STRING = ""
 - Avoid `method_missing` fan-out on the critical path; YJIT cannot optimize dynamic dispatch.
 - `freeze` on value objects helps YJIT prove immutability and skip write barriers.
 - Run benchmarks with and without YJIT to measure the delta; report both numbers.
+
+## CMDx Hot Paths
+
+- **`Chain#results`** returns a dup while the chain is mutable — avoid calling it in tight loops when only `size` or `last` is needed.
+- **Parallel pipelines** (`executor: :threads` or `:fibers`) contend on the same chain mutex; profile allocation and lock wait time before raising `pool_size`.
+- **Store-backed features** (`lock_with`, `idempotent_by`, `circuit_breaker`) add network or Redis latency when `Configuration#store` is not `Stores::Memory`; benchmark with the production backend.
+- **Telemetry** — lifecycle emits are skipped when nothing is subscribed (`Telemetry#subscribed?`); measuring emit overhead requires an active subscriber.
 
 ## Scripts Reference
 

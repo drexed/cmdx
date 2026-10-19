@@ -1,6 +1,6 @@
 ---
 name: test-patterns
-description: Write, structure, and maintain RSpec specs for CMDx tasks, workflows, context, and configuration. Use when the user asks to add, update, fix, or refactor tests, write specs for new features, scaffold test files, or follow project testing conventions. Don't use for debugging production bugs, performance benchmarking, or non-test code changes.
+description: Write, structure, and maintain RSpec specs for CMDx tasks, workflows, context, chain, stores, telemetry, and configuration. Use when the user asks to add, update, fix, or refactor tests, write specs for new features, scaffold test files, or follow project testing conventions. Don't use for debugging production bugs, performance benchmarking, or non-test code changes.
 ---
 
 # Test Patterns
@@ -70,6 +70,7 @@ Use the project's builder helpers — never FactoryBot, Fabrication, or bare `do
 | `create_skipping_task(reason:, **metadata)` | Task that calls `skip!` | Skip flow |
 | `create_failing_task(reason:, **metadata)` | Task that calls `fail!` | Failure flow |
 | `create_erroring_task(reason:)` | Task that raises `CMDx::TestError` | Exception handling |
+| `create_flaky_task(failures:, error_class:)` | Task that raises until attempt count | `retry_on`, `:task_retried` telemetry |
 | `create_nested_task(strategy:, status:)` | Outer→Middle→Inner chain | Nested execution with `:swallow`, `:throw`, or `:raise` |
 | `create_workflow_class(base:, name:, &block)` | Workflow class with `CMDx::Workflow` | Workflow composition |
 | `create_successful_workflow` | Workflow with mixed tasks | Workflow happy path |
@@ -113,7 +114,10 @@ What NOT to test:
 **Step 6: Handle Setup and Teardown**
 
 - Use `let` / `let!` for test data. Prefer lazy `let` unless eagerness is required. Avoid instance variables.
-- Use `before` / `after` for state mutation (e.g., `CMDx.reset_configuration!`).
+- `spec_helper` already runs `CMDx.reset_configuration!` in a global `before` — specs get a fresh `Stores::Memory` backend and cleared task registry caches without extra setup.
+- Use `after { CMDx::Chain.clear }` when an example sets `CMDx::Chain.current` or exercises parallel pipelines / workflow composition that installs fiber-local chains (`spec/integration/workflows/*`, `spec/cmdx/pipeline_spec.rb`). Unit specs for `CMDx::Chain` use `after { described_class.clear }`.
+- For `Stores::Redis`, use `CMDx::Testing::FakeRedis` (see `spec/cmdx/stores/redis_spec.rb`) instead of a real Redis process.
+- Assert store-backed behavior via `CMDx::Stores.get` / `CMDx::Stores.set` with the same key shape the feature uses (`lock_spec`, `idempotency_spec`, `circuit_breaker_spec`).
 - Use `subject(:name)` when the return value of the call is the focus of the group.
 - Never rely on example ordering — specs run in `--order random`.
 - No cross-example shared mutable state — avoid class variables, global mutation, or leaked state that causes order-dependent failures. Each example must be independent.
@@ -151,8 +155,12 @@ Cross-reference the completed spec against `references/checklist.md`.
 | Group-level breakpoints | Workflow breakpoints spec | `tasks t1, t2, breakpoints: []` |
 | Bang vs non-bang execution | Workflow/task execution specs | `execute` returns result, `execute!` raises `CMDx::FailFault` |
 | Instance-level execution | Task/workflow specs that pre-build the instance | `task = klass.new(ctx); task.execute` (or `task.execute(strict: true)` to raise) |
-| Configuration reset | `cmdx_spec.rb` | `after { described_class.reset_configuration! }` |
+| Configuration reset | `cmdx_spec.rb` | `after { described_class.reset_configuration! }` (global `before` in `spec_helper` covers most specs) |
 | Runtime context mutation | Conditionals spec | Setup task writes to context, later task reads via `if: proc` |
+| Fiber-local chain teardown | Workflow / pipeline integration specs | `after { CMDx::Chain.clear }` |
+| Chain unit API | `chain_spec.rb` | `build_result` helper; fiber isolation via `Fiber.new { ... }`; concurrent `push`/`unshift` threads |
+| Telemetry subscribers | `integration/tasks/telemetry_spec.rb` | `task.telemetry.subscribe(:event, sub)`; assert `events.map(&:name)` and `event.payload` |
+| Store-backed DSL | `lock_spec`, `idempotency_spec`, `circuit_breaker_spec` | `task_class.lock_with` / `idempotent_by` / `circuit_breaker`; seed or assert keys with `CMDx::Stores` |
 
 ## Error Handling
 

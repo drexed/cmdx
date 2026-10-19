@@ -19,6 +19,7 @@ Verify every item before finalizing documentation changes.
 - [ ] **Signal semantics documented.** Methods using `throw(Signal::TAG)` note that control never returns.
 - [ ] **Freeze semantics documented.** `Result.new` freeze cascade is noted on `Result`, `Context#freeze`.
 - [ ] **`method_missing` documented.** Dynamic accessor behavior on `Context` is explained.
+- [ ] **Chain / Stores / telemetry documented.** Fiber-local chain semantics, `correlation_id` callable, store delegation, and `Telemetry.emit` gating match the implementation.
 
 ## 3. Style
 

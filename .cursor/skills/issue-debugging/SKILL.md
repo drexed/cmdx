@@ -1,6 +1,6 @@
 ---
 name: issue-debugging
-description: Systematically diagnose and resolve bugs, errors, and unexpected behavior in CMDx tasks, workflows, context, and runtime execution. Use when the user mentions a bug, error, unexpected result, failing test, exception, stack trace, wrong state, wrong status, nil value, or debugging. Don't use for feature additions, performance tuning, or test-only changes.
+description: Systematically diagnose and resolve bugs, errors, and unexpected behavior in CMDx tasks, workflows, context, chain, stores, telemetry, and runtime execution. Use when the user mentions a bug, error, unexpected result, failing test, exception, stack trace, wrong state, wrong status, nil value, or debugging. Don't use for feature additions, performance tuning, or test-only changes.
 ---
 
 # Issue Debugging
@@ -52,6 +52,9 @@ Determine which category the issue falls into — this guides where to look:
 | **Result** | Incorrect `reason`, `metadata`, `cause`; pattern match failures | `lib/cmdx/result.rb`, `lib/cmdx/signal.rb` |
 | **Workflow** | Tasks execute in wrong order, breakpoints ignored, conditionals misfire | Workflow runner, task ordering logic |
 | **Integration** | Works in isolation, fails when composed; context bleeds between tasks | Context sharing via `Context.build` passthrough, frozen state |
+| **Chain / fiber** | Wrong `xid`/`cid` on telemetry; stale chain between examples; child fiber sees parent chain | `lib/cmdx/chain.rb` `Fiber[STORAGE_KEY]`, `Runtime` root setup/teardown, missing `Chain.clear` in specs |
+| **Stores** | Duplicate work despite idempotency; lock never acquired; circuit stuck open | `CMDx::Stores`, `Configuration#store`, key namespaces in `Lock` / `Idempotency` / `CircuitBreaker` |
+| **Telemetry** | Events missing or wrong payload; `UnknownEntryError` on subscribe | `Telemetry#subscribed?` gating, `Telemetry.emit` dispatch, `Chain.current` for `xid`/`cid` |
 
 **Step 3: Isolate the Failure**
 
@@ -78,6 +81,9 @@ Check these common root causes in priority order:
 5. **`method_missing` masking errors** — `Context#method_missing` returns `@table[method_name]` for any unknown method, which yields `nil`. A typo in a context accessor silently returns `nil` instead of raising.
 6. **Fault `for?` / `matches?` not matching** — `Fault.for?` creates anonymous subclasses that use `===`; `rescue` clauses require `===` to match. Ensure the rescue variable is the fault instance, not the class.
 7. **`throw!` propagating stale state** — `throw!` copies `state`, `status`, `reason`, and merges metadata from another result. If the source result is from a swallowed execution, its state may not reflect what you expect.
+8. **Leaked fiber-local chain** — `Chain.current` survives after an example when teardown did not run (`Chain.clear`). Later specs see the wrong `xid`/`cid` or populated `results`. Mirror integration specs: `after { CMDx::Chain.clear }`.
+9. **Shared store state** — `lock_with`, `idempotent_by`, and `circuit_breaker` persist keys in `CMDx.configuration.store`. Stale keys from a prior example (or parallel test order) change behavior. `spec_helper` resets configuration each example; for custom `store` assignments, reset in `after` or use isolated key segments.
+10. **Double-signaling after task freeze** — signaling again after execution raises `FrozenTaskError` (not stdlib `FrozenError`). Distinct from context freeze after `Result.new`.
 
 **Step 5: Implement the Fix**
 
@@ -143,6 +149,9 @@ Check these common root causes in priority order:
 | String keys in context lookups | `Context` symbolizes keys on init; string lookups return `nil` | Always use symbol keys: `ctx[:foo]`, not `ctx["foo"]` |
 | Relying on `method_missing` return for presence | Returns `nil` for missing keys, not `KeyError` | Use `ctx.key?(:foo)` or `ctx.fetch(:foo)` for presence checks |
 | Catching `:cmdx` tag outside runtime | Interferes with `Signal::TAG` flow | Never use `catch(:cmdx)` outside of `Runtime#execute_work` |
+| Omitting `Chain.clear` in specs | Fiber-local chain leaks across examples | `after { CMDx::Chain.clear }` when setting `Chain.current` or running parallel pipelines |
+| Subscribing to unknown telemetry events | `UnknownEntryError` (registry miss) | Use documented event names; check `Telemetry#lookup` |
+| Assuming lifecycle telemetry always fires | Runtime gates on `Telemetry#subscribed?` | Subscribe before execute, or use store-backed events that follow the same pattern |
 
 ## Decision Tree
 
@@ -158,7 +167,10 @@ When the bug doesn't fit neatly into the classification table, follow this tree:
    - Yes → Trace context mutations. Check `Context.build` passthrough, `method_missing` typos, freeze timing.
    - No → Go to 4.
 4. **Does the bug only appear in composition (workflows/nested tasks)?**
-   - Yes → Check `execute` vs `execute!` usage, `throw!` propagation, context sharing between tasks.
+   - Yes → Check `execute` vs `execute!` usage, `throw!` propagation, context sharing between tasks, parallel executor (`:threads` / `:fibers`) and `Chain` mutex ordering.
+   - No → Go to 5.
+5. **Does it involve locks, idempotency, or circuit breaking?**
+   - Yes → Inspect `CMDx::Stores` keys, TTL, and configured backend; confirm `Telemetry.emit` payloads for `:lock_*`, `:idempotency_*`, `:circuit_*`.
    - No → Collect more information; the reproduction may be incomplete.
 
 ## Error Handling

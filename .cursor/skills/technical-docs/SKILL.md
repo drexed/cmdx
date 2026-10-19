@@ -67,6 +67,12 @@ These patterns require special documentation attention:
 | `Runtime.execute` | Document `catch`/`throw` flow, exception rescue chain, and `raise_signal` behavior. |
 | `on` callbacks | Document chaining pattern and predicate dispatch. |
 | Pattern matching (`deconstruct`, `deconstruct_keys`) | Document the array/hash shapes returned for `case`/`in` usage. |
+| `Chain` fiber-local storage | Document `STORAGE_KEY`, fiber isolation, mutex-backed `push`/`unshift`, `#results` dup semantics, freeze on root teardown. |
+| `Settings#correlation_id` | Callable evaluated once when the root chain is created — not a static `String` on settings. |
+| `CMDx::Stores` | Document delegation to `Configuration#store`, `get`/`set`/`incr`/`del`, TTL and `nx`/`xx` on `set`. |
+| `lock_with` / `idempotent_by` / `circuit_breaker` | Document store keys, TTL, `on_busy` / cool-off behavior, and related telemetry event names. |
+| `Telemetry.emit` | Class method used by runtime and store helpers; document `subscribed?` gating and `Telemetry::Event` fields (`xid`, `cid`, `root`, `payload`). |
+| `CMDx::Error` subclasses | Document `FrozenTaskError`, `UnknownEntryError`, `UnknownAccessorError` instead of generic stdlib types where CMDx raises its own. |
 
 **Step 5: Update CHANGELOG**
 
@@ -117,6 +123,10 @@ Use these terms consistently in documentation prose:
 | **Runtime** | Execution wrapper managing `catch`/`throw` and rescue | executor, runner |
 | **state** | Execution lifecycle: `executing`, `complete`, `interrupted` | phase, stage |
 | **status** | Outcome: `success`, `skipped`, `failed` | result (ambiguous with Result) |
+| **Chain** | Fiber-local ordered `Result` collection for one execution tree | stack, trace |
+| **xid** | External correlation id on `Chain` and `Result` (e.g. `request_id`) | correlation id (ambiguous with `cid`) |
+| **cid** | Chain instance id (`Chain#id`, UUIDv7) on telemetry events | chain id |
+| **Stores** | Configurable KV backend for locks, idempotency, circuits | cache, redis wrapper |
 
 ## Anti-Patterns
 

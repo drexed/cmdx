@@ -37,7 +37,7 @@ Answer: *What goes in, what comes out, and how is data transformed along the way
 2. Identify all **outputs**: return values, instance variables written, context mutations, yielded values, thrown signals.
 3. Trace the transformation pipeline from inputs to outputs. Note type changes (string→symbol, hash→struct, raw→validated).
 4. Note branching paths — conditionals, early returns, guard clauses, `catch`/`throw` — and describe which conditions lead to which output.
-5. **Implicit data** — memoized values, thread-locals, `Current` attributes. Call out data that flows through hidden channels.
+5. **Implicit data** — memoized values, fiber-local `Chain.current` (`Fiber[:cmdx_chain]`), global `CMDx.configuration`, and `CMDx::Stores` keys. Call out data that flows through hidden channels.
 6. For CMDx tasks, pay special attention to:
    - Context reads (`ctx[:key]`, `ctx.key`, `method_missing` delegates).
    - Context writes (`store`, `merge`, `delete`).
@@ -154,6 +154,9 @@ Use these terms consistently when explaining CMDx code:
 | **Result** | The frozen outcome object containing state, status, reason, metadata, and context |
 | **Fault** | An exception subclass used for `execute!` error propagation |
 | **Runtime** | The execution wrapper that manages `catch`/`throw` flow and exception rescue |
+| **Chain** | Fiber-local collection of `Result`s for the active execution tree; supplies `xid`/`cid` to telemetry |
+| **Stores** | Shared key/value backend for locks, idempotency claims, and circuit state |
+| **Telemetry** | Pub/sub for lifecycle and store-backed events (`Telemetry::Event` payloads) |
 
 ## Anti-Patterns
 

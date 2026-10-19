@@ -36,7 +36,8 @@ Final audit before committing a new or modified spec. Every item must pass.
 ## 5. Setup and Teardown
 
 - [ ] **No Order Dependency:** Specs pass in `--order random` without relying on execution sequence.
-- [ ] **State Cleaned:** Any global state mutation (e.g., `CMDx.configure`) is reset in `after` blocks.
+- [ ] **State Cleaned:** Any global state mutation (e.g., `CMDx.configure`) is reset in `after` blocks. Rely on `spec_helper`'s `CMDx.reset_configuration!` for store defaults unless a spec swaps `configuration.store`.
+- [ ] **Chain Cleared:** Examples that set `CMDx::Chain.current` or run parallel pipelines use `after { CMDx::Chain.clear }` (or `described_class.clear` in `chain_spec.rb`).
 - [ ] **No Side Effects:** Specs don't write to disk, make network calls, or mutate shared constants.
 
 ## 6. Code Quality

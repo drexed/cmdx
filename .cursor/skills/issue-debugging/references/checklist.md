@@ -12,7 +12,7 @@ Final audit before merging a CMDx bug fix. Every item must pass.
 
 ## 1. Classification
 
-- [ ] **Category Identified:** Bug is classified as signal/flow, context, fault propagation, result, workflow, or integration.
+- [ ] **Category Identified:** Bug is classified as signal/flow, context, fault propagation, result, workflow, integration, chain/fiber, stores, or telemetry.
 - [ ] **Root Cause Located:** The specific file, method, and line where the defect originates is identified.
 - [ ] **Root Cause Verified:** The proposed cause actually explains the observed behavior (not just correlated).
 
@@ -65,5 +65,6 @@ Final audit before merging a CMDx bug fix. Every item must pass.
 - [ ] **No Double Signal:** Fix doesn't introduce paths where multiple halt signals can fire.
 - [ ] **No String Keys:** Context lookups use symbol keys.
 - [ ] **No External `catch(:cmdx)`:** Fix doesn't intercept `Signal::TAG` outside runtime.
+- [ ] **Chain / Store State:** Specs or runtime paths that leak `Chain.current` or stale `Stores` keys are ruled out or cleaned up (`Chain.clear`, `reset_configuration!`).
 - [ ] **No Nil Guards Masking Upstream Bugs:** Nil checks are justified, not papering over a missing value.
 - [ ] **No Debug Code Left:** `binding.break`, `pp`, `puts` debugging removed before commit.
