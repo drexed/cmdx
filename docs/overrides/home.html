@@ -1907,12 +1907,12 @@
       ['I', '14:22:01.000', 'CreateAccount',       'success', 12,  'ok'],
       ['I', '14:22:01.050', 'SetupBilling',        'success', 45,  'ok'],
       ['I', '14:22:01.100', 'AssignPlan',          'success', 22,  'ok'],
-      ['I', '14:22:01.200', 'SendWelcomeSms',      'skipped', 2,   'skip'],
+      ['I', '14:22:01.200', 'SendWelcomeSms',      'skipped', 2,   'skip', 'No phone on file'],
       ['I', '14:22:01.210', 'SendWelcomeEmail',    'success', 18,  'ok'],
       ['I', '14:22:01.215', 'CreateDashboard',     'success', 31,  'ok'],
       ['I', '14:22:01.220', 'ScheduleOnboardCall', 'success', 9,   'ok'],
       ['I', '14:22:01.250', 'OnboardCustomer',     'success', 250, 'ok'],
-      ['I', '14:22:02.001', 'ProcessPayment',      'failed',  140, 'err'],
+      ['I', '14:22:02.001', 'ProcessPayment',      'failed',  140, 'err', 'Card declined'],
       ['I', '14:22:02.190', 'ProcessPayment',      'success', 138, 'ok'],
       ['I', '14:22:03.000', 'ApproveLoan',         'success', 12,  'ok']
     ];
@@ -1928,6 +1928,7 @@
         '<span class="kv">task</span>=<span class="val">' + l[2] + '</span> ' +
         '<span class="kv">status</span>=<span class="' + statusClass[l[5]] + '">' + l[3] + '</span> ' +
         '<span class="kv">runtime</span>=' + l[4] +
+        (l[6] ? ' <span class="kv">reason</span>=<span class="val">"' + l[6] + '"</span>' : '') +
       '</span>';
     }
     var html = lines.map(renderLine).join('');
