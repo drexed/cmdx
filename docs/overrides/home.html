@@ -133,20 +133,37 @@
   border-bottom: 1px solid var(--cmdx-terminal-border);
 }
 
-.hero::before {
-  content: "";
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(var(--cmdx-terminal-rule) 1px, transparent 1px),
-    linear-gradient(90deg, var(--cmdx-terminal-rule) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+.hero-graph {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+}
+
+.hero-graph .branch {
+  fill: none;
+  stroke: var(--cmdx-terminal-dim);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-opacity: 0.32;
+}
+
+.hero-graph .node {
+  fill: var(--cmdx-terminal-dim);
+  fill-opacity: 0.26;
+}
+
+.hero-graph .node-accent {
+  fill: var(--cmdx-red);
+  fill-opacity: 0.32;
 }
 
 .hero-inner {
   position: relative;
+  z-index: 1;
   max-width: 960px;
   margin: 0 auto;
 }
@@ -1231,6 +1248,43 @@
 
 <!-- ===================== HERO ===================== -->
 <section class="hero">
+  <svg class="hero-graph" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <pattern id="cmdx-hero-branches" width="192" height="192" patternUnits="userSpaceOnUse">
+        <rect class="node" x="88" y="10" width="16" height="6" rx="1.5"/>
+        <path class="branch" d="M96 16v14M96 30H68M96 30h28M68 30v22M124 30v16"/>
+        <rect class="node" x="62" y="52" width="12" height="5" rx="1"/>
+        <rect class="node" x="118" y="46" width="12" height="5" rx="1"/>
+        <path class="branch" d="M68 52v18M74 70H52M74 70h10M52 70v12M84 70v8"/>
+        <rect class="node" x="48" y="82" width="10" height="4" rx="1"/>
+        <rect class="node node-accent" x="80" y="78" width="10" height="4" rx="1"/>
+        <path class="branch" d="M124 46v20M130 66H110M130 66h16M110 66v10"/>
+        <rect class="node" x="106" y="76" width="10" height="4" rx="1"/>
+        <rect class="node node-accent" x="142" y="62" width="10" height="4" rx="1"/>
+        <g transform="translate(24 108)">
+          <rect class="node" x="0" y="0" width="14" height="5" rx="1"/>
+          <path class="branch" d="M7 5v12M7 17H-8M7 17h18M-8 17v14M25 17v10"/>
+          <rect class="node" x="-12" y="31" width="10" height="4" rx="1"/>
+          <rect class="node node-accent" x="21" y="27" width="10" height="4" rx="1"/>
+          <path class="branch" d="M-8 31v10M25 27v14M31 41H19"/>
+          <rect class="node" x="15" y="41" width="9" height="4" rx="1"/>
+        </g>
+        <g transform="translate(132 118)">
+          <rect class="node" x="0" y="0" width="12" height="5" rx="1"/>
+          <path class="branch" d="M6 5v10M6 15H-6M6 15h14M-6 15v12M20 15v8"/>
+          <rect class="node" x="-10" y="27" width="9" height="4" rx="1"/>
+          <rect class="node node-accent" x="16" y="23" width="9" height="4" rx="1"/>
+        </g>
+        <g transform="translate(148 8)">
+          <rect class="node" x="0" y="0" width="11" height="4" rx="1"/>
+          <path class="branch" d="M5.5 4v8M5.5 12H-4M5.5 12h12M-4 12v10M17.5 12v6"/>
+          <rect class="node" x="-8" y="22" width="8" height="3" rx="1"/>
+          <rect class="node node-accent" x="13" y="18" width="8" height="3" rx="1"/>
+        </g>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#cmdx-hero-branches)"/>
+  </svg>
   <div class="hero-inner">
 
     <h1>
