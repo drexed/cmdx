@@ -1028,7 +1028,7 @@ Everything below is **ideas on the roadmap**, not shipped promises. Names and AP
 
 ### Infrastructure primitives
 
-- **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs.
+- **`CMDx::Cache`** — `cache_result key: ->(t) { ... }, ttl: 60` memoizes a successful run keyed by inputs (will share a similar design to checkpoint).
 
 ### Tasks
 
