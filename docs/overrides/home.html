@@ -133,20 +133,30 @@
   border-bottom: 1px solid var(--cmdx-terminal-border);
 }
 
-.hero::before {
-  content: "";
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(var(--cmdx-terminal-rule) 1px, transparent 1px),
-    linear-gradient(90deg, var(--cmdx-terminal-rule) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+.hero-log {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
+.hero-log text {
+  font-family: var(--cmdx-mono);
+  font-size: 10px;
+  letter-spacing: -0.01em;
+  fill: var(--cmdx-terminal-dim);
+  fill-opacity: 0.13;
+}
+
+.hero-log .log-ok { fill: var(--cmdx-green); fill-opacity: 0.16; }
+.hero-log .log-warn { fill: var(--cmdx-amber); fill-opacity: 0.14; }
+.hero-log .log-err { fill: var(--cmdx-red); fill-opacity: 0.14; }
+
 .hero-inner {
   position: relative;
+  z-index: 1;
   max-width: 960px;
   margin: 0 auto;
 }
@@ -1231,6 +1241,24 @@
 
 <!-- ===================== HERO ===================== -->
 <section class="hero">
+  <svg class="hero-log" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <pattern id="cmdx-hero-logs" width="520" height="144" patternUnits="userSpaceOnUse">
+        <text x="0" y="18">I, [14:22:01.000] task=CreateAccount state=complete status=<tspan class="log-ok">success</tspan> runtime=12</text>
+        <text x="0" y="38">I, [14:22:01.050] task=SetupBilling state=complete status=<tspan class="log-ok">success</tspan> runtime=45</text>
+        <text x="0" y="58">I, [14:22:01.100] task=SendWelcomeSms state=interrupted status=<tspan class="log-warn">skipped</tspan> reason="No phone"</text>
+        <text x="0" y="78">I, [14:22:02.001] task=ProcessPayment state=interrupted status=<tspan class="log-err">failed</tspan> runtime=140</text>
+        <text x="0" y="98">I, [14:22:01.210] task=SendWelcomeEmail state=complete status=<tspan class="log-ok">success</tspan> runtime=18</text>
+        <text x="0" y="118">I, [14:22:01.250] task=OnboardCustomer state=complete status=<tspan class="log-ok">success</tspan> runtime=250</text>
+        <text x="260" y="28">I, [09:04:12.112] task=FetchRate state=complete status=<tspan class="log-ok">success</tspan> runtime=8</text>
+        <text x="260" y="48">I, [09:04:12.140] task=ValidateInput state=complete status=<tspan class="log-ok">success</tspan> runtime=3</text>
+        <text x="260" y="68">I, [09:04:12.201] task=ChargeCard state=interrupted status=<tspan class="log-err">failed</tspan> reason="declined"</text>
+        <text x="260" y="88">I, [09:04:12.205] task=NotifySlack state=complete status=<tspan class="log-ok">success</tspan> runtime=22</text>
+        <text x="260" y="108">I, [09:04:12.240] chain_id=8f2a task=CheckoutFlow status=<tspan class="log-ok">success</tspan></text>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#cmdx-hero-logs)"/>
+  </svg>
   <div class="hero-inner">
 
     <h1>
