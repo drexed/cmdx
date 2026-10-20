@@ -298,6 +298,10 @@ body,
   border: none;
 }
 
+.md-tabs {
+  background-color: var(--md-default-bg-color);
+}
+
 .md-typeset pre > code {
   background-color: transparent;
   border-radius: 0;
