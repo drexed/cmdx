@@ -52,6 +52,12 @@
 
 .home a { text-decoration: none; }
 
+.home .cmd-btn,
+.home .copy-btn,
+.home .showcase-tab {
+  transition: all 0.2s ease-in-out;
+}
+
 .home p code,
 .home h1 code,
 .home h2 code,
@@ -240,7 +246,6 @@
   border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   font-family: var(--cmdx-mono);
   border: 1px solid transparent;
 }
@@ -655,7 +660,6 @@
   font-size: 0.82rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .showcase-tab:hover { color: #d4d4d4; background: rgba(255,255,255,0.02); }
@@ -1128,7 +1132,6 @@
   cursor: pointer;
   font-family: var(--cmdx-mono);
   font-size: 0.78rem;
-  transition: border-color 0.2s ease, color 0.2s ease;
 }
 .copy-btn:hover { border-color: var(--cmdx-red); color: var(--cmdx-red); }
 .copy-btn.copied { border-color: var(--cmdx-green); color: var(--cmdx-green); }
