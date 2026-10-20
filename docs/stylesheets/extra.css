@@ -234,6 +234,39 @@ body,
   letter-spacing: var(--cmdx-letter-spacing-body);
 }
 
+/* Header + tabs: Material paints both with --md-primary-fg-color (custom red) */
+body:not([data-md-color-scheme="slate"]) .md-header .md-tabs {
+  background-color: #f7f5f2 !important;
+  color: #2a2d31 !important;
+  box-shadow: none;
+}
+
+body:not([data-md-color-scheme="slate"]) .md-header .md-tabs {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body[data-md-color-scheme="slate"] .md-header .md-tabs {
+  background-color: #161616 !important;
+  color: #c2c5ca !important;
+  box-shadow: none;
+}
+
+body[data-md-color-scheme="slate"] .md-header .md-tabs {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body:not([data-md-color-scheme="slate"]) .md-tabs__link,
+body:not([data-md-color-scheme="slate"]) .md-tabs__link:hover,
+body:not([data-md-color-scheme="slate"]) .md-tabs__link:focus {
+  color: #2a2d31 !important;
+}
+
+body[data-md-color-scheme="slate"] .md-tabs__link,
+body[data-md-color-scheme="slate"] .md-tabs__link:hover,
+body[data-md-color-scheme="slate"] .md-tabs__link:focus {
+  color: #c2c5ca !important;
+}
+
 .md-typeset {
   font-feature-settings: "kern" 1, "liga" 1;
 }
@@ -296,10 +329,6 @@ body,
 .md-typeset .highlighttable .highlight,
 .md-typeset .highlighttable pre {
   border: none;
-}
-
-.md-tabs {
-  background-color: var(--md-default-bg-color);
 }
 
 .md-typeset pre > code {
