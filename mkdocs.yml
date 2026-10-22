@@ -128,50 +128,61 @@ plugins:
           - outcomes/states.md: Execution lifecycle states (initialized, executing, complete, interrupted)
           - outcomes/statuses.md: Business outcome statuses (success, skipped, failed) and transitions
           - outcomes/errors.md: Structured per-attribute error container accumulated during input/output verification and exposed on result.errors
-        Attributes:
+        Contracts:
           - inputs/definitions.md: Attribute declarations (required/optional), validation, and type coercion
           - inputs/naming.md: Customizing accessor method names with prefixes and suffixes
           - inputs/coercions.md: Automatic type conversion for inputs (string to integer, date parsing, etc.)
           - inputs/validations.md: Input validation rules (presence, length, format, numeric, inclusion, exclusion)
           - inputs/defaults.md: Default values for optional inputs (static, dynamic, callable)
           - inputs/transformations.md: Value transformation after coercion but before validation
-        Features:
+          - outputs.md: Declaring expected context outputs that must be set after task execution
+        Hooks:
           - callbacks.md: Execution lifecycle callbacks (before_execution, on_success, on_failure, etc.)
           - middlewares.md: Cross-cutting concerns wrapping task execution (authentication, caching, timeouts)
+        Composition:
+          - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
+          - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
+        Resilience:
+          - stores.md: Shared key/value store for idempotency, rate limits, locks, and cross-worker coordination
+          - locks.md: Single-flight leases via Stores so concurrent workers do not run the same logical work
+          - idempotency.md: Preventing duplicate execution for retried jobs and webhooks with idempotent_by
+          - rate_limit.md: Admission control per window with fixed-window and leaky-bucket limiters
+          - circuit_breaker.md: Automatic circuit breaking for failing dependencies with threshold, cool-off, and window options
+          - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
+        Observability:
           - logging.md: Structured logging with multiple formatters (JSON, KeyValue, Logstash, Line, Raw)
           - internationalization.md: Multi-language support for error messages and validations (90+ locales)
-          - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
-          - idempotency.md: Preventing duplicate execution for retried jobs and webhooks with idempotent_by
-          - circuit_breaker.md: Automatic circuit breaking for failing dependencies with threshold, cool-off, and window options
-          - rate_limit.md: Admission control per window with fixed-window and leaky-bucket limiters
-          - stores.md: Shared key/value store for idempotency, rate limits, and cross-worker coordination
-          - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
-          - outputs.md: Declaring expected context outputs that must be set after task execution
-          - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
-        More:
+        Adoption:
           - testing.md: Best practices for testing CMDx tasks and workflows with RSpec
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
           - comparison.md: Comparison with other command/service object frameworks
           - v2-migration.md: Migration guide from CMDx 1.x to 2.0
+        References:
+          - references.md: API docs, llms.txt exports, and repository AI skills
+        Ecosystem:
+          - ecosystem.md: Satellite gems (cmdx-i18n, cmdx-rspec)
         Cookbook:
           - cookbook/index.md: Integration recipes for jobs, Rails, auth, observability, and more
+        "Cookbook: Rails and Active Record":
           - cookbook/active_record_database_transaction.md: Wrap task work in an Active Record transaction
           - cookbook/active_record_query_tagging.md: Tag SQL queries with task metadata
+          - cookbook/paper_trail_whatdunnit.md: Paper Trail attribution for running tasks
+        "Cookbook: API and integration":
+          - cookbook/graphql_resolvers.md: Resolve GraphQL fields with CMDx tasks
+          - cookbook/openapi_schema_generation.md: Generate OpenAPI schemas from task inputs
+          - cookbook/pub_sub_task_chaining.md: Chain tasks from pub/sub events
+        "Cookbook: Cross-cutting concerns":
           - cookbook/background_execution.md: Run tasks via Active Job or Sidekiq
           - cookbook/store_wrappers.md: Test doubles and instrumented store wrappers
           - cookbook/flipper_feature_flags.md: Gate tasks behind Flipper feature flags
-          - cookbook/graphql_resolvers.md: Resolve GraphQL fields with CMDx tasks
-          - cookbook/openapi_schema_generation.md: Generate OpenAPI schemas from task inputs
-          - cookbook/opentelemetry_tracing.md: Distributed tracing for task execution
-          - cookbook/paper_trail_whatdunnit.md: Paper Trail attribution for running tasks
-          - cookbook/pub_sub_task_chaining.md: Chain tasks from pub/sub events
           - cookbook/pundit_authorization.md: Authorize tasks with Pundit before work runs
-          - cookbook/sentry_error_tracking.md: Report CMDx faults to Sentry
           - cookbook/timeout_guard.md: Bound task execution time with a timeout guard
+          - cookbook/sentry_error_tracking.md: Report CMDx faults to Sentry
+          - cookbook/opentelemetry_tracing.md: Distributed tracing for task execution
 nav:
   - Home: index.md
   - Documentation:
-    - Getting Started: getting_started.md
+    - Getting started: getting_started.md
     - Configuration: configuration.md
     - Basics:
       - Setup: basics/setup.md
@@ -187,30 +198,33 @@ nav:
       - States: outcomes/states.md
       - Statuses: outcomes/statuses.md
       - Errors: outcomes/errors.md
-    - Inputs:
+    - Contracts:
       - Definitions: inputs/definitions.md
       - Naming: inputs/naming.md
       - Coercions: inputs/coercions.md
       - Validations: inputs/validations.md
       - Defaults: inputs/defaults.md
       - Transformations: inputs/transformations.md
-    - Features:
+      - Outputs: outputs.md
+    - Hooks:
       - Callbacks: callbacks.md
       - Middlewares: middlewares.md
+    - Composition:
+      - Workflows: workflows.md
+      - Deprecation: deprecation.md
+    - Resilience:
+      - Stores: stores.md
+      - Locks: locks.md
+      - Idempotency: idempotency.md
+      - Rate limit: rate_limit.md
+      - Circuit breaker: circuit_breaker.md
+      - Retries: retries.md
+    - Observability:
       - Logging: logging.md
       - Internationalization: internationalization.md
-      - Retries: retries.md
-      - Idempotency: idempotency.md
-      - Locks: locks.md
-      - Circuit breaker: circuit_breaker.md
-      - Rate limit: rate_limit.md
-      - Stores: stores.md
-      - Deprecation: deprecation.md
-      - Outputs: outputs.md
-      - Workflows: workflows.md
-    - More:
+    - Adoption:
       - Testing: testing.md
-      - Tips and Tricks: tips_and_tricks.md
+      - Tips and tricks: tips_and_tricks.md
       - Comparison: comparison.md
       - v1 → v2 Migration: v2-migration.md
     - References:
