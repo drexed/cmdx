@@ -7,7 +7,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 ## Getting Started
 
 - [Home](https://drexed.github.io/cmdx/index.md): CMDx framework overview, installation, quick examples, and core concepts
-- [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md): Task setup and framework fundamentals (CERO pattern)
+- [Getting started](https://drexed.github.io/cmdx/getting_started/index.md): Task setup and framework fundamentals (CERO pattern)
 - [Configuration](https://drexed.github.io/cmdx/configuration/index.md): Comprehensive guide to CMDx configuration
 
 ## Basics
@@ -30,7 +30,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - [Statuses](https://drexed.github.io/cmdx/outcomes/statuses/index.md): Business outcome statuses (success, skipped, failed) and transitions
 - [Errors](https://drexed.github.io/cmdx/outcomes/errors/index.md): Structured per-attribute error container accumulated during input/output verification and exposed on result.errors
 
-## Attributes
+## Contracts
 
 - [Definitions](https://drexed.github.io/cmdx/inputs/definitions/index.md): Attribute declarations (required/optional), validation, and type coercion
 - [Naming](https://drexed.github.io/cmdx/inputs/naming/index.md): Customizing accessor method names with prefixes and suffixes
@@ -38,43 +38,70 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md): Input validation rules (presence, length, format, numeric, inclusion, exclusion)
 - [Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md): Default values for optional inputs (static, dynamic, callable)
 - [Transformations](https://drexed.github.io/cmdx/inputs/transformations/index.md): Value transformation after coercion but before validation
+- [Outputs](https://drexed.github.io/cmdx/outputs/index.md): Declaring expected context outputs that must be set after task execution
 
-## Features
+## Hooks
 
 - [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md): Execution lifecycle callbacks (before_execution, on_success, on_failure, etc.)
 - [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md): Cross-cutting concerns wrapping task execution (authentication, caching, timeouts)
+
+## Composition
+
+- [Workflows](https://drexed.github.io/cmdx/workflows/index.md): Composing multiple tasks into sequential pipelines with conditional execution
+- [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md): Managing deprecated tasks with logging, warnings, or execution prevention
+
+## Resilience
+
+- [Stores](https://drexed.github.io/cmdx/stores/index.md): Shared key/value store for idempotency, rate limits, locks, and cross-worker coordination
+- [Locks](https://drexed.github.io/cmdx/locks/index.md): Single-flight leases via Stores so concurrent workers do not run the same logical work
+- [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md): Preventing duplicate execution for retried jobs and webhooks with idempotent_by
+- [Rate limit](https://drexed.github.io/cmdx/rate_limit/index.md): Admission control per window with fixed-window and leaky-bucket limiters
+- [Circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md): Automatic circuit breaking for failing dependencies with threshold, cool-off, and window options
+- [Retries](https://drexed.github.io/cmdx/retries/index.md): Automatic retry functionality for transient failures with jitter and selective retries
+
+## Observability
+
 - [Logging](https://drexed.github.io/cmdx/logging/index.md): Structured logging with multiple formatters (JSON, KeyValue, Logstash, Line, Raw)
 - [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md): Multi-language support for error messages and validations (90+ locales)
-- [Retries](https://drexed.github.io/cmdx/retries/index.md): Automatic retry functionality for transient failures with jitter and selective retries
-- [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md): Preventing duplicate execution for retried jobs and webhooks with idempotent_by
-- [Circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md): Automatic circuit breaking for failing dependencies with threshold, cool-off, and window options
-- [Rate limit](https://drexed.github.io/cmdx/rate_limit/index.md): Admission control per window with fixed-window and leaky-bucket limiters
-- [Stores](https://drexed.github.io/cmdx/stores/index.md): Shared key/value store for idempotency, rate limits, and cross-worker coordination
-- [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md): Managing deprecated tasks with logging, warnings, or execution prevention
-- [Outputs](https://drexed.github.io/cmdx/outputs/index.md): Declaring expected context outputs that must be set after task execution
-- [Workflows](https://drexed.github.io/cmdx/workflows/index.md): Composing multiple tasks into sequential pipelines with conditional execution
 
-## More
+## Adoption
 
 - [Testing](https://drexed.github.io/cmdx/testing/index.md): Best practices for testing CMDx tasks and workflows with RSpec
-- [Tips and Tricks](https://drexed.github.io/cmdx/tips_and_tricks/index.md): Best practices, patterns, and techniques for maintainable CMDx applications
+- [Tips and tricks](https://drexed.github.io/cmdx/tips_and_tricks/index.md): Best practices, patterns, and techniques for maintainable CMDx applications
 - [Comparison](https://drexed.github.io/cmdx/comparison/index.md): Comparison with other command/service object frameworks
 - [v1 → v2 Migration](https://drexed.github.io/cmdx/v2-migration/index.md): Migration guide from CMDx 1.x to 2.0
+
+## References
+
+- [References](https://drexed.github.io/cmdx/references/index.md): API docs, llms.txt exports, and repository AI skills
+
+## Ecosystem
+
+- [Ecosystem](https://drexed.github.io/cmdx/ecosystem/index.md): Satellite gems (cmdx-i18n, cmdx-rspec)
 
 ## Cookbook
 
 - [Overview](https://drexed.github.io/cmdx/cookbook/index.md): Integration recipes for jobs, Rails, auth, observability, and more
+
+## Cookbook: Rails and Active Record
+
 - [Active Record Database Transaction](https://drexed.github.io/cmdx/cookbook/active_record_database_transaction/index.md): Wrap task work in an Active Record transaction
 - [Active Record Query Tagging](https://drexed.github.io/cmdx/cookbook/active_record_query_tagging/index.md): Tag SQL queries with task metadata
+- [Paper Trail Whatdunnit](https://drexed.github.io/cmdx/cookbook/paper_trail_whatdunnit/index.md): Paper Trail attribution for running tasks
+
+## Cookbook: API and integration
+
+- [GraphQL Resolvers](https://drexed.github.io/cmdx/cookbook/graphql_resolvers/index.md): Resolve GraphQL fields with CMDx tasks
+- [OpenAPI Schema Generation](https://drexed.github.io/cmdx/cookbook/openapi_schema_generation/index.md): Generate OpenAPI schemas from task inputs
+- [PubSub Task Chaining](https://drexed.github.io/cmdx/cookbook/pub_sub_task_chaining/index.md): Chain tasks from pub/sub events
+
+## Cookbook: Cross-cutting concerns
+
 - [Background Execution](https://drexed.github.io/cmdx/cookbook/background_execution/index.md): Run tasks via Active Job or Sidekiq
 - [Store Wrappers](https://drexed.github.io/cmdx/cookbook/store_wrappers/index.md): Test doubles and instrumented store wrappers
 - [Flipper Feature Flags](https://drexed.github.io/cmdx/cookbook/flipper_feature_flags/index.md): Gate tasks behind Flipper feature flags
-- [GraphQL Resolvers](https://drexed.github.io/cmdx/cookbook/graphql_resolvers/index.md): Resolve GraphQL fields with CMDx tasks
-- [OpenAPI Schema Generation](https://drexed.github.io/cmdx/cookbook/openapi_schema_generation/index.md): Generate OpenAPI schemas from task inputs
-- [OpenTelemetry Tracing](https://drexed.github.io/cmdx/cookbook/opentelemetry_tracing/index.md): Distributed tracing for task execution
-- [Paper Trail Whatdunnit](https://drexed.github.io/cmdx/cookbook/paper_trail_whatdunnit/index.md): Paper Trail attribution for running tasks
-- [PubSub Task Chaining](https://drexed.github.io/cmdx/cookbook/pub_sub_task_chaining/index.md): Chain tasks from pub/sub events
 - [Pundit Authorization](https://drexed.github.io/cmdx/cookbook/pundit_authorization/index.md): Authorize tasks with Pundit before work runs
-- [Sentry Error Tracking](https://drexed.github.io/cmdx/cookbook/sentry_error_tracking/index.md): Report CMDx faults to Sentry
 - [Timeout Guard](https://drexed.github.io/cmdx/cookbook/timeout_guard/index.md): Bound task execution time with a timeout guard
+- [Sentry Error Tracking](https://drexed.github.io/cmdx/cookbook/sentry_error_tracking/index.md): Report CMDx faults to Sentry
+- [OpenTelemetry Tracing](https://drexed.github.io/cmdx/cookbook/opentelemetry_tracing/index.md): Distributed tracing for task execution
 

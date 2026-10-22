@@ -2408,7 +2408,7 @@ result.errors.add(:x, "y")             #=> raises FrozenError
 - [Inputs — coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md) — coercion failures show up here.
 - [Outputs](https://drexed.github.io/cmdx/outputs/index.md) — output verification errors use the same bucket.
 - [v1 → v2 migration](https://drexed.github.io/cmdx/v2-migration/#errors) — what changed for `Errors` in 2.0.
-# Attributes
+# Contracts
 
 # Inputs - Definitions
 
@@ -3514,7 +3514,163 @@ end
 Optional + nil
 
 Transforms only run when the coerced value is **non-`nil`**. If the key is **omitted**, there’s no default, and the input is optional, the pipeline stops early — no transform, no validator. An explicit `nil` still walks the full pipeline. Need the transform every time? Add a `default:` or make the input `required`.
-# Features
+
+# Outputs
+
+Outputs answer a simple question: **“When this task succeeds, what keys must exist on `context`?”**
+
+You declare those keys up front. After `work` finishes happily, CMDx walks the list: read each key from `context`, apply a default if you configured one and the value is missing or `nil`, and fail the task if something is still missing.
+
+Outputs stay intentionally small. If you need coercion, fancy validation, or nested resolution, use [Inputs](https://drexed.github.io/cmdx/inputs/definitions/index.md) (or plain Ruby after `work`).
+
+## Declaration
+
+`output` and `outputs` are aliases — pick whichever reads nicer in your file.
+
+```ruby
+class AuthenticateUser < CMDx::Task
+  required :email, :password
+
+  output :source
+  output :user, :token
+
+  def work
+    context.source = email.include?("@mycompany.com") ? :admin_portal : :user_portal
+    context.user   = User.authenticate(email, password)
+    context.token  = JwtService.encode(user_id: context.user.id)
+  end
+end
+```
+
+### Options
+
+| Option                         | Default | What it does                                                                                                                       |
+| ------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `default:`                     | —       | Used when `context[name]` is missing or `nil`. Can be a literal, Symbol (method on task), Proc / callable — same shapes as inputs. |
+| `if:` / `unless:`              | —       | Skip checking this output when the predicate says so.                                                                              |
+| `description:` (alias `desc:`) | —       | Shows up in `outputs_schema` for docs / introspection.                                                                             |
+
+```ruby
+output :report_path
+output :exported_at, if: -> { context.persist? }    # Proc: instance_exec on task, no args
+output :tracked, if: :persist?                       # Symbol: calls task.persist?
+```
+
+### Defaults
+
+Defaults are a nice way to say “if the task did not set this, fill it in for me” without extra noise in `work`.
+
+They run **during verification**, after `work`, whenever the resolved value is `nil` — whether the key was never written or the task explicitly set `nil`.
+
+```ruby
+class ComputeRecommendations < CMDx::Task
+  output :version, default: "v2"                          # literal
+  output :source, default: :default_source                # Symbol → task#default_source
+  output :generated_at, default: -> { Time.now }          # Proc → instance_exec on task
+  output :tenant, default: TenantDefaults                 # anything responding to #call(task)
+
+  def work
+    # Defaults are applied during verification (after work). Assign in work
+    # to override a default; leave absent or nil to let the default fill in.
+  end
+
+  private
+
+  def default_source = self.class.name
+end
+```
+
+Curious about every default shape in detail? [Inputs - Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md) spells it out — **same rules** as here.
+
+## Removals
+
+Subclasses inherit outputs like everything else. `deregister` drops keys you do not want anymore:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  output :audit_log
+  output :request_id
+end
+
+class LightweightTask < ApplicationTask
+  deregister :output, :audit_log, :request_id
+
+  def work
+    # No longer required to set context.audit_log or context.request_id
+  end
+end
+```
+
+## Verification Behavior
+
+Verification is the “did we leave the kitchen clean?” step. It runs **after** `work` completes **without** throwing `skip!`, `fail!`, or `throw!`.
+
+```
+flowchart LR
+    W[work] --> R{signal thrown?}
+    R -->|skip! / fail! / throw!| Done[Skip output verification]
+    R -->|no| V[Verify each output]
+    V --> E{errors?}
+    E -->|no| S[Signal.success]
+    E -->|yes| F[Signal.failed reason=errors.to_s]
+```
+
+For each output, in declaration order:
+
+1. If `:if` / `:unless` says “skip,” done with this one.
+1. Otherwise read `context[name]`.
+1. If it is `nil`, try `:default`.
+1. Still nothing? That is a missing output (`cmdx.outputs.missing`).
+1. Otherwise write the resolved value back to `context[name]`.
+
+Those errors show up like any other validation failure: `result.reason`, `result.errors`, and under `execute!` they become `CMDx::Fault`.
+
+### Missing Output
+
+```ruby
+class CreateUser < CMDx::Task
+  output :user
+
+  def work
+    # Forgot to set context.user
+  end
+end
+
+result = CreateUser.execute
+result.failed?         #=> true
+result.reason          #=> "user must be set in the context"
+result.errors.to_h     #=> { user: ["must be set in the context"] }
+```
+
+### With Bang Execution
+
+`execute!` turns the same failure into an exception you can rescue:
+
+```ruby
+begin
+  CreateUser.execute!
+rescue CMDx::Fault => e
+  e.message                #=> "user must be set in the context"
+  e.result.errors[:user]   #=> ["must be set in the context"]
+  e.task                   #=> CreateUser (the failing task class)
+end
+```
+
+## Schema Introspection
+
+`Task.outputs_schema` is your machine-readable cheat sheet — handy for docs generators or admin UIs:
+
+```ruby
+class CreateUser < CMDx::Task
+  output :user, description: "the persisted user"
+end
+
+CreateUser.outputs_schema
+# => { user: { name: :user,
+#              description: "the persisted user",
+#              options: { description: "the persisted user" } } }
+```
+# Hooks
 
 # Callbacks
 
@@ -4062,1659 +4218,7 @@ result.metadata[:request_id] #=> "req-abc123"
 ```
 
 If the task later calls `success!` / `skip!` / `fail!` / `throw!` with its own `metadata:` keys, those win on merge — user code always gets the last word.
-
-# Logging
-
-Every time a task finishes its lifecycle, CMDx logs **once** at `INFO` with the full `Result#to_h` payload. Think of it as a structured trail you can ship to Splunk, Datadog, ELK, or plain files—pick a formatter that matches how your team searches logs.
-
-## Formatters
-
-| Formatter  | Good when you want…         | Output style                                    |
-| ---------- | --------------------------- | ----------------------------------------------- |
-| `Line`     | Classic log lines (default) | Single-line `Logger::Formatter` style           |
-| `JSON`     | Pipelines that eat JSON     | One compact JSON object per line                |
-| `KeyValue` | Grepping `key=value`        | `key=value.inspect` pairs                       |
-| `Logstash` | ELK-style stacks            | JSON with `@version` / `@timestamp`             |
-| `Raw`      | Bare payload                | Message body only—no severity/timestamp wrapper |
-
-Note
-
-The JSON class is `CMDx::LogFormatters::JSON` (JSON in caps). The others are CamelCase: `Line`, `KeyValue`, `Logstash`, `Raw`.
-
-```text
-I, [2026-04-19T10:30:45.123456Z #12345] INFO -- cmdx: cid="..." index=0 ... state="complete" status="success" ...
-```
-
-```json
-{"severity":"INFO","timestamp":"2026-04-19T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{"cid":"...","index":0,"root":true,"type":"Task","task":"MyTask","tid":"...","state":"complete","status":"success","reason":null,"metadata":{},"strict":false,"deprecated":false,"retried":false,"retries":0,"duration":12.34,"tags":[]}}
-```
-
-```text
-severity="INFO" timestamp="2026-04-19T10:30:45.123456Z" progname="cmdx" pid=12345 message={cid: "...", index: 0, ...}
-```
-
-```json
-{"severity":"INFO","progname":"cmdx","pid":12345,"message":{...},"@version":"1","@timestamp":"2026-04-19T10:30:45.123456Z"}
-```
-
-```text
-cid="..." index=0 root=true type="Task" task=MyTask tid="..." state="complete" status="success" ...
-```
-
-## Sample lifecycle
-
-Here’s a real-ish line: a leaf task failed and propagation fields show how the failure relates to the chain:
-
-```text
-I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: cid="019b4c2b-2a02-..." index=1 root=false type="Task" task=CalculateTax tid="019b4c2b-2a00-..." state="interrupted" status="failed" reason="tax service unavailable" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"} duration=8.92 cause=nil origin=nil threw_failure=<CalculateTax ...> caused_failure=<CalculateTax ...> rolled_back=false
-```
-
-Tip
-
-**`cid`** is your friend for tracing: pair it with your APM’s correlation id. To thread an external request id through, set a `correlation_id` resolver and filter on **`xid`**—see [Configuration – correlation id](https://drexed.github.io/cmdx/configuration/#correlation-id-xid). If Ruby rescues a plain `StandardError` (not `fail!`), you’ll see `cause=#<TheError: …>` and `reason` becomes `"[TheError] message"`.
-
-## What’s in the log?
-
-Each line is built from `Result#to_h`. Fields fall into a few buckets:
-
-### Severity / time (formatter adds these)
-
-| Field       | What it is                  | Example                        |
-| ----------- | --------------------------- | ------------------------------ |
-| `severity`  | Log level name              | `INFO`, `WARN`, `ERROR`        |
-| `timestamp` | UTC, ISO 8601, microseconds | `2026-04-19T18:43:15.000000Z`  |
-| `pid`       | OS process id               | `3784`                         |
-| `progname`  | Logger progname             | `cmdx` (unless you changed it) |
-
-`Raw` skips the wrapper and prints only the message body.
-
-### Identity
-
-| Field     | What it is                                                                                  | Example                    |
-| --------- | ------------------------------------------------------------------------------------------- | -------------------------- |
-| `cid`     | Chain id (uuid_v7)                                                                          | `"018c2b95-b764-7615-..."` |
-| `xid`     | External correlation (e.g. Rails `request_id`); `nil` unless you configure `correlation_id` | `"req-abc-123"`            |
-| `index`   | Step in the chain (root = 0)                                                                | `0`, `1`, `2`              |
-| `root`    | Is this the root task’s result?                                                             | `true` / `false`           |
-| `type`    | `"Task"` or `"Workflow"`                                                                    | `"Task"`                   |
-| `task`    | Task class name                                                                             | `GenerateInvoice`          |
-| `tid`     | This task run’s id (uuid_v7)                                                                | `"018c2b95-..."`           |
-| `context` | Frozen `CMDx::Context` (root teardown)                                                      | `#<CMDx::Context ...>`     |
-| `tags`    | From `settings(tags: [...])`                                                                | `["billing"]`              |
-
-### Outcome
-
-| Field      | What it is                 | Example                              |
-| ---------- | -------------------------- | ------------------------------------ |
-| `state`    | Where the lifecycle ended  | `"complete"`, `"interrupted"`        |
-| `status`   | Business result            | `"success"`, `"skipped"`, `"failed"` |
-| `reason`   | String from `fail!` / halt | `"payment declined"` or `nil`        |
-| `metadata` | Hash from halt             | `{ code: "INSUFFICIENT_FUNDS" }`     |
-
-### Lifecycle extras
-
-| Field        | What it is                | Example |
-| ------------ | ------------------------- | ------- |
-| `strict`     | Ran via `execute!`?       | `false` |
-| `deprecated` | Task class is deprecated? | `false` |
-| `retried`    | At least one retry?       | `false` |
-| `retries`    | How many retries          | `0`     |
-| `duration`   | Milliseconds              | `12.34` |
-
-### Only when `status == "failed"`
-
-| Field            | Meaning                                                                              |
-| ---------------- | ------------------------------------------------------------------------------------ |
-| `cause`          | Underlying exception, or `nil` for `fail!`                                           |
-| `origin`         | `{ task:, tid: }` if this failure was echoed from upstream; `nil` if it started here |
-| `threw_failure`  | `{ task:, tid: }` of the nearest upstream failure                                    |
-| `caused_failure` | `{ task:, tid: }` of the failure that actually caused the chain to fail              |
-| `rolled_back`    | `true` if `#rollback` ran                                                            |
-
-## Configuration
-
-Set formatter, level, and logger on `CMDx.configure`, or override per task with `settings(...)`. Full list: [Configuration – logging](https://drexed.github.io/cmdx/configuration/index.md).
-
-Note
-
-If a task tweaks `:log_level` or `:log_formatter`, `LoggerProxy` **dup**s the global logger so siblings don’t accidentally inherit those tweaks.
-
-### Custom logger
-
-Point one task at its own `Logger`—different file, syslog, fancy structured gem, whatever:
-
-```ruby
-class AuditTransfer < CMDx::Task
-  settings(
-    logger: Logger.new(Rails.root.join("log/audit.log"), progname: "audit"),
-    log_formatter: CMDx::LogFormatters::JSON.new
-  )
-end
-```
-
-CMDx uses that logger as-is; it only dup’s when level or formatter differ from what you passed.
-
-### Silence the lifecycle line
-
-Bump the task’s log level above `INFO` so the automatic completion line doesn’t fire:
-
-```ruby
-class QuietTask < CMDx::Task
-  settings(log_level: Logger::WARN)
-end
-```
-
-### Drop fields from the log (not from the result)
-
-`log_exclusions` strips **top-level** keys from the logged hash—handy for huge `:context` or sensitive `:metadata` while keeping them on the `Result` and telemetry.
-
-```ruby
-CMDx.configure do |config|
-  config.log_exclusions = [:context, :metadata]
-end
-
-class ImportPayroll < CMDx::Task
-  settings(log_exclusions: [:context])
-end
-```
-
-Only top-level keys; no nested paths. Default is empty = log everything.
-
-## Log levels
-
-CMDx writes the lifecycle line at **`INFO`** when the run completes. The framework itself doesn’t spam `WARN` / `ERROR` for you—use callbacks (`on_failed`, `on_skipped`) or telemetry (`:task_retried`, `:task_executed`) if you want louder logs.
-
-```ruby
-class VerboseTask < CMDx::Task
-  settings(log_level: Logger::DEBUG)
-
-  def work
-    logger.debug { "feature flags: #{Features.active_flags.inspect}" }
-    # ...
-  end
-end
-```
-
-Note
-
-**`execute!`** still logs the lifecycle line and still emits `:task_executed`—Runtime finishes the result **before** it re-raises the `Fault`.
-
-## Logging inside `work`
-
-`Task#logger` is the per-task logger (respects your settings):
-
-```ruby
-class ProcessSubscription < CMDx::Task
-  def work
-    logger.debug { "subscriber: #{context.subscriber_id}" }
-    logger.info  { "starting subscription processing" }
-  end
-end
-```
-
-# Internationalization (i18n)
-
-CMDx talks to users through messages: coercion errors, validation errors, missing outputs, missing required inputs, and the default fault reason. **All of that** goes through `CMDx::I18nProxy`.
-
-**If the `i18n` gem is loaded**, CMDx uses `I18n.translate`, so messages follow whatever `I18n.locale` is set to—just like the rest of your app.
-
-**If `i18n` isn’t there**, CMDx loads YAML for `config.default_locale` and does simple `%{key}` interpolation itself.
-
-Out of the box, CMDx ships **English only** (`en`). Want dozens more languages? Add [cmdx-i18n](https://github.com/drexed/cmdx-i18n), or drop in your own YAML (see [Custom locale paths](#custom-locale-paths)).
-
-## Usage
-
-Flip the locale and built-in messages follow:
-
-```ruby
-class ProcessQuote < CMDx::Task
-  required :price, coerce: :float
-
-  def work
-    # ...
-  end
-end
-
-I18n.with_locale(:fr) do
-  result = ProcessQuote.execute(price: "invalid")
-  result.failed?               #=> true
-  result.errors[:price]        #=> ["impossible de contraindre en float"]
-  result.reason                #=> "price impossible de contraindre en float"
-end
-```
-
-Note
-
-Failures pile up on `task.errors` (`CMDx::Errors`). `result.reason` is basically the friendly string built from those errors (`Errors#full_messages`, joined with `". "`).
-
-## Translation Keys
-
-Everything lives under `cmdx.*`. Override a key in **your** locale file to change wording app-wide:
-
-| Key                                                                             | Used by                                                                                                                                                                    |
-| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cmdx.attributes.required`                                                      | Missing required input                                                                                                                                                     |
-| `cmdx.coercions.into_a` / `into_an`                                             | Single-type coercion failure (`%{type}`)                                                                                                                                   |
-| `cmdx.coercions.into_any`                                                       | Multi-type coercion failure (`%{types}`)                                                                                                                                   |
-| `cmdx.outputs.missing`                                                          | Declared output not set on context                                                                                                                                         |
-| `cmdx.reasons.unspecified`                                                      | Fallback fault reason                                                                                                                                                      |
-| `cmdx.types.<name>`                                                             | Human-readable coercion type names (`array`, `big_decimal`, `boolean`, `complex`, `date`, `date_time`, `float`, `hash`, `integer`, `rational`, `string`, `symbol`, `time`) |
-| `cmdx.validators.absence` / `presence` / `format`                               | Standalone validator messages                                                                                                                                              |
-| `cmdx.validators.inclusion.{of,within}`                                         | Inclusion validator messages                                                                                                                                               |
-| `cmdx.validators.exclusion.{of,within}`                                         | Exclusion validator messages                                                                                                                                               |
-| `cmdx.validators.length.{is,is_not,min,max,gt,lt,within,not_within,nil_value}`  | Length validator messages                                                                                                                                                  |
-| `cmdx.validators.numeric.{is,is_not,min,max,gt,lt,within,not_within,nil_value}` | Numeric validator messages                                                                                                                                                 |
-
-Tip
-
-Tweaking **one** field? Use `:message` or `:<rule>_message` on the input (see [Validations](https://drexed.github.io/cmdx/inputs/validations/#common-options)). Overriding `cmdx.*` changes the text **everywhere** that key is used.
-
-## Configuration
-
-### Rails
-
-The CMDx railtie adds its locale files to `I18n.load_path` on boot—but **only** for locales you list in `config.i18n.available_locales`. So you don’t load YAML for languages you never ship.
-
-```ruby
-# config/application.rb
-config.i18n.available_locales = [:en, :fr, :es]
-```
-
-### Default locale (plain Ruby)
-
-No `i18n` gem? (Scripts, CLIs, tiny workers.) Set `default_locale` and CMDx reads that locale’s YAML directly.
-
-```ruby
-CMDx.configure do |config|
-  config.default_locale = "es"
-end
-```
-
-In this mode there’s **one** active locale—no `I18n.with_locale` equivalent. If a key is missing, you’ll see `"Translation missing: <key>"`. If the **locale itself** can’t be resolved to a YAML file on the load path, CMDx raises `CMDx::UnknownLocaleError` (a `CMDx::Error`) the first time it tries to translate. More detail: [Configuration – default locale](https://drexed.github.io/cmdx/configuration/#default-locale).
-
-### Custom locale paths
-
-Point CMDx at extra folders of `<locale>.yml` files with `I18nProxy.register`. **Later** registrations win on merge, so you can override a few keys without copying entire files.
-
-```ruby
-# lib/locales/en.yml
-en:
-  cmdx:
-    attributes:
-      required: "is mandatory"
-
-CMDx::I18nProxy.register(File.expand_path("lib/locales", __dir__))
-```
-
-Note
-
-`register` only affects the **no-i18n-gem** path. When `i18n` is loaded, CMDx delegates to `I18n.translate`—add your paths to `I18n.load_path` instead.
-
-## cmdx-i18n
-
-The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem ships **86 locales** for built-in coercion, validator, and fault messages. In Rails, its Railtie loads bundled YAML for locales you already list in `config.i18n.available_locales` — no extra wiring. Outside Rails, `require "cmdx/i18n"` registers the files with `CMDx::I18nProxy` so CMDx can translate even when the `i18n` gem is not loaded.
-
-```ruby
-gem "cmdx-i18n"
-```
-
-```ruby
-require "cmdx/i18n"
-
-CMDx.configure { |c| c.default_locale = "fr" }
-```
-
-Flip locale and the same task surfaces localized errors (the French example under [Usage](#usage) works out of the box once the gem is installed):
-
-```ruby
-I18n.with_locale(:ja) do
-  result = ProcessQuote.execute(price: "not-a-number")
-  # => Japanese coercion message on result.errors[:price]
-end
-```
-
-Need to customize one language? Copy a locale into your app and edit keys under `cmdx.*`:
-
-```bash
-rails generate cmdx:i18n:locale fr
-```
-
-Full locale list and setup notes: [cmdx-i18n on GitHub](https://github.com/drexed/cmdx-i18n).
-
-# Retries
-
-Networks flake. APIs rate-limit you. Sometimes the universe just says “not yet.”
-
-`retry_on` tells CMDx: **when `work` raises one of these exception types, wait a beat and try again** — up to a limit you control.
-
-Important nuance: retries only rerun **`work`**. Inputs, outputs, and most lifecycle callbacks still run **once** per execution. That keeps retries predictable: you are not re-validating the world on every attempt unless you put that logic inside `work` (or another layer).
-
-## Basic Usage
-
-List the exception classes you care about. If you never declare `retry_on`, nothing is retried.
-
-```ruby
-class FetchExternalData < CMDx::Task
-  retry_on Net::OpenTimeout, Net::ReadTimeout
-
-  def work
-    response = HTTParty.get("https://api.example.com/data")
-    context.data = response.parsed_response
-  end
-end
-```
-
-| Option       | Default | Plain-English meaning                                                                                      |
-| ------------ | ------- | ---------------------------------------------------------------------------------------------------------- |
-| `limit:`     | `3`     | How many **retries** after the first try. Total runs = `limit + 1`. Set `limit: 0` to turn retries off.    |
-| `delay:`     | `0.5`   | Base pause in seconds between tries. `0` means “do not sleep.”                                             |
-| `max_delay:` | `nil`   | Cap the sleep so jittered waits do not grow forever.                                                       |
-| `jitter:`    | `nil`   | How to **wiggle** the delay so thundering herds calm down — see [Jitter](#jitter).                         |
-| `if:`        | `nil`   | Per-attempt gate: when falsy, stop retrying and re-raise. See [Conditional Retries](#conditional-retries). |
-| `unless:`    | `nil`   | Inverse of `if:` — when truthy, re-raise instead of retrying.                                              |
-
-```ruby
-class ProcessPayment < CMDx::Task
-  retry_on Stripe::RateLimitError, Net::ReadTimeout,
-           limit: 5, delay: 1.0, max_delay: 30.0, jitter: :exponential
-
-  def work
-    # ...
-  end
-end
-```
-
-Important
-
-Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
-
-Locks and idempotency during retries
-
-`lock_with` and `idempotent_by` wrap the **entire** `retry_on` loop in `Runtime`. A retried attempt does **not** release the lock or idempotency claim between tries — the same invocation keeps the lease until `work` (and output verification) finish, the run halts via `skip!` / `fail!`, or an uncaught error leaves the wrapped block.
-
-Size `lock_with ttl:` for worst-case hold time (work, retry sleeps, verification). See [Locks — Lease lifetime and `ttl`](https://drexed.github.io/cmdx/locks/#lease-lifetime-and-ttl).
-
-When retries are exhausted and the error propagates, idempotency deletes its claim so a **new** job delivery can try again; the lock is released in `ensure` after acquire. See [Locks](https://drexed.github.io/cmdx/locks/index.md) and [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md).
-
-## Inheritance
-
-Subclasses inherit the parent’s retry policy. Calling `retry_on` with no exception classes and no options returns the current (possibly inherited) configuration. Further calls **add** exception types and **merge** options — including option-only updates such as `retry_on limit: 5` on the subclass. Pass `retry_on false` on a subclass to disable retries entirely (even when the parent declared them).
-
-```ruby
-class ApplicationTask < CMDx::Task
-  retry_on Net::OpenTimeout, limit: 2
-end
-
-class FetchProfile < ApplicationTask
-  retry_on Net::ReadTimeout, max_delay: 5.0
-  # Effective: [Net::OpenTimeout, Net::ReadTimeout], limit: 2, max_delay: 5.0
-end
-
-class DryRunFetch < ApplicationTask
-  retry_on false # no retries; first failure surfaces immediately
-end
-```
-
-`Retry#enabled?` is `false` when retries are disabled (no exception list). `CMDx::Retry.disabled` is the shared empty configuration used at the root of the hierarchy and after `retry_on false`.
-
-## Jitter
-
-“Jitter” is a fancy word for **random-ish spacing** so many clients do not all wake up at the exact same millisecond.
-
-Built-in strategies receive `(attempt, delay, prev_delay)` where `attempt` is zero-based, `delay` is your base delay, and `prev_delay` is the last computed sleep (or `nil` on the first wait in a run). Most built-ins ignore `prev_delay` except `:decorrelated_jitter`. The computed sleep is clamped by `max_delay` when you set it.
-
-### Built-in Strategies
-
-```ruby
-retry_on TransientError, delay: 1.0, jitter: :exponential
-# attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 4s, ...
-
-retry_on TransientError, delay: 2.0, jitter: :half_random
-# delay/2 .. delay      → 1.0s .. 2.0s
-
-retry_on TransientError, delay: 2.0, jitter: :full_random
-# 0       .. delay      → 0.0s .. 2.0s
-
-retry_on TransientError, delay: 2.0, jitter: :bounded_random
-# delay   .. 2*delay    → 2.0s .. 4.0s
-
-retry_on TransientError, delay: 1.0, jitter: :linear
-# attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 3s, ...
-
-retry_on TransientError, delay: 1.0, jitter: :fibonacci
-# attempt 0 → 1s, attempt 1 → 1s, attempt 2 → 2s, attempt 3 → 3s, attempt 4 → 5s, ...
-
-retry_on TransientError, delay: 1.0, jitter: :decorrelated_jitter
-# AWS-style: next sleep ∈ [delay, prev_sleep * 3], starting from prev = delay
-# attempt 0 → 1.0s..3.0s, then each subsequent attempt's upper bound is 3× the
-# previous sleep (clamped by :max_delay if set)
-```
-
-Note
-
-`:decorrelated_jitter` remembers the previous sleep **within one** `process` call. If something calls `#wait` without passing `prev_delay`, it falls back to the base delay — fine for normal retries, just know the state is scoped to that run.
-
-### Custom Strategies via the `Retriers` Registry
-
-Built-ins live in `CMDx::Retriers` (same idea as `Mergers` and `Executors`). A strategy is any callable shaped like `call(attempt, delay, prev_delay)` → seconds to sleep.
-
-Register globally in config, or per-task with `register :retrier`:
-
-```ruby
-CMDx.configure do |config|
-  config.retriers.register(:capped_exponential) do |attempt, delay, _prev|
-    [delay * (2**attempt), 30.0].min
-  end
-end
-
-class FetchExternalData < CMDx::Task
-  retry_on Net::ReadTimeout, jitter: :capped_exponential
-
-  # Or scoped to the task class only:
-  register :retrier, :doubled, ->(_a, delay, _p) { delay * 2 }
-end
-```
-
-If a symbol is not in the registry, CMDx falls back to an **instance method** on the task — so older `jitter: :my_custom_method` style configs keep working.
-
-### Symbol (Instance Method)
-
-The method receives `(attempt, delay, prev_delay)` and returns how long to sleep, in seconds.
-
-```ruby
-class SyncInventory < CMDx::Task
-  retry_on InventoryAPI::ServerError, limit: 5, jitter: :exponential_backoff
-
-  def work
-    context.inventory = InventoryAPI.sync
-  end
-
-  private
-
-  def exponential_backoff(attempt, delay, _prev_delay = nil)
-    delay * (2**attempt)
-  end
-end
-```
-
-### Proc or Lambda
-
-Procs run with `instance_exec` on the task, so `context` and your helpers are right there.
-
-```ruby
-class PollJobStatus < CMDx::Task
-  retry_on JobAPI::Pending,
-           limit: 10,
-           delay: 0.5,
-           max_delay: 5.0,
-           jitter: ->(attempt, delay, _prev_delay) { delay * (attempt + 1) }
-
-  def work
-    context.status = JobAPI.check_status(context.job_id)
-  end
-end
-```
-
-### Callable (Class or Module)
-
-Anything with `#call(attempt, delay, prev_delay)` works (use `_prev_delay` if unused). The task is **not** passed in — bake config into the object.
-
-```ruby
-class ExponentialBackoff
-  def initialize(base: 1.0, cap: 60.0)
-    @base = base
-    @cap  = cap
-  end
-
-  def call(attempt, _delay, _prev_delay = nil)
-    [@base * (2**attempt), @cap].min
-  end
-end
-
-class FetchUserProfile < CMDx::Task
-  retry_on Net::ReadTimeout, limit: 4, jitter: ExponentialBackoff.new(base: 0.5)
-
-  def work
-    # ...
-  end
-end
-```
-
-### Custom Block
-
-No `:jitter` option? You can pass a block to `retry_on` instead. It runs as instance code on the task.
-
-```ruby
-class FetchAnalytics < CMDx::Task
-  retry_on Analytics::Throttled, limit: 3, delay: 1.0 do |attempt, delay, _prev_delay|
-    delay + (attempt ** 1.5)
-  end
-end
-```
-
-## Conditional Retries
-
-`:if` / `:unless` let you say “this exception **matches**, but do not retry **this time**.” When the gate says no, the exception is re-raised immediately — no more sleeps, no more attempts.
-
-| Gate form       | How it runs                                 | Think of it as                   |
-| --------------- | ------------------------------------------- | -------------------------------- |
-| `Symbol`        | `task.send(sym, error, attempt)`            | `def sym(error, attempt)`        |
-| `Proc` / lambda | `task.instance_exec(error, attempt, &gate)` | `->(error, attempt) { ... }`     |
-| `#call`-able    | `gate.call(task, error, attempt)`           | `def call(task, error, attempt)` |
-
-```ruby
-class FetchProfile < CMDx::Task
-  retry_on ApiError,
-           limit: 5,
-           delay: 1.0,
-           if: ->(error, _attempt) { error.retryable? }
-
-  retry_on Net::ReadTimeout, if: :transient?, limit: 3
-
-  def work
-    context.profile = ApiClient.fetch(context.user_id)
-  end
-
-  private
-
-  def transient?(error, _attempt) = !error.message.include?("permanent")
-end
-```
-
-Note
-
-The gate runs **before** the sleep. If it rejects a retry, you do not wait — you fail fast, and Runtime turns that into a failed result (or raises under `execute!`).
-
-## Behavior
-
-- **Same task object** — `context` and any ivars mutated in earlier attempts are still there. Design `work` accordingly.
-- **Only `work` loops** — inputs, outputs, and `before_execution` / `before_validation` callbacks are not replayed per retry. If your *input source* is flaky, wrap that fetch in its own task with `retry_on`, or use middleware — do not expect CMDx to magically re-resolve inputs for free.
-- **`task.errors` sticks around** — errors added on a failed attempt remain. Clear at the top of `work` if each attempt should start fresh; otherwise a later success might still lose at `signal_errors!`.
-- **Telemetry** — each retry emits `:task_retried` (`attempt` is zero-based; the first run is attempt `0` and does **not** emit).
-- **Middleware sees one execution** — middleware wraps the whole lifecycle, so it does not “re-enter” per retry. For per-attempt hooks, listen to `:task_retried`.
-
-## Inspecting Retries
-
-After the run, ask the `Result`:
-
-```ruby
-result = FetchExternalData.execute
-
-result.retries   #=> 2  (number of *retry* attempts; 0 if first attempt succeeded)
-result.retried?  #=> true
-```
-
-Structured logs include `retried` / `retries` too.
-
-## When Retries Are Exhausted
-
-After the last allowed retry, the exception surfaces like any other unhandled error from `work`:
-
-- **`execute`** — Runtime rescues, you get `result.failed?`, `result.cause` is the exception, `result.reason` looks like `"[ExceptionClass] message"`.
-- **`execute!`** — same lifecycle handling, then the **original** exception is re-raised (not wrapped as `CMDx::Fault`).
-
-```ruby
-result = FetchExternalData.execute
-
-if result.failed?
-  Rails.logger.error("Failed after #{result.retries} retries: #{result.reason}")
-end
-```
-
-# Idempotency
-
-Same `payment_id`. The webhook fires again. Sidekiq retries because the worker died mid-flight.
-
-For work that must happen **at most once** — charge a card, send the email, reserve inventory — you need a **stable key** from the payload and a shared “already handled” claim. The second caller should stop **before** `work` runs.
-
-`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself. To serialize concurrent workers without blocking repeat runs later, see [Locks](https://drexed.github.io/cmdx/locks/index.md).
-
-Important
-
-The claim runs **after** inputs are resolved and **wraps the whole `retry_on` loop**, not each retry attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can hit `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
-
-## Basic usage
-
-Pick a key from context (after coercion) or build one in a block:
-
-```ruby
-class ChargeCustomer < CMDx::Task
-  idempotent_by :payment_id
-
-  required :payment_id,   coerce: :string
-  required :amount_cents, coerce: :integer
-
-  def work
-    context.charge = Stripe::Charge.create(
-      amount:          amount_cents,
-      currency:        "usd",
-      idempotency_key: payment_id
-    )
-  end
-end
-
-ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # success
-ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: duplicate
-```
-
-| Option            | Default       | Plain-English meaning                                                                         |
-| ----------------- | ------------- | --------------------------------------------------------------------------------------------- |
-| `ttl:`            | `300`         | How long the store entry lives (seconds). After it expires, a new run can claim again.        |
-| `namespace:`      | `"cmdx:idem"` | First piece of the store key (see [Store keys](#store-keys)).                                 |
-| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`). |
-| `if:` / `unless:` | `nil`         | Turn idempotency on or off for this run (same `Util.satisfied?` rules as other features).     |
-
-### Key resolvers
-
-Same idea as elsewhere in CMDx — pick the shape that reads best:
-
-| Form                          | How the segment is resolved                                   |
-| ----------------------------- | ------------------------------------------------------------- |
-| `Symbol` (e.g. `:payment_id`) | `context[payment_id]` after inputs run                        |
-| `String`                      | Used literally as the segment                                 |
-| Block / `Proc`                | `instance_exec` on the task — `self` is the task; optional \` |
-| Other `#call`                 | `call(task)` — e.g. a small resolver object                   |
-
-```ruby
-idempotent_by { "#{user_id}:#{context.idempotency_key}" }
-
-idempotent_by ->(task) { "#{task.context.user_id}:#{task.context.idempotency_key}" }
-```
-
-If the resolved segment is blank (`nil` or empty string), idempotency **steps aside** — `work` runs every time and nothing is written to the store.
-
-## Store keys
-
-Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced like `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
-
-Example: `cmdx:idem:ChargeCustomer:pay_123`
-
-While work is running, the value is `"processing"`. After a successful run it becomes `"completed"`. Duplicates read that value for the message (`state=processing` or `state=completed`).
-
-## Interaction with `retry_on`
-
-Think of one outer envelope around the whole attempt, retries included:
-
-```text
-resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent claim → retry loop { work } → verify_outputs! → completed
-```
-
-If `work` raises `StandardError`, the claim is **deleted** before the exception reaches `retry_on`. The claim is also released when `work` calls `skip!` or `fail!`, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is `completed` and the next call with the same key never enters `work`.
-
-Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
-
-TTL and crashes
-
-If a worker dies after claiming but before success or cleanup, the key sticks around until `ttl:` expires — then another caller may run `work` again. Set `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
-
-## Inheritance
-
-Subclasses pick up the parent’s idempotency config. `idempotent_by` with no arguments returns what you have now (including inherited settings). Pass a new key resolver to **replace** the old one; pass only options to **merge** (e.g. `idempotent_by ttl: 600` keeps the same resolver). Same layering idea as `retry_on`, except the key resolver is singular, not a list. `idempotent_by false` on a subclass turns it off.
-
-```ruby
-class ApplicationTask < CMDx::Task
-  idempotent_by :request_id, ttl: 600
-end
-
-class ChargeCustomer < ApplicationTask
-  idempotent_by :payment_id # resolver → payment_id, ttl stays 600
-end
-
-class PreviewCharge < ApplicationTask
-  idempotent_by false # no store claim; work runs every time
-end
-```
-
-## Skip vs fail on duplicates
-
-`:skip` is for “already done — treat as success” (idempotent no-op, HTTP 2xx). `:fail` is for “no, you may not run this again” (for example HTTP 409).
-
-Both set `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` to the full store key.
-
-Signals
-
-Duplicates call `skip!` or `fail!` inside the `catch` around `work`, so your resolver does not keep running — under `execute` you get a `Result` with `skipped?` or `failed?`; under `execute!` you get a fault.
-
-## Telemetry
-
-When idempotency is active for a run (enabled, gates pass, segment non-blank), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
-
-| Event                    | When                                                     | Extra `event.payload` keys                     |
-| ------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
-| `:idempotency_claimed`   | `processing` slot claimed (`nx: true`)                   | `idempotency_key`                              |
-| `:idempotency_completed` | Slot marked `completed` after the wrapped block succeeds | `idempotency_key`                              |
-| `:idempotency_duplicate` | Key already held (`processing` or `completed`)           | `code: :duplicate`, `idempotency_key`, `state` |
-
-`:idempotency_claimed` and `:idempotency_completed` bracket a successful run (claim → work, retries, and output verification → completed). Failed runs delete the claim and do **not** emit `:idempotency_completed`.
-
-```ruby
-CMDx.configure do |config|
-  config.telemetry.subscribe(:idempotency_duplicate, ->(event) {
-    StatsD.increment("cmdx.idempotency.duplicate", tags: [
-      "task:#{event.task}",
-      "state:#{event.payload[:state]}"
-    ])
-  })
-end
-```
-
-`:idempotency_duplicate` fires **before** `skip!` / `fail!`, matching the metadata on the final `Result`.
-
-# Circuit breaker
-
-The inventory API is down. Every task still waits, times out, retries, and piles onto the same unhappy dependency.
-
-A **circuit breaker** is the bouncer at the door: it counts failures, **opens** after too many in a row, and sends new work away until a cool-off passes. Callers stop paying for timeouts while the dependency is clearly struggling.
-
-`circuit_breaker` adds that pattern to your task using [Stores](https://drexed.github.io/cmdx/stores/index.md) — one breaker config per task class by default, or scoped per tenant/service when you pass a key resolver.
-
-## Basic usage
-
-One breaker per task class (the default):
-
-```ruby
-class FetchInventory < CMDx::Task
-  circuit_breaker threshold: 3, cool_off: 10
-
-  required :sku, coerce: :string
-
-  def work
-    context.inventory = InventoryClient.fetch(sku, timeout: 2)
-  end
-end
-
-FetchInventory.execute(sku: "ABC-123") # raises → failure recorded
-# after enough failures…
-FetchInventory.execute(sku: "ABC-123") # failed: circuit open (work not run)
-```
-
-| Option            | Default         | Plain-English meaning                                                                  |
-| ----------------- | --------------- | -------------------------------------------------------------------------------------- |
-| `threshold:`      | `5`             | How many failures inside `window:` before the circuit opens                            |
-| `cool_off:`       | `30`            | How long (seconds) the circuit stays open                                              |
-| `window:`         | `60`            | Sliding window (seconds) for the failure counter                                       |
-| `namespace:`      | `"cmdx:cb"`     | First piece of store keys                                                              |
-| `on:`             | `StandardError` | Exception classes that count as “this dependency failed”                               |
-| `on_open:`        | `:fail`         | `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :circuit_open`) |
-| `if:` / `unless:` | `nil`           | Turn the breaker on or off for this run                                                |
-
-### Scoping the breaker
-
-Pass a key resolver when one task talks to several downstreams (or tenants). Same shapes as [Idempotency key resolvers](https://drexed.github.io/cmdx/idempotency/#key-resolvers):
-
-```ruby
-circuit_breaker :stripe_account, threshold: 3, cool_off: 30
-```
-
-Explicit “one breaker per task type”:
-
-```ruby
-circuit_breaker :class, threshold: 5
-```
-
-Count only real dependency pain — not every `StandardError` in your app:
-
-```ruby
-circuit_breaker :class, threshold: 3, on: [Stripe::APIError, Timeout::Error]
-```
-
-When the resolver is not `:class` and the segment is blank (missing context value), the breaker **steps aside** for that run — same as [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) with a blank key.
-
-## Store keys
-
-Failure counts (circuit **closed**) use `CMDx::StoreKey.compose(base, "failures")`. The open flag uses `…:open` with value `"open"` and TTL `cool_off:`.
-
-Examples:
-
-- `cmdx:cb:FetchInventory:failures`
-- `cmdx:cb:FetchInventory:open`
-- `cmdx:cb:ChargeCustomer:acct_123:failures` (with `circuit_breaker :stripe_account`)
-
-When the circuit is open, results include `metadata[:circuit_breaker_key]` (the full `…:open` key) and, when the backend supports TTL reads, `metadata[:retry_after]` (seconds until the open flag expires).
-
-### Failure window
-
-`window:` is **sliding**, not “reset at midnight.” Each counted failure calls `Stores.incr` with `ttl: window`, and built-in adapters refresh expiry on every bump. Go `window` seconds without a new failure and the counter key disappears — the next failure starts from `1` again.
-
-## Interaction with `retry_on`
-
-Breakers run early; idempotency (if any) sits just inside:
-
-```text
-resolve_inputs! → rate_limit → circuit check → lock → idempotent claim → retry loop { work } → verify_outputs!
-```
-
-Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on every retry swing. A successful run clears the failure counter. Logical failures that only use `fail!` or validation errors do **not** trip the breaker.
-
-Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
-
-## Store availability
-
-When the store itself is flaky, CMDx picks a side — on purpose:
-
-| Situation                              | Behavior                                                                         |
-| -------------------------------------- | -------------------------------------------------------------------------------- |
-| Circuit **open**                       | `work` does not run; `on_open:` applies.                                         |
-| **Read** fails while checking open     | Treated as **closed** (fail-open): work runs.                                    |
-| **Write** fails after a failed run     | The work exception still raises; the failure might not be counted.               |
-| **Write** fails after a successful run | The failure counter might not clear; the next error may open the circuit sooner. |
-
-## Concurrency
-
-The breaker peeks at the open flag again right before `work`. There is no distributed lock — a task can still start moments before another process opens the circuit, and when the `:open` TTL expires many workers may call the dependency at once. Plan for that at the dependency layer if you need stricter guarantees.
-
-## Inheritance
-
-Subclasses inherit the parent’s breaker. `circuit_breaker` with no arguments returns the current config (including inherited). Pass a new key to **replace** it; pass only options to **merge** (e.g. `circuit_breaker threshold: 3` keeps `:class` when the parent enabled the breaker that way). `circuit_breaker false` on a subclass turns it off.
-
-```ruby
-class ExternalApiTask < CMDx::Task
-  circuit_breaker :class, threshold: 5, cool_off: 30
-end
-
-class FetchInventory < ExternalApiTask
-  circuit_breaker threshold: 3 # key stays :class, threshold → 3
-end
-
-class PreviewInventory < ExternalApiTask
-  circuit_breaker false # no breaker; work runs every time
-end
-```
-
-## Telemetry
-
-When the breaker is active for a run (enabled, gates pass, key resolves), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
-
-| Event              | When                                                         | Extra `event.payload` keys                                                       |
-| ------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| `:circuit_open`    | Open flag present — `work` does not run                      | `code: :circuit_open`, `circuit_breaker_key`, `on_open:`; optional `retry_after` |
-| `:circuit_tripped` | Failure count reached `threshold:` and the open flag was set | `circuit_breaker_key`, `failures_key`, `failure_count`, `threshold`, `cool_off`  |
-| `:circuit_reset`   | Successful run removed the failure counter                   | `failures_key`                                                                   |
-
-`:circuit_tripped` fires on the run that **opens** the circuit (after the counting failure escapes the retry loop). The **next** run gets `:circuit_open` when it is turned away at the door.
-
-`:circuit_reset` only fires when a failure key was actually deleted — not on every success.
-
-```ruby
-CMDx.configure do |config|
-  config.telemetry.subscribe(:circuit_tripped, ->(event) {
-    StatsD.increment("cmdx.circuit.tripped", tags: ["task:#{event.task}"])
-  })
-
-  config.telemetry.subscribe(:circuit_open, ->(event) {
-    StatsD.increment("cmdx.circuit.open", tags: [
-      "task:#{event.task}",
-      "on_open:#{event.payload[:on_open]}"
-    ])
-  })
-end
-```
-
-`:circuit_open` fires **before** `skip!` / `fail!`, same timing as `metadata[:code] == :circuit_open` on the result.
-
-# Rate limit
-
-Someone keeps hitting “forgot password.” Same email, fifty times in a minute. Your mailer is fine — your abuse budget is not.
-
-**Rate limiting** is the turnstile at the front door: it counts how many times a task may **start** in a time window — per user, per IP, or for the whole app. Cheap to call, expensive to abuse? This is the knob.
-
-`rate_limit` tracks those **starts** in [Stores](https://drexed.github.io/cmdx/stores/index.md). It runs **once per `execute`** — retries inside `retry_on` do **not** eat extra quota. When the turnstile is full, `work` never runs.
-
-Rate limits vs circuit breakers
-
-**Rate limits** count **invocations** — “this caller has had enough tries.” **Circuit breakers** count **failures** — “this dependency is sick, stop hammering it.” Password resets and OTP sends usually want a rate limit; flaky inventory APIs usually want a breaker. Need both? Use both — see [Runtime order](#runtime-order).
-
-## Basic usage
-
-```ruby
-class SendPasswordReset < CMDx::Task
-  rate_limit :email, max: 5, per: 60
-
-  required :email, coerce: :string
-
-  def work
-    Mailer.password_reset(email).deliver_later
-  end
-end
-
-5.times { SendPasswordReset.execute(email: "user@example.com") }   # success
-result = SendPasswordReset.execute(email: "user@example.com")
-result.failed?                # => true
-result.metadata[:code]        # => :rate_limited
-result.metadata[:retry_after] # => seconds (when the backend exposes TTL)
-```
-
-| Option            | Default         | Plain-English meaning                                                                                                              |
-| ----------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `max:`            | *(required)*    | How many runs you allow in the window (or bucket capacity for `:leaky_bucket`)                                                     |
-| `per:`            | *(required)*    | Window length in seconds (`:fixed_window`) or seconds to “leak” one unit (`:leaky_bucket`)                                         |
-| `limiter:`        | `:fixed_window` | Built-in or registered strategy — see [Limiters](#limiters)                                                                        |
-| `cost:`           | `1`             | How many units one admitted run costs — **only** `:leaky_bucket` reads this; `:fixed_window` always counts one start per `execute` |
-| `namespace:`      | `"cmdx:rl"`     | First piece of store keys                                                                                                          |
-| `on_limit:`       | `:fail`         | `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :rate_limited`)                                             |
-| `if:` / `unless:` | `nil`           | Turn rate limiting on or off for this run                                                                                          |
-
-Pass `rate_limit false` on a subclass to turn off an inherited limit.
-
-Want **one counter for the whole task type**? Use `rate_limit :class, …` or omit the key and pass only `max:` / `per:` — same bucket either way.
-
-### Key resolvers
-
-Pick **who shares one counter**. Same shapes as [Idempotency key resolvers](https://drexed.github.io/cmdx/idempotency/#key-resolvers) and [Circuit breaker scoping](https://drexed.github.io/cmdx/circuit_breaker/#scoping-the-breaker):
-
-| Form                     | How the segment is resolved                                                             |
-| ------------------------ | --------------------------------------------------------------------------------------- |
-| `:class`                 | No extra segment — one bucket per task class (`namespace:TaskName`)                     |
-| `Symbol` (e.g. `:email`) | `context[email]` after inputs run                                                       |
-| `String`                 | Used literally as the segment                                                           |
-| Block / `Proc`           | `instance_exec` on the task — `self` is the task; optional `\|task\|` matches callbacks |
-| Other `#call`            | `call(task)` — e.g. a small resolver object                                             |
-
-```ruby
-rate_limit :email, max: 5, per: 60          # one bucket per email address
-rate_limit :class, max: 100, per: 3600      # one bucket for the whole task class
-rate_limit max: 50, per: 3600               # same as :class when no key is given
-```
-
-When the resolver is not `:class` and the segment is blank (`nil` or empty string), rate limiting **steps aside** for that run — same idea as [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) with a blank key. Keys are built with `CMDx::StoreKey.task_key(..., class_scoped: true)` so `:class` does not read context.
-
-## Quota is charged at the door
-
-Think of each allowed `execute` as swiping in once. CMDx charges that swipe **before** the circuit breaker, locks, idempotency, or `work`.
-
-If `work` raises, calls `fail!` / `skip!`, or the run retries inside `retry_on`, CMDx does **not** refund the swipe. One outer `execute` still used at most one admission — retries do not visit the turnstile again.
-
-Size your limits for **starts**, not “only successful finishes.”
-
-## Store keys
-
-Base keys use `CMDx::StoreKey.task_key(task, namespace:, resolver:, class_scoped: true)` — colon-separated segments, each coerced with `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
-
-Examples:
-
-- `cmdx:rl:SendPasswordReset:user@example.com`
-- `cmdx:rl:SendPasswordReset` (with `rate_limit :class` or options-only `max:` / `per:`)
-
-`:fixed_window` increments the base key. `:leaky_bucket` stores `"level:last_at"` at `#{store_key}:lb` with a TTL derived from capacity and `per`.
-
-Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only counts inside one process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
-
-## Result metadata
-
-When the turnstile says no, `skip!` / `fail!` merge the same payload as `:rate_limit_exceeded` telemetry into `result.metadata`:
-
-| Key               | Meaning                                                                          |
-| ----------------- | -------------------------------------------------------------------------------- |
-| `:code`           | `:rate_limited`                                                                  |
-| `:rate_limit_key` | Full base store key                                                              |
-| `:limiter`        | Strategy name (`:fixed_window`, `:leaky_bucket`, or your registered symbol)      |
-| `:max`, `:per`    | Declared limits                                                                  |
-| `:count`          | Present for `:fixed_window` (counter after `incr`, including the denied attempt) |
-| `:level`          | Present for `:leaky_bucket` (projected fill when denied)                         |
-| `:retry_after`    | Seconds until retry might succeed when the backend or limiter computes it        |
-
-Admitted runs do not add rate-limit fields to the result — subscribe to `:rate_limit_admitted` if you need per-run admission metrics.
-
-## Runtime order
-
-After inputs resolve, CMDx checks the turnstile **before** breakers, locks, and idempotency:
-
-```text
-resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent_by → retry loop { work } → verify_outputs!
-```
-
-Retries do not re-run the limiter. One outer execution costs at most one admission (for the configured `cost`).
-
-## Limiters
-
-A **limiter** is the little algorithm that answers: “Is there room for one more start?” Built-ins live in `CMDx::Limiters` — same registry idea as `CMDx::Retriers` for retry jitter.
-
-Resolution order:
-
-1. `limiter:` as a `Proc` → `instance_exec` on the task
-1. Symbol → `task.class.limiters` when the task registered `register :limiter`, otherwise `CMDx.configuration.limiters`
-
-Each callable gets a `CMDx::RateLimit::Quota` (the question) and must return a `CMDx::RateLimit::Admission` (yes or no, plus optional hints for messages and metadata).
-
-| `Quota` field        | Role                                                         |
-| -------------------- | ------------------------------------------------------------ |
-| `task`               | Task being admitted                                          |
-| `store_key`          | Base key (append suffixes if your strategy needs more state) |
-| `max`, `per`, `cost` | Declared limits                                              |
-| `limiter`            | Resolved strategy spec                                       |
-| `options`            | Frozen declaration hash (namespace, gates, etc.)             |
-
-| `Admission` field | Role                                                       |
-| ----------------- | ---------------------------------------------------------- |
-| `admitted`        | `true` to run `work`, `false` to signal over limit         |
-| `count`           | Optional counter for messages / metadata (`:fixed_window`) |
-| `level`           | Optional fill for messages / metadata (`:leaky_bucket`)    |
-| `retry_after`     | Optional hint in seconds                                   |
-| `limiter`         | Name recorded on telemetry and metadata                    |
-
-### Built-in limiters
-
-**Fixed window** — a simple counter with a TTL. Easy to reason about; you can get a small burst right when a window rolls over.
-
-```ruby
-rate_limit :email, max: 5, per: 60, limiter: :fixed_window
-```
-
-**Leaky bucket** — capacity refills slowly (`per` seconds per unit). Smoother traffic shape; state lives at `store_key:lb`.
-
-```ruby
-rate_limit :email, max: 10, per: 30, limiter: :leaky_bucket
-```
-
-### Custom limiters
-
-Register globally or per task with `register :limiter`:
-
-```ruby
-CMDx.configure do |config|
-  config.limiters.register(:per_tenant_strict) do |quota|
-    count = CMDx::Stores.incr(quota.store_key, ttl: quota.per)
-    admitted = count <= quota.max
-    retry_after = admitted ? nil : CMDx::Stores.remaining_ttl(quota.store_key)
-
-    CMDx::RateLimit::Admission.new(
-      admitted:,
-      count:,
-      level: nil,
-      retry_after:,
-      limiter: :per_tenant_strict
-    )
-  end
-end
-
-class SendInvoice < CMDx::Task
-  register :limiter, :app_only, MyApp::InvoiceLimiter
-
-  rate_limit :account_id, max: 20, per: 3600, limiter: :app_only
-end
-```
-
-Pass a `Proc` as `limiter:` and CMDx runs it with `instance_exec` on the task, passing the `Quota` as the block argument. It must return an `Admission`. Unknown limiter symbols raise `CMDx::UnknownEntryError` with registered names in the message.
-
-## Telemetry
-
-When rate limiting is active for a run (enabled, gates pass, key resolves), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed — unused events cost nothing.
-
-| Event                  | When                                                      | Extra `event.payload` keys                                                                                              |
-| ---------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `:rate_limit_admitted` | Admission succeeded, before circuit breaker / lock / work | `rate_limit_key`, `limiter`, `max`, `per`; optional `count`, `level`, `retry_after`                                     |
-| `:rate_limit_exceeded` | Admission denied                                          | `code: :rate_limited`, `rate_limit_key`, `limiter`, `on_limit:`, `max`, `per`; optional `count`, `level`, `retry_after` |
-
-`:rate_limit_exceeded` fires **before** `skip!` / `fail!`, matching `metadata[:code] == :rate_limited` on the result.
-
-```ruby
-CMDx.configure do |config|
-  config.telemetry.subscribe(:rate_limit_exceeded, ->(event) {
-    StatsD.increment("cmdx.rate_limit.denied", tags: [
-      "task:#{event.task}",
-      "limiter:#{event.payload[:limiter]}"
-    ])
-  })
-end
-```
-
-## Inheritance
-
-Subclasses inherit the parent’s rate limit. `rate_limit` with no arguments returns the current config (including inherited). Pass a new key to **replace** it; pass only options to **merge** (e.g. `rate_limit per: 120` on the subclass). `rate_limit false` turns it off.
-
-```ruby
-class ApplicationTask < CMDx::Task
-  rate_limit :class, max: 1000, per: 3600
-end
-
-class SendSms < ApplicationTask
-  rate_limit :phone, max: 3, per: 300
-end
-
-class DryRunSms < ApplicationTask
-  rate_limit false
-end
-```
-
-# Stores
-
-Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. You need a **small, shared key/value layer** — not your primary database — for idempotency tokens, rate-limit counters, circuit-breaker state, and (eventually) workflow checkpoints.
-
-`CMDx::Stores` is that layer: `get`, `set`, `incr`, `decr`, and `del`, with optional TTL and Redis-style conditional writes (`nx` / `xx`). Call the module methods directly, or swap the backend on `CMDx.configuration.store`.
-
-## Configuration
-
-The process default is an in-memory adapter — fine for tests and single-process dev, **not** shared across Sidekiq workers.
-
-```ruby
-CMDx.configure do |config|
-  config.store = CMDx::Stores::Redis.new(redis: Redis.current)
-end
-```
-
-| Setting | Default              | In plain English             |
-| ------- | -------------------- | ---------------------------- |
-| `store` | `Stores::Memory.new` | Backend for `CMDx::Stores.*` |
-
-`CMDx.reset_configuration!` (common in specs) restores a fresh in-memory store along with the rest of global config.
-
-See also: [Configuration – Store](https://drexed.github.io/cmdx/configuration/#store).
-
-## Module API
-
-All methods delegate to `CMDx.configuration.store`. Keys are coerced with `to_s`; empty keys raise `ArgumentError`.
-
-### `get(key)`
-
-Returns the stored **string**, or `nil` when the key is missing or expired.
-
-```ruby
-CMDx::Stores.get(:session)
-```
-
-### `set(key, value, ttl: nil, nx: false, xx: false)`
-
-Writes `value` (coerced with `to_s`). Returns whether the write happened.
-
-| Option     | Meaning                                                    |
-| ---------- | ---------------------------------------------------------- |
-| `ttl:`     | Positive integer seconds until expiry (`nil` = no expiry)  |
-| `nx: true` | Set only if the key is **absent** (compare Redis `SET NX`) |
-| `xx: true` | Set only if the key is **present**                         |
-
-`nx` and `xx` cannot both be `true`.
-
-```ruby
-# Claim an idempotency slot for five minutes
-claimed = CMDx::Stores.set("idem:pay_123", "processing", nx: true, ttl: 300)
-
-# Mark complete only if we still own the key
-CMDx::Stores.set("idem:pay_123", "done", xx: true, ttl: 300)
-```
-
-### `incr(key, ttl: nil)`
-
-Atomically increments a counter (starts at `1`). Returns the **integer** count after increment.
-
-When `ttl:` is set, built-in adapters **refresh** expiry on every increment — a sliding window for rate limits and [circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md) failure counts.
-
-```ruby
-hits = CMDx::Stores.incr("rl:user:42", ttl: 60)
-```
-
-### `decr(key, ttl: nil)`
-
-Atomically decrements a counter (missing keys behave as `0`). Returns the **integer** count after decrement. Built-in adapters remove the key when the count reaches zero.
-
-`ttl:` is accepted for API symmetry with `incr`; built-in adapters do not refresh expiry on decrement.
-
-```ruby
-CMDx::Stores.decr("rl:user:42")
-```
-
-### `remaining_ttl(key)`
-
-Returns seconds until expiry when the configured backend implements `ttl` (`Stores::Memory`, `Stores::Redis`); otherwise `nil`. Used for `metadata[:retry_after]` on open circuits.
-
-### `del(key)`
-
-Removes the key. Returns `1` if a key was removed, `0` otherwise.
-
-```ruby
-CMDx::Stores.del("idem:pay_123")
-```
-
-### `del_if(key, expected)`
-
-Removes the key only when the stored value equals `expected` (string comparison after `to_s`). Returns whether a key was removed. Built-in adapters implement this atomically (Redis via `EVAL`). Used by `lock_with` so a late releaser cannot delete a newer holder's lease.
-
-## Adapters
-
-### `CMDx::Stores::Memory`
-
-Thread-safe, process-local hash with monotonic-clock TTL. Used by default and in specs unless you assign another backend.
-
-```ruby
-memory = CMDx::Stores::Memory.new
-memory.set(:k, "v", ttl: 30)
-```
-
-Note
-
-Each Puma worker, Sidekiq process, and console session has its **own** memory store. Do not rely on it for cross-worker coordination.
-
-### `CMDx::Stores::Redis`
-
-Wraps any client that quacks like `redis-rb`: `get`, `set` (with `ex:`, `nx:`, `xx:`), `incr`, `decr`, `expire`, `ttl`, `del`, and `eval` (for `del_if`). CMDx does **not** add a Redis gem dependency — you pass the connection your app already uses.
-
-By default, Redis keys match the logical keys passed to `CMDx::Stores` (same as `Stores::Memory`). Set `namespace` when Redis is shared with other data so CMDx keys stay isolated.
-
-```ruby
-CMDx::Stores::Redis.new(redis: Redis.current, namespace: "myapp:cmdx")
-# writes "myapp:cmdx:token" in Redis
-```
-
-## Custom backends
-
-Any object that implements the core methods with the same signatures can be assigned to `config.store`. Add `del_if` when you use `lock_with`, and `ttl` when you need `remaining_ttl` (circuit breaker `retry_after`, lock `metadata[:retry_after]`). Use custom backends for Memcached, DynamoDB, observability wrappers, or an in-test spy.
-
-Walkthrough with a recording store for specs and an instrumented Redis wrapper: [Store Wrappers](https://drexed.github.io/cmdx/cookbook/store_wrappers/index.md).
-
-```ruby
-class NullStore
-  def get(_key) = nil
-  def set(_key, _value, ttl: nil, nx: false, xx: false) = true
-  def incr(_key, ttl: nil) = 1
-  def decr(_key, ttl: nil) = 0
-  def ttl(_key) = nil
-  def del(_key) = 0
-  def del_if(_key, _expected) = false
-end
-
-CMDx.configure { |c| c.store = NullStore.new }
-```
-
-## Testing
-
-Specs call `CMDx.reset_configuration!` in `spec_helper`, so `CMDx::Stores` starts on a clean in-memory backend every example. To assert against an isolated instance without touching global config:
-
-```ruby
-store = CMDx::Stores::Memory.new
-CMDx.configuration.store = store
-
-store.set(:token, "abc")
-expect(CMDx::Stores.get(:token)).to eq("abc")
-```
-
-For integration tests against Redis semantics, assign `CMDx::Stores::Redis.new(redis: …)` in a `before` block and point `redis` at `MockRedis` or a dedicated test Redis URL.
-
-# Task Deprecation
-
-Sometimes a task has to stick around for a while—even though you wish it would retire. Deprecation lets you **flag old tasks** so teams migrate gently instead of everything blowing up at once.
-
-You pick what happens when someone runs a deprecated task: **block it**, **log a heads-up**, or **print a Ruby warning** (great in dev, quieter in prod).
-
-Put deprecation on the **class** with `deprecation`, **not** inside `settings(...)`. Subclasses copy the parent’s rule unless they define their own. When deprecation actually runs, `result.deprecated?` is `true` and CMDx emits a `:task_deprecated` telemetry ping—handy for dashboards or metrics.
-
-Note
-
-Deprecation fires **after** middleware (and the `:task_started` event) but **before** callbacks, input resolution, and `work`. That means `:if` / `:unless` gates only see the raw `context` and the task instance—not resolved inputs yet.
-
-## Modes
-
-### Error
-
-**Stop the task cold.** Use this when running the task would be wrong or dangerous.
-
-Warning
-
-`:error` breaks **every** caller immediately. If you’re not 100% sure, roll it out behind a feature flag with `:if` so you can flip it off fast.
-
-```ruby
-class ProcessObsoleteAPI < CMDx::Task
-  deprecation :error
-
-  def work
-    # never executes
-  end
-end
-
-ProcessObsoleteAPI.execute
-#=> raises CMDx::DeprecationError: "ProcessObsoleteAPI usage prohibited"
-```
-
-### Log
-
-**Let the task run**, but write a warning to the task logger. Nice when you’re sunsetting something and want logs to tell the story.
-
-```ruby
-class ProcessLegacyFormat < CMDx::Task
-  deprecation :log
-
-  def work
-    # executes; a warning is written to the task logger
-  end
-end
-
-result = ProcessLegacyFormat.execute
-result.success? #=> true
-# logger.warn: "DEPRECATED: ProcessLegacyFormat - migrate to a replacement or discontinue use"
-```
-
-### Warn
-
-**Emit a Ruby warning** to stderr—developers and tests see it; production logs stay calmer than with `:log`.
-
-```ruby
-class ProcessOldData < CMDx::Task
-  deprecation :warn
-
-  def work
-    # executes; warning written to stderr
-  end
-end
-
-result = ProcessOldData.execute
-result.success? #=> true
-# Kernel.warn: "[ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use"
-```
-
-## Declarations
-
-### Symbol
-
-The quick path: pass `:error`, `:log`, or `:warn`.
-
-```ruby
-class OutdatedConnector < CMDx::Task
-  deprecation :error
-  # or :log, :warn
-end
-```
-
-### Method Reference
-
-CMDx calls `task.send(name)`. **Your method** does the real work—raise, log, warn, or nothing. Whatever it returns is ignored.
-
-```ruby
-class OutdatedConnector < CMDx::Task
-  deprecation :handle_deprecation
-
-  def work
-    # ...
-  end
-
-  private
-
-  def handle_deprecation
-    raise CMDx::DeprecationError, "#{self.class} retired" if Time.now.year > 2026
-
-    logger.warn("#{self.class} pending retirement")
-  end
-end
-```
-
-### Proc or Lambda
-
-Runs with `instance_exec` on the task; the block gets the task as its argument.
-
-```ruby
-class OutdatedConnector < CMDx::Task
-  deprecation proc { |task|
-    Rails.env.development? ? raise(CMDx::DeprecationError, "#{task.class} retired") : task.logger.warn("legacy")
-  }
-end
-
-class TenantLegacy < CMDx::Task
-  deprecation ->(task) { task.context.tenant.legacy_mode? ? warn("legacy") : nil }
-end
-```
-
-Warning
-
-You only get **one** `deprecation` per class—each new call **replaces** the last. Need several behaviors? Branch inside a single Proc or callable.
-
-### Class or Module
-
-Anything that responds to `call(task)` works—class or instance.
-
-```ruby
-class OutdatedTaskDeprecator
-  def call(task)
-    return unless task.class.name.include?("Outdated")
-
-    raise CMDx::DeprecationError, "#{task.class} usage prohibited"
-  end
-end
-
-class OutdatedConnector < CMDx::Task
-  deprecation OutdatedTaskDeprecator       # class — must define `.call(task)`
-end
-
-class AnotherOutdatedConnector < CMDx::Task
-  deprecation OutdatedTaskDeprecator.new   # instance — must define `#call(task)`
-end
-```
-
-## Conditional Gating
-
-Use `:if` or `:unless` to **skip** the deprecation action when the condition fails. You can pass a symbol (method name), a Proc, or any callable; CMDx checks it with `Util.satisfied?` on the task.
-
-```ruby
-class OutdatedConnector < CMDx::Task
-  deprecation :error, if: -> { Rails.env.production? }
-end
-
-class GrandfatheredTenants < CMDx::Task
-  deprecation :log, unless: :tenant_grandfathered?
-
-  private
-
-  def tenant_grandfathered?
-    context.tenant&.grandfathered?
-  end
-end
-```
-
-Note
-
-Again: only the **latest** `deprecation` call wins (one slot per class). Fancy branching? Do it inside one Proc.
-
-## Inheritance
-
-Child tasks **inherit** the parent’s deprecation. Redefine `deprecation` on the child to override.
-
-`deprecation nil` **does not clear** inheritance—it reads the inherited value. To “turn off” the visible behavior, use a no-op callable. Heads-up: the result can still be `deprecated?` and still emit `:task_deprecated`; you’re just not logging, warning, or raising.
-
-```ruby
-class BaseLegacyTask < CMDx::Task
-  deprecation :log
-end
-
-class StillSupported < BaseLegacyTask
-  # inherits :log
-end
-
-class FullyRetired < BaseLegacyTask
-  deprecation :error
-end
-
-class Excluded < BaseLegacyTask
-  deprecation ->(_) {}   # opt out
-end
-```
-
-## Custom Actions via the `Deprecators` Registry
-
-Built-ins (`:log`, `:warn`, `:error`) live in `CMDx::Deprecators`—same idea as `Retriers` and `Mergers`. Each action is a callable `call(task)`; return values are ignored. Register yours globally or on a single task:
-
-```ruby
-CMDx.configure do |config|
-  config.deprecators.register(:bugsnag) do |task|
-    Bugsnag.notify("DEPRECATED: #{task.class}", severity: "warning")
-  end
-end
-
-class OutdatedConnector < CMDx::Task
-  deprecation :bugsnag
-
-  # Or scoped to the task class only:
-  register :deprecator, :slack, ->(task) { Slack.notify("#{task.class} fired") }
-end
-```
-
-If a symbol isn’t in the registry, CMDx falls back to a **method on the task**—so `deprecation :handle_deprecation` keeps working the way you expect.
-
-## Telemetry
-
-When deprecation runs (and any `:if` / `:unless` passes), Runtime fires `:task_deprecated` **before** the action. The returned `Result` has `deprecated? == true`.
-
-```ruby
-CMDx.configure do |config|
-  config.telemetry.subscribe(:task_deprecated, ->(event) {
-    StatsD.increment("cmdx.deprecated", tags: ["task:#{event.task}"])
-  })
-end
-
-result = ProcessLegacyFormat.execute
-result.deprecated? #=> true
-```
-
-# Outputs
-
-Outputs answer a simple question: **“When this task succeeds, what keys must exist on `context`?”**
-
-You declare those keys up front. After `work` finishes happily, CMDx walks the list: read each key from `context`, apply a default if you configured one and the value is missing or `nil`, and fail the task if something is still missing.
-
-Outputs stay intentionally small. If you need coercion, fancy validation, or nested resolution, use [Inputs](https://drexed.github.io/cmdx/inputs/definitions/index.md) (or plain Ruby after `work`).
-
-## Declaration
-
-`output` and `outputs` are aliases — pick whichever reads nicer in your file.
-
-```ruby
-class AuthenticateUser < CMDx::Task
-  required :email, :password
-
-  output :source
-  output :user, :token
-
-  def work
-    context.source = email.include?("@mycompany.com") ? :admin_portal : :user_portal
-    context.user   = User.authenticate(email, password)
-    context.token  = JwtService.encode(user_id: context.user.id)
-  end
-end
-```
-
-### Options
-
-| Option                         | Default | What it does                                                                                                                       |
-| ------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `default:`                     | —       | Used when `context[name]` is missing or `nil`. Can be a literal, Symbol (method on task), Proc / callable — same shapes as inputs. |
-| `if:` / `unless:`              | —       | Skip checking this output when the predicate says so.                                                                              |
-| `description:` (alias `desc:`) | —       | Shows up in `outputs_schema` for docs / introspection.                                                                             |
-
-```ruby
-output :report_path
-output :exported_at, if: -> { context.persist? }    # Proc: instance_exec on task, no args
-output :tracked, if: :persist?                       # Symbol: calls task.persist?
-```
-
-### Defaults
-
-Defaults are a nice way to say “if the task did not set this, fill it in for me” without extra noise in `work`.
-
-They run **during verification**, after `work`, whenever the resolved value is `nil` — whether the key was never written or the task explicitly set `nil`.
-
-```ruby
-class ComputeRecommendations < CMDx::Task
-  output :version, default: "v2"                          # literal
-  output :source, default: :default_source                # Symbol → task#default_source
-  output :generated_at, default: -> { Time.now }          # Proc → instance_exec on task
-  output :tenant, default: TenantDefaults                 # anything responding to #call(task)
-
-  def work
-    # Defaults are applied during verification (after work). Assign in work
-    # to override a default; leave absent or nil to let the default fill in.
-  end
-
-  private
-
-  def default_source = self.class.name
-end
-```
-
-Curious about every default shape in detail? [Inputs - Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md) spells it out — **same rules** as here.
-
-## Removals
-
-Subclasses inherit outputs like everything else. `deregister` drops keys you do not want anymore:
-
-```ruby
-class ApplicationTask < CMDx::Task
-  output :audit_log
-  output :request_id
-end
-
-class LightweightTask < ApplicationTask
-  deregister :output, :audit_log, :request_id
-
-  def work
-    # No longer required to set context.audit_log or context.request_id
-  end
-end
-```
-
-## Verification Behavior
-
-Verification is the “did we leave the kitchen clean?” step. It runs **after** `work` completes **without** throwing `skip!`, `fail!`, or `throw!`.
-
-```
-flowchart LR
-    W[work] --> R{signal thrown?}
-    R -->|skip! / fail! / throw!| Done[Skip output verification]
-    R -->|no| V[Verify each output]
-    V --> E{errors?}
-    E -->|no| S[Signal.success]
-    E -->|yes| F[Signal.failed reason=errors.to_s]
-```
-
-For each output, in declaration order:
-
-1. If `:if` / `:unless` says “skip,” done with this one.
-1. Otherwise read `context[name]`.
-1. If it is `nil`, try `:default`.
-1. Still nothing? That is a missing output (`cmdx.outputs.missing`).
-1. Otherwise write the resolved value back to `context[name]`.
-
-Those errors show up like any other validation failure: `result.reason`, `result.errors`, and under `execute!` they become `CMDx::Fault`.
-
-### Missing Output
-
-```ruby
-class CreateUser < CMDx::Task
-  output :user
-
-  def work
-    # Forgot to set context.user
-  end
-end
-
-result = CreateUser.execute
-result.failed?         #=> true
-result.reason          #=> "user must be set in the context"
-result.errors.to_h     #=> { user: ["must be set in the context"] }
-```
-
-### With Bang Execution
-
-`execute!` turns the same failure into an exception you can rescue:
-
-```ruby
-begin
-  CreateUser.execute!
-rescue CMDx::Fault => e
-  e.message                #=> "user must be set in the context"
-  e.result.errors[:user]   #=> ["must be set in the context"]
-  e.task                   #=> CreateUser (the failing task class)
-end
-```
-
-## Schema Introspection
-
-`Task.outputs_schema` is your machine-readable cheat sheet — handy for docs generators or admin UIs:
-
-```ruby
-class CreateUser < CMDx::Task
-  output :user, description: "the persisted user"
-end
-
-CreateUser.outputs_schema
-# => { user: { name: :user,
-#              description: "the persisted user",
-#              options: { description: "the persisted user" } } }
-```
+# Composition
 
 # Workflows
 
@@ -6095,7 +4599,1651 @@ If you do not have `ApplicationTask`, the generator falls back to `CMDx::Task`.
 Tip
 
 Name workflows like actions: **present-tense verb + plural noun** — `SendNotifications`, `DownloadFiles`, `ValidateDocuments`. Reads like a button label.
-# More
+
+# Task Deprecation
+
+Sometimes a task has to stick around for a while—even though you wish it would retire. Deprecation lets you **flag old tasks** so teams migrate gently instead of everything blowing up at once.
+
+You pick what happens when someone runs a deprecated task: **block it**, **log a heads-up**, or **print a Ruby warning** (great in dev, quieter in prod).
+
+Put deprecation on the **class** with `deprecation`, **not** inside `settings(...)`. Subclasses copy the parent’s rule unless they define their own. When deprecation actually runs, `result.deprecated?` is `true` and CMDx emits a `:task_deprecated` telemetry ping—handy for dashboards or metrics.
+
+Note
+
+Deprecation fires **after** middleware (and the `:task_started` event) but **before** callbacks, input resolution, and `work`. That means `:if` / `:unless` gates only see the raw `context` and the task instance—not resolved inputs yet.
+
+## Modes
+
+### Error
+
+**Stop the task cold.** Use this when running the task would be wrong or dangerous.
+
+Warning
+
+`:error` breaks **every** caller immediately. If you’re not 100% sure, roll it out behind a feature flag with `:if` so you can flip it off fast.
+
+```ruby
+class ProcessObsoleteAPI < CMDx::Task
+  deprecation :error
+
+  def work
+    # never executes
+  end
+end
+
+ProcessObsoleteAPI.execute
+#=> raises CMDx::DeprecationError: "ProcessObsoleteAPI usage prohibited"
+```
+
+### Log
+
+**Let the task run**, but write a warning to the task logger. Nice when you’re sunsetting something and want logs to tell the story.
+
+```ruby
+class ProcessLegacyFormat < CMDx::Task
+  deprecation :log
+
+  def work
+    # executes; a warning is written to the task logger
+  end
+end
+
+result = ProcessLegacyFormat.execute
+result.success? #=> true
+# logger.warn: "DEPRECATED: ProcessLegacyFormat - migrate to a replacement or discontinue use"
+```
+
+### Warn
+
+**Emit a Ruby warning** to stderr—developers and tests see it; production logs stay calmer than with `:log`.
+
+```ruby
+class ProcessOldData < CMDx::Task
+  deprecation :warn
+
+  def work
+    # executes; warning written to stderr
+  end
+end
+
+result = ProcessOldData.execute
+result.success? #=> true
+# Kernel.warn: "[ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use"
+```
+
+## Declarations
+
+### Symbol
+
+The quick path: pass `:error`, `:log`, or `:warn`.
+
+```ruby
+class OutdatedConnector < CMDx::Task
+  deprecation :error
+  # or :log, :warn
+end
+```
+
+### Method Reference
+
+CMDx calls `task.send(name)`. **Your method** does the real work—raise, log, warn, or nothing. Whatever it returns is ignored.
+
+```ruby
+class OutdatedConnector < CMDx::Task
+  deprecation :handle_deprecation
+
+  def work
+    # ...
+  end
+
+  private
+
+  def handle_deprecation
+    raise CMDx::DeprecationError, "#{self.class} retired" if Time.now.year > 2026
+
+    logger.warn("#{self.class} pending retirement")
+  end
+end
+```
+
+### Proc or Lambda
+
+Runs with `instance_exec` on the task; the block gets the task as its argument.
+
+```ruby
+class OutdatedConnector < CMDx::Task
+  deprecation proc { |task|
+    Rails.env.development? ? raise(CMDx::DeprecationError, "#{task.class} retired") : task.logger.warn("legacy")
+  }
+end
+
+class TenantLegacy < CMDx::Task
+  deprecation ->(task) { task.context.tenant.legacy_mode? ? warn("legacy") : nil }
+end
+```
+
+Warning
+
+You only get **one** `deprecation` per class—each new call **replaces** the last. Need several behaviors? Branch inside a single Proc or callable.
+
+### Class or Module
+
+Anything that responds to `call(task)` works—class or instance.
+
+```ruby
+class OutdatedTaskDeprecator
+  def call(task)
+    return unless task.class.name.include?("Outdated")
+
+    raise CMDx::DeprecationError, "#{task.class} usage prohibited"
+  end
+end
+
+class OutdatedConnector < CMDx::Task
+  deprecation OutdatedTaskDeprecator       # class — must define `.call(task)`
+end
+
+class AnotherOutdatedConnector < CMDx::Task
+  deprecation OutdatedTaskDeprecator.new   # instance — must define `#call(task)`
+end
+```
+
+## Conditional Gating
+
+Use `:if` or `:unless` to **skip** the deprecation action when the condition fails. You can pass a symbol (method name), a Proc, or any callable; CMDx checks it with `Util.satisfied?` on the task.
+
+```ruby
+class OutdatedConnector < CMDx::Task
+  deprecation :error, if: -> { Rails.env.production? }
+end
+
+class GrandfatheredTenants < CMDx::Task
+  deprecation :log, unless: :tenant_grandfathered?
+
+  private
+
+  def tenant_grandfathered?
+    context.tenant&.grandfathered?
+  end
+end
+```
+
+Note
+
+Again: only the **latest** `deprecation` call wins (one slot per class). Fancy branching? Do it inside one Proc.
+
+## Inheritance
+
+Child tasks **inherit** the parent’s deprecation. Redefine `deprecation` on the child to override.
+
+`deprecation nil` **does not clear** inheritance—it reads the inherited value. To “turn off” the visible behavior, use a no-op callable. Heads-up: the result can still be `deprecated?` and still emit `:task_deprecated`; you’re just not logging, warning, or raising.
+
+```ruby
+class BaseLegacyTask < CMDx::Task
+  deprecation :log
+end
+
+class StillSupported < BaseLegacyTask
+  # inherits :log
+end
+
+class FullyRetired < BaseLegacyTask
+  deprecation :error
+end
+
+class Excluded < BaseLegacyTask
+  deprecation ->(_) {}   # opt out
+end
+```
+
+## Custom Actions via the `Deprecators` Registry
+
+Built-ins (`:log`, `:warn`, `:error`) live in `CMDx::Deprecators`—same idea as `Retriers` and `Mergers`. Each action is a callable `call(task)`; return values are ignored. Register yours globally or on a single task:
+
+```ruby
+CMDx.configure do |config|
+  config.deprecators.register(:bugsnag) do |task|
+    Bugsnag.notify("DEPRECATED: #{task.class}", severity: "warning")
+  end
+end
+
+class OutdatedConnector < CMDx::Task
+  deprecation :bugsnag
+
+  # Or scoped to the task class only:
+  register :deprecator, :slack, ->(task) { Slack.notify("#{task.class} fired") }
+end
+```
+
+If a symbol isn’t in the registry, CMDx falls back to a **method on the task**—so `deprecation :handle_deprecation` keeps working the way you expect.
+
+## Telemetry
+
+When deprecation runs (and any `:if` / `:unless` passes), Runtime fires `:task_deprecated` **before** the action. The returned `Result` has `deprecated? == true`.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:task_deprecated, ->(event) {
+    StatsD.increment("cmdx.deprecated", tags: ["task:#{event.task}"])
+  })
+end
+
+result = ProcessLegacyFormat.execute
+result.deprecated? #=> true
+```
+# Resilience
+
+# Stores
+
+Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. You need a **small, shared key/value layer** — not your primary database — for idempotency tokens, rate-limit counters, circuit-breaker state, and (eventually) workflow checkpoints.
+
+`CMDx::Stores` is that layer: `get`, `set`, `incr`, `decr`, and `del`, with optional TTL and Redis-style conditional writes (`nx` / `xx`). Call the module methods directly, or swap the backend on `CMDx.configuration.store`.
+
+## Configuration
+
+The process default is an in-memory adapter — fine for tests and single-process dev, **not** shared across Sidekiq workers.
+
+```ruby
+CMDx.configure do |config|
+  config.store = CMDx::Stores::Redis.new(redis: Redis.current)
+end
+```
+
+| Setting | Default              | In plain English             |
+| ------- | -------------------- | ---------------------------- |
+| `store` | `Stores::Memory.new` | Backend for `CMDx::Stores.*` |
+
+`CMDx.reset_configuration!` (common in specs) restores a fresh in-memory store along with the rest of global config.
+
+See also: [Configuration – Store](https://drexed.github.io/cmdx/configuration/#store).
+
+## Module API
+
+All methods delegate to `CMDx.configuration.store`. Keys are coerced with `to_s`; empty keys raise `ArgumentError`.
+
+### `get(key)`
+
+Returns the stored **string**, or `nil` when the key is missing or expired.
+
+```ruby
+CMDx::Stores.get(:session)
+```
+
+### `set(key, value, ttl: nil, nx: false, xx: false)`
+
+Writes `value` (coerced with `to_s`). Returns whether the write happened.
+
+| Option     | Meaning                                                    |
+| ---------- | ---------------------------------------------------------- |
+| `ttl:`     | Positive integer seconds until expiry (`nil` = no expiry)  |
+| `nx: true` | Set only if the key is **absent** (compare Redis `SET NX`) |
+| `xx: true` | Set only if the key is **present**                         |
+
+`nx` and `xx` cannot both be `true`.
+
+```ruby
+# Claim an idempotency slot for five minutes
+claimed = CMDx::Stores.set("idem:pay_123", "processing", nx: true, ttl: 300)
+
+# Mark complete only if we still own the key
+CMDx::Stores.set("idem:pay_123", "done", xx: true, ttl: 300)
+```
+
+### `incr(key, ttl: nil)`
+
+Atomically increments a counter (starts at `1`). Returns the **integer** count after increment.
+
+When `ttl:` is set, built-in adapters **refresh** expiry on every increment — a sliding window for rate limits and [circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md) failure counts.
+
+```ruby
+hits = CMDx::Stores.incr("rl:user:42", ttl: 60)
+```
+
+### `decr(key, ttl: nil)`
+
+Atomically decrements a counter (missing keys behave as `0`). Returns the **integer** count after decrement. Built-in adapters remove the key when the count reaches zero.
+
+`ttl:` is accepted for API symmetry with `incr`; built-in adapters do not refresh expiry on decrement.
+
+```ruby
+CMDx::Stores.decr("rl:user:42")
+```
+
+### `remaining_ttl(key)`
+
+Returns seconds until expiry when the configured backend implements `ttl` (`Stores::Memory`, `Stores::Redis`); otherwise `nil`. Used for `metadata[:retry_after]` on open circuits.
+
+### `del(key)`
+
+Removes the key. Returns `1` if a key was removed, `0` otherwise.
+
+```ruby
+CMDx::Stores.del("idem:pay_123")
+```
+
+### `del_if(key, expected)`
+
+Removes the key only when the stored value equals `expected` (string comparison after `to_s`). Returns whether a key was removed. Built-in adapters implement this atomically (Redis via `EVAL`). Used by `lock_with` so a late releaser cannot delete a newer holder's lease.
+
+## Adapters
+
+### `CMDx::Stores::Memory`
+
+Thread-safe, process-local hash with monotonic-clock TTL. Used by default and in specs unless you assign another backend.
+
+```ruby
+memory = CMDx::Stores::Memory.new
+memory.set(:k, "v", ttl: 30)
+```
+
+Note
+
+Each Puma worker, Sidekiq process, and console session has its **own** memory store. Do not rely on it for cross-worker coordination.
+
+### `CMDx::Stores::Redis`
+
+Wraps any client that quacks like `redis-rb`: `get`, `set` (with `ex:`, `nx:`, `xx:`), `incr`, `decr`, `expire`, `ttl`, `del`, and `eval` (for `del_if`). CMDx does **not** add a Redis gem dependency — you pass the connection your app already uses.
+
+By default, Redis keys match the logical keys passed to `CMDx::Stores` (same as `Stores::Memory`). Set `namespace` when Redis is shared with other data so CMDx keys stay isolated.
+
+```ruby
+CMDx::Stores::Redis.new(redis: Redis.current, namespace: "myapp:cmdx")
+# writes "myapp:cmdx:token" in Redis
+```
+
+## Custom backends
+
+Any object that implements the core methods with the same signatures can be assigned to `config.store`. Add `del_if` when you use `lock_with`, and `ttl` when you need `remaining_ttl` (circuit breaker `retry_after`, lock `metadata[:retry_after]`). Use custom backends for Memcached, DynamoDB, observability wrappers, or an in-test spy.
+
+Walkthrough with a recording store for specs and an instrumented Redis wrapper: [Store Wrappers](https://drexed.github.io/cmdx/cookbook/store_wrappers/index.md).
+
+```ruby
+class NullStore
+  def get(_key) = nil
+  def set(_key, _value, ttl: nil, nx: false, xx: false) = true
+  def incr(_key, ttl: nil) = 1
+  def decr(_key, ttl: nil) = 0
+  def ttl(_key) = nil
+  def del(_key) = 0
+  def del_if(_key, _expected) = false
+end
+
+CMDx.configure { |c| c.store = NullStore.new }
+```
+
+## Testing
+
+Specs call `CMDx.reset_configuration!` in `spec_helper`, so `CMDx::Stores` starts on a clean in-memory backend every example. To assert against an isolated instance without touching global config:
+
+```ruby
+store = CMDx::Stores::Memory.new
+CMDx.configuration.store = store
+
+store.set(:token, "abc")
+expect(CMDx::Stores.get(:token)).to eq("abc")
+```
+
+For integration tests against Redis semantics, assign `CMDx::Stores::Redis.new(redis: …)` in a `before` block and point `redis` at `MockRedis` or a dedicated test Redis URL.
+
+# Locks
+
+Two workers. Same `account_id`. Same nightly reconcile job. You want **one** of them in the room at a time — but you **do** want the job to run again tomorrow.
+
+`lock_with` grabs a short **lease** in [Stores](https://drexed.github.io/cmdx/stores/index.md) (`set(..., nx: true)`). Only one invocation holds the key while it runs. When that run finishes — success, skip, fail, or error — the lease is released. Unlike [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md), the next run with the same key is welcome once the lock is gone.
+
+Locks vs idempotency
+
+**Locks** keep concurrent workers from stepping on each other. **Idempotency** stops duplicate side effects when a message is redelivered. Need single-flight *and* at-most-once? Use both — see [Interaction with `idempotent_by`](#interaction-with-idempotent_by).
+
+## Basic usage
+
+```ruby
+class ReconcileAccount < CMDx::Task
+  lock_with :account_id, ttl: 600, wait: 30
+
+  required :account_id, coerce: :string
+
+  def work
+    # ...
+  end
+end
+```
+
+| Option            | Default       | Plain-English meaning                                                                                                                                                                              |
+| ----------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ttl:`            | `300`         | How long the lease survives if the holder never releases it (crash safety).                                                                                                                        |
+| `wait:`           | `0`           | Max seconds to wait for someone else to finish. `0`, `nil`, or `false` → try once, no waiting.                                                                                                     |
+| `namespace:`      | `"cmdx:lock"` | First piece of the store key (see [Store keys](#store-keys)).                                                                                                                                      |
+| `on_busy:`        | `:fail`       | Still locked after `wait:` — `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :busy`, plus `lock_key`, and optional `holder` / `retry_after` when the backend exposes them). |
+| `if:` / `unless:` | `nil`         | Turn locking on or off for this run (same `Util.satisfied?` rules as other features).                                                                                                              |
+
+### Key resolvers
+
+Same shapes as `idempotent_by` — pick what reads best:
+
+| Form                          | How the segment is resolved                                   |
+| ----------------------------- | ------------------------------------------------------------- |
+| `Symbol` (e.g. `:account_id`) | `context[account_id]` after inputs run                        |
+| `String`                      | Used literally as the segment                                 |
+| Block / `Proc`                | `instance_exec` on the task — `self` is the task; optional \` |
+| Other `#call`                 | `call(task)` — e.g. a small resolver object                   |
+
+```ruby
+lock_with { "tenant:#{tenant_id}:account:#{account_id}" }
+
+lock_with ->(task) { "#{task.context.tenant_id}:#{task.context.account_id}" }
+```
+
+If the resolved segment is blank (`nil` or empty string), locking **steps aside** — `work` runs every time and nothing is written to the store.
+
+## Store keys
+
+Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — for example `cmdx:lock:ReconcileAccount:acct_42`.
+
+While the lease is held, the value is the holding run's task `tid` (same id as `result.tid`). On release, the key is deleted only if that token still matches — so a slow worker cannot wipe a **new** holder's lease after `ttl` expired and someone else moved in.
+
+## Lease lifetime and `ttl`
+
+The lease is taken **once** per task run and held until that invocation leaves the wrapped block: idempotency (if any), the full `retry_on` loop, and output verification. `ttl` is not a per-`work` timer — it is **crash insurance** for how long the key sticks around if the process never calls release.
+
+Size `ttl:` for worst-case **hold** time:
+
+- longest `work`
+- plus all `retry_on` sleeps
+- plus output verification
+- plus a little headroom
+
+If real hold time can beat `ttl`, another worker may grab the lock while the first is still running. Fix it by raising `ttl`, tightening retries, or splitting the work.
+
+TTL and crashes
+
+If a worker dies while holding the lease, the key sits in the store until `ttl:` expires. Until then, other workers see **busy** (or wait, if you set `wait:`). Plan `ttl` for worst-case runtime — not just your HTTP timeout.
+
+## Runtime order
+
+Think of one outer envelope around the whole attempt:
+
+```text
+resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent_by → retry loop { work } → verify_outputs!
+```
+
+The lock wraps the idempotency claim and the entire `retry_on` loop. One holder runs every retry attempt before releasing.
+
+## Interaction with `idempotent_by`
+
+With both enabled, a second worker usually **waits** on the lock. When the first run **completes**, that worker acquires the lock, hits idempotency, and **skips** as a duplicate instead of running `work` again.
+
+| You want…                                          | Use…              |
+| -------------------------------------------------- | ----------------- |
+| Overlap is the problem; repeat runs later are fine | Lock alone        |
+| Duplicates must never enter `work` again           | Idempotency alone |
+| Single-flight **and** at-most-once side effects    | Both              |
+
+## Skip vs fail when busy
+
+`:skip` is for “someone else has this — treat as a no-op” (for example HTTP 202 or “already in progress”). `:fail` is for “no, you may not run right now” (for example HTTP 409).
+
+Both set `metadata[:code] == :busy` and `metadata[:lock_key]` to the full store key. When the backend supports it, you also get `holder` (who has the lease) and `retry_after` (seconds until the key may expire).
+
+## Telemetry
+
+When locking is active for a run (enabled, gates pass, segment non-blank), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed — unused events cost nothing.
+
+| Event            | When                                                     | Extra `event.payload` keys                                              |
+| ---------------- | -------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `:lock_acquired` | Lease taken, right before idempotency / retries / `work` | `lock_key`                                                              |
+| `:lock_busy`     | Lease not acquired within `wait:`                        | `code: :busy`, `lock_key`, `on_busy:`; optional `holder`, `retry_after` |
+
+Each event also carries the usual `Telemetry::Event` fields (`cid`, `xid`, `tid`, `task`, `timestamp`, …).
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:lock_busy, ->(event) {
+    StatsD.increment("cmdx.lock.busy", tags: ["task:#{event.task}"])
+  })
+
+  config.telemetry.subscribe(:lock_acquired, ->(event) {
+    Rails.logger.info("[cmdx] lock #{event.payload[:lock_key]} held by #{event.tid}")
+  })
+end
+```
+
+`:lock_busy` fires **before** `skip!` / `fail!`, so you can metric contention even when the final result is skipped.
+
+## Inheritance
+
+Subclasses inherit the parent's lock. `lock_with` with no arguments returns the current config. A new key resolver **replaces** the old one; option-only calls **merge**. `lock_with false` on a subclass turns locking off.
+
+```ruby
+class ApplicationTask < CMDx::Task
+  lock_with :tenant_id, ttl: 600
+end
+
+class ReconcileAccount < ApplicationTask
+  lock_with :account_id # resolver → account_id, ttl stays 600
+end
+
+class PreviewReconcile < ApplicationTask
+  lock_with false
+end
+```
+
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only coordinates inside one process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+
+# Idempotency
+
+Same `payment_id`. The webhook fires again. Sidekiq retries because the worker died mid-flight.
+
+For work that must happen **at most once** — charge a card, send the email, reserve inventory — you need a **stable key** from the payload and a shared “already handled” claim. The second caller should stop **before** `work` runs.
+
+`idempotent_by` wires that up with [Stores](https://drexed.github.io/cmdx/stores/index.md): claim a slot using `set(..., nx: true)`, mark success with `xx: true`, and you do not register middleware yourself. To serialize concurrent workers without blocking repeat runs later, see [Locks](https://drexed.github.io/cmdx/locks/index.md).
+
+Important
+
+The claim runs **after** inputs are resolved and **wraps the whole `retry_on` loop**, not each retry attempt. One successful run marks the slot `completed`; a raised error deletes the claim so retries can hit `work` again. See [Retries](https://drexed.github.io/cmdx/retries/index.md) for what retries do *not* re-run (inputs, most callbacks).
+
+## Basic usage
+
+Pick a key from context (after coercion) or build one in a block:
+
+```ruby
+class ChargeCustomer < CMDx::Task
+  idempotent_by :payment_id
+
+  required :payment_id,   coerce: :string
+  required :amount_cents, coerce: :integer
+
+  def work
+    context.charge = Stripe::Charge.create(
+      amount:          amount_cents,
+      currency:        "usd",
+      idempotency_key: payment_id
+    )
+  end
+end
+
+ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # success
+ChargeCustomer.execute(payment_id: "pay_123", amount_cents: 9_900) # skipped: duplicate
+```
+
+| Option            | Default       | Plain-English meaning                                                                         |
+| ----------------- | ------------- | --------------------------------------------------------------------------------------------- |
+| `ttl:`            | `300`         | How long the store entry lives (seconds). After it expires, a new run can claim again.        |
+| `namespace:`      | `"cmdx:idem"` | First piece of the store key (see [Store keys](#store-keys)).                                 |
+| `on_duplicate:`   | `:skip`       | `:skip` → skipped result; `:fail` → failed result (both set `metadata[:code] == :duplicate`). |
+| `if:` / `unless:` | `nil`         | Turn idempotency on or off for this run (same `Util.satisfied?` rules as other features).     |
+
+### Key resolvers
+
+Same idea as elsewhere in CMDx — pick the shape that reads best:
+
+| Form                          | How the segment is resolved                                   |
+| ----------------------------- | ------------------------------------------------------------- |
+| `Symbol` (e.g. `:payment_id`) | `context[payment_id]` after inputs run                        |
+| `String`                      | Used literally as the segment                                 |
+| Block / `Proc`                | `instance_exec` on the task — `self` is the task; optional \` |
+| Other `#call`                 | `call(task)` — e.g. a small resolver object                   |
+
+```ruby
+idempotent_by { "#{user_id}:#{context.idempotency_key}" }
+
+idempotent_by ->(task) { "#{task.context.user_id}:#{task.context.idempotency_key}" }
+```
+
+If the resolved segment is blank (`nil` or empty string), idempotency **steps aside** — `work` runs every time and nothing is written to the store.
+
+## Store keys
+
+Keys are built with `CMDx::StoreKey.compose(namespace, task.class.name, segment)` — colon-separated, each segment coerced like `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
+
+Example: `cmdx:idem:ChargeCustomer:pay_123`
+
+While work is running, the value is `"processing"`. After a successful run it becomes `"completed"`. Duplicates read that value for the message (`state=processing` or `state=completed`).
+
+## Interaction with `retry_on`
+
+Think of one outer envelope around the whole attempt, retries included:
+
+```text
+resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent claim → retry loop { work } → verify_outputs! → completed
+```
+
+If `work` raises `StandardError`, the claim is **deleted** before the exception reaches `retry_on`. The claim is also released when `work` calls `skip!` or `fail!`, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is `completed` and the next call with the same key never enters `work`.
+
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+
+TTL and crashes
+
+If a worker dies after claiming but before success or cleanup, the key sticks around until `ttl:` expires — then another caller may run `work` again. Set `ttl:` for your worst-case runtime (and deploy pauses), not just HTTP timeouts.
+
+## Inheritance
+
+Subclasses pick up the parent’s idempotency config. `idempotent_by` with no arguments returns what you have now (including inherited settings). Pass a new key resolver to **replace** the old one; pass only options to **merge** (e.g. `idempotent_by ttl: 600` keeps the same resolver). Same layering idea as `retry_on`, except the key resolver is singular, not a list. `idempotent_by false` on a subclass turns it off.
+
+```ruby
+class ApplicationTask < CMDx::Task
+  idempotent_by :request_id, ttl: 600
+end
+
+class ChargeCustomer < ApplicationTask
+  idempotent_by :payment_id # resolver → payment_id, ttl stays 600
+end
+
+class PreviewCharge < ApplicationTask
+  idempotent_by false # no store claim; work runs every time
+end
+```
+
+## Skip vs fail on duplicates
+
+`:skip` is for “already done — treat as success” (idempotent no-op, HTTP 2xx). `:fail` is for “no, you may not run this again” (for example HTTP 409).
+
+Both set `metadata[:code] == :duplicate` and `metadata[:idempotency_key]` to the full store key.
+
+Signals
+
+Duplicates call `skip!` or `fail!` inside the `catch` around `work`, so your resolver does not keep running — under `execute` you get a `Result` with `skipped?` or `failed?`; under `execute!` you get a fault.
+
+## Telemetry
+
+When idempotency is active for a run (enabled, gates pass, segment non-blank), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
+
+| Event                    | When                                                     | Extra `event.payload` keys                     |
+| ------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
+| `:idempotency_claimed`   | `processing` slot claimed (`nx: true`)                   | `idempotency_key`                              |
+| `:idempotency_completed` | Slot marked `completed` after the wrapped block succeeds | `idempotency_key`                              |
+| `:idempotency_duplicate` | Key already held (`processing` or `completed`)           | `code: :duplicate`, `idempotency_key`, `state` |
+
+`:idempotency_claimed` and `:idempotency_completed` bracket a successful run (claim → work, retries, and output verification → completed). Failed runs delete the claim and do **not** emit `:idempotency_completed`.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:idempotency_duplicate, ->(event) {
+    StatsD.increment("cmdx.idempotency.duplicate", tags: [
+      "task:#{event.task}",
+      "state:#{event.payload[:state]}"
+    ])
+  })
+end
+```
+
+`:idempotency_duplicate` fires **before** `skip!` / `fail!`, matching the metadata on the final `Result`.
+
+# Rate limit
+
+Someone keeps hitting “forgot password.” Same email, fifty times in a minute. Your mailer is fine — your abuse budget is not.
+
+**Rate limiting** is the turnstile at the front door: it counts how many times a task may **start** in a time window — per user, per IP, or for the whole app. Cheap to call, expensive to abuse? This is the knob.
+
+`rate_limit` tracks those **starts** in [Stores](https://drexed.github.io/cmdx/stores/index.md). It runs **once per `execute`** — retries inside `retry_on` do **not** eat extra quota. When the turnstile is full, `work` never runs.
+
+Rate limits vs circuit breakers
+
+**Rate limits** count **invocations** — “this caller has had enough tries.” **Circuit breakers** count **failures** — “this dependency is sick, stop hammering it.” Password resets and OTP sends usually want a rate limit; flaky inventory APIs usually want a breaker. Need both? Use both — see [Runtime order](#runtime-order).
+
+## Basic usage
+
+```ruby
+class SendPasswordReset < CMDx::Task
+  rate_limit :email, max: 5, per: 60
+
+  required :email, coerce: :string
+
+  def work
+    Mailer.password_reset(email).deliver_later
+  end
+end
+
+5.times { SendPasswordReset.execute(email: "user@example.com") }   # success
+result = SendPasswordReset.execute(email: "user@example.com")
+result.failed?                # => true
+result.metadata[:code]        # => :rate_limited
+result.metadata[:retry_after] # => seconds (when the backend exposes TTL)
+```
+
+| Option            | Default         | Plain-English meaning                                                                                                              |
+| ----------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `max:`            | *(required)*    | How many runs you allow in the window (or bucket capacity for `:leaky_bucket`)                                                     |
+| `per:`            | *(required)*    | Window length in seconds (`:fixed_window`) or seconds to “leak” one unit (`:leaky_bucket`)                                         |
+| `limiter:`        | `:fixed_window` | Built-in or registered strategy — see [Limiters](#limiters)                                                                        |
+| `cost:`           | `1`             | How many units one admitted run costs — **only** `:leaky_bucket` reads this; `:fixed_window` always counts one start per `execute` |
+| `namespace:`      | `"cmdx:rl"`     | First piece of store keys                                                                                                          |
+| `on_limit:`       | `:fail`         | `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :rate_limited`)                                             |
+| `if:` / `unless:` | `nil`           | Turn rate limiting on or off for this run                                                                                          |
+
+Pass `rate_limit false` on a subclass to turn off an inherited limit.
+
+Want **one counter for the whole task type**? Use `rate_limit :class, …` or omit the key and pass only `max:` / `per:` — same bucket either way.
+
+### Key resolvers
+
+Pick **who shares one counter**. Same shapes as [Idempotency key resolvers](https://drexed.github.io/cmdx/idempotency/#key-resolvers) and [Circuit breaker scoping](https://drexed.github.io/cmdx/circuit_breaker/#scoping-the-breaker):
+
+| Form                     | How the segment is resolved                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| `:class`                 | No extra segment — one bucket per task class (`namespace:TaskName`)                     |
+| `Symbol` (e.g. `:email`) | `context[email]` after inputs run                                                       |
+| `String`                 | Used literally as the segment                                                           |
+| Block / `Proc`           | `instance_exec` on the task — `self` is the task; optional `\|task\|` matches callbacks |
+| Other `#call`            | `call(task)` — e.g. a small resolver object                                             |
+
+```ruby
+rate_limit :email, max: 5, per: 60          # one bucket per email address
+rate_limit :class, max: 100, per: 3600      # one bucket for the whole task class
+rate_limit max: 50, per: 3600               # same as :class when no key is given
+```
+
+When the resolver is not `:class` and the segment is blank (`nil` or empty string), rate limiting **steps aside** for that run — same idea as [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) with a blank key. Keys are built with `CMDx::StoreKey.task_key(..., class_scoped: true)` so `:class` does not read context.
+
+## Quota is charged at the door
+
+Think of each allowed `execute` as swiping in once. CMDx charges that swipe **before** the circuit breaker, locks, idempotency, or `work`.
+
+If `work` raises, calls `fail!` / `skip!`, or the run retries inside `retry_on`, CMDx does **not** refund the swipe. One outer `execute` still used at most one admission — retries do not visit the turnstile again.
+
+Size your limits for **starts**, not “only successful finishes.”
+
+## Store keys
+
+Base keys use `CMDx::StoreKey.task_key(task, namespace:, resolver:, class_scoped: true)` — colon-separated segments, each coerced with `CMDx::Stores.key!` (empty segments raise `ArgumentError`).
+
+Examples:
+
+- `cmdx:rl:SendPasswordReset:user@example.com`
+- `cmdx:rl:SendPasswordReset` (with `rate_limit :class` or options-only `max:` / `per:`)
+
+`:fixed_window` increments the base key. `:leaky_bucket` stores `"level:last_at"` at `#{store_key}:lb` with a TTL derived from capacity and `per`.
+
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only counts inside one process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+
+## Result metadata
+
+When the turnstile says no, `skip!` / `fail!` merge the same payload as `:rate_limit_exceeded` telemetry into `result.metadata`:
+
+| Key               | Meaning                                                                          |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `:code`           | `:rate_limited`                                                                  |
+| `:rate_limit_key` | Full base store key                                                              |
+| `:limiter`        | Strategy name (`:fixed_window`, `:leaky_bucket`, or your registered symbol)      |
+| `:max`, `:per`    | Declared limits                                                                  |
+| `:count`          | Present for `:fixed_window` (counter after `incr`, including the denied attempt) |
+| `:level`          | Present for `:leaky_bucket` (projected fill when denied)                         |
+| `:retry_after`    | Seconds until retry might succeed when the backend or limiter computes it        |
+
+Admitted runs do not add rate-limit fields to the result — subscribe to `:rate_limit_admitted` if you need per-run admission metrics.
+
+## Runtime order
+
+After inputs resolve, CMDx checks the turnstile **before** breakers, locks, and idempotency:
+
+```text
+resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent_by → retry loop { work } → verify_outputs!
+```
+
+Retries do not re-run the limiter. One outer execution costs at most one admission (for the configured `cost`).
+
+## Limiters
+
+A **limiter** is the little algorithm that answers: “Is there room for one more start?” Built-ins live in `CMDx::Limiters` — same registry idea as `CMDx::Retriers` for retry jitter.
+
+Resolution order:
+
+1. `limiter:` as a `Proc` → `instance_exec` on the task
+1. Symbol → `task.class.limiters` when the task registered `register :limiter`, otherwise `CMDx.configuration.limiters`
+
+Each callable gets a `CMDx::RateLimit::Quota` (the question) and must return a `CMDx::RateLimit::Admission` (yes or no, plus optional hints for messages and metadata).
+
+| `Quota` field        | Role                                                         |
+| -------------------- | ------------------------------------------------------------ |
+| `task`               | Task being admitted                                          |
+| `store_key`          | Base key (append suffixes if your strategy needs more state) |
+| `max`, `per`, `cost` | Declared limits                                              |
+| `limiter`            | Resolved strategy spec                                       |
+| `options`            | Frozen declaration hash (namespace, gates, etc.)             |
+
+| `Admission` field | Role                                                       |
+| ----------------- | ---------------------------------------------------------- |
+| `admitted`        | `true` to run `work`, `false` to signal over limit         |
+| `count`           | Optional counter for messages / metadata (`:fixed_window`) |
+| `level`           | Optional fill for messages / metadata (`:leaky_bucket`)    |
+| `retry_after`     | Optional hint in seconds                                   |
+| `limiter`         | Name recorded on telemetry and metadata                    |
+
+### Built-in limiters
+
+**Fixed window** — a simple counter with a TTL. Easy to reason about; you can get a small burst right when a window rolls over.
+
+```ruby
+rate_limit :email, max: 5, per: 60, limiter: :fixed_window
+```
+
+**Leaky bucket** — capacity refills slowly (`per` seconds per unit). Smoother traffic shape; state lives at `store_key:lb`.
+
+```ruby
+rate_limit :email, max: 10, per: 30, limiter: :leaky_bucket
+```
+
+### Custom limiters
+
+Register globally or per task with `register :limiter`:
+
+```ruby
+CMDx.configure do |config|
+  config.limiters.register(:per_tenant_strict) do |quota|
+    count = CMDx::Stores.incr(quota.store_key, ttl: quota.per)
+    admitted = count <= quota.max
+    retry_after = admitted ? nil : CMDx::Stores.remaining_ttl(quota.store_key)
+
+    CMDx::RateLimit::Admission.new(
+      admitted:,
+      count:,
+      level: nil,
+      retry_after:,
+      limiter: :per_tenant_strict
+    )
+  end
+end
+
+class SendInvoice < CMDx::Task
+  register :limiter, :app_only, MyApp::InvoiceLimiter
+
+  rate_limit :account_id, max: 20, per: 3600, limiter: :app_only
+end
+```
+
+Pass a `Proc` as `limiter:` and CMDx runs it with `instance_exec` on the task, passing the `Quota` as the block argument. It must return an `Admission`. Unknown limiter symbols raise `CMDx::UnknownEntryError` with registered names in the message.
+
+## Telemetry
+
+When rate limiting is active for a run (enabled, gates pass, key resolves), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed — unused events cost nothing.
+
+| Event                  | When                                                      | Extra `event.payload` keys                                                                                              |
+| ---------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `:rate_limit_admitted` | Admission succeeded, before circuit breaker / lock / work | `rate_limit_key`, `limiter`, `max`, `per`; optional `count`, `level`, `retry_after`                                     |
+| `:rate_limit_exceeded` | Admission denied                                          | `code: :rate_limited`, `rate_limit_key`, `limiter`, `on_limit:`, `max`, `per`; optional `count`, `level`, `retry_after` |
+
+`:rate_limit_exceeded` fires **before** `skip!` / `fail!`, matching `metadata[:code] == :rate_limited` on the result.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:rate_limit_exceeded, ->(event) {
+    StatsD.increment("cmdx.rate_limit.denied", tags: [
+      "task:#{event.task}",
+      "limiter:#{event.payload[:limiter]}"
+    ])
+  })
+end
+```
+
+## Inheritance
+
+Subclasses inherit the parent’s rate limit. `rate_limit` with no arguments returns the current config (including inherited). Pass a new key to **replace** it; pass only options to **merge** (e.g. `rate_limit per: 120` on the subclass). `rate_limit false` turns it off.
+
+```ruby
+class ApplicationTask < CMDx::Task
+  rate_limit :class, max: 1000, per: 3600
+end
+
+class SendSms < ApplicationTask
+  rate_limit :phone, max: 3, per: 300
+end
+
+class DryRunSms < ApplicationTask
+  rate_limit false
+end
+```
+
+# Circuit breaker
+
+The inventory API is down. Every task still waits, times out, retries, and piles onto the same unhappy dependency.
+
+A **circuit breaker** is the bouncer at the door: it counts failures, **opens** after too many in a row, and sends new work away until a cool-off passes. Callers stop paying for timeouts while the dependency is clearly struggling.
+
+`circuit_breaker` adds that pattern to your task using [Stores](https://drexed.github.io/cmdx/stores/index.md) — one breaker config per task class by default, or scoped per tenant/service when you pass a key resolver.
+
+## Basic usage
+
+One breaker per task class (the default):
+
+```ruby
+class FetchInventory < CMDx::Task
+  circuit_breaker threshold: 3, cool_off: 10
+
+  required :sku, coerce: :string
+
+  def work
+    context.inventory = InventoryClient.fetch(sku, timeout: 2)
+  end
+end
+
+FetchInventory.execute(sku: "ABC-123") # raises → failure recorded
+# after enough failures…
+FetchInventory.execute(sku: "ABC-123") # failed: circuit open (work not run)
+```
+
+| Option            | Default         | Plain-English meaning                                                                  |
+| ----------------- | --------------- | -------------------------------------------------------------------------------------- |
+| `threshold:`      | `5`             | How many failures inside `window:` before the circuit opens                            |
+| `cool_off:`       | `30`            | How long (seconds) the circuit stays open                                              |
+| `window:`         | `60`            | Sliding window (seconds) for the failure counter                                       |
+| `namespace:`      | `"cmdx:cb"`     | First piece of store keys                                                              |
+| `on:`             | `StandardError` | Exception classes that count as “this dependency failed”                               |
+| `on_open:`        | `:fail`         | `:fail` → failed result; `:skip` → skipped result (`metadata[:code] == :circuit_open`) |
+| `if:` / `unless:` | `nil`           | Turn the breaker on or off for this run                                                |
+
+### Scoping the breaker
+
+Pass a key resolver when one task talks to several downstreams (or tenants). Same shapes as [Idempotency key resolvers](https://drexed.github.io/cmdx/idempotency/#key-resolvers):
+
+```ruby
+circuit_breaker :stripe_account, threshold: 3, cool_off: 30
+```
+
+Explicit “one breaker per task type”:
+
+```ruby
+circuit_breaker :class, threshold: 5
+```
+
+Count only real dependency pain — not every `StandardError` in your app:
+
+```ruby
+circuit_breaker :class, threshold: 3, on: [Stripe::APIError, Timeout::Error]
+```
+
+When the resolver is not `:class` and the segment is blank (missing context value), the breaker **steps aside** for that run — same as [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md) with a blank key.
+
+## Store keys
+
+Failure counts (circuit **closed**) use `CMDx::StoreKey.compose(base, "failures")`. The open flag uses `…:open` with value `"open"` and TTL `cool_off:`.
+
+Examples:
+
+- `cmdx:cb:FetchInventory:failures`
+- `cmdx:cb:FetchInventory:open`
+- `cmdx:cb:ChargeCustomer:acct_123:failures` (with `circuit_breaker :stripe_account`)
+
+When the circuit is open, results include `metadata[:circuit_breaker_key]` (the full `…:open` key) and, when the backend supports TTL reads, `metadata[:retry_after]` (seconds until the open flag expires).
+
+### Failure window
+
+`window:` is **sliding**, not “reset at midnight.” Each counted failure calls `Stores.incr` with `ttl: window`, and built-in adapters refresh expiry on every bump. Go `window` seconds without a new failure and the counter key disappears — the next failure starts from `1` again.
+
+## Interaction with `retry_on`
+
+Breakers run early; idempotency (if any) sits just inside:
+
+```text
+resolve_inputs! → rate_limit → circuit check → lock → idempotent claim → retry loop { work } → verify_outputs!
+```
+
+Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on every retry swing. A successful run clears the failure counter. Logical failures that only use `fail!` or validation errors do **not** trip the breaker.
+
+Use a shared store in production (`Stores::Redis` on `CMDx.configuration.store`). The in-memory default only sees your current process. See [Stores](https://drexed.github.io/cmdx/stores/index.md).
+
+## Store availability
+
+When the store itself is flaky, CMDx picks a side — on purpose:
+
+| Situation                              | Behavior                                                                         |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| Circuit **open**                       | `work` does not run; `on_open:` applies.                                         |
+| **Read** fails while checking open     | Treated as **closed** (fail-open): work runs.                                    |
+| **Write** fails after a failed run     | The work exception still raises; the failure might not be counted.               |
+| **Write** fails after a successful run | The failure counter might not clear; the next error may open the circuit sooner. |
+
+## Concurrency
+
+The breaker peeks at the open flag again right before `work`. There is no distributed lock — a task can still start moments before another process opens the circuit, and when the `:open` TTL expires many workers may call the dependency at once. Plan for that at the dependency layer if you need stricter guarantees.
+
+## Inheritance
+
+Subclasses inherit the parent’s breaker. `circuit_breaker` with no arguments returns the current config (including inherited). Pass a new key to **replace** it; pass only options to **merge** (e.g. `circuit_breaker threshold: 3` keeps `:class` when the parent enabled the breaker that way). `circuit_breaker false` on a subclass turns it off.
+
+```ruby
+class ExternalApiTask < CMDx::Task
+  circuit_breaker :class, threshold: 5, cool_off: 30
+end
+
+class FetchInventory < ExternalApiTask
+  circuit_breaker threshold: 3 # key stays :class, threshold → 3
+end
+
+class PreviewInventory < ExternalApiTask
+  circuit_breaker false # no breaker; work runs every time
+end
+```
+
+## Telemetry
+
+When the breaker is active for a run (enabled, gates pass, key resolves), CMDx emits [telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) only if someone subscribed.
+
+| Event              | When                                                         | Extra `event.payload` keys                                                       |
+| ------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `:circuit_open`    | Open flag present — `work` does not run                      | `code: :circuit_open`, `circuit_breaker_key`, `on_open:`; optional `retry_after` |
+| `:circuit_tripped` | Failure count reached `threshold:` and the open flag was set | `circuit_breaker_key`, `failures_key`, `failure_count`, `threshold`, `cool_off`  |
+| `:circuit_reset`   | Successful run removed the failure counter                   | `failures_key`                                                                   |
+
+`:circuit_tripped` fires on the run that **opens** the circuit (after the counting failure escapes the retry loop). The **next** run gets `:circuit_open` when it is turned away at the door.
+
+`:circuit_reset` only fires when a failure key was actually deleted — not on every success.
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:circuit_tripped, ->(event) {
+    StatsD.increment("cmdx.circuit.tripped", tags: ["task:#{event.task}"])
+  })
+
+  config.telemetry.subscribe(:circuit_open, ->(event) {
+    StatsD.increment("cmdx.circuit.open", tags: [
+      "task:#{event.task}",
+      "on_open:#{event.payload[:on_open]}"
+    ])
+  })
+end
+```
+
+`:circuit_open` fires **before** `skip!` / `fail!`, same timing as `metadata[:code] == :circuit_open` on the result.
+
+# Retries
+
+Networks flake. APIs rate-limit you. Sometimes the universe just says “not yet.”
+
+`retry_on` tells CMDx: **when `work` raises one of these exception types, wait a beat and try again** — up to a limit you control.
+
+Important nuance: retries only rerun **`work`**. Inputs, outputs, and most lifecycle callbacks still run **once** per execution. That keeps retries predictable: you are not re-validating the world on every attempt unless you put that logic inside `work` (or another layer).
+
+## Basic Usage
+
+List the exception classes you care about. If you never declare `retry_on`, nothing is retried.
+
+```ruby
+class FetchExternalData < CMDx::Task
+  retry_on Net::OpenTimeout, Net::ReadTimeout
+
+  def work
+    response = HTTParty.get("https://api.example.com/data")
+    context.data = response.parsed_response
+  end
+end
+```
+
+| Option       | Default | Plain-English meaning                                                                                      |
+| ------------ | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `limit:`     | `3`     | How many **retries** after the first try. Total runs = `limit + 1`. Set `limit: 0` to turn retries off.    |
+| `delay:`     | `0.5`   | Base pause in seconds between tries. `0` means “do not sleep.”                                             |
+| `max_delay:` | `nil`   | Cap the sleep so jittered waits do not grow forever.                                                       |
+| `jitter:`    | `nil`   | How to **wiggle** the delay so thundering herds calm down — see [Jitter](#jitter).                         |
+| `if:`        | `nil`   | Per-attempt gate: when falsy, stop retrying and re-raise. See [Conditional Retries](#conditional-retries). |
+| `unless:`    | `nil`   | Inverse of `if:` — when truthy, re-raise instead of retrying.                                              |
+
+```ruby
+class ProcessPayment < CMDx::Task
+  retry_on Stripe::RateLimitError, Net::ReadTimeout,
+           limit: 5, delay: 1.0, max_delay: 30.0, jitter: :exponential
+
+  def work
+    # ...
+  end
+end
+```
+
+Important
+
+Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
+
+Locks and idempotency during retries
+
+`lock_with` and `idempotent_by` wrap the **entire** `retry_on` loop in `Runtime`. A retried attempt does **not** release the lock or idempotency claim between tries — the same invocation keeps the lease until `work` (and output verification) finish, the run halts via `skip!` / `fail!`, or an uncaught error leaves the wrapped block.
+
+Size `lock_with ttl:` for worst-case hold time (work, retry sleeps, verification). See [Locks — Lease lifetime and `ttl`](https://drexed.github.io/cmdx/locks/#lease-lifetime-and-ttl).
+
+When retries are exhausted and the error propagates, idempotency deletes its claim so a **new** job delivery can try again; the lock is released in `ensure` after acquire. See [Locks](https://drexed.github.io/cmdx/locks/index.md) and [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md).
+
+## Inheritance
+
+Subclasses inherit the parent’s retry policy. Calling `retry_on` with no exception classes and no options returns the current (possibly inherited) configuration. Further calls **add** exception types and **merge** options — including option-only updates such as `retry_on limit: 5` on the subclass. Pass `retry_on false` on a subclass to disable retries entirely (even when the parent declared them).
+
+```ruby
+class ApplicationTask < CMDx::Task
+  retry_on Net::OpenTimeout, limit: 2
+end
+
+class FetchProfile < ApplicationTask
+  retry_on Net::ReadTimeout, max_delay: 5.0
+  # Effective: [Net::OpenTimeout, Net::ReadTimeout], limit: 2, max_delay: 5.0
+end
+
+class DryRunFetch < ApplicationTask
+  retry_on false # no retries; first failure surfaces immediately
+end
+```
+
+`Retry#enabled?` is `false` when retries are disabled (no exception list). `CMDx::Retry.disabled` is the shared empty configuration used at the root of the hierarchy and after `retry_on false`.
+
+## Jitter
+
+“Jitter” is a fancy word for **random-ish spacing** so many clients do not all wake up at the exact same millisecond.
+
+Built-in strategies receive `(attempt, delay, prev_delay)` where `attempt` is zero-based, `delay` is your base delay, and `prev_delay` is the last computed sleep (or `nil` on the first wait in a run). Most built-ins ignore `prev_delay` except `:decorrelated_jitter`. The computed sleep is clamped by `max_delay` when you set it.
+
+### Built-in Strategies
+
+```ruby
+retry_on TransientError, delay: 1.0, jitter: :exponential
+# attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 4s, ...
+
+retry_on TransientError, delay: 2.0, jitter: :half_random
+# delay/2 .. delay      → 1.0s .. 2.0s
+
+retry_on TransientError, delay: 2.0, jitter: :full_random
+# 0       .. delay      → 0.0s .. 2.0s
+
+retry_on TransientError, delay: 2.0, jitter: :bounded_random
+# delay   .. 2*delay    → 2.0s .. 4.0s
+
+retry_on TransientError, delay: 1.0, jitter: :linear
+# attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 3s, ...
+
+retry_on TransientError, delay: 1.0, jitter: :fibonacci
+# attempt 0 → 1s, attempt 1 → 1s, attempt 2 → 2s, attempt 3 → 3s, attempt 4 → 5s, ...
+
+retry_on TransientError, delay: 1.0, jitter: :decorrelated_jitter
+# AWS-style: next sleep ∈ [delay, prev_sleep * 3], starting from prev = delay
+# attempt 0 → 1.0s..3.0s, then each subsequent attempt's upper bound is 3× the
+# previous sleep (clamped by :max_delay if set)
+```
+
+Note
+
+`:decorrelated_jitter` remembers the previous sleep **within one** `process` call. If something calls `#wait` without passing `prev_delay`, it falls back to the base delay — fine for normal retries, just know the state is scoped to that run.
+
+### Custom Strategies via the `Retriers` Registry
+
+Built-ins live in `CMDx::Retriers` (same idea as `Mergers` and `Executors`). A strategy is any callable shaped like `call(attempt, delay, prev_delay)` → seconds to sleep.
+
+Register globally in config, or per-task with `register :retrier`:
+
+```ruby
+CMDx.configure do |config|
+  config.retriers.register(:capped_exponential) do |attempt, delay, _prev|
+    [delay * (2**attempt), 30.0].min
+  end
+end
+
+class FetchExternalData < CMDx::Task
+  retry_on Net::ReadTimeout, jitter: :capped_exponential
+
+  # Or scoped to the task class only:
+  register :retrier, :doubled, ->(_a, delay, _p) { delay * 2 }
+end
+```
+
+If a symbol is not in the registry, CMDx falls back to an **instance method** on the task — so older `jitter: :my_custom_method` style configs keep working.
+
+### Symbol (Instance Method)
+
+The method receives `(attempt, delay, prev_delay)` and returns how long to sleep, in seconds.
+
+```ruby
+class SyncInventory < CMDx::Task
+  retry_on InventoryAPI::ServerError, limit: 5, jitter: :exponential_backoff
+
+  def work
+    context.inventory = InventoryAPI.sync
+  end
+
+  private
+
+  def exponential_backoff(attempt, delay, _prev_delay = nil)
+    delay * (2**attempt)
+  end
+end
+```
+
+### Proc or Lambda
+
+Procs run with `instance_exec` on the task, so `context` and your helpers are right there.
+
+```ruby
+class PollJobStatus < CMDx::Task
+  retry_on JobAPI::Pending,
+           limit: 10,
+           delay: 0.5,
+           max_delay: 5.0,
+           jitter: ->(attempt, delay, _prev_delay) { delay * (attempt + 1) }
+
+  def work
+    context.status = JobAPI.check_status(context.job_id)
+  end
+end
+```
+
+### Callable (Class or Module)
+
+Anything with `#call(attempt, delay, prev_delay)` works (use `_prev_delay` if unused). The task is **not** passed in — bake config into the object.
+
+```ruby
+class ExponentialBackoff
+  def initialize(base: 1.0, cap: 60.0)
+    @base = base
+    @cap  = cap
+  end
+
+  def call(attempt, _delay, _prev_delay = nil)
+    [@base * (2**attempt), @cap].min
+  end
+end
+
+class FetchUserProfile < CMDx::Task
+  retry_on Net::ReadTimeout, limit: 4, jitter: ExponentialBackoff.new(base: 0.5)
+
+  def work
+    # ...
+  end
+end
+```
+
+### Custom Block
+
+No `:jitter` option? You can pass a block to `retry_on` instead. It runs as instance code on the task.
+
+```ruby
+class FetchAnalytics < CMDx::Task
+  retry_on Analytics::Throttled, limit: 3, delay: 1.0 do |attempt, delay, _prev_delay|
+    delay + (attempt ** 1.5)
+  end
+end
+```
+
+## Conditional Retries
+
+`:if` / `:unless` let you say “this exception **matches**, but do not retry **this time**.” When the gate says no, the exception is re-raised immediately — no more sleeps, no more attempts.
+
+| Gate form       | How it runs                                 | Think of it as                   |
+| --------------- | ------------------------------------------- | -------------------------------- |
+| `Symbol`        | `task.send(sym, error, attempt)`            | `def sym(error, attempt)`        |
+| `Proc` / lambda | `task.instance_exec(error, attempt, &gate)` | `->(error, attempt) { ... }`     |
+| `#call`-able    | `gate.call(task, error, attempt)`           | `def call(task, error, attempt)` |
+
+```ruby
+class FetchProfile < CMDx::Task
+  retry_on ApiError,
+           limit: 5,
+           delay: 1.0,
+           if: ->(error, _attempt) { error.retryable? }
+
+  retry_on Net::ReadTimeout, if: :transient?, limit: 3
+
+  def work
+    context.profile = ApiClient.fetch(context.user_id)
+  end
+
+  private
+
+  def transient?(error, _attempt) = !error.message.include?("permanent")
+end
+```
+
+Note
+
+The gate runs **before** the sleep. If it rejects a retry, you do not wait — you fail fast, and Runtime turns that into a failed result (or raises under `execute!`).
+
+## Behavior
+
+- **Same task object** — `context` and any ivars mutated in earlier attempts are still there. Design `work` accordingly.
+- **Only `work` loops** — inputs, outputs, and `before_execution` / `before_validation` callbacks are not replayed per retry. If your *input source* is flaky, wrap that fetch in its own task with `retry_on`, or use middleware — do not expect CMDx to magically re-resolve inputs for free.
+- **`task.errors` sticks around** — errors added on a failed attempt remain. Clear at the top of `work` if each attempt should start fresh; otherwise a later success might still lose at `signal_errors!`.
+- **Telemetry** — each retry emits `:task_retried` (`attempt` is zero-based; the first run is attempt `0` and does **not** emit).
+- **Middleware sees one execution** — middleware wraps the whole lifecycle, so it does not “re-enter” per retry. For per-attempt hooks, listen to `:task_retried`.
+
+## Inspecting Retries
+
+After the run, ask the `Result`:
+
+```ruby
+result = FetchExternalData.execute
+
+result.retries   #=> 2  (number of *retry* attempts; 0 if first attempt succeeded)
+result.retried?  #=> true
+```
+
+Structured logs include `retried` / `retries` too.
+
+## When Retries Are Exhausted
+
+After the last allowed retry, the exception surfaces like any other unhandled error from `work`:
+
+- **`execute`** — Runtime rescues, you get `result.failed?`, `result.cause` is the exception, `result.reason` looks like `"[ExceptionClass] message"`.
+- **`execute!`** — same lifecycle handling, then the **original** exception is re-raised (not wrapped as `CMDx::Fault`).
+
+```ruby
+result = FetchExternalData.execute
+
+if result.failed?
+  Rails.logger.error("Failed after #{result.retries} retries: #{result.reason}")
+end
+```
+# Observability
+
+# Logging
+
+Every time a task finishes its lifecycle, CMDx logs **once** at `INFO` with the full `Result#to_h` payload. Think of it as a structured trail you can ship to Splunk, Datadog, ELK, or plain files—pick a formatter that matches how your team searches logs.
+
+## Formatters
+
+| Formatter  | Good when you want…         | Output style                                    |
+| ---------- | --------------------------- | ----------------------------------------------- |
+| `Line`     | Classic log lines (default) | Single-line `Logger::Formatter` style           |
+| `JSON`     | Pipelines that eat JSON     | One compact JSON object per line                |
+| `KeyValue` | Grepping `key=value`        | `key=value.inspect` pairs                       |
+| `Logstash` | ELK-style stacks            | JSON with `@version` / `@timestamp`             |
+| `Raw`      | Bare payload                | Message body only—no severity/timestamp wrapper |
+
+Note
+
+The JSON class is `CMDx::LogFormatters::JSON` (JSON in caps). The others are CamelCase: `Line`, `KeyValue`, `Logstash`, `Raw`.
+
+```text
+I, [2026-04-19T10:30:45.123456Z #12345] INFO -- cmdx: cid="..." index=0 ... state="complete" status="success" ...
+```
+
+```json
+{"severity":"INFO","timestamp":"2026-04-19T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{"cid":"...","index":0,"root":true,"type":"Task","task":"MyTask","tid":"...","state":"complete","status":"success","reason":null,"metadata":{},"strict":false,"deprecated":false,"retried":false,"retries":0,"duration":12.34,"tags":[]}}
+```
+
+```text
+severity="INFO" timestamp="2026-04-19T10:30:45.123456Z" progname="cmdx" pid=12345 message={cid: "...", index: 0, ...}
+```
+
+```json
+{"severity":"INFO","progname":"cmdx","pid":12345,"message":{...},"@version":"1","@timestamp":"2026-04-19T10:30:45.123456Z"}
+```
+
+```text
+cid="..." index=0 root=true type="Task" task=MyTask tid="..." state="complete" status="success" ...
+```
+
+## Sample lifecycle
+
+Here’s a real-ish line: a leaf task failed and propagation fields show how the failure relates to the chain:
+
+```text
+I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: cid="019b4c2b-2a02-..." index=1 root=false type="Task" task=CalculateTax tid="019b4c2b-2a00-..." state="interrupted" status="failed" reason="tax service unavailable" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"} duration=8.92 cause=nil origin=nil threw_failure=<CalculateTax ...> caused_failure=<CalculateTax ...> rolled_back=false
+```
+
+Tip
+
+**`cid`** is your friend for tracing: pair it with your APM’s correlation id. To thread an external request id through, set a `correlation_id` resolver and filter on **`xid`**—see [Configuration – correlation id](https://drexed.github.io/cmdx/configuration/#correlation-id-xid). If Ruby rescues a plain `StandardError` (not `fail!`), you’ll see `cause=#<TheError: …>` and `reason` becomes `"[TheError] message"`.
+
+## What’s in the log?
+
+Each line is built from `Result#to_h`. Fields fall into a few buckets:
+
+### Severity / time (formatter adds these)
+
+| Field       | What it is                  | Example                        |
+| ----------- | --------------------------- | ------------------------------ |
+| `severity`  | Log level name              | `INFO`, `WARN`, `ERROR`        |
+| `timestamp` | UTC, ISO 8601, microseconds | `2026-04-19T18:43:15.000000Z`  |
+| `pid`       | OS process id               | `3784`                         |
+| `progname`  | Logger progname             | `cmdx` (unless you changed it) |
+
+`Raw` skips the wrapper and prints only the message body.
+
+### Identity
+
+| Field     | What it is                                                                                  | Example                    |
+| --------- | ------------------------------------------------------------------------------------------- | -------------------------- |
+| `cid`     | Chain id (uuid_v7)                                                                          | `"018c2b95-b764-7615-..."` |
+| `xid`     | External correlation (e.g. Rails `request_id`); `nil` unless you configure `correlation_id` | `"req-abc-123"`            |
+| `index`   | Step in the chain (root = 0)                                                                | `0`, `1`, `2`              |
+| `root`    | Is this the root task’s result?                                                             | `true` / `false`           |
+| `type`    | `"Task"` or `"Workflow"`                                                                    | `"Task"`                   |
+| `task`    | Task class name                                                                             | `GenerateInvoice`          |
+| `tid`     | This task run’s id (uuid_v7)                                                                | `"018c2b95-..."`           |
+| `context` | Frozen `CMDx::Context` (root teardown)                                                      | `#<CMDx::Context ...>`     |
+| `tags`    | From `settings(tags: [...])`                                                                | `["billing"]`              |
+
+### Outcome
+
+| Field      | What it is                 | Example                              |
+| ---------- | -------------------------- | ------------------------------------ |
+| `state`    | Where the lifecycle ended  | `"complete"`, `"interrupted"`        |
+| `status`   | Business result            | `"success"`, `"skipped"`, `"failed"` |
+| `reason`   | String from `fail!` / halt | `"payment declined"` or `nil`        |
+| `metadata` | Hash from halt             | `{ code: "INSUFFICIENT_FUNDS" }`     |
+
+### Lifecycle extras
+
+| Field        | What it is                | Example |
+| ------------ | ------------------------- | ------- |
+| `strict`     | Ran via `execute!`?       | `false` |
+| `deprecated` | Task class is deprecated? | `false` |
+| `retried`    | At least one retry?       | `false` |
+| `retries`    | How many retries          | `0`     |
+| `duration`   | Milliseconds              | `12.34` |
+
+### Only when `status == "failed"`
+
+| Field            | Meaning                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| `cause`          | Underlying exception, or `nil` for `fail!`                                           |
+| `origin`         | `{ task:, tid: }` if this failure was echoed from upstream; `nil` if it started here |
+| `threw_failure`  | `{ task:, tid: }` of the nearest upstream failure                                    |
+| `caused_failure` | `{ task:, tid: }` of the failure that actually caused the chain to fail              |
+| `rolled_back`    | `true` if `#rollback` ran                                                            |
+
+## Configuration
+
+Set formatter, level, and logger on `CMDx.configure`, or override per task with `settings(...)`. Full list: [Configuration – logging](https://drexed.github.io/cmdx/configuration/index.md).
+
+Note
+
+If a task tweaks `:log_level` or `:log_formatter`, `LoggerProxy` **dup**s the global logger so siblings don’t accidentally inherit those tweaks.
+
+### Custom logger
+
+Point one task at its own `Logger`—different file, syslog, fancy structured gem, whatever:
+
+```ruby
+class AuditTransfer < CMDx::Task
+  settings(
+    logger: Logger.new(Rails.root.join("log/audit.log"), progname: "audit"),
+    log_formatter: CMDx::LogFormatters::JSON.new
+  )
+end
+```
+
+CMDx uses that logger as-is; it only dup’s when level or formatter differ from what you passed.
+
+### Silence the lifecycle line
+
+Bump the task’s log level above `INFO` so the automatic completion line doesn’t fire:
+
+```ruby
+class QuietTask < CMDx::Task
+  settings(log_level: Logger::WARN)
+end
+```
+
+### Drop fields from the log (not from the result)
+
+`log_exclusions` strips **top-level** keys from the logged hash—handy for huge `:context` or sensitive `:metadata` while keeping them on the `Result` and telemetry.
+
+```ruby
+CMDx.configure do |config|
+  config.log_exclusions = [:context, :metadata]
+end
+
+class ImportPayroll < CMDx::Task
+  settings(log_exclusions: [:context])
+end
+```
+
+Only top-level keys; no nested paths. Default is empty = log everything.
+
+## Log levels
+
+CMDx writes the lifecycle line at **`INFO`** when the run completes. The framework itself doesn’t spam `WARN` / `ERROR` for you—use callbacks (`on_failed`, `on_skipped`) or telemetry (`:task_retried`, `:task_executed`) if you want louder logs.
+
+```ruby
+class VerboseTask < CMDx::Task
+  settings(log_level: Logger::DEBUG)
+
+  def work
+    logger.debug { "feature flags: #{Features.active_flags.inspect}" }
+    # ...
+  end
+end
+```
+
+Note
+
+**`execute!`** still logs the lifecycle line and still emits `:task_executed`—Runtime finishes the result **before** it re-raises the `Fault`.
+
+## Logging inside `work`
+
+`Task#logger` is the per-task logger (respects your settings):
+
+```ruby
+class ProcessSubscription < CMDx::Task
+  def work
+    logger.debug { "subscriber: #{context.subscriber_id}" }
+    logger.info  { "starting subscription processing" }
+  end
+end
+```
+
+# Internationalization (i18n)
+
+CMDx talks to users through messages: coercion errors, validation errors, missing outputs, missing required inputs, and the default fault reason. **All of that** goes through `CMDx::I18nProxy`.
+
+**If the `i18n` gem is loaded**, CMDx uses `I18n.translate`, so messages follow whatever `I18n.locale` is set to—just like the rest of your app.
+
+**If `i18n` isn’t there**, CMDx loads YAML for `config.default_locale` and does simple `%{key}` interpolation itself.
+
+Out of the box, CMDx ships **English only** (`en`). Want dozens more languages? Add [cmdx-i18n](https://github.com/drexed/cmdx-i18n), or drop in your own YAML (see [Custom locale paths](#custom-locale-paths)).
+
+## Usage
+
+Flip the locale and built-in messages follow:
+
+```ruby
+class ProcessQuote < CMDx::Task
+  required :price, coerce: :float
+
+  def work
+    # ...
+  end
+end
+
+I18n.with_locale(:fr) do
+  result = ProcessQuote.execute(price: "invalid")
+  result.failed?               #=> true
+  result.errors[:price]        #=> ["impossible de contraindre en float"]
+  result.reason                #=> "price impossible de contraindre en float"
+end
+```
+
+Note
+
+Failures pile up on `task.errors` (`CMDx::Errors`). `result.reason` is basically the friendly string built from those errors (`Errors#full_messages`, joined with `". "`).
+
+## Translation Keys
+
+Everything lives under `cmdx.*`. Override a key in **your** locale file to change wording app-wide:
+
+| Key                                                                             | Used by                                                                                                                                                                    |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cmdx.attributes.required`                                                      | Missing required input                                                                                                                                                     |
+| `cmdx.coercions.into_a` / `into_an`                                             | Single-type coercion failure (`%{type}`)                                                                                                                                   |
+| `cmdx.coercions.into_any`                                                       | Multi-type coercion failure (`%{types}`)                                                                                                                                   |
+| `cmdx.outputs.missing`                                                          | Declared output not set on context                                                                                                                                         |
+| `cmdx.reasons.unspecified`                                                      | Fallback fault reason                                                                                                                                                      |
+| `cmdx.types.<name>`                                                             | Human-readable coercion type names (`array`, `big_decimal`, `boolean`, `complex`, `date`, `date_time`, `float`, `hash`, `integer`, `rational`, `string`, `symbol`, `time`) |
+| `cmdx.validators.absence` / `presence` / `format`                               | Standalone validator messages                                                                                                                                              |
+| `cmdx.validators.inclusion.{of,within}`                                         | Inclusion validator messages                                                                                                                                               |
+| `cmdx.validators.exclusion.{of,within}`                                         | Exclusion validator messages                                                                                                                                               |
+| `cmdx.validators.length.{is,is_not,min,max,gt,lt,within,not_within,nil_value}`  | Length validator messages                                                                                                                                                  |
+| `cmdx.validators.numeric.{is,is_not,min,max,gt,lt,within,not_within,nil_value}` | Numeric validator messages                                                                                                                                                 |
+
+Tip
+
+Tweaking **one** field? Use `:message` or `:<rule>_message` on the input (see [Validations](https://drexed.github.io/cmdx/inputs/validations/#common-options)). Overriding `cmdx.*` changes the text **everywhere** that key is used.
+
+## Configuration
+
+### Rails
+
+The CMDx railtie adds its locale files to `I18n.load_path` on boot—but **only** for locales you list in `config.i18n.available_locales`. So you don’t load YAML for languages you never ship.
+
+```ruby
+# config/application.rb
+config.i18n.available_locales = [:en, :fr, :es]
+```
+
+### Default locale (plain Ruby)
+
+No `i18n` gem? (Scripts, CLIs, tiny workers.) Set `default_locale` and CMDx reads that locale’s YAML directly.
+
+```ruby
+CMDx.configure do |config|
+  config.default_locale = "es"
+end
+```
+
+In this mode there’s **one** active locale—no `I18n.with_locale` equivalent. If a key is missing, you’ll see `"Translation missing: <key>"`. If the **locale itself** can’t be resolved to a YAML file on the load path, CMDx raises `CMDx::UnknownLocaleError` (a `CMDx::Error`) the first time it tries to translate. More detail: [Configuration – default locale](https://drexed.github.io/cmdx/configuration/#default-locale).
+
+### Custom locale paths
+
+Point CMDx at extra folders of `<locale>.yml` files with `I18nProxy.register`. **Later** registrations win on merge, so you can override a few keys without copying entire files.
+
+```ruby
+# lib/locales/en.yml
+en:
+  cmdx:
+    attributes:
+      required: "is mandatory"
+
+CMDx::I18nProxy.register(File.expand_path("lib/locales", __dir__))
+```
+
+Note
+
+`register` only affects the **no-i18n-gem** path. When `i18n` is loaded, CMDx delegates to `I18n.translate`—add your paths to `I18n.load_path` instead.
+
+## cmdx-i18n
+
+The [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem ships **86 locales** for built-in coercion, validator, and fault messages. In Rails, its Railtie loads bundled YAML for locales you already list in `config.i18n.available_locales` — no extra wiring. Outside Rails, `require "cmdx/i18n"` registers the files with `CMDx::I18nProxy` so CMDx can translate even when the `i18n` gem is not loaded.
+
+```ruby
+gem "cmdx-i18n"
+```
+
+```ruby
+require "cmdx/i18n"
+
+CMDx.configure { |c| c.default_locale = "fr" }
+```
+
+Flip locale and the same task surfaces localized errors (the French example under [Usage](#usage) works out of the box once the gem is installed):
+
+```ruby
+I18n.with_locale(:ja) do
+  result = ProcessQuote.execute(price: "not-a-number")
+  # => Japanese coercion message on result.errors[:price]
+end
+```
+
+Need to customize one language? Copy a locale into your app and edit keys under `cmdx.*`:
+
+```bash
+rails generate cmdx:i18n:locale fr
+```
+
+Full locale list and setup notes: [cmdx-i18n on GitHub](https://github.com/drexed/cmdx-i18n).
+# Adoption
 
 # Testing
 
@@ -7678,6 +7826,34 @@ If either fails and you can't resolve it from the rules above, stop and report t
 
 ```
 ```
+# References
+
+# References
+
+Most of this site walks you through ideas in plain language. This page is the **shortcut shelf** — links to lookup material, exports, and tooling that lives outside those guides.
+
+Grab what you need:
+
+| Link                                                              | When to open it                                                                                                                              |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| [API documentation](https://drexed.github.io/cmdx/api/index.html) | You know the class or method name and want the official Ruby API write-up (generated from YARD in the repo).                                 |
+| [llms.txt](https://drexed.github.io/cmdx/llms.txt)                | You are pointing an AI assistant at CMDx and want a **small** map of the doc tree — titles and URLs, not the whole novel.                    |
+| [llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt)      | Same idea as `llms.txt`, but with the **full** documentation text in one file — handy when the tool can ingest a big paste or fetch one URL. |
+| [AI skills](https://github.com/drexed/cmdx/blob/main/skills)      | You use Cursor or Claude with skills and want ready-made helpers for writing, testing, and debugging CMDx code in this repository.           |
+
+**Quick pick:** humans debugging in the IDE usually start with the API docs; bots and automation usually start with `llms.txt` or `llms-full.txt`.
+# Ecosystem
+
+# Ecosystem
+
+CMDx on its own is the runtime, the DSL, and the docs you are reading now. When you want **extra** tooling around that core, these satellite gems pick up the slack — install only what you need.
+
+| Gem                                                | What it is for                                                                                                                              |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [cmdx-i18n](https://github.com/drexed/cmdx-i18n)   | More internationalization helpers on top of CMDx’s built-in locales — handy when error copy and validations need to live in many languages. |
+| [cmdx-rspec](https://github.com/drexed/cmdx-rspec) | RSpec matchers and helpers tuned for tasks, results, and workflows so your specs read like the framework does.                              |
+
+They follow the same release cadence and conventions as core CMDx. If you are browsing an older gem version, check that repo’s README for compatibility with your `cmdx` version.
 # Cookbook
 
 # Cookbook
@@ -7717,6 +7893,7 @@ Most pages follow the same rhythm so you can skim:
 - [Timeout Guard](https://drexed.github.io/cmdx/cookbook/timeout_guard/index.md) — cap how long a task may run
 - [Sentry Error Tracking](https://drexed.github.io/cmdx/cookbook/sentry_error_tracking/index.md) — send failures to Sentry with context
 - [OpenTelemetry Tracing](https://drexed.github.io/cmdx/cookbook/opentelemetry_tracing/index.md) — one span per task, nested like your chain
+# Cookbook: Rails and Active Record
 
 # Active Record Database Transaction
 
@@ -7850,6 +8027,335 @@ end
 ### End-to-end correlation
 
 `cmdx_xid` is the chain's external correlation id (from `settings.correlation_id`). The same value can line up SQL comments, CMDx lifecycle logs, and your APM trace — one id to grep instead of three.
+
+# Paper Trail Whatdunnit
+
+Paper Trail answers two questions when a row changes: **who** did it (`whodunnit`) and **what code path** was responsible (`whatdunnit` in `controller_info`).
+
+For a normal browser request, Rails sets that up for you. For a CMDx task — a webhook handler, a nightly job, a workflow step — *you* are the code path. Stamping the task class name on each write makes audit logs honest.
+
+## Setup
+
+Middleware sets `whatdunnit` for the duration of the task and restores the previous value when the task finishes. That way nested tasks do not leak their name into the parent's writes.
+
+```ruby
+class CmdxPaperTrailMiddleware
+  def call(task)
+    PaperTrail.request.controller_info ||= {}
+    previous = PaperTrail.request.controller_info[:whatdunnit]
+    PaperTrail.request.controller_info[:whatdunnit] = task.class.name
+
+    yield
+  ensure
+    PaperTrail.request.controller_info[:whatdunnit] = previous
+  end
+end
+```
+
+## Usage
+
+Register the middleware on the task (or on `ApplicationTask` if every task should be attributed).
+
+```ruby
+class CancelSubscription < CMDx::Task
+  register :middleware, CmdxPaperTrailMiddleware.new
+
+  required :subscription_id, coerce: :integer
+  required :reason,          coerce: :string
+
+  def work
+    subscription = Subscription.find(subscription_id)
+    subscription.update!(canceled_at: Time.current, cancel_reason: reason)
+  end
+end
+```
+
+## What to expect
+
+After the task runs, version rows can point at the task class:
+
+```sql
+SELECT whodunnit, object_changes FROM versions WHERE item_id = 42;
+-- whodunnit | object_changes
+-- ----------+----------------------------------------------------
+-- (NULL)    | { "canceled_at": [null, "2026-05-13T..."], ... }
+
+SELECT controller_info->>'whatdunnit' FROM versions WHERE item_id = 42;
+-- "CancelSubscription"
+```
+
+Set `whodunnit` separately (for example `current_user.id`) if you also need a human actor on the version.
+
+## Notes
+
+### Restore in ensure
+
+`RegisterUser` calling `SendWelcomeEmail` should not leave `SendWelcomeEmail` on the user row's version. Saving and restoring `whatdunnit` in `ensure` keeps parent and child tasks from stepping on each other.
+# Cookbook: API and integration
+
+# GraphQL Resolvers
+
+A GraphQL mutation should do three things: accept input, run business logic once, and return a payload the client understands.
+
+Put the business logic in a CMDx task. The resolver stays a thin adapter — and the same task remains callable from jobs, rake tasks, and specs.
+
+## Setup — shared payload helper
+
+Map a `Result` to a consistent shape: `success`, `errors`, plus any extra fields (like the created record).
+
+```ruby
+class Mutations::ApplicationMutation < GraphQL::Schema::Mutation
+  def self.payload_for(result, **extras)
+    if result.success?
+      { success: true, errors: [] }.merge(extras)
+    else
+      { success: false, errors: user_errors(result) }
+    end
+  end
+
+  def self.user_errors(result)
+    field_errors = result.errors.to_h.flat_map do |field, messages|
+      messages.map { |message| { message:, path: ["input", field.to_s] } }
+    end
+
+    field_errors.presence || [{ message: result.reason, path: [] }]
+  end
+end
+```
+
+## Usage
+
+Task on the inside, resolver on the outside:
+
+```ruby
+class CreateInvoice < CMDx::Task
+  required :customer_id,  coerce: :integer
+  required :amount_cents, coerce: :integer
+
+  def work
+    context.invoice = Invoice.create!(customer_id:, amount_cents:)
+  end
+end
+```
+
+```ruby
+class Mutations::CreateInvoice < Mutations::ApplicationMutation
+  argument :customer_id,  ID,      required: true
+  argument :amount_cents, Integer, required: true
+
+  field :invoice, Types::InvoiceType,    null: true
+  field :success, Boolean,               null: false
+  field :errors,  [Types::UserErrorType], null: false
+
+  def resolve(**args)
+    result = CreateInvoice.execute(**args, current_user: context[:current_user])
+
+    self.class.payload_for(result, invoice: result.context.invoice)
+  end
+end
+```
+
+## Notes
+
+### Trace ids in development
+
+Expose `result.tid` and `result.cid` on a debug field (or error extension) outside production. One id links the resolver log line to the task log line and any nested tasks.
+
+### Don't use `execute!` in resolvers
+
+`execute!` raises `CMDx::Fault` on failure. graphql-ruby turns unhandled exceptions into opaque internal errors and hides `result.reason`. Prefer `execute` and translate the `Result` yourself.
+
+# OpenAPI Schema Generation
+
+Your task already declares its inputs — types, required fields, nested objects. That contract is the source of truth for validation.
+
+Project it into OpenAPI and your HTTP docs stay aligned with what `execute` actually enforces. Change a `required` in the task, redeploy, and the schema updates with it.
+
+## Example task
+
+Descriptions on each input become OpenAPI `description` fields.
+
+```ruby
+class CreateUser < CMDx::Task
+  required :email, coerce: :string, description: "Primary email address",
+           validate: { format: URI::MailTo::EMAIL_REGEXP }
+  required :age,   coerce: :integer, description: "Age in years",
+           validate: { numericality: { greater_than_or_equal_to: 13 } }
+  optional :newsletter, coerce: :boolean, default: false,
+           description: "Subscribe to the product newsletter"
+
+  required :address, description: "Shipping address" do
+    required :street,   coerce: :string,                description: "Street name and number"
+    required :city,     coerce: :string,                description: "City"
+    optional :zip_code, coerce: %i[string integer],     description: "Postal code"
+  end
+
+  def work
+    context.user = User.create!(email:, age:, newsletter:, address:)
+  end
+end
+```
+
+## Setup — generator
+
+`inputs_schema` returns one entry per input: `{ name:, description:, required:, options:, children: }`. Walk it recursively to build a nested OpenAPI `object`.
+
+Coerce arrays use the first symbol for the OpenAPI type — enough for most cases. Extend the map when you need `format`, `enum`, and so on.
+
+```ruby
+class OpenApiSchemaGenerator
+  COERCE_TO_TYPE = {
+    string:      "string",
+    symbol:      "string",
+    date:        "string",
+    date_time:   "string",
+    time:        "string",
+    integer:     "integer",
+    float:       "number",
+    big_decimal: "number",
+    boolean:     "boolean",
+    array:       "array",
+    hash:        "object"
+  }.freeze
+  private_constant :COERCE_TO_TYPE
+
+  def self.generate(task_class)
+    new.build_object(task_class.inputs_schema.values)
+  end
+
+  def build_object(inputs)
+    properties = {}
+    required   = []
+
+    inputs.each do |input|
+      properties[input[:name]] = build_property(input)
+      required << input[:name] if input[:required]
+    end
+
+    { type: "object", properties:, required: }
+  end
+
+  def build_property(input)
+    prop   = { description: input[:description] }.compact
+    coerce = Array(input.dig(:options, :coerce)).first
+    prop[:type] = COERCE_TO_TYPE.fetch(coerce, "string") if coerce
+
+    unless input[:children].empty?
+      nested            = build_object(input[:children])
+      prop[:type]       = "object"
+      prop[:properties] = nested[:properties]
+      prop[:required]   = nested[:required] unless nested[:required].empty?
+    end
+
+    prop
+  end
+end
+```
+
+## Usage
+
+```ruby
+puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
+```
+
+## What to expect
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "email":      { "description": "Primary email address",          "type": "string" },
+    "age":        { "description": "Age in years",                   "type": "integer" },
+    "newsletter": { "description": "Subscribe to the product newsletter", "type": "boolean" },
+    "address": {
+      "description": "Shipping address",
+      "type": "object",
+      "properties": {
+        "street":   { "description": "Street name and number", "type": "string" },
+        "city":     { "description": "City",                   "type": "string" },
+        "zip_code": { "description": "Postal code",            "type": "string" }
+      },
+      "required": ["street", "city"]
+    }
+  },
+  "required": ["email", "age", "address"]
+}
+```
+
+## Notes
+
+### Beyond the basics
+
+`:options` carries the full declaration — `:default`, `:validate`, `:if` — so you can grow the generator toward `default`, `enum` (`inclusion: { in: [...] }`), `pattern` (`format: { with: /.../ }`), and `minimum` / `maximum` (`numericality:`). See [Inputs — Definitions](https://drexed.github.io/cmdx/inputs/definitions/#introspection).
+
+# Pub/Sub Task Chaining
+
+`RegisterUser` succeeds. Now you need a welcome email, a search index update, and an analytics event. You *could* call three more tasks from inside `work` — but then every change to “what happens after signup” edits the same file.
+
+Publish a domain event when the task succeeds. Subscribers enqueue their own tasks. The registering task stays focused on creating the user.
+
+## Setup — subscriber
+
+Listen for the event and enqueue follow-on work. ActiveSupport::Notifications is built into Rails; swap in Wisper, Kafka, or whatever your app already uses.
+
+```ruby
+class SendWelcomeEmail < ApplicationTask
+  required :user_id, coerce: :integer
+
+  def work
+    WelcomeMailer.with(user_id:).deliver_later
+  end
+end
+```
+
+`ApplicationTask` here is the base class from [Background Execution](https://drexed.github.io/cmdx/cookbook/background_execution/index.md) with `execute_later` wired to `TaskJob`.
+
+```ruby
+ActiveSupport::Notifications.subscribe("user.registered") do |*args|
+  event = ActiveSupport::Notifications::Event.new(*args)
+  SendWelcomeEmail.execute_later(user_id: event.payload[:user_id])
+end
+```
+
+## Usage
+
+Put anything subscribers need on `context` inside `work`, then publish from an `on_success` callback.
+
+```ruby
+class RegisterUser < CMDx::Task
+  required :email, coerce: :string, validate: { format: URI::MailTo::EMAIL_REGEXP }
+  required :name,  coerce: :string
+
+  on_success :publish_registration_event
+
+  def work
+    context.user = User.create!(email:, name:)
+  end
+
+  private
+
+  def publish_registration_event
+    ActiveSupport::Notifications.instrument(
+      "user.registered",
+      user_id: context.user.id,
+      email:   context.user.email
+    )
+  end
+end
+
+RegisterUser.execute(email: "jane@example.com", name: "Jane Doe")
+```
+
+## Notes
+
+### Order matters
+
+`on_success` runs after `work` finishes. Subscribers only see what you wrote to `context` during `work` — set `context.user` (or similar) before the callback fires.
+
+### Workflows vs pub/sub
+
+For the **next step in the same process** with shared context, use a [workflow](https://drexed.github.io/cmdx/workflows/index.md). Publish events when subscribers should stay decoupled — mailers, analytics, separate queues.
+# Cookbook: Cross-cutting concerns
 
 # Background Execution
 
@@ -8208,410 +8714,6 @@ end
 
 Middleware can throw `success!`, `skip!`, `fail!`, or `throw!` — Runtime catches them via `catch(Signal::TAG)`. Use `task.skip!(...)` before `yield` when you want a skipped result without entering `work`. Throw **before** yielding; signals thrown after the lifecycle finishes are ignored.
 
-# GraphQL Resolvers
-
-A GraphQL mutation should do three things: accept input, run business logic once, and return a payload the client understands.
-
-Put the business logic in a CMDx task. The resolver stays a thin adapter — and the same task remains callable from jobs, rake tasks, and specs.
-
-## Setup — shared payload helper
-
-Map a `Result` to a consistent shape: `success`, `errors`, plus any extra fields (like the created record).
-
-```ruby
-class Mutations::ApplicationMutation < GraphQL::Schema::Mutation
-  def self.payload_for(result, **extras)
-    if result.success?
-      { success: true, errors: [] }.merge(extras)
-    else
-      { success: false, errors: user_errors(result) }
-    end
-  end
-
-  def self.user_errors(result)
-    field_errors = result.errors.to_h.flat_map do |field, messages|
-      messages.map { |message| { message:, path: ["input", field.to_s] } }
-    end
-
-    field_errors.presence || [{ message: result.reason, path: [] }]
-  end
-end
-```
-
-## Usage
-
-Task on the inside, resolver on the outside:
-
-```ruby
-class CreateInvoice < CMDx::Task
-  required :customer_id,  coerce: :integer
-  required :amount_cents, coerce: :integer
-
-  def work
-    context.invoice = Invoice.create!(customer_id:, amount_cents:)
-  end
-end
-```
-
-```ruby
-class Mutations::CreateInvoice < Mutations::ApplicationMutation
-  argument :customer_id,  ID,      required: true
-  argument :amount_cents, Integer, required: true
-
-  field :invoice, Types::InvoiceType,    null: true
-  field :success, Boolean,               null: false
-  field :errors,  [Types::UserErrorType], null: false
-
-  def resolve(**args)
-    result = CreateInvoice.execute(**args, current_user: context[:current_user])
-
-    self.class.payload_for(result, invoice: result.context.invoice)
-  end
-end
-```
-
-## Notes
-
-### Trace ids in development
-
-Expose `result.tid` and `result.cid` on a debug field (or error extension) outside production. One id links the resolver log line to the task log line and any nested tasks.
-
-### Don't use `execute!` in resolvers
-
-`execute!` raises `CMDx::Fault` on failure. graphql-ruby turns unhandled exceptions into opaque internal errors and hides `result.reason`. Prefer `execute` and translate the `Result` yourself.
-
-# OpenAPI Schema Generation
-
-Your task already declares its inputs — types, required fields, nested objects. That contract is the source of truth for validation.
-
-Project it into OpenAPI and your HTTP docs stay aligned with what `execute` actually enforces. Change a `required` in the task, redeploy, and the schema updates with it.
-
-## Example task
-
-Descriptions on each input become OpenAPI `description` fields.
-
-```ruby
-class CreateUser < CMDx::Task
-  required :email, coerce: :string, description: "Primary email address",
-           validate: { format: URI::MailTo::EMAIL_REGEXP }
-  required :age,   coerce: :integer, description: "Age in years",
-           validate: { numericality: { greater_than_or_equal_to: 13 } }
-  optional :newsletter, coerce: :boolean, default: false,
-           description: "Subscribe to the product newsletter"
-
-  required :address, description: "Shipping address" do
-    required :street,   coerce: :string,                description: "Street name and number"
-    required :city,     coerce: :string,                description: "City"
-    optional :zip_code, coerce: %i[string integer],     description: "Postal code"
-  end
-
-  def work
-    context.user = User.create!(email:, age:, newsletter:, address:)
-  end
-end
-```
-
-## Setup — generator
-
-`inputs_schema` returns one entry per input: `{ name:, description:, required:, options:, children: }`. Walk it recursively to build a nested OpenAPI `object`.
-
-Coerce arrays use the first symbol for the OpenAPI type — enough for most cases. Extend the map when you need `format`, `enum`, and so on.
-
-```ruby
-class OpenApiSchemaGenerator
-  COERCE_TO_TYPE = {
-    string:      "string",
-    symbol:      "string",
-    date:        "string",
-    date_time:   "string",
-    time:        "string",
-    integer:     "integer",
-    float:       "number",
-    big_decimal: "number",
-    boolean:     "boolean",
-    array:       "array",
-    hash:        "object"
-  }.freeze
-  private_constant :COERCE_TO_TYPE
-
-  def self.generate(task_class)
-    new.build_object(task_class.inputs_schema.values)
-  end
-
-  def build_object(inputs)
-    properties = {}
-    required   = []
-
-    inputs.each do |input|
-      properties[input[:name]] = build_property(input)
-      required << input[:name] if input[:required]
-    end
-
-    { type: "object", properties:, required: }
-  end
-
-  def build_property(input)
-    prop   = { description: input[:description] }.compact
-    coerce = Array(input.dig(:options, :coerce)).first
-    prop[:type] = COERCE_TO_TYPE.fetch(coerce, "string") if coerce
-
-    unless input[:children].empty?
-      nested            = build_object(input[:children])
-      prop[:type]       = "object"
-      prop[:properties] = nested[:properties]
-      prop[:required]   = nested[:required] unless nested[:required].empty?
-    end
-
-    prop
-  end
-end
-```
-
-## Usage
-
-```ruby
-puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
-```
-
-## What to expect
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "email":      { "description": "Primary email address",          "type": "string" },
-    "age":        { "description": "Age in years",                   "type": "integer" },
-    "newsletter": { "description": "Subscribe to the product newsletter", "type": "boolean" },
-    "address": {
-      "description": "Shipping address",
-      "type": "object",
-      "properties": {
-        "street":   { "description": "Street name and number", "type": "string" },
-        "city":     { "description": "City",                   "type": "string" },
-        "zip_code": { "description": "Postal code",            "type": "string" }
-      },
-      "required": ["street", "city"]
-    }
-  },
-  "required": ["email", "age", "address"]
-}
-```
-
-## Notes
-
-### Beyond the basics
-
-`:options` carries the full declaration — `:default`, `:validate`, `:if` — so you can grow the generator toward `default`, `enum` (`inclusion: { in: [...] }`), `pattern` (`format: { with: /.../ }`), and `minimum` / `maximum` (`numericality:`). See [Inputs — Definitions](https://drexed.github.io/cmdx/inputs/definitions/#introspection).
-
-# OpenTelemetry Tracing
-
-When a request fans out through several tasks, you want one trace that shows who called whom — with timing and errors on the right span.
-
-This recipe gives **one OpenTelemetry span per task**. Nested `execute` calls nest under the parent automatically, mirroring the CMDx [chain](https://drexed.github.io/cmdx/basics/chain/index.md).
-
-## Setup — tracing middleware
-
-Wrap the lifecycle in a span and attach CMDx identifiers as attributes.
-
-```ruby
-class CmdxOtelMiddleware
-  TRACER = OpenTelemetry.tracer_provider.tracer("cmdx", CMDx::VERSION)
-
-  def call(task)
-    chain = CMDx::Chain.current
-
-    attributes = {
-      "cmdx.task" => task.class.name,
-      "cmdx.type" => task.class.type,
-      "cmdx.tid"  => task.tid,
-      "cmdx.cid"  => chain.id,
-      "cmdx.xid"  => chain.xid
-    }.compact
-
-    TRACER.in_span(task.class.name, attributes:, kind: :internal) do |span|
-      yield
-    rescue StandardError => e
-      span.record_exception(e)
-      span.status = OpenTelemetry::Trace::Status.error(e.message)
-      raise
-    end
-  end
-end
-```
-
-```ruby
-class ApplicationTask < CMDx::Task
-  register :middleware, CmdxOtelMiddleware.new
-end
-```
-
-## Setup — logical failures on the span
-
-`fail!` does not raise — it becomes a failed `Result`. The middleware `rescue` above only sees **unhandled** exceptions.
-
-Subscribe to `:task_executed` to stamp the span with the finalized outcome (status, reason, duration):
-
-```ruby
-CMDx.configure do |config|
-  config.telemetry.subscribe(:task_executed) do |event|
-    span = OpenTelemetry::Trace.current_span
-    next unless span&.recording?
-
-    result = event.payload[:result]
-    span.set_attribute("cmdx.state",       result.state)
-    span.set_attribute("cmdx.status",      result.status)
-    span.set_attribute("cmdx.duration_ms", result.duration)
-    span.set_attribute("cmdx.retries",     result.retries)
-    span.set_attribute("cmdx.reason",      result.reason.to_s) if result.reason
-
-    if result.failed?
-      span.record_exception(result.cause) if result.cause
-      span.status = OpenTelemetry::Trace::Status.error(result.reason.to_s)
-    end
-  end
-end
-```
-
-Strict-mode `Fault` re-raises after the middleware chain returns, so middleware cannot rescue those — the subscriber is the right place to mark the span.
-
-## Notes
-
-### Linking propagated failures
-
-`result.origin` points at the leaf `Result` when a failure propagated via `throw!` or a re-raised `Fault`. If you keep a `tid → SpanContext` map, `span.add_link(OpenTelemetry::Trace::Link.new(origin_span_context))` connects where the error surfaced to where it actually happened.
-
-# Paper Trail Whatdunnit
-
-Paper Trail answers two questions when a row changes: **who** did it (`whodunnit`) and **what code path** was responsible (`whatdunnit` in `controller_info`).
-
-For a normal browser request, Rails sets that up for you. For a CMDx task — a webhook handler, a nightly job, a workflow step — *you* are the code path. Stamping the task class name on each write makes audit logs honest.
-
-## Setup
-
-Middleware sets `whatdunnit` for the duration of the task and restores the previous value when the task finishes. That way nested tasks do not leak their name into the parent's writes.
-
-```ruby
-class CmdxPaperTrailMiddleware
-  def call(task)
-    PaperTrail.request.controller_info ||= {}
-    previous = PaperTrail.request.controller_info[:whatdunnit]
-    PaperTrail.request.controller_info[:whatdunnit] = task.class.name
-
-    yield
-  ensure
-    PaperTrail.request.controller_info[:whatdunnit] = previous
-  end
-end
-```
-
-## Usage
-
-Register the middleware on the task (or on `ApplicationTask` if every task should be attributed).
-
-```ruby
-class CancelSubscription < CMDx::Task
-  register :middleware, CmdxPaperTrailMiddleware.new
-
-  required :subscription_id, coerce: :integer
-  required :reason,          coerce: :string
-
-  def work
-    subscription = Subscription.find(subscription_id)
-    subscription.update!(canceled_at: Time.current, cancel_reason: reason)
-  end
-end
-```
-
-## What to expect
-
-After the task runs, version rows can point at the task class:
-
-```sql
-SELECT whodunnit, object_changes FROM versions WHERE item_id = 42;
--- whodunnit | object_changes
--- ----------+----------------------------------------------------
--- (NULL)    | { "canceled_at": [null, "2026-05-13T..."], ... }
-
-SELECT controller_info->>'whatdunnit' FROM versions WHERE item_id = 42;
--- "CancelSubscription"
-```
-
-Set `whodunnit` separately (for example `current_user.id`) if you also need a human actor on the version.
-
-## Notes
-
-### Restore in ensure
-
-`RegisterUser` calling `SendWelcomeEmail` should not leave `SendWelcomeEmail` on the user row's version. Saving and restoring `whatdunnit` in `ensure` keeps parent and child tasks from stepping on each other.
-
-# Pub/Sub Task Chaining
-
-`RegisterUser` succeeds. Now you need a welcome email, a search index update, and an analytics event. You *could* call three more tasks from inside `work` — but then every change to “what happens after signup” edits the same file.
-
-Publish a domain event when the task succeeds. Subscribers enqueue their own tasks. The registering task stays focused on creating the user.
-
-## Setup — subscriber
-
-Listen for the event and enqueue follow-on work. ActiveSupport::Notifications is built into Rails; swap in Wisper, Kafka, or whatever your app already uses.
-
-```ruby
-class SendWelcomeEmail < ApplicationTask
-  required :user_id, coerce: :integer
-
-  def work
-    WelcomeMailer.with(user_id:).deliver_later
-  end
-end
-```
-
-`ApplicationTask` here is the base class from [Background Execution](https://drexed.github.io/cmdx/cookbook/background_execution/index.md) with `execute_later` wired to `TaskJob`.
-
-```ruby
-ActiveSupport::Notifications.subscribe("user.registered") do |*args|
-  event = ActiveSupport::Notifications::Event.new(*args)
-  SendWelcomeEmail.execute_later(user_id: event.payload[:user_id])
-end
-```
-
-## Usage
-
-Put anything subscribers need on `context` inside `work`, then publish from an `on_success` callback.
-
-```ruby
-class RegisterUser < CMDx::Task
-  required :email, coerce: :string, validate: { format: URI::MailTo::EMAIL_REGEXP }
-  required :name,  coerce: :string
-
-  on_success :publish_registration_event
-
-  def work
-    context.user = User.create!(email:, name:)
-  end
-
-  private
-
-  def publish_registration_event
-    ActiveSupport::Notifications.instrument(
-      "user.registered",
-      user_id: context.user.id,
-      email:   context.user.email
-    )
-  end
-end
-
-RegisterUser.execute(email: "jane@example.com", name: "Jane Doe")
-```
-
-## Notes
-
-### Order matters
-
-`on_success` runs after `work` finishes. Subscribers only see what you wrote to `context` during `work` — set `context.user` (or similar) before the callback fires.
-
-### Workflows vs pub/sub
-
-For the **next step in the same process** with shared context, use a [workflow](https://drexed.github.io/cmdx/workflows/index.md). Publish events when subscribers should stay decoupled — mailers, analytics, separate queues.
-
 # Pundit Authorization
 
 A task that changes data is sensitive no matter who calls it — a controller, a job, or a console session.
@@ -8699,82 +8801,6 @@ Register on `ApplicationTask` to cover every subclass. Internal sweepers that sh
 ### Halt before yielding
 
 Throw `success!`, `skip!`, `fail!`, or `throw!` **before** `yield`. Signals thrown after the lifecycle finalizes are dropped — the lifecycle's outcome wins.
-
-# Sentry Error Tracking
-
-Not every failed task is a bug. Some are validation errors; some are `fail!("card declined")` with no exception.
-
-Sentry should still see the ones you care about — with task name, `tid`, and chain ids so the issue page matches your logs.
-
-## Setup — telemetry subscriber
-
-`Runtime` rescues exceptions from `work` and turns them into a failed `Result`. A middleware `rescue` often misses that path.
-
-`:task_executed` fires after the result is final — raised errors **and** logical halts:
-
-```ruby
-CMDx.configure do |config|
-  config.telemetry.subscribe(:task_executed) do |event|
-    result = event.payload[:result]
-    next if result.success? || result.skipped?
-
-    Sentry.with_scope do |scope|
-      scope.set_tags(
-        task: event.task.name,
-        tid:  event.tid,
-        cid:  event.cid,
-        xid:  event.xid
-      )
-      scope.set_context("cmdx", {
-        status:   result.status,
-        reason:   result.reason,
-        retries:  result.retries,
-        duration: result.duration,
-        metadata: result.metadata
-      })
-
-      case result.error
-      when Exception
-        Sentry.capture_exception(result.error)
-      when String
-        Sentry.capture_message(
-          "Task failed: #{event.task.name} — #{result.error}",
-          level: :error
-        )
-      end
-    end
-  end
-end
-```
-
-## Setup — middleware (optional)
-
-Middleware still helps tag scope for paths that escape normal `work` handling — strict `execute!` re-raises, some callbacks:
-
-```ruby
-class CmdxSentryMiddleware
-  def call(task)
-    Sentry.with_scope do |scope|
-      scope.set_tags(task: task.class.name, tid: task.tid)
-      yield
-    end
-  end
-end
-
-class ApplicationTask < CMDx::Task
-  register :middleware, CmdxSentryMiddleware.new
-end
-```
-
-## Notes
-
-### Result#error
-
-`result.error` is `cause || reason` — the rescued exception when `work` raised, or the string when you used `fail!("...")`. Branch on type so logical failures become messages and real exceptions keep stack traces.
-
-### Drop noisy logical failures
-
-Authorization denials, rate limits, and duplicate idempotency hits are usually not bugs. Skip them with `next if result.metadata[:code].in?(%i[forbidden rate_limited duplicate])`.
 
 # Timeout Guard
 
@@ -8961,3 +8987,156 @@ Under `execute`, `Timeout::Error` and `TIMEx::TimeoutError` become failed `Resul
 ### Fiber scheduler alternative
 
 Inside `Async { ... }`, the [`async`](https://github.com/socketry/async) gem's `Task#with_timeout` cancels cooperatively and avoids thread-level interrupts.
+
+# Sentry Error Tracking
+
+Not every failed task is a bug. Some are validation errors; some are `fail!("card declined")` with no exception.
+
+Sentry should still see the ones you care about — with task name, `tid`, and chain ids so the issue page matches your logs.
+
+## Setup — telemetry subscriber
+
+`Runtime` rescues exceptions from `work` and turns them into a failed `Result`. A middleware `rescue` often misses that path.
+
+`:task_executed` fires after the result is final — raised errors **and** logical halts:
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:task_executed) do |event|
+    result = event.payload[:result]
+    next if result.success? || result.skipped?
+
+    Sentry.with_scope do |scope|
+      scope.set_tags(
+        task: event.task.name,
+        tid:  event.tid,
+        cid:  event.cid,
+        xid:  event.xid
+      )
+      scope.set_context("cmdx", {
+        status:   result.status,
+        reason:   result.reason,
+        retries:  result.retries,
+        duration: result.duration,
+        metadata: result.metadata
+      })
+
+      case result.error
+      when Exception
+        Sentry.capture_exception(result.error)
+      when String
+        Sentry.capture_message(
+          "Task failed: #{event.task.name} — #{result.error}",
+          level: :error
+        )
+      end
+    end
+  end
+end
+```
+
+## Setup — middleware (optional)
+
+Middleware still helps tag scope for paths that escape normal `work` handling — strict `execute!` re-raises, some callbacks:
+
+```ruby
+class CmdxSentryMiddleware
+  def call(task)
+    Sentry.with_scope do |scope|
+      scope.set_tags(task: task.class.name, tid: task.tid)
+      yield
+    end
+  end
+end
+
+class ApplicationTask < CMDx::Task
+  register :middleware, CmdxSentryMiddleware.new
+end
+```
+
+## Notes
+
+### Result#error
+
+`result.error` is `cause || reason` — the rescued exception when `work` raised, or the string when you used `fail!("...")`. Branch on type so logical failures become messages and real exceptions keep stack traces.
+
+### Drop noisy logical failures
+
+Authorization denials, rate limits, and duplicate idempotency hits are usually not bugs. Skip them with `next if result.metadata[:code].in?(%i[forbidden rate_limited duplicate])`.
+
+# OpenTelemetry Tracing
+
+When a request fans out through several tasks, you want one trace that shows who called whom — with timing and errors on the right span.
+
+This recipe gives **one OpenTelemetry span per task**. Nested `execute` calls nest under the parent automatically, mirroring the CMDx [chain](https://drexed.github.io/cmdx/basics/chain/index.md).
+
+## Setup — tracing middleware
+
+Wrap the lifecycle in a span and attach CMDx identifiers as attributes.
+
+```ruby
+class CmdxOtelMiddleware
+  TRACER = OpenTelemetry.tracer_provider.tracer("cmdx", CMDx::VERSION)
+
+  def call(task)
+    chain = CMDx::Chain.current
+
+    attributes = {
+      "cmdx.task" => task.class.name,
+      "cmdx.type" => task.class.type,
+      "cmdx.tid"  => task.tid,
+      "cmdx.cid"  => chain.id,
+      "cmdx.xid"  => chain.xid
+    }.compact
+
+    TRACER.in_span(task.class.name, attributes:, kind: :internal) do |span|
+      yield
+    rescue StandardError => e
+      span.record_exception(e)
+      span.status = OpenTelemetry::Trace::Status.error(e.message)
+      raise
+    end
+  end
+end
+```
+
+```ruby
+class ApplicationTask < CMDx::Task
+  register :middleware, CmdxOtelMiddleware.new
+end
+```
+
+## Setup — logical failures on the span
+
+`fail!` does not raise — it becomes a failed `Result`. The middleware `rescue` above only sees **unhandled** exceptions.
+
+Subscribe to `:task_executed` to stamp the span with the finalized outcome (status, reason, duration):
+
+```ruby
+CMDx.configure do |config|
+  config.telemetry.subscribe(:task_executed) do |event|
+    span = OpenTelemetry::Trace.current_span
+    next unless span&.recording?
+
+    result = event.payload[:result]
+    span.set_attribute("cmdx.state",       result.state)
+    span.set_attribute("cmdx.status",      result.status)
+    span.set_attribute("cmdx.duration_ms", result.duration)
+    span.set_attribute("cmdx.retries",     result.retries)
+    span.set_attribute("cmdx.reason",      result.reason.to_s) if result.reason
+
+    if result.failed?
+      span.record_exception(result.cause) if result.cause
+      span.status = OpenTelemetry::Trace::Status.error(result.reason.to_s)
+    end
+  end
+end
+```
+
+Strict-mode `Fault` re-raises after the middleware chain returns, so middleware cannot rescue those — the subscriber is the right place to mark the span.
+
+## Notes
+
+### Linking propagated failures
+
+`result.origin` points at the leaf `Result` when a failure propagated via `throw!` or a re-raised `Fault`. If you keep a `tid → SpanContext` map, `span.add_link(OpenTelemetry::Trace::Link.new(origin_span_context))` connects where the error surfaced to where it actually happened.
