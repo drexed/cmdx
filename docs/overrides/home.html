@@ -24,7 +24,7 @@
   --cmdx-red: #fe1817;
   --cmdx-red-glow: rgba(254, 24, 23, 0.5);
   --cmdx-green: #28c840;
-  --cmdx-amber: #ffbd2e;
+  --cmdx-amber: #edba03;
   --cmdx-terminal-bg: #0d0d0d;
   --cmdx-terminal-surface: #161616;
   --cmdx-terminal-fg: #d4d4d4;
@@ -321,7 +321,7 @@
 .section-head.center .section-sub { margin: 0 auto; }
 
 /* ============================================================
-   2. THE PROBLEM (before / after)
+   2. THE PROBLEM
    ============================================================ */
 .problem-section {
   position: relative;
@@ -336,32 +336,163 @@
   padding: 6rem 1.5rem;
 }
 
-.problem-grid {
+.problem-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.3fr);
+  gap: 2rem 2.5rem;
   margin-top: 3rem;
-  position: relative;
+  align-items: stretch;
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.problem-arrow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: var(--cmdx-red);
-  color: #fff;
+.problem-body > .problem-pains-wrap,
+.problem-body > .problem-panel {
+  height: 100%;
+  min-height: 0;
+}
+
+.problem-pains-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid rgba(255, 189, 46, 0.22);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--cmdx-terminal-bg);
+}
+
+.problem-body .problem-pains-head,
+.problem-body .problem-panel > .panel-head {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  min-height: 2.85rem;
+  padding: 0.75rem 1.1rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--cmdx-terminal-border);
   font-family: var(--cmdx-mono);
-  font-size: 1.1rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--cmdx-terminal-surface);
+}
+
+.problem-pains-head {
+  color: var(--cmdx-amber);
+}
+
+.home .md-typeset ul.problem-pains,
+.home ul.problem-pains {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 1.1rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  counter-reset: pain;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.home .md-typeset ul.problem-pains > li,
+.home ul.problem-pains > li {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0.7rem 1rem 0.7rem 3.15rem;
+  border-radius: 8px;
+  border: 1px solid var(--cmdx-terminal-border);
+  background: var(--cmdx-terminal-surface);
+  font-family: var(--cmdx-sans);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--cmdx-terminal-fg);
+  counter-increment: pain;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.home ul.problem-pains > li::before {
+  content: counter(pain, decimal-leading-zero);
+  position: absolute;
+  left: 0.85rem;
+  top: 0.72rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(255, 189, 46, 0.1);
+  border: 1px solid rgba(255, 189, 46, 0.28);
+  font-family: var(--cmdx-mono);
+  font-size: 0.62rem;
   font-weight: 700;
-  box-shadow: 0 0 0 6px var(--cmdx-terminal-surface), 0 0 20px var(--cmdx-red-glow);
-  z-index: 3;
-  pointer-events: none;
+  letter-spacing: 0.02em;
+  color: var(--cmdx-amber);
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.home ul.problem-pains > li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  bottom: 0.45rem;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(255, 189, 46, 0.55), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.home ul.problem-pains > li:hover {
+  border-color: rgba(255, 189, 46, 0.35);
+  background: rgba(255, 189, 46, 0.04);
+}
+
+.home ul.problem-pains > li:hover::after { opacity: 1; }
+
+[data-md-color-scheme="default"] .home ul.problem-pains > li:hover {
+  background: rgba(255, 189, 46, 0.06);
+}
+
+.problem-foot {
+  max-width: 42rem;
+  margin: 2.25rem auto 0;
+  text-align: center;
+}
+
+.problem-resolve {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--cmdx-terminal-dim);
+}
+
+.problem-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--cmdx-red);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.problem-jump:hover {
+  border-bottom-color: var(--cmdx-red);
+  opacity: 0.9;
 }
 
 .problem-panel {
@@ -375,7 +506,6 @@
 }
 
 .problem-panel.before { border-color: rgba(255, 189, 46, 0.25); }
-.problem-panel.after  { border-color: rgba(254, 24, 23, 0.35); box-shadow: 0 0 0 1px rgba(254, 24, 23, 0.05); }
 
 .panel-head {
   display: flex;
@@ -393,7 +523,6 @@
 }
 
 .problem-panel.before .panel-head { color: var(--cmdx-amber); }
-.problem-panel.after  .panel-head { color: var(--cmdx-red); }
 
 .panel-head .tag {
   font-size: 0.65rem;
@@ -407,13 +536,14 @@
 .problem-code {
   overflow-x: auto;
   margin: 0;
-  padding: 1.25rem 1.35rem;
+  padding: 1.4rem 1.45rem;
   background: #0d0d0d;
   font-family: var(--cmdx-mono);
-  font-size: 0.78rem;
-  line-height: 1.7;
+  font-size: 0.82rem;
+  line-height: 1.72;
   color: #d4d4d4;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 [data-md-color-scheme="default"] .problem-code {
@@ -438,83 +568,6 @@
 .problem-code .ss { color: #79c0ff; }
 .problem-code .mi { color: #79c0ff; }
 .problem-code .o  { color: #ff7b72; }
-
-.problem-annos {
-  list-style: none;
-  padding: 1.35rem 1rem 1.35rem !important;
-  margin: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem 1rem;
-  background: var(--cmdx-terminal-bg);
-  border-top: 1px solid var(--cmdx-terminal-border);
-  font-family: var(--cmdx-mono);
-  font-size: 0.72rem;
-}
-
-.problem-annos li {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--cmdx-terminal-dim);
-}
-
-.problem-annos li::before {
-  content: "";
-  width: 6px; height: 6px; border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.problem-panel.before .problem-annos li::before { background: var(--cmdx-amber); opacity: 0.7; }
-.problem-panel.after  .problem-annos li::before { background: var(--cmdx-green); }
-
-.problem-panel.after .problem-annos li { color: var(--cmdx-terminal-fg); }
-
-.problem-caller {
-  margin: 2.5rem auto 0;
-  max-width: 760px;
-  border-color: var(--cmdx-terminal-border);
-  box-shadow: none;
-  position: relative;
-}
-
-.problem-caller::before {
-  content: "";
-  position: absolute;
-  top: -2.5rem;
-  left: 50%;
-  width: 1px;
-  height: 2.5rem;
-  background: linear-gradient(to bottom, transparent, rgba(254, 24, 23, 0.4));
-}
-
-.problem-caller .caller-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--cmdx-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--cmdx-terminal-dim);
-  padding: 0.85rem 1.35rem 0.25rem;
-}
-
-.problem-caller .caller-label::before {
-  content: "";
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--cmdx-red);
-  box-shadow: 0 0 8px var(--cmdx-red-glow);
-}
-
-.problem-caller .problem-code {
-  padding: 0.5rem 1.35rem 1.35rem;
-  background: transparent;
-  border: none;
-}
-
-[data-md-color-scheme="default"] .problem-caller .problem-code { background: transparent; }
 
 /* ============================================================
    3. CERO PIPELINE
@@ -1201,9 +1254,7 @@
    Responsive
    ============================================================ */
 @media (max-width: 900px) {
-  .problem-grid    { grid-template-columns: 1fr; gap: 1.5rem; }
-  .problem-arrow   { display: none; }
-  .problem-annos   { grid-template-columns: 1fr 1fr; }
+  .problem-body    { grid-template-columns: 1fr; gap: 1.5rem; }
   .cero-rail       { grid-template-columns: 1fr; }
   .cero-stage      { border-right: 1px solid var(--cmdx-terminal-border) !important; }
   .cero-stage:first-child { border-radius: 12px 12px 0 0; }
@@ -1277,144 +1328,69 @@
   <div class="problem-wrap">
 
     <div class="section-head center">
-      <span class="section-eyebrow">&middot; 01 &middot; the before / after</span>
-      <h2 class="section-title">Controllers love to do too much.</h2>
+      <span class="section-eyebrow">&middot; 01 &middot; the problem</span>
+      <h2 class="section-title">Business logic sprawls. Nothing owns the outcome.</h2>
       <p class="section-sub">
-        Sound familiar? One action finds records, calls Stripe, rescues errors, fires mailers, and hopes for the best. CMDx moves that story into a plain Ruby class you can test and reuse.
+        Paying an order might live in a controller, a job, and a service object &mdash; similar steps, slightly different rules, no shared boundary. Important workflows never get a single front door.
       </p>
     </div>
 
-    <div class="problem-grid">
-      <span class="problem-arrow" aria-hidden="true">&rarr;</span>
-
-      <!-- BEFORE -->
-      <div class="problem-panel before">
-        <div class="panel-head">
-          <span>today: everything in one action</span>
-        </div>
-        <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PaymentsController</span> <span class="o">&lt;</span> <span class="nc">ApplicationController</span>
-  <span class="n">before_action</span> <span class="ss">:authenticate_user!</span>
-
-  <span class="k">def</span> <span class="n">create</span>
-    <span class="n">order</span> = <span class="n">current_user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">params</span>[<span class="ss">:order_id</span>])
-    <span class="k">return</span> <span class="n">redirect_to</span>(<span class="n">order</span>) <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>
-
-    <span class="k">if</span> <span class="n">params</span>[<span class="ss">:payment_method_id</span>].<span class="n">blank?</span>
-      <span class="n">flash</span>.<span class="n">now</span>[<span class="ss">:alert</span>] = <span class="s">"Choose a payment method"</span>
-      <span class="k">return</span> <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">status:</span> <span class="ss">:unprocessable_entity</span>
-    <span class="k">end</span>
-
-    <span class="n">payment_declined</span> = <span class="n">false</span>
-    <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
-      <span class="n">intent</span> = <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
-        <span class="ss">amount:</span>               <span class="n">order</span>.<span class="n">total_cents</span>,
-        <span class="ss">currency:</span>             <span class="s">"usd"</span>,
-        <span class="ss">payment_method:</span>       <span class="n">params</span>[<span class="ss">:payment_method_id</span>],
-        <span class="ss">confirmation_method:</span>  <span class="s">"manual"</span>,
-        <span class="ss">confirm:</span>              <span class="n">true</span>,
-        <span class="ss">idempotency_key:</span>      <span class="s">"order-#{order.id}-pay"</span>
-      )
-      <span class="k">if</span> <span class="n">intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
-        <span class="n">flash</span>.<span class="n">now</span>[<span class="ss">:alert</span>] = <span class="n">intent</span>.<span class="n">last_payment_error</span>&amp;.<span class="n">message</span> <span class="o">||</span> <span class="s">"Card declined"</span>
-        <span class="n">payment_declined</span> = <span class="n">true</span>
-        <span class="k">raise</span> <span class="nc">ActiveRecord::Rollback</span>
-      <span class="k">end</span>
-
-      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">intent</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
-      <span class="nc">AuditLog</span>.<span class="n">create!</span>(<span class="ss">user:</span> <span class="n">current_user</span>, <span class="ss">action:</span> <span class="s">"order_paid"</span>, <span class="ss">subject:</span> <span class="n">order</span>)
-    <span class="k">end</span>
-    <span class="k">return</span> <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">status:</span> <span class="ss">:unprocessable_entity</span> <span class="k">if</span> <span class="n">payment_declined</span>
-
-    <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
-    <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">current_user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">order</span>.<span class="n">id</span>)
-    <span class="n">redirect_to</span> <span class="n">order</span>, <span class="ss">notice:</span> <span class="s">"Payment received"</span>
-  <span class="k">rescue</span> <span class="nc">ActiveRecord::RecordNotFound</span>
-    <span class="n">head</span> <span class="ss">:not_found</span>
-  <span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
-    <span class="n">flash</span>.<span class="n">now</span>[<span class="ss">:alert</span>] = <span class="n">e</span>.<span class="n">message</span>
-    <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">status:</span> <span class="ss">:unprocessable_entity</span>
-  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
-    <span class="nc">Rails</span>.<span class="n">logger</span>.<span class="n">error</span>(<span class="n">e</span>)
-    <span class="nc">Sentry</span>.<span class="n">capture_exception</span>(<span class="n">e</span>)
-    <span class="n">flash</span>.<span class="n">now</span>[<span class="ss">:alert</span>] = <span class="s">"Something went wrong"</span>
-    <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">status:</span> <span class="ss">:internal_server_error</span>
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-        <ul class="problem-annos">
-          <li>HTTP + payments + mail in one place</li>
-          <li>hard to follow rescue branches</li>
-          <li>copy-paste if you need it twice</li>
-          <li>params are just "whatever showed up"</li>
+    <div class="problem-body">
+      <div class="problem-pains-wrap">
+        <div class="problem-pains-head">symptoms of sprawl</div>
+        <ul class="problem-pains">
+          <li>The same flow reimplemented at every entry point</li>
+          <li>Rules and side effects scattered with no clear encapsulation</li>
+          <li>Hard to test without HTTP, queues, or the whole stack</li>
+          <li>Success, skip, and failure mean something different per caller</li>
+          <li>Idempotency, retries, and guards reinvented in each copy</li>
+          <li>Changing the rules means hunting down every duplicate</li>
+          <li>No single place explains how a workflow behaves end to end</li>
         </ul>
       </div>
 
-      <!-- AFTER -->
-      <div class="problem-panel after">
+      <div class="problem-panel before">
         <div class="panel-head">
-          <span>with cmdx: one job, one class</span>
+          <span>sprawl &middot; pay an order (again)</span>
         </div>
-        <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PayOrder</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
-  <span class="n">required</span> <span class="ss">:order_id</span>, <span class="ss">coerce:</span> <span class="ss">:integer</span>
-  <span class="n">required</span> <span class="ss">:payment_method_id</span>, <span class="ss">presence:</span> { <span class="ss">message:</span> <span class="s">"Choose a payment method"</span> }
-  <span class="n">required</span> <span class="ss">:user</span>
+        <pre class="problem-code"><code><span class="c"># payments#create, PayOrderJob#perform, Orders::PaymentService…</span>
+<span class="k">def</span> <span class="n">charge_and_complete</span>(<span class="n">order</span>, <span class="n">payment_method_id</span>)
+  <span class="k">return</span> <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>                    <span class="c"># skip? fail? depends who called</span>
+  <span class="k">raise</span> <span class="nc">ArgumentError</span> <span class="k">if</span> <span class="n">payment_method_id</span>.<span class="n">blank?</span>  <span class="c"># sometimes validated upstream</span>
 
-  <span class="n">output</span> <span class="ss">:order</span>
-
-  <span class="n">on_success</span> <span class="k">do</span>
-    <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">context</span>.<span class="n">order</span>).<span class="n">deliver_later</span>
-    <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="n">user</span>, <span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">context</span>.<span class="n">order</span>.<span class="n">id</span>)
-  <span class="k">end</span>
-
-  <span class="k">def</span> <span class="n">work</span>
-    <span class="n">order</span> = <span class="n">user</span>.<span class="n">orders</span>.<span class="n">find</span>(<span class="n">order_id</span>)
-    <span class="n">context</span>.<span class="n">order</span> = <span class="n">order</span>
-    <span class="n">skip!</span>(<span class="s">"Already paid"</span>) <span class="k">if</span> <span class="n">order</span>.<span class="n">paid?</span>
-
-    <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
-      <span class="n">intent</span> = <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
-        <span class="ss">amount:</span> <span class="n">order</span>.<span class="n">total_cents</span>, <span class="ss">currency:</span> <span class="s">"usd"</span>,
-        <span class="ss">payment_method:</span> <span class="n">payment_method_id</span>, <span class="ss">confirm:</span> <span class="n">true</span>,
-        <span class="ss">confirmation_method:</span> <span class="s">"manual"</span>, <span class="ss">idempotency_key:</span> <span class="s">"order-#{order.id}-pay"</span>
-      )
-      <span class="n">fail!</span>(<span class="n">intent</span>.<span class="n">last_payment_error</span>&amp;.<span class="n">message</span> <span class="o">||</span> <span class="s">"Card declined"</span>) <span class="k">if</span> <span class="n">intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
-
-      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">intent</span>.<span class="n">id</span>, <span class="ss">paid_at:</span> <span class="nc">Time</span>.<span class="n">current</span>)
-      <span class="nc">AuditLog</span>.<span class="n">create!</span>(<span class="ss">user:</span> <span class="n">user</span>, <span class="ss">action:</span> <span class="s">"order_paid"</span>, <span class="ss">subject:</span> <span class="n">order</span>)
+  <span class="n">payment_declined</span> = <span class="n">false</span>
+  <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
+    <span class="n">intent</span> = <span class="nc">Stripe::PaymentIntent</span>.<span class="n">create</span>(
+      <span class="ss">amount:</span> <span class="n">order</span>.<span class="n">total_cents</span>, <span class="ss">currency:</span> <span class="s">"usd"</span>,
+      <span class="ss">payment_method:</span> <span class="n">payment_method_id</span>, <span class="ss">confirm:</span> <span class="n">true</span>,
+      <span class="ss">idempotency_key:</span> <span class="s">"order-#{order.id}-pay"</span>  <span class="c"># only in one of the three copies</span>
+    )
+    <span class="k">if</span> <span class="n">intent</span>.<span class="n">status</span> <span class="o">==</span> <span class="s">"requires_payment_method"</span>
+      <span class="n">payment_declined</span> = <span class="n">true</span>
+      <span class="k">raise</span> <span class="nc">ActiveRecord::Rollback</span>
     <span class="k">end</span>
-  <span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
-    <span class="n">fail!</span>(<span class="n">e</span>.<span class="n">message</span>)
+
+    <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">paid:</span> <span class="n">true</span>, <span class="ss">stripe_payment_intent_id:</span> <span class="n">intent</span>.<span class="n">id</span>)
+    <span class="nc">AuditLog</span>.<span class="n">create!</span>(<span class="ss">action:</span> <span class="s">"order_paid"</span>, <span class="ss">subject:</span> <span class="n">order</span>)
   <span class="k">end</span>
+  <span class="k">return</span> <span class="n">false</span> <span class="k">if</span> <span class="n">payment_declined</span>              <span class="c"># controller renders; job retries?</span>
+
+  <span class="nc">OrderMailer</span>.<span class="n">paid</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
+  <span class="nc">Analytics</span>.<span class="n">track</span>(<span class="s">"order_paid"</span>, <span class="ss">order_id:</span> <span class="n">order</span>.<span class="n">id</span>)
+  <span class="n">true</span>
+<span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+  <span class="n">raise</span> <span class="n">e</span>                                    <span class="c"># or flash, or return false…</span>
+<span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+  <span class="nc">Sentry</span>.<span class="n">capture_exception</span>(<span class="n">e</span>); <span class="n">raise</span>
 <span class="k">end</span></code></pre>
-        <ul class="problem-annos">
-          <li>bad params never reach <code>work</code></li>
-          <li>payment story in one class</li>
-          <li>reuse from controllers, jobs, consoles</li>
-          <li><code>success?</code> / <code>skipped?</code> / <code>failed?</code> every time</li>
-        </ul>
       </div>
     </div>
 
-    <!-- Caller -->
-    <div class="problem-panel problem-caller">
-      <div class="caller-label">your controller stays boring (on purpose)</div>
-      <pre class="problem-code"><code><span class="k">def</span> <span class="n">create</span>
-  <span class="n">result</span> = <span class="nc">PayOrder</span>.<span class="n">execute</span>(<span class="ss">user:</span> <span class="n">current_user</span>, <span class="ss">**payment_params</span>)
-
-  <span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
-    <span class="n">redirect_to</span> <span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>, <span class="ss">notice:</span> <span class="n">"Payment received"</span>
-  <span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
-    <span class="n">redirect_to</span> <span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>, <span class="ss">notice:</span> <span class="n">result</span>.<span class="n">reason</span>
-  <span class="k">else</span>
-    <span class="n">flash</span>.<span class="n">now</span>[<span class="ss">:alert</span>] = <span class="n">result</span>.<span class="n">reason</span> <span class="o">||</span> <span class="s">"Something went wrong"</span>
-    <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">status:</span> <span class="ss">:unprocessable_entity</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="k">private</span>
-
-<span class="k">def</span> <span class="n">payment_params</span>
-  <span class="n">params</span>.<span class="n">permit</span>(<span class="ss">:order_id</span>, <span class="ss">:payment_method_id</span>)
-<span class="k">end</span></code></pre>
+    <div class="problem-foot">
+      <p class="problem-resolve">
+        CMDx encapsulates each workflow in a task class: validated inputs, one <code>work</code> method, one <code>Result</code>. Any caller uses <code>execute</code> and branches on <code>success?</code>, <code>skipped?</code>, or <code>failed?</code> &mdash; the demo below walks through the full pattern.
+      </p>
+      <a class="problem-jump" href="#home-showcase">jump to the interactive demo &darr;</a>
     </div>
 
   </div>
@@ -1466,11 +1442,11 @@
 </section>
 
 <!-- ===================== 03. SHOWCASE IDE ===================== -->
-<section class="showcase">
+<section class="showcase" id="home-showcase">
   <div class="showcase-wrap">
 
     <div class="section-head">
-      <span class="section-eyebrow">&middot; 03 &middot; click around</span>
+      <span class="section-eyebrow">&middot; 03 &middot; the solution</span>
       <h2 class="section-title">Start with one task. Grow into full workflows.</h2>
       <p class="section-sub">Four tabs, one story: define a task, chain a workflow, run it, read the logs.</p>
     </div>
@@ -1617,7 +1593,7 @@
   <div class="section">
 
     <div class="section-head center">
-      <span class="section-eyebrow">&middot; 04 &middot; the good stuff</span>
+      <span class="section-eyebrow">&middot; 04 &middot; power ups</span>
       <h2 class="section-title">Batteries included, drama optional.</h2>
       <p class="section-sub">These helpers ship with the gem itself. You do not need a pile of extra dependencies just to feel productive.</p>
     </div>
