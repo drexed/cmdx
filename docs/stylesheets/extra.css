@@ -206,6 +206,7 @@
 }
 
 :root > * {
+  --cmdx-amber: #ffbd2e;
   --cmdx-letter-spacing-body: -0.018em;
   --cmdx-letter-spacing-heading: -0.032em;
   --cmdx-letter-spacing-code: -0.022em;
@@ -227,11 +228,25 @@ body,
 }
 
 .md-header__title,
-.md-nav__title,
 .md-tabs__link,
 .md-nav__link,
 .md-footer__title {
   letter-spacing: var(--cmdx-letter-spacing-body);
+}
+
+/* Sidebar / TOC group labels (Documentation, Basics, On this page, …) */
+.md-nav label.md-nav__title:not([for="__drawer"]),
+.md-sidebar--primary label.md-nav__link[for^="__nav_"] {
+  color: var(--md-default-fg-color--lighter) !important;
+  font-size: 0.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.md-sidebar--primary label.md-nav__link[for^="__nav_"]:hover,
+.md-sidebar--primary label.md-nav__link[for^="__nav_"]:focus {
+  color: var(--md-default-fg-color) !important;
 }
 
 /* Header + tabs: Material paints both with --md-primary-fg-color (custom red) */
