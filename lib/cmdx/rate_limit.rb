@@ -5,19 +5,38 @@ module CMDx
   # limiter once per execution (retries do not consume additional quota) and
   # short-circuits before the circuit breaker when the bucket is full.
   #
-  # Store keys are `namespace:TaskName` or `namespace:TaskName:segment` (see
-  # {StoreKey.compose}).
+  # Store keys come from {StoreKey.task_key} with `class_scoped: true` — either
+  # `namespace:TaskName` for `{StoreKey::CLASS_KEY}` (`:class`) or
+  # `namespace:TaskName:segment` when a resolver yields a segment.
   class RateLimit
 
-    # Result of a limiter strategy deciding whether an execution may proceed.
+    # Limiter decision for one admission attempt.
+    #
+    # Built-in limiters set `count` for `:fixed_window` and `level` for
+    # `:leaky_bucket`; custom strategies may populate either or both. Omitted
+    # fields are stripped from telemetry and result metadata via `compact`.
+    #
+    # @attr admitted [Boolean] whether the run may proceed
+    # @attr count [Integer, nil] counter after increment (`:fixed_window`)
+    # @attr level [Float, nil] bucket fill after leak math (`:leaky_bucket`)
+    # @attr retry_after [Integer, nil] seconds until retry might succeed
+    # @attr limiter [Symbol, #call] strategy name or callable identity
     Admission = Data.define(:admitted, :count, :level, :retry_after, :limiter) do
-      # @return [Boolean]
+      # @return [Boolean] same as `admitted`
       def admitted?
         admitted
       end
     end
 
-    # Quota snapshot passed to built-in and custom limiter strategies.
+    # Inputs for a limiter callable (`CMDx::Limiters` or `limiter:` `Proc`).
+    #
+    # @attr task [Task] task being admitted
+    # @attr store_key [String] base store key (limiters may append suffixes)
+    # @attr max [Integer] capacity or window max from the declaration
+    # @attr per [Integer] window or leak interval in seconds
+    # @attr cost [Numeric] units charged when admitted (`:leaky_bucket`)
+    # @attr limiter [Symbol, #call] resolved strategy spec
+    # @attr options [Hash{Symbol => Object}] frozen declaration options
     Quota = Data.define(:task, :store_key, :max, :per, :cost, :limiter, :options)
 
     class << self
@@ -106,7 +125,7 @@ module CMDx
 
       merged_key =
         if new_key.nil?
-          enabled? || new_options.empty? ? @key : CLASS_KEY
+          enabled? || new_options.empty? ? @key : StoreKey::CLASS_KEY
         else
           new_key
         end

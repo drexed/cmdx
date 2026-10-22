@@ -55,9 +55,12 @@ module CMDx
     # @param task [Task]
     # @param namespace [String]
     # @param resolver [Symbol, String, Proc, #call]
-    # @param class_scoped [Boolean] when true, `:class` resolves to
-    #   `namespace:TaskName` without a segment
+    # @param class_scoped [Boolean] when true, {CLASS_KEY} (`:class`) resolves to
+    #   `namespace:TaskName` without reading context; blank segments for other
+    #   resolvers return `nil` instead of raising
     # @return [String, nil] full key, or `nil` when the segment is blank
+    # @see RateLimit#process
+    # @see CircuitBreaker#process
     def task_key(task, namespace:, resolver:, class_scoped: false)
       skip = class_scoped ? CLASS_KEY : nil
       segment_value = segment(task, resolver, skip:)

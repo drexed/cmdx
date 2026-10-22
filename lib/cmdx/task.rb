@@ -171,6 +171,7 @@ module CMDx
       #   `instance_exec`'d (same as callbacks)
       # @return [RateLimit]
       # @see RateLimit#process
+      # @see StoreKey.task_key
       def rate_limit(key = nil, **options, &block)
         @rate_limit ||=
           if superclass.respond_to?(:rate_limit)

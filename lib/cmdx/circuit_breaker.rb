@@ -5,7 +5,7 @@ module CMDx
   # store counters before the `retry_on` loop; opens after repeated failures
   # and short-circuits until `cool_off` elapses.
   #
-  # Store keys are `namespace:TaskName` or `namespace:TaskName:segment`, with
+  # Store keys come from {StoreKey.task_key} with `class_scoped: true`, plus
   # `:failures` and `:open` suffix segments (see {StoreKey.compose}).
   class CircuitBreaker
 
@@ -100,7 +100,7 @@ module CMDx
 
       merged_key =
         if new_key.nil?
-          enabled? || new_options.empty? ? @key : CLASS_KEY
+          enabled? || new_options.empty? ? @key : StoreKey::CLASS_KEY
         else
           new_key
         end
