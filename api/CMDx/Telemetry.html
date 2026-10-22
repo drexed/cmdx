@@ -160,6 +160,8 @@ helpers emit.</p>
 </span><span class='words_sep'>  </span><span class='tstring_content'>circuit_open</span><span class='words_sep'>
 </span><span class='words_sep'>  </span><span class='tstring_content'>circuit_tripped</span><span class='words_sep'>
 </span><span class='words_sep'>  </span><span class='tstring_content'>circuit_reset</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>rate_limit_admitted</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>rate_limit_exceeded</span><span class='words_sep'>
 </span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
       
     </dl>
@@ -496,12 +498,12 @@ helpers emit.</p>
       <pre class="lines">
 
 
-67
-68
-69</pre>
+69
+70
+71</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 67</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 69</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
@@ -542,12 +544,12 @@ helpers emit.</p>
       <pre class="lines">
 
 
-65
-66
-67</pre>
+67
+68
+69</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_registry'>registry</span>
   <span class='ivar'>@registry</span>
@@ -648,16 +650,16 @@ for <code>name</code>. No-op when nothing is subscribed.</p>
       <pre class="lines">
 
 
-55
-56
 57
 58
 59
 60
-61</pre>
+61
+62
+63</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 55</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 57</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_emit'>emit</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>root:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_telemetry'>telemetry</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_telemetry'>telemetry</span>
@@ -717,12 +719,12 @@ for <code>name</code>. No-op when nothing is subscribed.</p>
       <pre class="lines">
 
 
-159
-160
-161</pre>
+161
+162
+163</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 159</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 161</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_count'>count</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:size</span><span class='rparen'>)</span>
@@ -783,17 +785,17 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-169
-170
 171
 172
 173
 174
 175
-176</pre>
+176
+177
+178</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 169</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 171</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_emit'>emit</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_empty?'>empty?</span>
@@ -845,12 +847,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-149
-150
-151</pre>
+151
+152
+153</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 149</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 151</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -902,12 +904,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-73
-74
-75</pre>
+75
+76
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 73</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 75</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_transform_values'>transform_values</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:dup</span><span class='rparen'>)</span>
@@ -985,17 +987,17 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-139
-140
 141
 142
 143
 144
 145
-146</pre>
+146
+147
+148</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 139</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 141</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_event'>event</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
@@ -1050,12 +1052,12 @@ are no subscribers.</p>
       <pre class="lines">
 
 
-154
-155
-156</pre>
+156
+157
+158</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 154</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 156</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1185,8 +1187,6 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
       <pre class="lines">
 
 
-86
-87
 88
 89
 90
@@ -1204,10 +1204,12 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
 102
 103
 104
-105</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 86</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 88</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_subscribe'>subscribe</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_subscriber'>subscriber</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
@@ -1289,12 +1291,12 @@ the subscriber isn't callable, or when <code>event</code> is unknown</p></div>
       <pre class="lines">
 
 
-132
-133
-134</pre>
+134
+135
+136</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 132</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 134</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_subscribed?'>subscribed?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
@@ -1393,8 +1395,6 @@ entirely when no subscribers remain.</p>
       <pre class="lines">
 
 
-114
-115
 116
 117
 118
@@ -1407,10 +1407,12 @@ entirely when no subscribers remain.</p>
 125
 126
 127
-128</pre>
+128
+129
+130</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 114</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/telemetry.rb', line 116</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unsubscribe'>unsubscribe</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span><span class='rparen'>)</span>
   <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#EVENTS-constant" title="CMDx::Telemetry::EVENTS (constant)">EVENTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='rparen'>)</span>
@@ -1437,7 +1439,7 @@ entirely when no subscribers remain.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Oct 20 22:34:06 2026 by
+  Generated on Thu Oct 22 16:00:52 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

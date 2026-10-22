@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/stores/">
       
       
-        <link rel="prev" href="../circuit_breaker/">
+        <link rel="prev" href="../rate_limit/">
       
       
         <link rel="next" href="../deprecation/">
@@ -270,6 +270,26 @@
   
   
   Documentation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../cookbook/" class="md-tabs__link">
+          
+  
+  
+  Cookbook
 
         </a>
       </li>
@@ -1507,6 +1527,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../rate_limit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1628,6 +1676,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#decrkey-ttl-nil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        decr(key, ttl: nil)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remaining_ttlkey" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1709,17 +1768,6 @@
     <span class="md-ellipsis">
       
         Custom backends
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#patterns-today" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Patterns (today)
       
     </span>
   </a>
@@ -1994,34 +2042,6 @@
     
   
     v1 → v2 Migration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://github.com/drexed/cmdx/blob/main/examples/index.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Examples
   
 
     
@@ -2353,6 +2373,645 @@
   
   
   
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookbook
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cookbook
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rails and Active Record
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rails and Active Record
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/active_record_database_transaction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Active Record Database Transaction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/active_record_query_tagging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Active Record Query Tagging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/paper_trail_whatdunnit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Paper Trail Whatdunnit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API and integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API and integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/graphql_resolvers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL Resolvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/openapi_schema_generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAPI Schema Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/pub_sub_task_chaining/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PubSub Task Chaining
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-cutting concerns
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cross-cutting concerns
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/background_execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Background Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/store_wrappers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Store Wrappers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/flipper_feature_flags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flipper Feature Flags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/pundit_authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pundit Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/timeout_guard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timeout Guard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/sentry_error_tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sentry Error Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/opentelemetry_tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenTelemetry Tracing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
     
   
   
@@ -2462,6 +3121,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#decrkey-ttl-nil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        decr(key, ttl: nil)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remaining_ttlkey" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2543,17 +3213,6 @@
     <span class="md-ellipsis">
       
         Custom backends
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#patterns-today" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Patterns (today)
       
     </span>
   </a>
@@ -2659,7 +3318,7 @@
 
 <h1 id="stores">Stores<a class="headerlink" href="#stores" title="Permanent link">&para;</a></h1>
 <p>Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. You need a <strong>small, shared key/value layer</strong> — not your primary database — for idempotency tokens, rate-limit counters, circuit-breaker state, and (eventually) workflow checkpoints.</p>
-<p><code>CMDx::Stores</code> is that layer: <code>get</code>, <code>set</code>, <code>incr</code>, and <code>del</code>, with optional TTL and Redis-style conditional writes (<code>nx</code> / <code>xx</code>). Call the module methods directly, or swap the backend on <code>CMDx.configuration.store</code>.</p>
+<p><code>CMDx::Stores</code> is that layer: <code>get</code>, <code>set</code>, <code>incr</code>, <code>decr</code>, and <code>del</code>, with optional TTL and Redis-style conditional writes (<code>nx</code> / <code>xx</code>). Call the module methods directly, or swap the backend on <code>CMDx.configuration.store</code>.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>The process default is an in-memory adapter — fine for tests and single-process dev, <strong>not</strong> shared across Sidekiq workers.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
@@ -2729,60 +3388,57 @@
 <p>When <code>ttl:</code> is set, built-in adapters <strong>refresh</strong> expiry on every increment — a sliding window for rate limits and <a href="../circuit_breaker/">circuit breaker</a> failure counts.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">hits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">"rl:user:42"</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span>
 </span></code></pre></div>
+<h3 id="decrkey-ttl-nil"><code>decr(key, ttl: nil)</code><a class="headerlink" href="#decrkey-ttl-nil" title="Permanent link">&para;</a></h3>
+<p>Atomically decrements a counter (missing keys behave as <code>0</code>). Returns the <strong>integer</strong> count after decrement. Built-in adapters remove the key when the count reaches zero.</p>
+<p><code>ttl:</code> is accepted for API symmetry with <code>incr</code>; built-in adapters do not refresh expiry on decrement.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">decr</span><span class="p">(</span><span class="s2">"rl:user:42"</span><span class="p">)</span>
+</span></code></pre></div>
 <h3 id="remaining_ttlkey"><code>remaining_ttl(key)</code><a class="headerlink" href="#remaining_ttlkey" title="Permanent link">&para;</a></h3>
 <p>Returns seconds until expiry when the configured backend implements <code>ttl</code> (<code>Stores::Memory</code>, <code>Stores::Redis</code>); otherwise <code>nil</code>. Used for <code>metadata[:retry_after]</code> on open circuits.</p>
 <h3 id="delkey"><code>del(key)</code><a class="headerlink" href="#delkey" title="Permanent link">&para;</a></h3>
 <p>Removes the key. Returns <code>1</code> if a key was removed, <code>0</code> otherwise.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">del</span><span class="p">(</span><span class="s2">"idem:pay_123"</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">del</span><span class="p">(</span><span class="s2">"idem:pay_123"</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="del_ifkey-expected"><code>del_if(key, expected)</code><a class="headerlink" href="#del_ifkey-expected" title="Permanent link">&para;</a></h3>
 <p>Removes the key only when the stored value equals <code>expected</code> (string comparison after <code>to_s</code>). Returns whether a key was removed. Built-in adapters implement this atomically (Redis via <code>EVAL</code>). Used by <code>lock_with</code> so a late releaser cannot delete a newer holder's lease.</p>
 <h2 id="adapters">Adapters<a class="headerlink" href="#adapters" title="Permanent link">&para;</a></h2>
 <h3 id="cmdxstoresmemory"><code>CMDx::Stores::Memory</code><a class="headerlink" href="#cmdxstoresmemory" title="Permanent link">&para;</a></h3>
 <p>Thread-safe, process-local hash with monotonic-clock TTL. Used by default and in specs unless you assign another backend.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">memory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">::</span><span class="no">Memory</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">memory</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="ss">:k</span><span class="p">,</span><span class="w"> </span><span class="s2">"v"</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">memory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">::</span><span class="no">Memory</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">memory</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="ss">:k</span><span class="p">,</span><span class="w"> </span><span class="s2">"v"</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Each Puma worker, Sidekiq process, and console session has its <strong>own</strong> memory store. Do not rely on it for cross-worker coordination.</p>
 </div>
 <h3 id="cmdxstoresredis"><code>CMDx::Stores::Redis</code><a class="headerlink" href="#cmdxstoresredis" title="Permanent link">&para;</a></h3>
-<p>Wraps any client that quacks like <code>redis-rb</code>: <code>get</code>, <code>set</code> (with <code>ex:</code>, <code>nx:</code>, <code>xx:</code>), <code>incr</code>, <code>expire</code>, and <code>del</code>. CMDx does <strong>not</strong> add a Redis gem dependency — you pass the connection your app already uses.</p>
+<p>Wraps any client that quacks like <code>redis-rb</code>: <code>get</code>, <code>set</code> (with <code>ex:</code>, <code>nx:</code>, <code>xx:</code>), <code>incr</code>, <code>decr</code>, <code>expire</code>, <code>ttl</code>, <code>del</code>, and <code>eval</code> (for <code>del_if</code>). CMDx does <strong>not</strong> add a Redis gem dependency — you pass the connection your app already uses.</p>
 <p>Every key is prefixed with <code>namespace</code> (default <code>"cmdx:store"</code>) so CMDx data stays namespaced in a shared Redis instance.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">::</span><span class="no">Redis</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">redis</span><span class="p">:</span><span class="w"> </span><span class="no">Redis</span><span class="o">.</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="ss">namespace</span><span class="p">:</span><span class="w"> </span><span class="s2">"myapp:cmdx"</span><span class="p">)</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># writes "myapp:cmdx:token" in Redis</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">::</span><span class="no">Redis</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">redis</span><span class="p">:</span><span class="w"> </span><span class="no">Redis</span><span class="o">.</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="ss">namespace</span><span class="p">:</span><span class="w"> </span><span class="s2">"myapp:cmdx"</span><span class="p">)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1"># writes "myapp:cmdx:token" in Redis</span>
 </span></code></pre></div>
 <h2 id="custom-backends">Custom backends<a class="headerlink" href="#custom-backends" title="Permanent link">&para;</a></h2>
-<p>Any object that implements the four methods with the same signatures can be assigned to <code>config.store</code>. Use that for Memcached, DynamoDB, observability wrappers, or an in-test spy.</p>
-<p>Walkthrough with a recording store for specs and an instrumented Redis wrapper: <a href="https://github.com/drexed/cmdx/blob/main/examples/custom_store.md">Custom Store</a>.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">NullStore</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">_key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="n">_key</span><span class="p">,</span><span class="w"> </span><span class="n">_value</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">nx</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">,</span><span class="w"> </span><span class="ss">xx</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">incr</span><span class="p">(</span><span class="n">_key</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">del</span><span class="p">(</span><span class="n">_key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">end</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">c</span><span class="o">|</span><span class="w"> </span><span class="n">c</span><span class="o">.</span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">NullStore</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="p">}</span>
+<p>Any object that implements the core methods with the same signatures can be assigned to <code>config.store</code>. Add <code>del_if</code> when you use <code>lock_with</code>, and <code>ttl</code> when you need <code>remaining_ttl</code> (circuit breaker <code>retry_after</code>, lock <code>metadata[:retry_after]</code>). Use custom backends for Memcached, DynamoDB, observability wrappers, or an in-test spy.</p>
+<p>Walkthrough with a recording store for specs and an instrumented Redis wrapper: <a href="../cookbook/store_wrappers/">Store Wrappers</a>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">NullStore</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">_key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="n">_key</span><span class="p">,</span><span class="w"> </span><span class="n">_value</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">nx</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">,</span><span class="w"> </span><span class="ss">xx</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">incr</span><span class="p">(</span><span class="n">_key</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">decr</span><span class="p">(</span><span class="n">_key</span><span class="p">,</span><span class="w"> </span><span class="ss">ttl</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">ttl</span><span class="p">(</span><span class="n">_key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">del</span><span class="p">(</span><span class="n">_key</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">del_if</span><span class="p">(</span><span class="n">_key</span><span class="p">,</span><span class="w"> </span><span class="n">_expected</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">false</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">end</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">c</span><span class="o">|</span><span class="w"> </span><span class="n">c</span><span class="o">.</span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">NullStore</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="patterns-today">Patterns (today)<a class="headerlink" href="#patterns-today" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../idempotency/">Idempotency</a> — <code>idempotent_by</code> on tasks, backed by <code>CMDx::Stores</code></li>
-<li><a href="../circuit_breaker/">Circuit breaker</a> — <code>circuit_breaker</code> on tasks, failure counting and open flags via <code>CMDx::Stores</code></li>
-</ul>
-<p>Other helpers (<code>concurrency_limit</code>, …) are still on the roadmap. Middleware built on <code>CMDx::Stores</code> remains appropriate when you need custom claim semantics beyond the built-in declarations:</p>
-<ul>
-<li><a href="https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md">Rate Limit</a> — <code>incr</code> + TTL window</li>
-<li><a href="https://github.com/drexed/cmdx/blob/main/examples/custom_store.md">Custom Store</a> — wrap Memory/Redis for tests or instrumentation</li>
-</ul>
-<p>Refactoring those examples to call <code>CMDx::Stores</code> instead of <code>Redis.current</code> keeps behavior the same while staying adapter-agnostic.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p>Specs call <code>CMDx.reset_configuration!</code> in <code>spec_helper</code>, so <code>CMDx::Stores</code> starts on a clean in-memory backend every example. To assert against an isolated instance without touching global config:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">::</span><span class="no">Memory</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">store</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="ss">:token</span><span class="p">,</span><span class="w"> </span><span class="s2">"abc"</span><span class="p">)</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">expect</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="ss">:token</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">::</span><span class="no">Memory</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">store</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="ss">:token</span><span class="p">,</span><span class="w"> </span><span class="s2">"abc"</span><span class="p">)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">expect</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">Stores</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="ss">:token</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>For integration tests against Redis semantics, assign <code>CMDx::Stores::Redis.new(redis: …)</code> in a <code>before</code> block and point <code>redis</code> at <code>MockRedis</code> or a dedicated test Redis URL.</p>
 
@@ -2822,7 +3478,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../circuit_breaker/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Circuit breaker">
+          <a href="../rate_limit/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Rate limit">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2832,7 +3488,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Circuit breaker
+                Rate limit
               </div>
             </div>
           </a>

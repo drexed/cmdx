@@ -338,6 +338,11 @@ body[data-md-color-scheme="slate"] .md-tabs__link:focus {
   margin: -10px 0;
 }
 
+.md-typeset pre + pre,
+.md-typeset .highlight + .highlight {
+  margin-top: 20px;
+}
+
 .md-code__nav {
   border-radius: 8px;
   right: 0;
@@ -350,6 +355,10 @@ body[data-md-color-scheme="slate"] .md-tabs__link:focus {
 
 .tabbed-block pre {
   padding: 10px 0;
+}
+
+.tabbed-block pre + pre {
+  margin-top: 20px;
 }
 
 .tabbed-block pre > code {

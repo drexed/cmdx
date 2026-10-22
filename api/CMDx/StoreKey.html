@@ -98,10 +98,11 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Builds colon-separated store keys with the same non-empty coercion as
-<span class='object_link'><a href="Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">CMDx::Stores#key!</a></span>. Used by <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> (<code>namespace:TaskName:segment</code>),
-<span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span> (<code>namespace:TaskName</code> with <code>:failures</code> / <code>:open</code> suffixes),
-<span class='object_link'><a href="Lock.html" title="CMDx::Lock (class)">Lock</a></span> (<code>namespace:TaskName:segment</code>), and other store-backed helpers.</p>
+    <p>Shared store key helpers for store-backed task features (<span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span>,
+<span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span>, <span class='object_link'><a href="Lock.html" title="CMDx::Lock (class)">Lock</a></span>, <span class='object_link'><a href="RateLimit.html" title="CMDx::RateLimit (class)">RateLimit</a></span>, and others).</p>
+<p><span class='object_link'><a href="#compose-instance_method" title="CMDx::StoreKey#compose (method)">#compose</a></span> joins colon-separated segments, each coerced with <span class='object_link'><a href="Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">CMDx::Stores#key!</a></span>.
+<span class='object_link'><a href="#segment-instance_method" title="CMDx::StoreKey#segment (method)">#segment</a></span> resolves a per-invocation suffix from a declaration (symbol,
+proc, callable, or literal).</p>
 
   </div>
 </div>
@@ -251,15 +252,15 @@
       <pre class="lines">
 
 
-15
-16
-17</pre>
+17
+18
+19</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 17</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_compose'>compose</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_segments'>segments</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_segments'>segments</span><span class='period'>.</span><span class='id identifier rubyid_filter_map'>filter_map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_segments'>segments</span><span class='period'>.</span><span class='id identifier rubyid_map!'>map!</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -350,8 +351,6 @@ reading context (for example <code>CircuitBreaker::CLASS_KEY</code>)</p></div>
       <pre class="lines">
 
 
-27
-28
 29
 30
 31
@@ -367,10 +366,12 @@ reading context (for example <code>CircuitBreaker::CLASS_KEY</code>)</p></div>
 41
 42
 43
-44</pre>
+44
+45
+46</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 27</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/store_key.rb', line 29</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_segment'>segment</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_resolver'>resolver</span><span class='comma'>,</span> <span class='label'>skip:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_skip'>skip</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_resolver'>resolver</span> <span class='op'>==</span> <span class='id identifier rubyid_skip'>skip</span>
@@ -400,7 +401,7 @@ reading context (for example <code>CircuitBreaker::CLASS_KEY</code>)</p></div>
 </div>
 
       <div id="footer">
-  Generated on Tue Oct 20 22:34:04 2026 by
+  Generated on Thu Oct 22 16:00:50 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

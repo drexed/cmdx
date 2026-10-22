@@ -112,10 +112,10 @@
 
 <p>Orchestrates a task's full lifecycle: chain acquisition, middlewares,
 telemetry, deprecation, callbacks, input resolution, <code>work</code> (wrapped in
-<span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span>, <span class='object_link'><a href="Lock.html" title="CMDx::Lock (class)">Lock</a></span>, and <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> when declared, then <span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span>;
-output verification runs inside the lock lease and idempotency claim when
-enabled),
-rollback on failure, result finalization, and teardown (freeze + chain clear).</p>
+<span class='object_link'><a href="RateLimit.html" title="CMDx::RateLimit (class)">RateLimit</a></span>, <span class='object_link'><a href="CircuitBreaker.html" title="CMDx::CircuitBreaker (class)">CircuitBreaker</a></span>, <span class='object_link'><a href="Lock.html" title="CMDx::Lock (class)">Lock</a></span>, and <span class='object_link'><a href="Idempotency.html" title="CMDx::Idempotency (class)">Idempotency</a></span> when declared,
+then <span class='object_link'><a href="Retry.html" title="CMDx::Retry (class)">Retry</a></span>; output verification runs inside the lock lease and idempotency
+claim when enabled), rollback on failure, result finalization, and teardown
+(freeze + chain clear).</p>
 <p>Signal propagation: <code>work</code> and the surrounding middleware/callback chain
 both run inside <code>catch(Signal::TAG)</code>, so <code>success!</code> / <code>skip!</code> / <code>fail!</code> /
 <code>throw!</code> halt cleanly from anywhere. Raised Faults become echoed signals
@@ -520,7 +520,7 @@ when strict mode re-raises.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Oct 20 22:34:06 2026 by
+  Generated on Thu Oct 22 16:00:51 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

@@ -73,7 +73,7 @@ While work is running, the value is `"processing"`. After a successful run it be
 Think of one outer envelope around the whole attempt, retries included:
 
 ```text
-resolve_inputs! → circuit_breaker → lock_with → idempotent claim → retry loop { work } → verify_outputs! → completed
+resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent claim → retry loop { work } → verify_outputs! → completed
 ```
 
 If `work` raises `StandardError`, the claim is **deleted** before the exception reaches `retry_on`. The claim is also released when `work` calls `skip!` or `fail!`, or when output verification fails — so a later invocation can try again. When the wrapped block finishes cleanly, the slot is `completed` and the next call with the same key never enters `work`.
