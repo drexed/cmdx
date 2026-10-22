@@ -1,8 +1,12 @@
 # OpenAPI Schema Generation
 
-A task already declares its inputs as a typed contract. Projecting that contract into an OpenAPI schema means the API documentation can never drift from the validation the request will actually face — change a `required`, the docs change next deploy.
+Your task already declares its inputs — types, required fields, nested objects. That contract is the source of truth for validation.
+
+Project it into OpenAPI and your HTTP docs stay aligned with what `execute` actually enforces. Change a `required` in the task, redeploy, and the schema updates with it.
 
 ## Example task
+
+Descriptions on each input become OpenAPI `description` fields.
 
 ```ruby
 class CreateUser < CMDx::Task
@@ -25,14 +29,13 @@ class CreateUser < CMDx::Task
 end
 ```
 
-## Generator
+## Setup — generator
 
-`inputs_schema` returns one entry per declared input as `{ name:, description:, required:, options:, children: }`. Walking that recursively turns it into a nested OpenAPI `object`. Coerce arrays project to the first symbol — that's enough for the common case; extend the map for `format`, `enum`, etc.
+`inputs_schema` returns one entry per input: `{ name:, description:, required:, options:, children: }`. Walk it recursively to build a nested OpenAPI `object`.
+
+Coerce arrays use the first symbol for the OpenAPI type — enough for most cases. Extend the map when you need `format`, `enum`, and so on.
 
 ```ruby
-# lib/openapi_schema_generator.rb
-# frozen_string_literal: true
-
 class OpenApiSchemaGenerator
   COERCE_TO_TYPE = {
     string:      "string",
@@ -88,6 +91,8 @@ end
 puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
 ```
 
+## What to expect
+
 ```json
 {
   "type": "object",
@@ -112,6 +117,6 @@ puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
 
 ## Notes
 
-!!! tip "Beyond the basics"
+### Beyond the basics
 
-    `:options` carries the full declaration verbatim — `:default`, `:validate`, `:if` — so the generator can extend straight to `default`, `enum` (`inclusion: { in: [...] }`), `pattern` (`format: { with: /.../ }`), and `minimum`/`maximum` (`numericality:`). See [Inputs — Definitions](../docs/inputs/definitions.md#introspection).
+`:options` carries the full declaration — `:default`, `:validate`, `:if` — so you can grow the generator toward `default`, `enum` (`inclusion: { in: [...] }`), `pattern` (`format: { with: /.../ }`), and `minimum` / `maximum` (`numericality:`). See [Inputs — Definitions](../inputs/definitions.md#introspection).

@@ -2,7 +2,7 @@
 
 Background jobs retry. Webhooks arrive twice. Two workers pick up the same slice of work. You need a **small, shared key/value layer** — not your primary database — for idempotency tokens, rate-limit counters, circuit-breaker state, and (eventually) workflow checkpoints.
 
-`CMDx::Stores` is that layer: `get`, `set`, `incr`, and `del`, with optional TTL and Redis-style conditional writes (`nx` / `xx`). Call the module methods directly, or swap the backend on `CMDx.configuration.store`.
+`CMDx::Stores` is that layer: `get`, `set`, `incr`, `decr`, and `del`, with optional TTL and Redis-style conditional writes (`nx` / `xx`). Call the module methods directly, or swap the backend on `CMDx.configuration.store`.
 
 ## Configuration
 
@@ -67,6 +67,16 @@ When `ttl:` is set, built-in adapters **refresh** expiry on every increment — 
 hits = CMDx::Stores.incr("rl:user:42", ttl: 60)
 ```
 
+### `decr(key, ttl: nil)`
+
+Atomically decrements a counter (missing keys behave as `0`). Returns the **integer** count after decrement. Built-in adapters remove the key when the count reaches zero.
+
+`ttl:` is accepted for API symmetry with `incr`; built-in adapters do not refresh expiry on decrement.
+
+```ruby
+CMDx::Stores.decr("rl:user:42")
+```
+
 ### `remaining_ttl(key)`
 
 Returns seconds until expiry when the configured backend implements `ttl` (`Stores::Memory`, `Stores::Redis`); otherwise `nil`. Used for `metadata[:retry_after]` on open circuits.
@@ -100,7 +110,7 @@ memory.set(:k, "v", ttl: 30)
 
 ### `CMDx::Stores::Redis`
 
-Wraps any client that quacks like `redis-rb`: `get`, `set` (with `ex:`, `nx:`, `xx:`), `incr`, `expire`, and `del`. CMDx does **not** add a Redis gem dependency — you pass the connection your app already uses.
+Wraps any client that quacks like `redis-rb`: `get`, `set` (with `ex:`, `nx:`, `xx:`), `incr`, `decr`, `expire`, `ttl`, `del`, and `eval` (for `del_if`). CMDx does **not** add a Redis gem dependency — you pass the connection your app already uses.
 
 Every key is prefixed with `namespace` (default `"cmdx:store"`) so CMDx data stays namespaced in a shared Redis instance.
 
@@ -111,16 +121,19 @@ CMDx::Stores::Redis.new(redis: Redis.current, namespace: "myapp:cmdx")
 
 ## Custom backends
 
-Any object that implements the four methods with the same signatures can be assigned to `config.store`. Use that for Memcached, DynamoDB, observability wrappers, or an in-test spy.
+Any object that implements the core methods with the same signatures can be assigned to `config.store`. Add `del_if` when you use `lock_with`, and `ttl` when you need `remaining_ttl` (circuit breaker `retry_after`, lock `metadata[:retry_after]`). Use custom backends for Memcached, DynamoDB, observability wrappers, or an in-test spy.
 
-Walkthrough with a recording store for specs and an instrumented Redis wrapper: [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md).
+Walkthrough with a recording store for specs and an instrumented Redis wrapper: [Store Wrappers](cookbook/store_wrappers.md).
 
 ```ruby
 class NullStore
   def get(_key) = nil
   def set(_key, _value, ttl: nil, nx: false, xx: false) = true
   def incr(_key, ttl: nil) = 1
+  def decr(_key, ttl: nil) = 0
+  def ttl(_key) = nil
   def del(_key) = 0
+  def del_if(_key, _expected) = false
 end
 
 CMDx.configure { |c| c.store = NullStore.new }
@@ -133,8 +146,8 @@ CMDx.configure { |c| c.store = NullStore.new }
 
 Other helpers (`concurrency_limit`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond the built-in declarations:
 
-- [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md) — `incr` + TTL window
-- [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md) — wrap Memory/Redis for tests or instrumentation
+- [Rate Limit](cookbook/rate_limit.md) — `incr` + TTL window
+- [Store Wrappers](cookbook/store_wrappers.md) — wrap Memory/Redis for tests or instrumentation
 
 Refactoring those examples to call `CMDx::Stores` instead of `Redis.current` keeps behavior the same while staying adapter-agnostic.
 

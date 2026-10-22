@@ -1,13 +1,14 @@
 # OpenTelemetry Tracing
 
-Each task gets one OTel span. Nested `execute` calls inherit the parent span automatically, so the resulting trace mirrors the `Chain` — root task at the top, every child below it, with timing, status, and exception attached at the level they happened.
+When a request fans out through several tasks, you want one trace that shows who called whom — with timing and errors on the right span.
 
-## Tracing middleware
+This recipe gives **one OpenTelemetry span per task**. Nested `execute` calls nest under the parent automatically, mirroring the CMDx [chain](../basics/chain.md).
+
+## Setup — tracing middleware
+
+Wrap the lifecycle in a span and attach CMDx identifiers as attributes.
 
 ```ruby
-# app/middlewares/cmdx_otel_middleware.rb
-# frozen_string_literal: true
-
 class CmdxOtelMiddleware
   TRACER = OpenTelemetry.tracer_provider.tracer("cmdx", CMDx::VERSION)
 
@@ -39,14 +40,13 @@ class ApplicationTask < CMDx::Task
 end
 ```
 
-## Recording logical failures
+## Setup — logical failures on the span
 
-`perform_work` converts `fail!` and rescued exceptions into `Result` signals, so the middleware's `rescue` only catches true unhandled exceptions raised from a callback (`fail!` from a callback is also caught at the signal layer and produces a failed `Result` instead of an exception). Strict-mode `Fault` re-raises happen in `Runtime#execute`'s `ensure` after the middleware chain has already returned and so are **not** rescuable from a middleware — use the `:task_executed` subscriber below to attach finalized status to the still-current span:
+`fail!` does not raise — it becomes a failed `Result`. The middleware `rescue` above only sees **unhandled** exceptions.
+
+Subscribe to `:task_executed` to stamp the span with the finalized outcome (status, reason, duration):
 
 ```ruby
-# config/initializers/cmdx_otel.rb
-# frozen_string_literal: true
-
 CMDx.configure do |config|
   config.telemetry.subscribe(:task_executed) do |event|
     span = OpenTelemetry::Trace.current_span
@@ -67,8 +67,10 @@ CMDx.configure do |config|
 end
 ```
 
+Strict-mode `Fault` re-raises after the middleware chain returns, so middleware cannot rescue those — the subscriber is the right place to mark the span.
+
 ## Notes
 
-!!! tip "Linking propagated failures"
+### Linking propagated failures
 
-    `result.origin` points at the leaf `Result` that originated a propagated failure (via `throw!` or a re-raised `Fault`). When tasks keep a `tid → SpanContext` map, `span.add_link(OpenTelemetry::Trace::Link.new(origin_span_context))` connects the span where the failure surfaced to the span where it actually happened.
+`result.origin` points at the leaf `Result` when a failure propagated via `throw!` or a re-raised `Fault`. If you keep a `tid → SpanContext` map, `span.add_link(OpenTelemetry::Trace::Link.new(origin_span_context))` connects where the error surfaced to where it actually happened.

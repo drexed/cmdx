@@ -185,25 +185,3 @@ end
 ```
 
 **How stacking works (without the scary words):** lists generally **grow** as you go down the inheritance chain — new entries append (or replace by name where that applies). `retry_on` and `settings` **merge**: the child adds or overrides keys without throwing away the parent. To turn off inherited retries, idempotency, or circuit breaking on a subclass, pass `false` to `retry_on`, `idempotent_by`, or `circuit_breaker` respectively. Need to drop something from mom or dad? `deregister` is the escape hatch — for example `deregister :callback, :before_execution, :ensure_current_tenant!`.
-
-## Useful examples
-
-Real-world recipes live in the repo — grab the one closest to what you are building:
-
-- [Active Job Durability](https://github.com/drexed/cmdx/blob/main/examples/active_job_durability.md)
-- [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
-- [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
-- [Active Support Instrumentation](https://github.com/drexed/cmdx/blob/main/examples/active_support_instrumentation.md)
-- [Custom Store](https://github.com/drexed/cmdx/blob/main/examples/custom_store.md)
-- [dry-monads Interop](https://github.com/drexed/cmdx/blob/main/examples/dry_monads_interop.md)
-- [Flipper Feature Flags](https://github.com/drexed/cmdx/blob/main/examples/flipper_feature_flags.md)
-- [GraphQL Resolvers](https://github.com/drexed/cmdx/blob/main/examples/graphql_resolvers.md)
-- [OpenAPI Schema Generation](https://github.com/drexed/cmdx/blob/main/examples/openapi_schema_generation.md)
-- [OpenTelemetry Tracing](https://github.com/drexed/cmdx/blob/main/examples/opentelemetry_tracing.md)
-- [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
-- [PubSub Task Chaining](https://github.com/drexed/cmdx/blob/main/examples/pub_sub_task_chaining.md)
-- [Pundit Authorization](https://github.com/drexed/cmdx/blob/main/examples/pundit_authorization.md)
-- [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md)
-- [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
-- [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
-- [Timeout Guard](https://github.com/drexed/cmdx/blob/main/examples/timeout_guard.md)

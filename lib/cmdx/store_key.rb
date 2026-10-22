@@ -13,7 +13,7 @@ module CMDx
     # @return [String] joined key
     # @raise [ArgumentError] when any segment is empty after coercion
     def compose(*segments)
-      segments.filter_map { |s| Stores.key!(s) }.join(":")
+      segments.map! { |s| Stores.key!(s) }.join(":")
     end
 
     # Resolves a store key segment from a task. Used by {Idempotency},

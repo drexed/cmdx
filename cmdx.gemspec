@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
           benchmark/
           bin/
           docs/
-          examples/
           test/
           skills/
           spec/

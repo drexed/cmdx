@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## UNRELEASED
 
+### Changed
+- Document `decr` on `CMDx::Stores` and align custom-store examples with the full adapter surface (`decr`, `ttl`, `del_if`)
+- Move integration recipes from `examples/` into published docs under `docs/cookbook/` with a dedicated **Cookbook** site tab
+- Remove dry-monads interop cookbook page
+- Cookbook cleanup: drop Active Support instrumentation recipe; consolidate background job recipes; trim rate limit, custom store, and pub/sub pages
+
 ## [2.3.0] - UNRELEASED
 
 ### Added

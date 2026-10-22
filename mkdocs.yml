@@ -152,6 +152,22 @@ plugins:
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
           - comparison.md: Comparison with other command/service object frameworks
           - v2-migration.md: Migration guide from CMDx 1.x to 2.0
+        Cookbook:
+          - cookbook/index.md: Integration recipes for jobs, Rails, auth, observability, and more
+          - cookbook/active_record_database_transaction.md: Wrap task work in an Active Record transaction
+          - cookbook/active_record_query_tagging.md: Tag SQL queries with task metadata
+          - cookbook/background_execution.md: Run tasks via Active Job or Sidekiq
+          - cookbook/store_wrappers.md: Test doubles and instrumented store wrappers
+          - cookbook/flipper_feature_flags.md: Gate tasks behind Flipper feature flags
+          - cookbook/graphql_resolvers.md: Resolve GraphQL fields with CMDx tasks
+          - cookbook/openapi_schema_generation.md: Generate OpenAPI schemas from task inputs
+          - cookbook/opentelemetry_tracing.md: Distributed tracing for task execution
+          - cookbook/paper_trail_whatdunnit.md: Paper Trail attribution for running tasks
+          - cookbook/pub_sub_task_chaining.md: Chain tasks from pub/sub events
+          - cookbook/pundit_authorization.md: Authorize tasks with Pundit before work runs
+          - cookbook/rate_limit.md: Rate limit tasks with CMDx::Stores
+          - cookbook/sentry_error_tracking.md: Report CMDx faults to Sentry
+          - cookbook/timeout_guard.md: Bound task execution time with a timeout guard
 nav:
   - Home: index.md
   - Documentation:
@@ -196,7 +212,6 @@ nav:
       - Tips and Tricks: tips_and_tricks.md
       - Comparison: comparison.md
       - v1 → v2 Migration: v2-migration.md
-      - Examples: https://github.com/drexed/cmdx/blob/main/examples/index.md
     - References:
       - API Documentation: https://drexed.github.io/cmdx/api/index.html
       - llms.txt: https://drexed.github.io/cmdx/llms.txt
@@ -205,6 +220,25 @@ nav:
     - Ecosystem:
       - cmdx-i18n: https://github.com/drexed/cmdx-i18n
       - cmdx-rspec: https://github.com/drexed/cmdx-rspec
+  - Cookbook:
+    - Overview: cookbook/index.md
+    - Rails and Active Record:
+      - Active Record Database Transaction: cookbook/active_record_database_transaction.md
+      - Active Record Query Tagging: cookbook/active_record_query_tagging.md
+      - Paper Trail Whatdunnit: cookbook/paper_trail_whatdunnit.md
+    - API and integration:
+      - GraphQL Resolvers: cookbook/graphql_resolvers.md
+      - OpenAPI Schema Generation: cookbook/openapi_schema_generation.md
+      - PubSub Task Chaining: cookbook/pub_sub_task_chaining.md
+    - Cross-cutting concerns:
+      - Background Execution: cookbook/background_execution.md
+      - Store Wrappers: cookbook/store_wrappers.md
+      - Flipper Feature Flags: cookbook/flipper_feature_flags.md
+      - Pundit Authorization: cookbook/pundit_authorization.md
+      - Rate Limit: cookbook/rate_limit.md
+      - Timeout Guard: cookbook/timeout_guard.md
+      - Sentry Error Tracking: cookbook/sentry_error_tracking.md
+      - OpenTelemetry Tracing: cookbook/opentelemetry_tracing.md
   - Blog: blog/index.md
 
 extra:
