@@ -16,6 +16,7 @@ module CMDx
       # @return [String, nil] stored value, or `nil` when missing or expired
       def get(key)
         key = Stores.key!(key)
+
         @mutex.synchronize do
           entry = @entries[key]
           return unless entry
@@ -77,6 +78,7 @@ module CMDx
       # @return [Integer, nil] whole seconds until expiry, or `nil` when missing or expired
       def ttl(key)
         key = Stores.key!(key)
+
         @mutex.synchronize do
           entry = @entries[key]
           return unless entry
@@ -122,6 +124,7 @@ module CMDx
       # @return [Integer] `1` when a key was removed, `0` otherwise
       def del(key)
         key = Stores.key!(key)
+
         @mutex.synchronize do
           @entries.delete(key) ? 1 : 0
         end
@@ -132,11 +135,11 @@ module CMDx
       # @return [Boolean] whether the key was removed
       def del_if(key, expected)
         key = Stores.key!(key)
-        expected = expected.to_s
+
         @mutex.synchronize do
           entry = @entries[key]
           return false unless entry && !expired?(entry)
-          return false unless entry[:value] == expected
+          return false unless entry[:value] == expected.to_s
 
           @entries.delete(key)
           true

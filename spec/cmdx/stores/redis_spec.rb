@@ -5,6 +5,17 @@ RSpec.describe CMDx::Stores::Redis do
 
   let(:redis) { CMDx::Testing::FakeRedis.new }
 
+  describe "default namespace" do
+    subject(:store) { described_class.new(redis:) }
+
+    it "uses logical keys without a store prefix" do
+      store.set("cmdx:idem:MyTask:segment", "1")
+
+      expect(redis.get("cmdx:idem:MyTask:segment")).to eq("1")
+      expect(store.get("cmdx:idem:MyTask:segment")).to eq("1")
+    end
+  end
+
   describe "#get" do
     it "prefixes keys with the namespace" do
       redis.set("cmdx:test:token", "abc")

@@ -201,7 +201,8 @@ CMDx.configure do |config|
   # idempotency keys, rate limits, and similar cross-request state. Defaults to
   # an in-memory adapter; point at Redis in production.
   #
-  # config.store = CMDx::Stores::Redis.new(redis: Redis.current, namespace: "cmdx:store")
+  # config.store = CMDx::Stores::Redis.new(redis: Redis.current)
+  # config.store = CMDx::Stores::Redis.new(redis: Redis.current, namespace: "myapp:cmdx")
 
   # ===========================================================================
   # Executors

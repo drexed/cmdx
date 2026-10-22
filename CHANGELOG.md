@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Telemetry events `:rate_limit_admitted` and `:rate_limit_exceeded` for rate-limited tasks (gated by `Telemetry#subscribed?` like other store-backed helpers)
 
 ### Changed
+- `Stores::Redis` — default `namespace` is now `""` so Redis keys match logical store keys (for example `cmdx:idem:MyTask:segment`); set `namespace` explicitly when sharing a Redis instance with non-CMDx data (previously defaulted to `cmdx:store`)
 - Move integration recipes from `examples/` into published docs under `docs/cookbook/` with a dedicated **Cookbook** site tab
 
 ## [2.3.0] - UNRELEASED

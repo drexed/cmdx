@@ -3,7 +3,7 @@
 module CMDx
   module Stores
     # Delegates to a Redis-compatible client (`redis-rb`, `MockRedis`, etc.).
-    # Keys are prefixed to avoid collisions with unrelated application data.
+    # Optional `namespace` prefixes keys when Redis is shared with other data.
     #
     # The client must respond to `get`, `set`, `incr`, `expire`, `ttl`, `del`, and `eval`.
     class Redis
@@ -17,10 +17,11 @@ module CMDx
       LUA
 
       # @param redis [#get, #set, #incr, #expire, #del, #eval] backing client
-      # @param namespace [String] prepended to every key (trailing `:` added when missing)
-      def initialize(redis:, namespace: "cmdx:store")
+      # @param namespace [String] optional prefix for every key (trailing `:` added when
+      #   missing; empty string stores logical keys as-is, matching {Memory})
+      def initialize(redis:, namespace: EMPTY_STRING)
         @redis = redis
-        @namespace = namespace.end_with?(":") ? namespace : "#{namespace}:"
+        @namespace = namespace_prefix(namespace)
       end
 
       # @param key [String, Symbol]
@@ -95,8 +96,7 @@ module CMDx
       # @return [Boolean] whether the key was removed
       def del_if(key, expected) # rubocop:disable Naming/PredicateMethod -- store delete contract
         key = prefixed(key)
-        expected = expected.to_s
-        deleted = @redis.eval(DEL_IF_SCRIPT, keys: [key], argv: [expected])
+        deleted = @redis.eval(DEL_IF_SCRIPT, keys: [key], argv: [expected.to_s])
         deleted.to_i.positive?
       end
 
@@ -104,6 +104,13 @@ module CMDx
 
       def prefixed(key)
         "#{@namespace}#{Stores.key!(key)}"
+      end
+
+      def namespace_prefix(namespace)
+        str = namespace.to_s
+        return EMPTY_STRING if str.empty?
+
+        str.end_with?(":") ? str : "#{str}:"
       end
 
     end
