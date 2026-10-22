@@ -10,10 +10,7 @@ The process default is an in-memory adapter — fine for tests and single-proces
 
 ```ruby
 CMDx.configure do |config|
-  config.store = CMDx::Stores::Redis.new(
-    redis: Redis.current,
-    namespace: "cmdx:store"
-  )
+  config.store = CMDx::Stores::Redis.new(redis: Redis.current)
 end
 ```
 
@@ -112,7 +109,7 @@ Each Puma worker, Sidekiq process, and console session has its **own** memory st
 
 Wraps any client that quacks like `redis-rb`: `get`, `set` (with `ex:`, `nx:`, `xx:`), `incr`, `decr`, `expire`, `ttl`, `del`, and `eval` (for `del_if`). CMDx does **not** add a Redis gem dependency — you pass the connection your app already uses.
 
-Every key is prefixed with `namespace` (default `"cmdx:store"`) so CMDx data stays namespaced in a shared Redis instance.
+By default, Redis keys match the logical keys passed to `CMDx::Stores` (same as `Stores::Memory`). Set `namespace` when Redis is shared with other data so CMDx keys stay isolated.
 
 ```ruby
 CMDx::Stores::Redis.new(redis: Redis.current, namespace: "myapp:cmdx")

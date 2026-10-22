@@ -432,8 +432,6 @@ across workers.</p>
       <pre class="lines">
 
 
-96
-97
 98
 99
 100
@@ -455,10 +453,12 @@ across workers.</p>
 116
 117
 118
-119</pre>
+119
+120
+121</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_decr'>decr</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -544,18 +544,20 @@ across workers.</p>
       <pre class="lines">
 
 
-123
-124
 125
 126
 127
-128</pre>
+128
+129
+130
+131</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 123</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 125</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_del'>del</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
     <span class='ivar'>@entries</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='int'>1</span> <span class='op'>:</span> <span class='int'>0</span>
   <span class='kw'>end</span>
@@ -631,9 +633,6 @@ across workers.</p>
       <pre class="lines">
 
 
-133
-134
-135
 136
 137
 138
@@ -642,18 +641,21 @@ across workers.</p>
 141
 142
 143
-144</pre>
+144
+145
+146
+147</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 133</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 136</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_del_if'>del_if</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_expected'>expected</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_expected'>expected</span> <span class='op'>=</span> <span class='id identifier rubyid_expected'>expected</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='ivar'>@entries</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
     <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_expired?'>expired?</span><span class='lparen'>(</span><span class='id identifier rubyid_entry'>entry</span><span class='rparen'>)</span>
-    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:value</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_expected'>expected</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:value</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_expected'>expected</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
 
     <span class='ivar'>@entries</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
     <span class='kw'>true</span>
@@ -728,13 +730,15 @@ across workers.</p>
 23
 24
 25
-26</pre>
+26
+27</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 17</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='ivar'>@entries</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
     <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span>
@@ -835,7 +839,6 @@ across workers.</p>
       <pre class="lines">
 
 
-57
 58
 59
 60
@@ -852,10 +855,11 @@ across workers.</p>
 71
 72
 73
-74</pre>
+74
+75</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 57</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 58</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_incr'>incr</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -1010,7 +1014,6 @@ across workers.</p>
       <pre class="lines">
 
 
-35
 36
 37
 38
@@ -1026,10 +1029,11 @@ across workers.</p>
 48
 49
 50
-51</pre>
+51
+52</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 36</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='label'>ttl:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>nx:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>xx:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -1108,7 +1112,6 @@ across workers.</p>
       <pre class="lines">
 
 
-78
 79
 80
 81
@@ -1121,13 +1124,16 @@ across workers.</p>
 88
 89
 90
-91</pre>
+91
+92
+93</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 78</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/stores/memory.rb', line 79</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ttl'>ttl</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Stores.html" title="CMDx::Stores (module)">Stores</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key!'><span class='object_link'><a href="../Stores.html#key!-instance_method" title="CMDx::Stores#key! (method)">key!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='ivar'>@entries</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
     <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span>
@@ -1150,7 +1156,7 @@ across workers.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Oct 22 16:00:52 2026 by
+  Generated on Thu Oct 22 17:50:49 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

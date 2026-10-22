@@ -289,10 +289,7 @@ Default: `CMDx::Stores::Memory` (process-local, thread-safe). Production multi-w
 
 ```ruby
 CMDx.configure do |config|
-  config.store = CMDx::Stores::Redis.new(
-    redis: Redis.current,
-    namespace: "cmdx:store"
-  )
+  config.store = CMDx::Stores::Redis.new(redis: Redis.current)
 end
 
 CMDx::Stores.set("idem:invoice:99", "done", nx: true, ttl: 300)

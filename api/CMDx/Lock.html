@@ -720,7 +720,9 @@ cannot be acquired within <code>:wait</code></p></div>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns a new Lock layering <code>new_options</code> onto the current one.</p>
+    <p>Returns a new Lock layering <code>new_options</code> onto the current one. When
+<code>new_key</code> is non-nil it replaces the resolver; when <code>new_key</code> is <code>nil</code>,
+only options merge and the existing resolver is kept.</p>
 
   </div>
 </div>
@@ -772,22 +774,22 @@ cannot be acquired within <code>:wait</code></p></div>
       <pre class="lines">
 
 
-91
-92
 93
 94
 95
 96
 97
-98</pre>
+98
+99
+100</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/lock.rb', line 91</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/lock.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_new_key'>new_key</span><span class='comma'>,</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_key'>new_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
 
-  <span class='id identifier rubyid_merged_key'>merged_key</span>     <span class='op'>=</span> <span class='id identifier rubyid_new_key'>new_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='ivar'>@key</span> <span class='op'>:</span> <span class='id identifier rubyid_new_key'>new_key</span>
+  <span class='id identifier rubyid_merged_key'>merged_key</span> <span class='op'>=</span> <span class='id identifier rubyid_new_key'>new_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='ivar'>@key</span> <span class='op'>:</span> <span class='id identifier rubyid_new_key'>new_key</span>
   <span class='id identifier rubyid_merged_options'>merged_options</span> <span class='op'>=</span> <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_new_options'>new_options</span><span class='rparen'>)</span>
 
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_merged_key'>merged_key</span><span class='comma'>,</span> <span class='id identifier rubyid_merged_options'>merged_options</span><span class='rparen'>)</span>
@@ -1173,8 +1175,6 @@ is negative</p></div>
       <pre class="lines">
 
 
-112
-113
 114
 115
 116
@@ -1194,19 +1194,19 @@ is negative</p></div>
 130
 131
 132
-133</pre>
+133
+134</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/lock.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/lock.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>unless</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
   <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_condition_if'>condition_if</span><span class='comma'>,</span> <span class='id identifier rubyid_condition_unless'>condition_unless</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
 
-  <span class='id identifier rubyid_segment'>segment</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_segment'><span class='object_link'><a href="StoreKey.html#segment-instance_method" title="CMDx::StoreKey#segment (method)">segment</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>if</span> <span class='id identifier rubyid_segment'>segment</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_store_key'>store_key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_task_key'><span class='object_link'><a href="StoreKey.html#task_key-instance_method" title="CMDx::StoreKey#task_key (method)">task_key</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>namespace:</span><span class='comma'>,</span> <span class='label'>resolver:</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>if</span> <span class='id identifier rubyid_store_key'>store_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
 
-  <span class='id identifier rubyid_store_key'>store_key</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_compose'><span class='object_link'><a href="StoreKey.html#compose-instance_method" title="CMDx::StoreKey#compose (method)">compose</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_namespace'>namespace</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_segment'>segment</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_tid'>tid</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_acquire_lock'>acquire_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_store_key'>store_key</span><span class='comma'>,</span> <span class='id identifier rubyid_token'>token</span><span class='rparen'>)</span>
@@ -1341,7 +1341,7 @@ is negative</p></div>
 </div>
 
       <div id="footer">
-  Generated on Thu Oct 22 16:00:50 2026 by
+  Generated on Thu Oct 22 17:50:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
