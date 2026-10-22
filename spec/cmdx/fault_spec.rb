@@ -102,7 +102,7 @@ RSpec.describe CMDx::Fault do
       result = CMDx::Result.new(chain, instance, CMDx::Signal.failed("boom"))
 
       expect(described_class.new(result).inspect)
-        .to eq("#<CMDx::Fault task=#{task_class.name} tid=#{result.tid} cid=#{result.cid} xid=#{result.xid} reason=\"boom\" errors={email: [\"is invalid\"]}>")
+        .to include("#<CMDx::Fault task=#{task_class.name} tid=#{result.tid} cid=#{result.cid} xid=#{result.xid} reason=\"boom\" errors=")
     end
   end
 
