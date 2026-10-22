@@ -75,8 +75,9 @@ module CMDx
 
     # Returns a new Idempotency layering `new_options` onto the current one.
     # When `new_key` is non-nil it replaces the resolver; when `new_key` is
-    # `nil` and only options change, the existing resolver is kept (option-only
-    # updates such as `idempotent_by ttl: 600`).
+    # `nil`, only options merge and the existing resolver is kept. A disabled
+    # config stays disabled when only options are passed (a key is still required
+    # to enable).
     #
     # @param new_key [Symbol, String, Proc, #call, nil]
     # @param new_options [Hash{Symbol => Object}]
@@ -84,7 +85,7 @@ module CMDx
     def build(new_key, new_options)
       return self if new_key.nil? && new_options.empty?
 
-      merged_key     = new_key.nil? ? @key : new_key
+      merged_key = new_key.nil? ? @key : new_key
       merged_options = @options.merge(new_options)
 
       self.class.new(merged_key, merged_options)
@@ -107,10 +108,8 @@ module CMDx
       return yield unless enabled?
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
 
-      segment = StoreKey.segment(task, key)
-      return yield if segment.nil?
-
-      store_key = StoreKey.compose(namespace, task.class.name, segment)
+      store_key = StoreKey.task_key(task, namespace:, resolver: key)
+      return yield if store_key.nil?
 
       if Stores.set(store_key, PROCESSING, nx: true, ttl:)
         Telemetry.emit(task, :idempotency_claimed, idempotency_key: store_key)
@@ -159,7 +158,7 @@ module CMDx
         task.skip!(message, **metadata)
       else
         raise ArgumentError, <<~MSG.chomp
-          idempotent_by on_duplicate must be :skip or :fail (got #{on_duplicate.inspect}).
+          idempotent_by on_duplicate must be :fail or :skip (got #{on_duplicate.inspect}).
           See https://drexed.github.io/cmdx/idempotency/
         MSG
       end

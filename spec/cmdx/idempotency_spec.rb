@@ -168,7 +168,7 @@ RSpec.describe CMDx::Idempotency do
       task = task_class.new(payment_id: "pay_bad")
 
       expect { config.send(:duplicate!, task, "cmdx:idem:Example:pay_bad") }
-        .to raise_error(ArgumentError, /on_duplicate must be :skip or :fail/)
+        .to raise_error(ArgumentError, /on_duplicate must be :fail or :skip/)
     end
   end
 

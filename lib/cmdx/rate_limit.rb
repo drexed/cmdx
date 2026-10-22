@@ -20,8 +20,6 @@ module CMDx
     # Quota snapshot passed to built-in and custom limiter strategies.
     Quota = Data.define(:task, :store_key, :max, :per, :cost, :limiter, :options)
 
-    CLASS_KEY = :class
-
     class << self
 
       # @return [RateLimit] disabled configuration (no key)
@@ -131,7 +129,7 @@ module CMDx
       return yield unless enabled?
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
 
-      store_key = store_base(task)
+      store_key = StoreKey.task_key(task, namespace:, resolver: key, class_scoped: true)
       return yield if store_key.nil?
 
       quota = Quota.new(
@@ -154,18 +152,6 @@ module CMDx
     end
 
     private
-
-    def store_base(task)
-      segment = StoreKey.segment(task, key, skip: CLASS_KEY)
-
-      if segment.nil?
-        return StoreKey.compose(namespace, task.class.name) if key == CLASS_KEY
-
-        return nil
-      end
-
-      StoreKey.compose(namespace, task.class.name, segment)
-    end
 
     def invoke_limiter(task, quota)
       callable =

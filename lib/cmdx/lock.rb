@@ -83,7 +83,9 @@ module CMDx
       !key.nil?
     end
 
-    # Returns a new Lock layering `new_options` onto the current one.
+    # Returns a new Lock layering `new_options` onto the current one. When
+    # `new_key` is non-nil it replaces the resolver; when `new_key` is `nil`,
+    # only options merge and the existing resolver is kept.
     #
     # @param new_key [Symbol, String, Proc, #call, nil]
     # @param new_options [Hash{Symbol => Object}]
@@ -91,7 +93,7 @@ module CMDx
     def build(new_key, new_options)
       return self if new_key.nil? && new_options.empty?
 
-      merged_key     = new_key.nil? ? @key : new_key
+      merged_key = new_key.nil? ? @key : new_key
       merged_options = @options.merge(new_options)
 
       self.class.new(merged_key, merged_options)
@@ -113,10 +115,9 @@ module CMDx
       return yield unless enabled?
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
 
-      segment = StoreKey.segment(task, key)
-      return yield if segment.nil?
+      store_key = StoreKey.task_key(task, namespace:, resolver: key)
+      return yield if store_key.nil?
 
-      store_key = StoreKey.compose(namespace, task.class.name, segment)
       token = task.tid
 
       if acquire_lock(store_key, token)
@@ -178,7 +179,7 @@ module CMDx
         task.skip!(message, **metadata)
       else
         raise ArgumentError, <<~MSG.chomp
-          lock_with on_busy must be :skip or :fail (got #{on_busy.inspect}).
+          lock_with on_busy must be :fail or :skip (got #{on_busy.inspect}).
           See https://drexed.github.io/cmdx/locks/
         MSG
       end

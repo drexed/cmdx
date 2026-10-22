@@ -224,7 +224,7 @@ RSpec.describe CMDx::Lock do
       task = task_class.new(resource_id: "bad")
 
       expect { config.send(:busy!, task, "cmdx:lock:Example:bad") }
-        .to raise_error(ArgumentError, /on_busy must be :skip or :fail/)
+        .to raise_error(ArgumentError, /on_busy must be :fail or :skip/)
     end
 
     it "includes holder and retry_after in busy metadata" do

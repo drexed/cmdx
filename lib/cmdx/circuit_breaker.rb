@@ -9,9 +9,8 @@ module CMDx
   # `:failures` and `:open` suffix segments (see {StoreKey.compose}).
   class CircuitBreaker
 
-    OPEN      = "open"
-    FAILURES  = "failures"
-    CLASS_KEY = :class
+    OPEN     = "open"
+    FAILURES = "failures"
 
     class << self
 
@@ -125,11 +124,11 @@ module CMDx
       return yield unless enabled?
       return yield unless Util.satisfied?(condition_if, condition_unless, task)
 
-      base = store_base(task)
-      return yield if base.nil?
+      store_key = StoreKey.task_key(task, namespace:, resolver: key, class_scoped: true)
+      return yield if store_key.nil?
 
-      open_key     = StoreKey.compose(base, OPEN)
-      failures_key = StoreKey.compose(base, FAILURES)
+      open_key     = StoreKey.compose(store_key, OPEN)
+      failures_key = StoreKey.compose(store_key, FAILURES)
       open!(task, open_key) if circuit_open?(open_key)
 
       begin
@@ -143,18 +142,6 @@ module CMDx
     end
 
     private
-
-    def store_base(task)
-      segment = StoreKey.segment(task, key, skip: CLASS_KEY)
-
-      if segment.nil?
-        return StoreKey.compose(namespace, task.class.name) if key == CLASS_KEY
-
-        return nil
-      end
-
-      StoreKey.compose(namespace, task.class.name, segment)
-    end
 
     def circuit_open?(open_key)
       Stores.get(open_key)

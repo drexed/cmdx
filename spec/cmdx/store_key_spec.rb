@@ -34,6 +34,40 @@ RSpec.describe CMDx::StoreKey do
     end
   end
 
+  describe ".task_key" do
+    it "composes namespace, task name, and segment" do
+      key = described_class.task_key(task, namespace: "cmdx:idem", resolver: :payment_id)
+
+      expect(key).to eq("cmdx:idem:#{task.class.name}:pay_123")
+    end
+
+    it "returns nil when the segment is blank" do
+      expect(described_class.task_key(task, namespace: "cmdx:idem", resolver: :missing)).to be_nil
+    end
+
+    it "scopes to the task class when class_scoped and resolver is :class" do
+      key = described_class.task_key(
+        task,
+        namespace: "cmdx:cb",
+        resolver: described_class::CLASS_KEY,
+        class_scoped: true
+      )
+
+      expect(key).to eq("cmdx:cb:#{task.class.name}")
+    end
+
+    it "composes a segment when class_scoped and resolver is not :class" do
+      key = described_class.task_key(
+        task,
+        namespace: "cmdx:cb",
+        resolver: :payment_id,
+        class_scoped: true
+      )
+
+      expect(key).to eq("cmdx:cb:#{task.class.name}:pay_123")
+    end
+  end
+
   describe ".compose" do
     it "joins coerced segments" do
       expect(described_class.compose("cmdx:idem", "ChargeCustomer", "pay_123")).to eq("cmdx:idem:ChargeCustomer:pay_123")
