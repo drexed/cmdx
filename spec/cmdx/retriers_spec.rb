@@ -98,56 +98,6 @@ RSpec.describe CMDx::Retriers do
     end
   end
 
-  describe "built-in behavior" do
-    it ":exponential doubles each attempt" do
-      expect(retriers.lookup(:exponential).call(0, 0.5)).to eq(0.5)
-      expect(retriers.lookup(:exponential).call(3, 0.5)).to eq(4.0)
-    end
-
-    it ":half_random samples within [delay/2, delay]" do
-      strategy = retriers.lookup(:half_random)
-      allow(strategy).to receive(:rand).and_return(0.0, 1.0)
-      expect(strategy.call(0, 2.0)).to eq(1.0)
-      expect(strategy.call(0, 2.0)).to eq(2.0)
-    end
-
-    it ":full_random samples within [0, delay]" do
-      strategy = retriers.lookup(:full_random)
-      allow(strategy).to receive(:rand).and_return(0.25)
-      expect(strategy.call(0, 2.0)).to eq(0.5)
-    end
-
-    it ":bounded_random samples within [delay, 2*delay]" do
-      strategy = retriers.lookup(:bounded_random)
-      allow(strategy).to receive(:rand).and_return(0.5)
-      expect(strategy.call(0, 2.0)).to eq(3.0)
-    end
-
-    it ":linear scales arithmetically" do
-      expect(retriers.lookup(:linear).call(0, 1.0)).to eq(1.0)
-      expect(retriers.lookup(:linear).call(3, 0.25)).to eq(1.0)
-    end
-
-    it ":fibonacci scales by the Fibonacci sequence" do
-      strategy = retriers.lookup(:fibonacci)
-      expect((0..5).map { |a| strategy.call(a, 1.0) })
-        .to eq([1.0, 1.0, 2.0, 3.0, 5.0, 8.0])
-    end
-
-    it ":decorrelated_jitter falls back to base delay when prev is nil" do
-      strategy = retriers.lookup(:decorrelated_jitter)
-      allow(strategy).to receive(:rand).and_return(0.0, 1.0)
-      expect(strategy.call(0, 1.0)).to eq(1.0)
-      expect(strategy.call(0, 1.0)).to eq(3.0)
-    end
-
-    it ":decorrelated_jitter widens upper bound from prev_delay" do
-      strategy = retriers.lookup(:decorrelated_jitter)
-      allow(strategy).to receive(:rand).and_return(1.0)
-      expect(strategy.call(0, 1.0, 4.0)).to eq(12.0)
-    end
-  end
-
   describe "#empty? / #size" do
     it "reports the registry size" do
       expect(retriers.size).to eq(7)

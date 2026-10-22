@@ -56,6 +56,14 @@ RSpec.describe CMDx::Configuration do
 end
 
 RSpec.describe CMDx do
+  describe "VERSION" do
+    it "matches the gemspec version" do
+      gemspec = Gem::Specification.load(File.expand_path("../../cmdx.gemspec", __dir__))
+
+      expect(described_class::VERSION).to eq(gemspec.version.to_s)
+    end
+  end
+
   describe ".configuration" do
     it "returns the same Configuration instance across calls" do
       first = described_class.configuration

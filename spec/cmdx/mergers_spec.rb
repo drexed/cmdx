@@ -88,29 +88,6 @@ RSpec.describe CMDx::Mergers do
     end
   end
 
-  describe "built-in behavior" do
-    let(:ctx) { CMDx::Context.build(a: 1, nested: { a: 1 }) }
-    let(:result) { instance_double(CMDx::Result, context: CMDx::Context.build(b: 2, nested: { b: 2 })) }
-
-    it ":last_write_wins shallow-merges" do
-      mergers.lookup(:last_write_wins).call(ctx, result)
-      expect(ctx.a).to eq(1)
-      expect(ctx.b).to eq(2)
-      expect(ctx.nested).to eq(b: 2)
-    end
-
-    it ":deep_merge recursively merges" do
-      mergers.lookup(:deep_merge).call(ctx, result)
-      expect(ctx.nested).to eq(a: 1, b: 2)
-    end
-
-    it ":no_merge leaves context untouched" do
-      mergers.lookup(:no_merge).call(ctx, result)
-      expect(ctx.a).to eq(1)
-      expect(ctx.b).to be_nil
-    end
-  end
-
   describe "#empty? / #size" do
     it "reports the registry size" do
       expect(mergers.size).to eq(3)

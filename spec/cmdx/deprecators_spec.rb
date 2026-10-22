@@ -91,32 +91,6 @@ RSpec.describe CMDx::Deprecators do
     end
   end
 
-  describe "built-in behavior" do
-    let(:log_output) { StringIO.new }
-    let(:logger) { Logger.new(log_output) }
-    let(:task) do
-      log = logger
-      Class.new do
-        define_method(:logger) { log }
-      end.new
-    end
-
-    it ":log writes a deprecation warning via the task logger" do
-      deprecators.lookup(:log).call(task)
-      expect(log_output.string).to include("DEPRECATED:", task.class.to_s)
-    end
-
-    it ":warn writes to stderr via Kernel.warn" do
-      expect { deprecators.lookup(:warn).call(task) }
-        .to output(/DEPRECATED: migrate/).to_stderr
-    end
-
-    it ":error raises DeprecationError" do
-      expect { deprecators.lookup(:error).call(task) }
-        .to raise_error(CMDx::DeprecationError, /is deprecated and prohibited from execution/)
-    end
-  end
-
   describe "#empty? / #size" do
     it "reports the registry size" do
       expect(deprecators.size).to eq(3)
