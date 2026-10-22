@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## UNRELEASED
 
+## [2.4.0] - 2026-10-22
+
 ### Added
 - `Task.rate_limit` — admission control via `CMDx::Stores` once per `execute` (retries do not consume extra quota); built-in `:fixed_window` and `:leaky_bucket` limiters with `CMDx::Limiters` registry (register custom strategies globally or with `register :limiter`); `on_limit:` `:fail` / `:skip`, `if` / `unless` gates; runs after input resolution and before `circuit_breaker` in `Runtime`
 - Telemetry events `:rate_limit_admitted` and `:rate_limit_exceeded` for rate-limited tasks (gated by `Telemetry#subscribed?` like other store-backed helpers)
@@ -14,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `Stores::Redis` — default `namespace` is now `""` so Redis keys match logical store keys (for example `cmdx:idem:MyTask:segment`); set `namespace` explicitly when sharing a Redis instance with non-CMDx data (previously defaulted to `cmdx:store`)
 - Move integration recipes from `examples/` into published docs under `docs/cookbook/` with a dedicated **Cookbook** site tab
 
-## [2.3.0] - UNRELEASED
+## [2.3.0] - 2026-10-20
 
 ### Added
 - `Task.lock_with` — distributed lease via `CMDx::Stores` so only one worker runs the same logical key at a time; optional `wait:` polling, `on_busy:` `:fail` / `:skip`, and `if` / `unless` gates; wraps `idempotent_by` and the `retry_on` loop in `Runtime`; pass `false` on a subclass to disable
