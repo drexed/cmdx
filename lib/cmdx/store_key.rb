@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Builds colon-separated store keys with the same non-empty coercion as
-  # {Stores.key!}. Used by {Idempotency} (`namespace:TaskName:segment`),
-  # {CircuitBreaker} (`namespace:TaskName` with `:failures` / `:open` suffixes),
-  # {Lock} (`namespace:TaskName:segment`), and other store-backed helpers.
+  # Shared store key helpers for store-backed task features ({Idempotency},
+  # {CircuitBreaker}, {Lock}, {RateLimit}, and others).
+  #
+  # {compose} joins colon-separated segments, each coerced with {Stores.key!}.
+  # {segment} resolves a per-invocation suffix from a declaration (symbol,
+  # proc, callable, or literal).
   module StoreKey
 
     extend self

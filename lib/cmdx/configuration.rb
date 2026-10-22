@@ -10,7 +10,7 @@ module CMDx
   class Configuration
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators, :executors,
-      :mergers, :retriers, :deprecators, :telemetry, :store, :correlation_id, :default_locale,
+      :mergers, :retriers, :limiters, :deprecators, :telemetry, :store, :correlation_id, :default_locale,
       :strict_context, :backtrace_cleaner, :log_exclusions, :log_formatter,
       :log_level, :logger
 
@@ -22,6 +22,7 @@ module CMDx
       @executors   = Executors.new
       @mergers     = Mergers.new
       @retriers    = Retriers.new
+      @limiters    = Limiters.new
       @deprecators = Deprecators.new
       @telemetry   = Telemetry.new
       @store       = Stores::Memory.new
@@ -86,6 +87,7 @@ module CMDx
       @executors
       @mergers
       @retriers
+      @limiters
       @deprecators
       @telemetry
     ].freeze

@@ -3,8 +3,9 @@
 module CMDx
   # Base class for all units of work. Subclasses override `#work` and
   # declare their contract via `required`, `optional`, `output`, `callbacks`,
-  # `retry_on`, `idempotent_by`, `lock_with`, `circuit_breaker`, `deprecation`,
-  # and `settings`.
+  # `retry_on`, `idempotent_by`, `lock_with`, `circuit_breaker`, `rate_limit`,
+  # `deprecation`, and `settings`.
+  #
   # Invoked via {.execute} (safe) or {.execute!} (strict, raises on failure).
   #
   # Inheritance: every registry accessor (middlewares, callbacks, coercions,
@@ -150,6 +151,42 @@ module CMDx
           end
       end
 
+      # Declares a shared rate limit for the task. Builds on the superclass's
+      # {RateLimit}. Passing no `key` and no options returns the current
+      # (possibly inherited) configuration. Pass `false` to disable.
+      #
+      # @param key [Symbol, String, Proc, #call, false, nil] `:class` scopes one
+      #   limit per task class; other forms resolve a store segment like
+      #   {Idempotency}; `false` disables rate limiting on this class
+      # @param options [Hash{Symbol => Object}] see {RateLimit#initialize}
+      # @option options [Integer] :max (see {RateLimit#initialize})
+      # @option options [Integer] :per (see {RateLimit#initialize})
+      # @option options [Symbol, #call] :limiter (see {RateLimit#initialize})
+      # @option options [Numeric] :cost (see {RateLimit#initialize})
+      # @option options [String] :namespace (see {RateLimit#initialize})
+      # @option options [Symbol] :on_limit (see {RateLimit#initialize})
+      # @option options [Symbol, Proc, #call] :if gate `(task)` before checking
+      # @option options [Symbol, Proc, #call] :unless gate `(task)` before checking
+      # @yieldparam task [Task] optional first argument when the block is
+      #   `instance_exec`'d (same as callbacks)
+      # @return [RateLimit]
+      # @see RateLimit#process
+      def rate_limit(key = nil, **options, &block)
+        @rate_limit ||=
+          if superclass.respond_to?(:rate_limit)
+            superclass.rate_limit
+          else
+            RateLimit.disabled
+          end
+
+        @rate_limit =
+          if key == false
+            RateLimit.disabled
+          else
+            @rate_limit.build(key || block, options)
+          end
+      end
+
       # Reads or extends this class's {Settings}. Inherits from the superclass.
       #
       # @param options [Hash{Symbol => Object}] merged onto the current settings
@@ -263,6 +300,16 @@ module CMDx
           end
       end
 
+      # @return [Limiters] cloned from superclass/configuration on first call
+      def limiters
+        @limiters ||=
+          if superclass.respond_to?(:limiters)
+            superclass.limiters.dup
+          else
+            CMDx.configuration.limiters.dup
+          end
+      end
+
       # @return [Deprecators] cloned from superclass/configuration on first call
       def deprecators
         @deprecators ||=
@@ -275,7 +322,7 @@ module CMDx
 
       # Dispatches to the appropriate registry's `register` method.
       #
-      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]
+      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :limiter, :deprecator, :input, :output]
       # @return [Object] the registry's self
       # @raise [ArgumentError] when `type` is unknown
       def register(type, ...)
@@ -294,6 +341,8 @@ module CMDx
           mergers.register(...)
         when :retrier
           retriers.register(...)
+        when :limiter
+          limiters.register(...)
         when :deprecator
           deprecators.register(...)
         when :input
@@ -303,7 +352,7 @@ module CMDx
         else
           raise ArgumentError, <<~MSG.chomp
             unknown registry type #{type.inspect};
-            expected one of [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output].
+            expected one of [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :limiter, :deprecator, :input, :output].
             See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister
           MSG
         end
@@ -311,7 +360,7 @@ module CMDx
 
       # Dispatches to the appropriate registry's `deregister` method.
       #
-      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]
+      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :limiter, :deprecator, :input, :output]
       # @return [Object] the registry's self
       # @raise [ArgumentError] when `type` is unknown
       def deregister(type, ...)
@@ -330,6 +379,8 @@ module CMDx
           mergers.deregister(...)
         when :retrier
           retriers.deregister(...)
+        when :limiter
+          limiters.deregister(...)
         when :deprecator
           deprecators.deregister(...)
         when :input
@@ -339,7 +390,7 @@ module CMDx
         else
           raise ArgumentError, <<~MSG.chomp
             unknown registry type #{type.inspect};
-            expected one of [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output].
+            expected one of [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :limiter, :deprecator, :input, :output].
             See https://drexed.github.io/cmdx/configuration/#registrations-register-deregister
           MSG
         end

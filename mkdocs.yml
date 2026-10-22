@@ -143,6 +143,7 @@ plugins:
           - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
           - idempotency.md: Preventing duplicate execution for retried jobs and webhooks with idempotent_by
           - circuit_breaker.md: Automatic circuit breaking for failing dependencies with threshold, cool-off, and window options
+          - rate_limit.md: Admission control per window with fixed-window and leaky-bucket limiters
           - stores.md: Shared key/value store for idempotency, rate limits, and cross-worker coordination
           - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
           - outputs.md: Declaring expected context outputs that must be set after task execution
@@ -165,7 +166,6 @@ plugins:
           - cookbook/paper_trail_whatdunnit.md: Paper Trail attribution for running tasks
           - cookbook/pub_sub_task_chaining.md: Chain tasks from pub/sub events
           - cookbook/pundit_authorization.md: Authorize tasks with Pundit before work runs
-          - cookbook/rate_limit.md: Rate limit tasks with CMDx::Stores
           - cookbook/sentry_error_tracking.md: Report CMDx faults to Sentry
           - cookbook/timeout_guard.md: Bound task execution time with a timeout guard
 nav:
@@ -203,6 +203,7 @@ nav:
       - Idempotency: idempotency.md
       - Locks: locks.md
       - Circuit breaker: circuit_breaker.md
+      - Rate limit: rate_limit.md
       - Stores: stores.md
       - Deprecation: deprecation.md
       - Outputs: outputs.md
@@ -235,7 +236,6 @@ nav:
       - Store Wrappers: cookbook/store_wrappers.md
       - Flipper Feature Flags: cookbook/flipper_feature_flags.md
       - Pundit Authorization: cookbook/pundit_authorization.md
-      - Rate Limit: cookbook/rate_limit.md
       - Timeout Guard: cookbook/timeout_guard.md
       - Sentry Error Tracking: cookbook/sentry_error_tracking.md
       - OpenTelemetry Tracing: cookbook/opentelemetry_tracing.md

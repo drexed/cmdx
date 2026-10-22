@@ -77,7 +77,7 @@ If real hold time can beat `ttl`, another worker may grab the lock while the fir
 Think of one outer envelope around the whole attempt:
 
 ```text
-resolve_inputs! → circuit_breaker → lock_with → idempotent_by → retry loop { work } → verify_outputs!
+resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent_by → retry loop { work } → verify_outputs!
 ```
 
 The lock wraps the idempotency claim and the entire `retry_on` loop. One holder runs every retry attempt before releasing.

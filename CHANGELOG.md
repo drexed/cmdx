@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## UNRELEASED
 
+### Added
+- `Task.rate_limit` — admission control via `CMDx::Stores` once per `execute` (retries do not consume extra quota); built-in `:fixed_window` and `:leaky_bucket` limiters with `CMDx::Limiters` registry (register custom strategies globally or with `register :limiter`); `on_limit:` `:fail` / `:skip`, `if` / `unless` gates; runs after input resolution and before `circuit_breaker` in `Runtime`
+- Telemetry events `:rate_limit_admitted` and `:rate_limit_exceeded` for rate-limited tasks (gated by `Telemetry#subscribed?` like other store-backed helpers)
+
 ### Changed
-- Document `decr` on `CMDx::Stores` and align custom-store examples with the full adapter surface (`decr`, `ttl`, `del_if`)
 - Move integration recipes from `examples/` into published docs under `docs/cookbook/` with a dedicated **Cookbook** site tab
-- Remove dry-monads interop cookbook page
-- Cookbook cleanup: drop Active Support instrumentation recipe; consolidate background job recipes; trim rate limit, custom store, and pub/sub pages
 
 ## [2.3.0] - UNRELEASED
 

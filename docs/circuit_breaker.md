@@ -79,7 +79,7 @@ When the circuit is open, results include `metadata[:circuit_breaker_key]` (the 
 Breakers run early; idempotency (if any) sits just inside:
 
 ```text
-resolve_inputs! → circuit check → idempotent claim → retry loop { work } → verify_outputs!
+resolve_inputs! → rate_limit → circuit check → lock → idempotent claim → retry loop { work } → verify_outputs!
 ```
 
 Failures are recorded when a matching `on:` exception escapes the **retry loop** (after attempts are exhausted), not on every retry swing. A successful run clears the failure counter. Logical failures that only use `fail!` or validation errors do **not** trip the breaker.

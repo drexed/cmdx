@@ -32,7 +32,6 @@ Most pages follow the same rhythm so you can skim:
 - [Store Wrappers](store_wrappers.md) — test doubles and instrumented store wrappers
 - [Flipper Feature Flags](flipper_feature_flags.md) — gate tasks behind feature flags
 - [Pundit Authorization](pundit_authorization.md) — authorize before `work` runs
-- [Rate Limit](rate_limit.md) — throttle hot endpoints with `CMDx::Stores`
 - [Timeout Guard](timeout_guard.md) — cap how long a task may run
 - [Sentry Error Tracking](sentry_error_tracking.md) — send failures to Sentry with context
 - [OpenTelemetry Tracing](opentelemetry_tracing.md) — one span per task, nested like your chain

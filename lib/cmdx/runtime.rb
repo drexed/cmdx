@@ -3,10 +3,10 @@
 module CMDx
   # Orchestrates a task's full lifecycle: chain acquisition, middlewares,
   # telemetry, deprecation, callbacks, input resolution, `work` (wrapped in
-  # {CircuitBreaker}, {Lock}, and {Idempotency} when declared, then {Retry};
-  # output verification runs inside the lock lease and idempotency claim when
-  # enabled),
-  # rollback on failure, result finalization, and teardown (freeze + chain clear).
+  # {RateLimit}, {CircuitBreaker}, {Lock}, and {Idempotency} when declared,
+  # then {Retry}; output verification runs inside the lock lease and idempotency
+  # claim when enabled), rollback on failure, result finalization, and teardown
+  # (freeze + chain clear).
   #
   # Signal propagation: `work` and the surrounding middleware/callback chain
   # both run inside `catch(Signal::TAG)`, so `success!` / `skip!` / `fail!` /
@@ -173,11 +173,13 @@ module CMDx
       @signal = catch(Signal::TAG) do
         resolve_inputs!
 
-        circuit_execution do
-          lock_execution do
-            idempotent_execution do
-              retry_execution { @task.work }
-              verify_outputs!
+        rate_limit_execution do
+          circuit_execution do
+            lock_execution do
+              idempotent_execution do
+                retry_execution { @task.work }
+                verify_outputs!
+              end
             end
           end
         end
@@ -206,6 +208,13 @@ module CMDx
 
       inputs.resolve(@task)
       signal_errors!
+    end
+
+    def rate_limit_execution(&)
+      limit = @task.class.rate_limit
+      return yield unless limit.enabled?
+
+      limit.process(@task, &)
     end
 
     def circuit_execution(&)

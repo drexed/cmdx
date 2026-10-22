@@ -139,18 +139,6 @@ end
 CMDx.configure { |c| c.store = NullStore.new }
 ```
 
-## Patterns (today)
-
-- [Idempotency](idempotency.md) — `idempotent_by` on tasks, backed by `CMDx::Stores`
-- [Circuit breaker](circuit_breaker.md) — `circuit_breaker` on tasks, failure counting and open flags via `CMDx::Stores`
-
-Other helpers (`concurrency_limit`, …) are still on the roadmap. Middleware built on `CMDx::Stores` remains appropriate when you need custom claim semantics beyond the built-in declarations:
-
-- [Rate Limit](cookbook/rate_limit.md) — `incr` + TTL window
-- [Store Wrappers](cookbook/store_wrappers.md) — wrap Memory/Redis for tests or instrumentation
-
-Refactoring those examples to call `CMDx::Stores` instead of `Redis.current` keeps behavior the same while staying adapter-agnostic.
-
 ## Testing
 
 Specs call `CMDx.reset_configuration!` in `spec_helper`, so `CMDx::Stores` starts on a clean in-memory backend every example. To assert against an isolated instance without touching global config:

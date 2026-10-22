@@ -114,6 +114,8 @@ CMDx.configure do |config|
   #   :circuit_open          { code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }
   #   :circuit_tripped       { circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }
   #   :circuit_reset         { failures_key: String }
+  #   :rate_limit_admitted   { rate_limit_key:, limiter:, max:, per:, ... }
+  #   :rate_limit_exceeded   { code: :rate_limited, rate_limit_key:, limiter:, on_limit:, ... }
   #
   # Every event also carries: event.cid, event.xid, event.tid, event.task,
   # event.type, event.name, event.root, event.payload, event.timestamp.
@@ -160,6 +162,21 @@ CMDx.configure do |config|
   #
   # config.retriers.register(:capped_exponential, proc do |attempt, delay, _prev|
   #   [delay * (2**(attempt - 1)), 30.0].min
+  # end)
+
+  # ===========================================================================
+  # Limiters
+  # https://drexed.github.io/cmdx/rate_limit/
+  # ===========================================================================
+  # Limiters decide whether a `rate_limit` declaration admits an execution.
+  # Built-ins: :fixed_window, :leaky_bucket.
+  #
+  # config.limiters.register(:strict, proc do |quota|
+  #   count = CMDx::Stores.incr(quota.store_key, ttl: quota.per)
+  #   admitted = count <= quota.max
+  #   retry_after = admitted ? nil : CMDx::Stores.remaining_ttl(quota.store_key)
+  #
+  #   CMDx::RateLimit::Admission.new(admitted:, count:, level: nil, retry_after:, limiter: :strict)
   # end)
 
   # ===========================================================================

@@ -38,6 +38,7 @@ CMDx keeps **global** defaults and lets each **task class** override or extend t
 | `executors` | `Executors.new` (`:threads`, `:fibers`) | Parallel workflow backends |
 | `mergers` | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`) | How parallel branches merge into context |
 | `retriers` | `Retriers.new` (7 built-ins) | Named retry / jitter strategies |
+| `limiters` | `Limiters.new` (`:fixed_window`, `:leaky_bucket`) | Named rate-limit strategies |
 | `deprecators` | `Deprecators.new` (`:log`, `:warn`, `:error`) | How deprecations surface |
 | `store` | `Stores::Memory.new` | Key/value backend for `CMDx::Stores` (idempotency, rate limits, …) |
 | `telemetry` | `Telemetry.new` (empty) | Pub/sub bus for runtime events |
@@ -213,6 +214,8 @@ Simple mental model: **publish events, subscribe with lambdas**. Each event deli
 | `:circuit_open` | `{ code: :circuit_open, circuit_breaker_key:, retry_after:, on_open: }` |
 | `:circuit_tripped` | `{ circuit_breaker_key:, failures_key:, failure_count:, threshold:, cool_off: }` |
 | `:circuit_reset` | `{ failures_key: String }` |
+| `:rate_limit_admitted` | `{ rate_limit_key:, limiter:, max:, per:, count:, level:, retry_after: }` (optional keys omitted when unknown) |
+| `:rate_limit_exceeded` | `{ code: :rate_limited, rate_limit_key:, limiter:, on_limit:, max:, per:, count:, level:, retry_after: }` |
 
 ```ruby
 CMDx.configure do |config|

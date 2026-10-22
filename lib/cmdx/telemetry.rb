@@ -40,6 +40,8 @@ module CMDx
       circuit_open
       circuit_tripped
       circuit_reset
+      rate_limit_admitted
+      rate_limit_exceeded
     ].freeze
 
     class << self
