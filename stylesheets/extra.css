@@ -206,7 +206,6 @@
 }
 
 :root > * {
-  --cmdx-amber: #ffbd2e;
   --cmdx-letter-spacing-body: -0.018em;
   --cmdx-letter-spacing-heading: -0.032em;
   --cmdx-letter-spacing-code: -0.022em;
