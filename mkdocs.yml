@@ -157,10 +157,10 @@ plugins:
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
           - comparison.md: Comparison with other command/service object frameworks
           - v2-migration.md: Migration guide from CMDx 1.x to 2.0
-        References:
-          - references.md: API docs, llms.txt exports, and repository AI skills
         Ecosystem:
           - ecosystem.md: Satellite gems (cmdx-i18n, cmdx-rspec)
+        References:
+          - references.md: API docs, llms.txt exports, and repository AI skills
         Cookbook:
           - cookbook/index.md: Integration recipes for jobs, Rails, auth, observability, and more
         "Cookbook: Rails and Active Record":
@@ -227,14 +227,14 @@ nav:
       - Tips and tricks: tips_and_tricks.md
       - Comparison: comparison.md
       - v1 → v2 Migration: v2-migration.md
+    - Ecosystem:
+      - cmdx-i18n: https://github.com/drexed/cmdx-i18n
+      - cmdx-rspec: https://github.com/drexed/cmdx-rspec
     - References:
       - API Documentation: https://drexed.github.io/cmdx/api/index.html
       - llms.txt: https://drexed.github.io/cmdx/llms.txt
       - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
       - AI Skills: https://github.com/drexed/cmdx/blob/main/skills
-    - Ecosystem:
-      - cmdx-i18n: https://github.com/drexed/cmdx-i18n
-      - cmdx-rspec: https://github.com/drexed/cmdx-rspec
   - Cookbook:
     - Overview: cookbook/index.md
     - Rails and Active Record:
