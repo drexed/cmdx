@@ -106,7 +106,10 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Result of a limiter strategy deciding whether an execution may proceed.</p>
+    <p>Limiter decision for one admission attempt.</p>
+<p>Built-in limiters set <code>count</code> for <code>:fixed_window</code> and <code>level</code> for
+<code>:leaky_bucket</code>; custom strategies may populate either or both. Omitted
+fields are stripped from telemetry and result metadata via <code>compact</code>.</p>
 
   </div>
 </div>
@@ -123,7 +126,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#admitted-instance_method" title="#admitted (instance method)">#<strong>admitted</strong>  &#x21d2; Object </a>
+      <a href="#admitted-instance_method" title="#admitted (instance method)">#<strong>admitted</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -142,7 +145,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute admitted.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>whether the run may proceed.</p></div></span>
   
 </li>
 
@@ -150,7 +153,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#count-instance_method" title="#count (instance method)">#<strong>count</strong>  &#x21d2; Object </a>
+      <a href="#count-instance_method" title="#count (instance method)">#<strong>count</strong>  &#x21d2; Integer<sup>?</sup> </a>
     
 
     
@@ -169,7 +172,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute count.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>counter after increment (<code>:fixed_window</code>).</p></div></span>
   
 </li>
 
@@ -177,7 +180,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#level-instance_method" title="#level (instance method)">#<strong>level</strong>  &#x21d2; Object </a>
+      <a href="#level-instance_method" title="#level (instance method)">#<strong>level</strong>  &#x21d2; Float<sup>?</sup> </a>
     
 
     
@@ -196,7 +199,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute level.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>bucket fill after leak math (<code>:leaky_bucket</code>).</p></div></span>
   
 </li>
 
@@ -204,7 +207,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#limiter-instance_method" title="#limiter (instance method)">#<strong>limiter</strong>  &#x21d2; Object </a>
+      <a href="#limiter-instance_method" title="#limiter (instance method)">#<strong>limiter</strong>  &#x21d2; Symbol, #call </a>
     
 
     
@@ -223,7 +226,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute limiter.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>strategy name or callable identity.</p></div></span>
   
 </li>
 
@@ -231,7 +234,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#retry_after-instance_method" title="#retry_after (instance method)">#<strong>retry_after</strong>  &#x21d2; Object </a>
+      <a href="#retry_after-instance_method" title="#retry_after (instance method)">#<strong>retry_after</strong>  &#x21d2; Integer<sup>?</sup> </a>
     
 
     
@@ -250,7 +253,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute retry_after.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>seconds until retry might succeed.</p></div></span>
   
 </li>
 
@@ -285,7 +288,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>Same as <code>admitted</code>.</p></div></span>
   
 </li>
 
@@ -304,7 +307,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="admitted-instance_method">
   
-    #<strong>admitted</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>admitted</strong>  &#x21d2; <tt>Boolean</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -312,7 +315,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute admitted</p>
+    <p>whether the run may proceed</p>
 
   </div>
 </div>
@@ -324,7 +327,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Boolean</tt>)</span>
       
       
       
@@ -341,12 +344,12 @@
       <pre class="lines">
 
 
-13
-14
-15</pre>
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_admitted'>admitted</span>
   <span class='ivar'>@admitted</span>
@@ -361,7 +364,7 @@
       <div class="method_details ">
   <h3 class="signature " id="count-instance_method">
   
-    #<strong>count</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>count</strong>  &#x21d2; <tt>Integer</tt><sup>?</sup>  <span class="extras">(readonly)</span>
   
 
   
@@ -369,7 +372,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute count</p>
+    <p>counter after increment (<code>:fixed_window</code>)</p>
 
   </div>
 </div>
@@ -381,7 +384,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
       
       
       
@@ -398,12 +401,12 @@
       <pre class="lines">
 
 
-13
-14
-15</pre>
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_count'>count</span>
   <span class='ivar'>@count</span>
@@ -418,7 +421,7 @@
       <div class="method_details ">
   <h3 class="signature " id="level-instance_method">
   
-    #<strong>level</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>level</strong>  &#x21d2; <tt>Float</tt><sup>?</sup>  <span class="extras">(readonly)</span>
   
 
   
@@ -426,7 +429,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute level</p>
+    <p>bucket fill after leak math (<code>:leaky_bucket</code>)</p>
 
   </div>
 </div>
@@ -438,7 +441,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Float</tt>, <tt>nil</tt>)</span>
       
       
       
@@ -455,12 +458,12 @@
       <pre class="lines">
 
 
-13
-14
-15</pre>
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_level'>level</span>
   <span class='ivar'>@level</span>
@@ -475,7 +478,7 @@
       <div class="method_details ">
   <h3 class="signature " id="limiter-instance_method">
   
-    #<strong>limiter</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>limiter</strong>  &#x21d2; <tt>Symbol</tt>, <tt>#call</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -483,7 +486,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute limiter</p>
+    <p>strategy name or callable identity</p>
 
   </div>
 </div>
@@ -495,7 +498,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Symbol</tt>, <tt>#call</tt>)</span>
       
       
       
@@ -512,12 +515,12 @@
       <pre class="lines">
 
 
-13
-14
-15</pre>
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_limiter'>limiter</span>
   <span class='ivar'>@limiter</span>
@@ -532,7 +535,7 @@
       <div class="method_details ">
   <h3 class="signature " id="retry_after-instance_method">
   
-    #<strong>retry_after</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>retry_after</strong>  &#x21d2; <tt>Integer</tt><sup>?</sup>  <span class="extras">(readonly)</span>
   
 
   
@@ -540,7 +543,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute retry_after</p>
+    <p>seconds until retry might succeed</p>
 
   </div>
 </div>
@@ -552,7 +555,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
       
       
       
@@ -569,12 +572,12 @@
       <pre class="lines">
 
 
-13
-14
-15</pre>
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 24</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_retry_after'>retry_after</span>
   <span class='ivar'>@retry_after</span>
@@ -602,7 +605,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Returns same as <code>admitted</code>.</p>
 
   </div>
 </div>
@@ -618,6 +621,9 @@
       
       
       
+        &mdash;
+        <div class='inline'><p>same as <code>admitted</code></p></div>
+      
     </li>
   
 </ul>
@@ -628,12 +634,12 @@
       <pre class="lines">
 
 
-15
-16
-17</pre>
+26
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 26</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_admitted?'>admitted?</span>
   <span class='id identifier rubyid_admitted'>admitted</span>
@@ -648,7 +654,7 @@
 </div>
 
       <div id="footer">
-  Generated on Thu Oct 22 17:50:48 2026 by
+  Generated on Thu Oct 22 18:02:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

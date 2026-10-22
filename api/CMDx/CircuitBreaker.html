@@ -107,7 +107,7 @@
     <p>Declared via <span class='object_link'><a href="Task.html#circuit_breaker-class_method" title="CMDx::Task.circuit_breaker (method)">Task.circuit_breaker</a></span>. After inputs resolve, consults shared
 store counters before the <code>retry_on</code> loop; opens after repeated failures
 and short-circuits until <code>cool_off</code> elapses.</p>
-<p>Store keys are <code>namespace:TaskName</code> or <code>namespace:TaskName:segment</code>, with
+<p>Store keys come from <span class='object_link'><a href="StoreKey.html#task_key-instance_method" title="CMDx::StoreKey#task_key (method)">StoreKey#task_key</a></span> with <code>class_scoped: true</code>, plus
 <code>:failures</code> and <code>:open</code> suffix segments (see <span class='object_link'><a href="StoreKey.html#compose-instance_method" title="CMDx::StoreKey#compose (method)">StoreKey#compose</a></span>).</p>
 
   </div>
@@ -883,7 +883,7 @@ breaker was disabled and only options are passed, the resolver becomes
 
   <span class='id identifier rubyid_merged_key'>merged_key</span> <span class='op'>=</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_new_key'>new_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
-      <span class='id identifier rubyid_enabled?'>enabled?</span> <span class='op'>||</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>?</span> <span class='ivar'>@key</span> <span class='op'>:</span> <span class='const'>CLASS_KEY</span>
+      <span class='id identifier rubyid_enabled?'>enabled?</span> <span class='op'>||</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>?</span> <span class='ivar'>@key</span> <span class='op'>:</span> <span class='const'><span class='object_link'><a href="StoreKey.html" title="CMDx::StoreKey (module)">StoreKey</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="StoreKey.html#CLASS_KEY-constant" title="CMDx::StoreKey::CLASS_KEY (constant)">CLASS_KEY</a></span></span>
     <span class='kw'>else</span>
       <span class='id identifier rubyid_new_key'>new_key</span>
     <span class='kw'>end</span>
@@ -1533,7 +1533,7 @@ after a successful run.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Oct 22 17:50:49 2026 by
+  Generated on Thu Oct 22 18:02:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>

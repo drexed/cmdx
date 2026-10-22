@@ -1604,10 +1604,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#scoping" class="md-nav__link">
+  <a href="#key-resolvers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scoping
+        Key resolvers
       
     </span>
   </a>
@@ -1620,10 +1620,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#admissions-are-not-refunded" class="md-nav__link">
+  <a href="#quota-is-charged-at-the-door" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Admissions are not refunded
+        Quota is charged at the door
       
     </span>
   </a>
@@ -1635,6 +1635,17 @@
     <span class="md-ellipsis">
       
         Store keys
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result metadata
       
     </span>
   </a>
@@ -1676,10 +1687,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#custom-limiters-via-the-limiters-registry" class="md-nav__link">
+  <a href="#custom-limiters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Custom limiters via the Limiters registry
+        Custom limiters
       
     </span>
   </a>
@@ -3033,10 +3044,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#scoping" class="md-nav__link">
+  <a href="#key-resolvers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scoping
+        Key resolvers
       
     </span>
   </a>
@@ -3049,10 +3060,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#admissions-are-not-refunded" class="md-nav__link">
+  <a href="#quota-is-charged-at-the-door" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Admissions are not refunded
+        Quota is charged at the door
       
     </span>
   </a>
@@ -3064,6 +3075,17 @@
     <span class="md-ellipsis">
       
         Store keys
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result metadata
       
     </span>
   </a>
@@ -3105,10 +3127,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#custom-limiters-via-the-limiters-registry" class="md-nav__link">
+  <a href="#custom-limiters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Custom limiters via the Limiters registry
+        Custom limiters
       
     </span>
   </a>
@@ -3231,7 +3253,7 @@
 <h1 id="rate-limit">Rate limit<a class="headerlink" href="#rate-limit" title="Permanent link">&para;</a></h1>
 <p>Someone keeps hitting “forgot password.” Same email, fifty times in a minute. Your mailer is fine — your abuse budget is not.</p>
 <p><strong>Rate limiting</strong> is the turnstile at the front door: it counts how many times a task may <strong>start</strong> in a time window — per user, per IP, or for the whole app. Cheap to call, expensive to abuse? This is the knob.</p>
-<p><code>rate_limit</code> tracks those <strong>admissions</strong> in <a href="../stores/">Stores</a>. It runs <strong>once per <code>execute</code></strong> — retries inside <code>retry_on</code> do <strong>not</strong> eat extra quota. When the turnstile is full, <code>work</code> never runs.</p>
+<p><code>rate_limit</code> tracks those <strong>starts</strong> in <a href="../stores/">Stores</a>. It runs <strong>once per <code>execute</code></strong> — retries inside <code>retry_on</code> do <strong>not</strong> eat extra quota. When the turnstile is full, <code>work</code> never runs.</p>
 <div class="admonition tip">
 <p class="admonition-title">Rate limits vs circuit breakers</p>
 <p><strong>Rate limits</strong> count <strong>invocations</strong> — “this caller has had enough tries.” <strong>Circuit breakers</strong> count <strong>failures</strong> — “this dependency is sick, stop hammering it.” Password resets and OTP sends usually want a rate limit; flaky inventory APIs usually want a breaker. Need both? Use both — see <a href="#runtime-order">Runtime order</a>.</p>
@@ -3280,7 +3302,7 @@
 <tr>
 <td><code>cost:</code></td>
 <td><code>1</code></td>
-<td>How many units one admitted run costs — <strong>only</strong> <code>:leaky_bucket</code> reads this; <code>:fixed_window</code> always counts one admission per <code>execute</code></td>
+<td>How many units one admitted run costs — <strong>only</strong> <code>:leaky_bucket</code> reads this; <code>:fixed_window</code> always counts one start per <code>execute</code></td>
 </tr>
 <tr>
 <td><code>namespace:</code></td>
@@ -3300,39 +3322,179 @@
 </tbody>
 </table>
 <p>Pass <code>rate_limit false</code> on a subclass to turn off an inherited limit.</p>
-<h3 id="scoping">Scoping<a class="headerlink" href="#scoping" title="Permanent link">&para;</a></h3>
-<p>Pick <strong>who shares one counter</strong> — same key shapes as <a href="../idempotency/#key-resolvers">Idempotency key resolvers</a>:</p>
+<p>Want <strong>one counter for the whole task type</strong>? Use <code>rate_limit :class, …</code> or omit the key and pass only <code>max:</code> / <code>per:</code> — same bucket either way.</p>
+<h3 id="key-resolvers">Key resolvers<a class="headerlink" href="#key-resolvers" title="Permanent link">&para;</a></h3>
+<p>Pick <strong>who shares one counter</strong>. Same shapes as <a href="../idempotency/#key-resolvers">Idempotency key resolvers</a> and <a href="../circuit_breaker/#scoping-the-breaker">Circuit breaker scoping</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>How the segment is resolved</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:class</code></td>
+<td>No extra segment — one bucket per task class (<code>namespace:TaskName</code>)</td>
+</tr>
+<tr>
+<td><code>Symbol</code> (e.g. <code>:email</code>)</td>
+<td><code>context[email]</code> after inputs run</td>
+</tr>
+<tr>
+<td><code>String</code></td>
+<td>Used literally as the segment</td>
+</tr>
+<tr>
+<td>Block / <code>Proc</code></td>
+<td><code>instance_exec</code> on the task — <code>self</code> is the task; optional <code>\|task\|</code> matches callbacks</td>
+</tr>
+<tr>
+<td>Other <code>#call</code></td>
+<td><code>call(task)</code> — e.g. a small resolver object</td>
+</tr>
+</tbody>
+</table>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">rate_limit</span><span class="w"> </span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="ss">max</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">per</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="w">          </span><span class="c1"># one bucket per email address</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">rate_limit</span><span class="w"> </span><span class="ss">:class</span><span class="p">,</span><span class="w"> </span><span class="ss">max</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="ss">per</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="w">      </span><span class="c1"># one bucket for the whole task class</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">rate_limit</span><span class="w"> </span><span class="ss">max</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="ss">per</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="w">               </span><span class="c1"># same as :class when no key is given</span>
 </span></code></pre></div>
-<p>When the resolver is not <code>:class</code> and the segment is blank (missing context value), rate limiting <strong>steps aside</strong> for that run — same idea as <a href="../idempotency/">Idempotency</a> with a blank key.</p>
-<h2 id="admissions-are-not-refunded">Admissions are not refunded<a class="headerlink" href="#admissions-are-not-refunded" title="Permanent link">&para;</a></h2>
-<p>Quota is charged when the limiter <strong>admits</strong> the run, before <code>circuit_breaker</code>, locks, or <code>work</code>. If <code>work</code> raises, calls <code>fail!</code> / <code>skip!</code>, or the run retries inside <code>retry_on</code>, CMDx does <strong>not</strong> put units back — one outer <code>execute</code> still consumed at most one admission (retries do not hit the limiter again). Plan limits for “starts,” not “successful finishes.”</p>
+<p>When the resolver is not <code>:class</code> and the segment is blank (<code>nil</code> or empty string), rate limiting <strong>steps aside</strong> for that run — same idea as <a href="../idempotency/">Idempotency</a> with a blank key. Keys are built with <code>CMDx::StoreKey.task_key(..., class_scoped: true)</code> so <code>:class</code> does not read context.</p>
+<h2 id="quota-is-charged-at-the-door">Quota is charged at the door<a class="headerlink" href="#quota-is-charged-at-the-door" title="Permanent link">&para;</a></h2>
+<p>Think of each allowed <code>execute</code> as swiping in once. CMDx charges that swipe <strong>before</strong> the circuit breaker, locks, idempotency, or <code>work</code>.</p>
+<p>If <code>work</code> raises, calls <code>fail!</code> / <code>skip!</code>, or the run retries inside <code>retry_on</code>, CMDx does <strong>not</strong> refund the swipe. One outer <code>execute</code> still used at most one admission — retries do not visit the turnstile again.</p>
+<p>Size your limits for <strong>starts</strong>, not “only successful finishes.”</p>
 <h2 id="store-keys">Store keys<a class="headerlink" href="#store-keys" title="Permanent link">&para;</a></h2>
-<p>Keys use <code>CMDx::StoreKey.compose(namespace, task.class.name, segment)</code> when a segment is present, or <code>namespace:TaskName</code> for <code>rate_limit :class</code>.</p>
+<p>Base keys use <code>CMDx::StoreKey.task_key(task, namespace:, resolver:, class_scoped: true)</code> — colon-separated segments, each coerced with <code>CMDx::Stores.key!</code> (empty segments raise <code>ArgumentError</code>).</p>
 <p>Examples:</p>
 <ul>
 <li><code>cmdx:rl:SendPasswordReset:user@example.com</code></li>
-<li><code>cmdx:rl:SendPasswordReset</code> (with <code>rate_limit :class</code>)</li>
+<li><code>cmdx:rl:SendPasswordReset</code> (with <code>rate_limit :class</code> or options-only <code>max:</code> / <code>per:</code>)</li>
 </ul>
-<p><code>:leaky_bucket</code> keeps extra state at <code>…:lb</code> under the same base key.</p>
-<p>When a run is turned away, results include <code>metadata[:code] == :rate_limited</code> and, when the backend supports TTL reads, <code>metadata[:retry_after]</code> (seconds until you might get in again).</p>
+<p><code>:fixed_window</code> increments the base key. <code>:leaky_bucket</code> stores <code>"level:last_at"</code> at <code>#{store_key}:lb</code> with a TTL derived from capacity and <code>per</code>.</p>
+<p>Use a shared store in production (<code>Stores::Redis</code> on <code>CMDx.configuration.store</code>). The in-memory default only counts inside one process. See <a href="../stores/">Stores</a>.</p>
+<h2 id="result-metadata">Result metadata<a class="headerlink" href="#result-metadata" title="Permanent link">&para;</a></h2>
+<p>When the turnstile says no, <code>skip!</code> / <code>fail!</code> merge the same payload as <code>:rate_limit_exceeded</code> telemetry into <code>result.metadata</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:code</code></td>
+<td><code>:rate_limited</code></td>
+</tr>
+<tr>
+<td><code>:rate_limit_key</code></td>
+<td>Full base store key</td>
+</tr>
+<tr>
+<td><code>:limiter</code></td>
+<td>Strategy name (<code>:fixed_window</code>, <code>:leaky_bucket</code>, or your registered symbol)</td>
+</tr>
+<tr>
+<td><code>:max</code>, <code>:per</code></td>
+<td>Declared limits</td>
+</tr>
+<tr>
+<td><code>:count</code></td>
+<td>Present for <code>:fixed_window</code> (counter after <code>incr</code>, including the denied attempt)</td>
+</tr>
+<tr>
+<td><code>:level</code></td>
+<td>Present for <code>:leaky_bucket</code> (projected fill when denied)</td>
+</tr>
+<tr>
+<td><code>:retry_after</code></td>
+<td>Seconds until retry might succeed when the backend or limiter computes it</td>
+</tr>
+</tbody>
+</table>
+<p>Admitted runs do not add rate-limit fields to the result — subscribe to <code>:rate_limit_admitted</code> if you need per-run admission metrics.</p>
 <h2 id="runtime-order">Runtime order<a class="headerlink" href="#runtime-order" title="Permanent link">&para;</a></h2>
 <p>After inputs resolve, CMDx checks the turnstile <strong>before</strong> breakers, locks, and idempotency:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resolve_inputs! → rate_limit → circuit_breaker → lock_with → idempotent_by → retry loop { work } → verify_outputs!
 </span></code></pre></div>
 <p>Retries do not re-run the limiter. One outer execution costs at most one admission (for the configured <code>cost</code>).</p>
-<p>Use a shared store in production (<code>Stores::Redis</code> on <code>CMDx.configuration.store</code>). The in-memory default only counts inside one process. See <a href="../stores/">Stores</a>.</p>
 <h2 id="limiters">Limiters<a class="headerlink" href="#limiters" title="Permanent link">&para;</a></h2>
-<p>Built-in strategies live in <code>CMDx::Limiters</code> — same registry idea as <code>CMDx::Retriers</code> for retry jitter. Each limiter gets a {RateLimit::Quota} and returns a {RateLimit::Admission}.</p>
+<p>A <strong>limiter</strong> is the little algorithm that answers: “Is there room for one more start?” Built-ins live in <code>CMDx::Limiters</code> — same registry idea as <code>CMDx::Retriers</code> for retry jitter.</p>
+<p>Resolution order:</p>
+<ol>
+<li><code>limiter:</code> as a <code>Proc</code> → <code>instance_exec</code> on the task</li>
+<li>Symbol → <code>task.class.limiters</code> when the task registered <code>register :limiter</code>, otherwise <code>CMDx.configuration.limiters</code></li>
+</ol>
+<p>Each callable gets a <code>CMDx::RateLimit::Quota</code> (the question) and must return a <code>CMDx::RateLimit::Admission</code> (yes or no, plus optional hints for messages and metadata).</p>
+<table>
+<thead>
+<tr>
+<th><code>Quota</code> field</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>task</code></td>
+<td>Task being admitted</td>
+</tr>
+<tr>
+<td><code>store_key</code></td>
+<td>Base key (append suffixes if your strategy needs more state)</td>
+</tr>
+<tr>
+<td><code>max</code>, <code>per</code>, <code>cost</code></td>
+<td>Declared limits</td>
+</tr>
+<tr>
+<td><code>limiter</code></td>
+<td>Resolved strategy spec</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td>Frozen declaration hash (namespace, gates, etc.)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><code>Admission</code> field</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>admitted</code></td>
+<td><code>true</code> to run <code>work</code>, <code>false</code> to signal over limit</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>Optional counter for messages / metadata (<code>:fixed_window</code>)</td>
+</tr>
+<tr>
+<td><code>level</code></td>
+<td>Optional fill for messages / metadata (<code>:leaky_bucket</code>)</td>
+</tr>
+<tr>
+<td><code>retry_after</code></td>
+<td>Optional hint in seconds</td>
+</tr>
+<tr>
+<td><code>limiter</code></td>
+<td>Name recorded on telemetry and metadata</td>
+</tr>
+</tbody>
+</table>
 <h3 id="built-in-limiters">Built-in limiters<a class="headerlink" href="#built-in-limiters" title="Permanent link">&para;</a></h3>
-<p><strong>Fixed window</strong> — simple counter + TTL. Easy to reason about; you can get a small burst right when a window rolls over.</p>
+<p><strong>Fixed window</strong> — a simple counter with a TTL. Easy to reason about; you can get a small burst right when a window rolls over.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">rate_limit</span><span class="w"> </span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="ss">max</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">per</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="ss">limiter</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_window</span>
 </span></code></pre></div>
 <p><strong>Leaky bucket</strong> — capacity refills slowly (<code>per</code> seconds per unit). Smoother traffic shape; state lives at <code>store_key:lb</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">rate_limit</span><span class="w"> </span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="ss">max</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">per</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="ss">limiter</span><span class="p">:</span><span class="w"> </span><span class="ss">:leaky_bucket</span>
 </span></code></pre></div>
-<h3 id="custom-limiters-via-the-limiters-registry">Custom limiters via the <code>Limiters</code> registry<a class="headerlink" href="#custom-limiters-via-the-limiters-registry" title="Permanent link">&para;</a></h3>
+<h3 id="custom-limiters">Custom limiters<a class="headerlink" href="#custom-limiters" title="Permanent link">&para;</a></h3>
 <p>Register globally or per task with <code>register :limiter</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:per_tenant_strict</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">quota</span><span class="o">|</span>
@@ -3356,7 +3518,7 @@
 </span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">  </span><span class="n">rate_limit</span><span class="w"> </span><span class="ss">:account_id</span><span class="p">,</span><span class="w"> </span><span class="ss">max</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="ss">per</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span><span class="w"> </span><span class="ss">limiter</span><span class="p">:</span><span class="w"> </span><span class="ss">:app_only</span>
 </span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>Pass a <code>Proc</code> as <code>limiter:</code> and CMDx runs it with <code>instance_exec</code> on the task. It must return an <code>Admission</code>.</p>
+<p>Pass a <code>Proc</code> as <code>limiter:</code> and CMDx runs it with <code>instance_exec</code> on the task, passing the <code>Quota</code> as the block argument. It must return an <code>Admission</code>. Unknown limiter symbols raise <code>CMDx::UnknownEntryError</code> with registered names in the message.</p>
 <h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
 <p>When rate limiting is active for a run (enabled, gates pass, key resolves), CMDx emits <a href="../configuration/#telemetry">telemetry</a> only if someone subscribed — unused events cost nothing.</p>
 <table>

@@ -106,7 +106,7 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>Quota snapshot passed to built-in and custom limiter strategies.</p>
+    <p>Inputs for a limiter callable (<code>CMDx::Limiters</code> or <code>limiter:</code> <code>Proc</code>).</p>
 
   </div>
 </div>
@@ -123,7 +123,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#cost-instance_method" title="#cost (instance method)">#<strong>cost</strong>  &#x21d2; Object </a>
+      <a href="#cost-instance_method" title="#cost (instance method)">#<strong>cost</strong>  &#x21d2; Numeric </a>
     
 
     
@@ -142,7 +142,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute cost.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>units charged when admitted (<code>:leaky_bucket</code>).</p></div></span>
   
 </li>
 
@@ -150,7 +150,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#limiter-instance_method" title="#limiter (instance method)">#<strong>limiter</strong>  &#x21d2; Object </a>
+      <a href="#limiter-instance_method" title="#limiter (instance method)">#<strong>limiter</strong>  &#x21d2; Symbol, #call </a>
     
 
     
@@ -169,7 +169,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute limiter.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>resolved strategy spec.</p></div></span>
   
 </li>
 
@@ -177,7 +177,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#max-instance_method" title="#max (instance method)">#<strong>max</strong>  &#x21d2; Object </a>
+      <a href="#max-instance_method" title="#max (instance method)">#<strong>max</strong>  &#x21d2; Integer </a>
     
 
     
@@ -196,7 +196,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute max.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>capacity or window max from the declaration.</p></div></span>
   
 </li>
 
@@ -204,7 +204,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#options-instance_method" title="#options (instance method)">#<strong>options</strong>  &#x21d2; Object </a>
+      <a href="#options-instance_method" title="#options (instance method)">#<strong>options</strong>  &#x21d2; Hash{Symbol =&gt; Object} </a>
     
 
     
@@ -223,7 +223,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute options.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>frozen declaration options.</p></div></span>
   
 </li>
 
@@ -231,7 +231,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#per-instance_method" title="#per (instance method)">#<strong>per</strong>  &#x21d2; Object </a>
+      <a href="#per-instance_method" title="#per (instance method)">#<strong>per</strong>  &#x21d2; Integer </a>
     
 
     
@@ -250,7 +250,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute per.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>window or leak interval in seconds.</p></div></span>
   
 </li>
 
@@ -258,7 +258,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#store_key-instance_method" title="#store_key (instance method)">#<strong>store_key</strong>  &#x21d2; Object </a>
+      <a href="#store_key-instance_method" title="#store_key (instance method)">#<strong>store_key</strong>  &#x21d2; String </a>
     
 
     
@@ -277,7 +277,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute store_key.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>base store key (limiters may append suffixes).</p></div></span>
   
 </li>
 
@@ -285,7 +285,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>  &#x21d2; Object </a>
+      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>  &#x21d2; Task </a>
     
 
     
@@ -304,7 +304,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute task.</p></div></span>
+    <span class="summary_desc"><div class='inline'><p>task being admitted.</p></div></span>
   
 </li>
 
@@ -324,7 +324,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="cost-instance_method">
   
-    #<strong>cost</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>cost</strong>  &#x21d2; <tt>Numeric</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -332,7 +332,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute cost</p>
+    <p>units charged when admitted (<code>:leaky_bucket</code>)</p>
 
   </div>
 </div>
@@ -344,7 +344,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Numeric</tt>)</span>
       
       
       
@@ -361,12 +361,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cost'>cost</span>
   <span class='ivar'>@cost</span>
@@ -381,7 +381,7 @@
       <div class="method_details ">
   <h3 class="signature " id="limiter-instance_method">
   
-    #<strong>limiter</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>limiter</strong>  &#x21d2; <tt>Symbol</tt>, <tt>#call</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -389,7 +389,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute limiter</p>
+    <p>resolved strategy spec</p>
 
   </div>
 </div>
@@ -401,7 +401,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Symbol</tt>, <tt>#call</tt>)</span>
       
       
       
@@ -418,12 +418,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_limiter'>limiter</span>
   <span class='ivar'>@limiter</span>
@@ -438,7 +438,7 @@
       <div class="method_details ">
   <h3 class="signature " id="max-instance_method">
   
-    #<strong>max</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>max</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -446,7 +446,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute max</p>
+    <p>capacity or window max from the declaration</p>
 
   </div>
 </div>
@@ -458,7 +458,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Integer</tt>)</span>
       
       
       
@@ -475,12 +475,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_max'>max</span>
   <span class='ivar'>@max</span>
@@ -495,7 +495,7 @@
       <div class="method_details ">
   <h3 class="signature " id="options-instance_method">
   
-    #<strong>options</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>options</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Object}</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -503,7 +503,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute options</p>
+    <p>frozen declaration options</p>
 
   </div>
 </div>
@@ -515,7 +515,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
       
       
       
@@ -532,12 +532,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_options'>options</span>
   <span class='ivar'>@options</span>
@@ -552,7 +552,7 @@
       <div class="method_details ">
   <h3 class="signature " id="per-instance_method">
   
-    #<strong>per</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>per</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -560,7 +560,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute per</p>
+    <p>window or leak interval in seconds</p>
 
   </div>
 </div>
@@ -572,7 +572,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>Integer</tt>)</span>
       
       
       
@@ -589,12 +589,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_per'>per</span>
   <span class='ivar'>@per</span>
@@ -609,7 +609,7 @@
       <div class="method_details ">
   <h3 class="signature " id="store_key-instance_method">
   
-    #<strong>store_key</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>store_key</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -617,7 +617,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute store_key</p>
+    <p>base store key (limiters may append suffixes)</p>
 
   </div>
 </div>
@@ -629,7 +629,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt>String</tt>)</span>
       
       
       
@@ -646,12 +646,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_store_key'>store_key</span>
   <span class='ivar'>@store_key</span>
@@ -666,7 +666,7 @@
       <div class="method_details ">
   <h3 class="signature " id="task-instance_method">
   
-    #<strong>task</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+    #<strong>task</strong>  &#x21d2; <tt><span class='object_link'><a href="../Task.html" title="CMDx::Task (class)">Task</a></span></tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -674,7 +674,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns the value of attribute task</p>
+    <p>task being admitted</p>
 
   </div>
 </div>
@@ -686,7 +686,7 @@
     <li>
       
       
-        <span class='type'>(<tt>Object</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
       
       
       
@@ -703,12 +703,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/rate_limit.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span>
   <span class='ivar'>@task</span>
@@ -724,7 +724,7 @@
 </div>
 
       <div id="footer">
-  Generated on Thu Oct 22 17:50:48 2026 by
+  Generated on Thu Oct 22 18:02:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
