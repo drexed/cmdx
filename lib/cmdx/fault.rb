@@ -140,16 +140,10 @@ module CMDx
 
     # @return [String] human-readable representation
     def inspect
-      "#<#{self.class} task=#{task.name} tid=#{result.tid} cid=#{result.cid} xid=#{result.xid} reason=#{result.reason.inspect} errors=#{inspect_errors(result.errors)}>"
+      "#<#{self.class} task=#{task.name} tid=#{result.tid} cid=#{result.cid} xid=#{result.xid} reason=#{result.reason.inspect} errors=#{result.errors.to_h}>"
     end
 
     private
-
-    # Stable across Ruby versions (Hash#inspect symbol-key style differs on 3.3).
-    def inspect_errors(errors)
-      pairs = errors.to_h.map { |key, messages| "#{key}: #{messages.inspect}" }
-      "{#{pairs.join(', ')}}"
-    end
 
     def append_errors_lines(lines)
       return if result.errors.empty?
