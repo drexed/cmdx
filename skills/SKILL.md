@@ -1,6 +1,6 @@
 ---
 name: cmdx
-description: Build, debug, and document CMDx tasks and workflows in Ruby. Use when creating service/command objects with CMDx, composing workflows, handling halts and faults, or wiring inputs, outputs, callbacks, middleware, retries, locks, idempotency, circuit breakers, stores, and configuration. Don't use for generic Ruby refactors, Rails controller work, or non-CMDx service objects.
+description: Build, debug, and document CMDx tasks and workflows in Ruby. Use when creating service/command objects with CMDx, composing workflows, handling halts and faults, or wiring inputs, outputs, callbacks, middleware, retries, rate limits, locks, idempotency, circuit breakers, stores, and configuration. Don't use for generic Ruby refactors, Rails controller work, or non-CMDx service objects.
 ---
 
 # CMDx Agent Skill
@@ -17,7 +17,7 @@ Every task runs through `CMDx::Runtime` in this order:
 4. **`before_validation` callbacks** (task only).
 5. **`around_execution`** wraps the work block:
    - **Input resolution** — fetch, coerce, transform, validate.
-   - **`circuit_breaker`** (when declared) → **`lock_with`** → **`idempotent_by`** → **`retry_on` { `work` }** → **output verification** (all inside the lock lease and idempotency claim when enabled).
+   - **`rate_limit`** (when declared) → **`circuit_breaker`** → **`lock_with`** → **`idempotent_by`** → **`retry_on` { `work` }** → **output verification** (rate limit and breaker run once per `execute`; lock lease and idempotency claim wrap the retry loop when enabled).
    - **`rollback`** when the signal is `failed` and the task defines `#rollback`.
 6. **`after_execution`** — receives `(task, signal)`.
 7. **State callbacks** — `on_complete` or `on_interrupted` (with `signal`).
@@ -34,7 +34,7 @@ Every task runs through `CMDx::Runtime` in this order:
 | Inputs | `required`, `optional`, `input`, `inputs` |
 | Outputs | `output`, `outputs` |
 | Callbacks | `before_execution`, `before_validation`, `on_success`, `on_skipped`, `on_failed`, `on_complete`, `on_interrupted`, `on_ok`, `on_ko` |
-| Class config | `settings`, `retry_on`, `idempotent_by`, `lock_with`, `circuit_breaker`, `deprecation`, `register`, `deregister` |
+| Class config | `settings`, `retry_on`, `rate_limit`, `idempotent_by`, `lock_with`, `circuit_breaker`, `deprecation`, `register`, `deregister` |
 | Halts (inside `work`) | `success!`, `skip!`, `fail!`, `throw!` |
 | Workflow | `include CMDx::Workflow`, `task`, `tasks` |
 | Execution | `Task.execute`, `Task.execute!` (aliased `call` / `call!`) |
@@ -349,11 +349,11 @@ end
 
 - Only retries when the exception matches `retry_on`. Anything else (or a matching exception after the limit) becomes a failed result with `result.cause` set.
 - Jitter strategies: `:exponential`, `:half_random`, `:full_random`, `:bounded_random`, a Symbol (task method), a Proc (`instance_exec(attempt, delay, prev_delay)`), or any `#call(attempt, delay, prev_delay)`-able.
-- Only `work` is retried — inputs, outputs, and callbacks run once. `task.errors` accumulates across attempts; clear it at the start of `work` if you re-populate per attempt.
+- Only `work` is retried — inputs, rate-limit admission, breaker/lock/idempotency guards, outputs, and callbacks run once per `execute`. `task.errors` accumulates across attempts; clear it at the start of `work` if you re-populate per attempt.
 
 Inspect with `result.retries` / `result.retried?`. Docs: [docs/retries.md](docs/retries.md).
 
-## Stores (locks, idempotency, circuits)
+## Stores (rate limits, locks, idempotency, circuits)
 
 `CMDx::Stores` delegates to `CMDx.configuration.store` (`Stores::Memory` by default; `Stores::Redis` for production). Task DSL helpers persist opaque strings — not full context blobs.
 
@@ -361,6 +361,7 @@ Inspect with `result.retries` / `result.retried?`. Docs: [docs/retries.md](docs/
 CMDx.configure { |c| c.store = CMDx::Stores::Redis.new(redis: Redis.new, namespace: "myapp:cmdx:") }
 
 class ChargeCard < CMDx::Task
+  rate_limit :payment_id, max: 10, per: 60
   lock_with :payment_id, ttl: 30, on_busy: :skip, wait: 0.5
   idempotent_by :idempotency_key, ttl: 86_400, on_duplicate: :skip
   circuit_breaker :class, threshold: 5, cool_off: 60, on_open: :fail
@@ -369,8 +370,8 @@ class ChargeCard < CMDx::Task
 end
 ```
 
-- Pass `false` on a subclass to disable an inherited `lock_with` / `idempotent_by` / `circuit_breaker` / `retry_on`.
-- Telemetry: `:lock_acquired`, `:lock_busy`, `:idempotency_*`, `:circuit_*` (same `subscribed?` gating as lifecycle events).
+- Pass `false` on a subclass to disable an inherited `rate_limit` / `lock_with` / `idempotent_by` / `circuit_breaker` / `retry_on`.
+- Telemetry: `:rate_limit_*`, `:lock_acquired`, `:lock_busy`, `:idempotency_*`, `:circuit_*` (same `subscribed?` gating as lifecycle events).
 
 Full reference: [references/stores.md](references/stores.md).
 

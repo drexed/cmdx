@@ -71,17 +71,23 @@ circuit_breaker :tenant_id, on: [StandardError]
 
 Telemetry: `:circuit_open`, `:circuit_tripped`, `:circuit_reset`.
 
+### `rate_limit`
+
+Admission control — counts task **starts** per window in the store (once per `execute`; `retry_on` does not consume extra quota).
+
+```ruby
+rate_limit :email, max: 5, per: 60, limiter: :fixed_window, on_limit: :fail
+rate_limit false # disable on subclass
+```
+
+Telemetry: `:rate_limit_admitted`, `:rate_limit_exceeded` (`metadata[:code] == :rate_limited` on deny).
+
+Docs: [docs/rate_limit.md](../../docs/rate_limit.md).
+
 ## Runtime ordering
 
 Inside `perform_work`, after inputs resolve:
 
-`circuit_breaker` → `lock_with` → `idempotent_by` → `retry_on { work }` → output verification.
+`rate_limit` → `circuit_breaker` → `lock_with` → `idempotent_by` → `retry_on { work }` → output verification.
 
 Output checks run while the lock lease and idempotency claim are still held.
-
-## Testing
-
-- Unit specs: `spec/cmdx/lock_spec.rb`, `idempotency_spec.rb`, `circuit_breaker_spec.rb`.
-- Integration: `spec/integration/tasks/locks_spec.rb`, `idempotency_spec.rb`, `circuit_breaker_spec.rb`.
-- Redis adapter: `CMDx::Testing::FakeRedis` in `spec/cmdx/stores/redis_spec.rb` (no real Redis process).
-- Assert keys via `CMDx::Stores.get` using the same key shape the feature documents.

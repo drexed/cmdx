@@ -21,7 +21,7 @@ Picture the lifecycle like a sandwich:
 2. before_validation           # “Inputs are next; do any prep.”
 3. around_execution            # Wraps the real work (and rollback). You *must* call the continuation once.
 
-# --- resolve inputs → circuit_breaker → lock_with → idempotent_by (when declared) ---
+# --- resolve inputs → rate_limit → circuit_breaker → lock_with → idempotent_by (when declared) ---
 # --- retry_on { work }; verify outputs unless halted; #rollback on failure ---
 
 4. after_execution             # “Work (and maybe rollback) is done.”

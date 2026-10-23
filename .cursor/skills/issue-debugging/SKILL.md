@@ -83,9 +83,9 @@ Check these common root causes in priority order:
 6. **Fault `for?` / `matches?` not matching** — `Fault.for?` creates anonymous subclasses that use `===`; `rescue` clauses require `===` to match. Ensure the rescue variable is the fault instance, not the class.
 7. **`throw!` propagating stale state** — `throw!` copies `state`, `status`, `reason`, and merges metadata from another result. If the source result is from a swallowed execution, its state may not reflect what you expect.
 8. **Leaked fiber-local chain** — `Chain.current` survives after an example when teardown did not run (`Chain.clear`). Later specs see the wrong `xid`/`cid` or populated `results`. Mirror integration specs: `after { CMDx::Chain.clear }`.
-9. **Shared store state** — `lock_with`, `idempotent_by`, and `circuit_breaker` persist keys in `CMDx.configuration.store`. Stale keys from a prior example (or parallel test order) change behavior. `spec_helper` resets configuration each example; for custom `store` assignments, reset in `after` or use isolated key segments.
+9. **Shared store state** — `rate_limit`, `lock_with`, `idempotent_by`, and `circuit_breaker` persist keys in `CMDx.configuration.store`. Stale keys from a prior example (or parallel test order) change behavior. `spec_helper` resets configuration each example; for custom `store` assignments, reset in `after` or use isolated key segments.
 10. **Double-signaling after task freeze** — signaling again after execution raises `FrozenTaskError` (not stdlib `FrozenError`). Distinct from context freeze after `Result.new`.
-11. **Store wrapper order** — `circuit_breaker` → `lock_with` → `idempotent_by` → `retry_on` → outputs; a lock held through output verification can mask duplicate idempotency or vice versa when misconfigured.
+11. **Store wrapper order** — `rate_limit` → `circuit_breaker` → `lock_with` → `idempotent_by` → `retry_on` → outputs; denied admission never reaches the breaker or lock. A lock held through output verification can mask duplicate idempotency or vice versa when misconfigured.
 12. **Strict context typos** — with `settings(strict_context: true)` or global `strict_context`, dynamic reads raise `UnknownAccessorError` instead of returning `nil` from `method_missing`.
 
 **Step 5: Implement the Fix**

@@ -45,13 +45,13 @@ end
 
     Only exceptions you listed in `retry_on` get a second chance. Everything else — or a listed exception after you run out of retries — becomes a normal failed result (with `result.cause` under `execute`), or blows up under `execute!` once the lifecycle finishes.
 
-!!! tip "Locks and idempotency during retries"
+!!! tip "Store-backed guards during retries"
 
-    `lock_with` and `idempotent_by` wrap the **entire** `retry_on` loop in `Runtime`. A retried attempt does **not** release the lock or idempotency claim between tries — the same invocation keeps the lease until `work` (and output verification) finish, the run halts via `skip!` / `fail!`, or an uncaught error leaves the wrapped block.
+    `rate_limit`, `circuit_breaker`, `lock_with`, and `idempotent_by` sit **outside** the `retry_on` loop but **inside** the same `perform_work` stack. Admission and leases are decided once per `execute` — retries do **not** consume extra rate-limit quota or re-run the breaker check. A retried attempt does **not** release the lock or idempotency claim between tries; the same invocation keeps the lease until `work` (and output verification) finish, the run halts via `skip!` / `fail!`, or an uncaught error leaves the wrapped block.
 
     Size `lock_with ttl:` for worst-case hold time (work, retry sleeps, verification). See [Locks — Lease lifetime and `ttl`](locks.md#lease-lifetime-and-ttl).
 
-    When retries are exhausted and the error propagates, idempotency deletes its claim so a **new** job delivery can try again; the lock is released in `ensure` after acquire. See [Locks](locks.md) and [Idempotency](idempotency.md).
+    When retries are exhausted and the error propagates, idempotency deletes its claim so a **new** job delivery can try again; the lock is released in `ensure` after acquire. See [Rate limit](rate_limit.md), [Circuit breaker](circuit_breaker.md), [Locks](locks.md), and [Idempotency](idempotency.md).
 
 ## Inheritance
 
@@ -245,7 +245,7 @@ end
 ## Behavior
 
 - **Same task object** — `context` and any ivars mutated in earlier attempts are still there. Design `work` accordingly.
-- **Only `work` loops** — inputs, outputs, and `before_execution` / `before_validation` callbacks are not replayed per retry. If your *input source* is flaky, wrap that fetch in its own task with `retry_on`, or use middleware — do not expect CMDx to magically re-resolve inputs for free.
+- **Only `work` loops** — inputs, rate-limit admission, circuit breaker, lock/idempotency guards, outputs, and `before_execution` / `before_validation` callbacks are not replayed per retry. If your *input source* is flaky, wrap that fetch in its own task with `retry_on`, or use middleware — do not expect CMDx to magically re-resolve inputs for free.
 - **`task.errors` sticks around** — errors added on a failed attempt remain. Clear at the top of `work` if each attempt should start fresh; otherwise a later success might still lose at `signal_errors!`.
 - **Telemetry** — each retry emits `:task_retried` (`attempt` is zero-based; the first run is attempt `0` and does **not** emit).
 - **Middleware sees one execution** — middleware wraps the whole lifecycle, so it does not “re-enter” per retry. For per-attempt hooks, listen to `:task_retried`.

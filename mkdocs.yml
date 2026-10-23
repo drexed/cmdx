@@ -225,6 +225,7 @@ nav:
     - Adoption:
       - Testing: testing.md
       - Tips and tricks: tips_and_tricks.md
+      - Cookbook: cookbook/index.md
       - Comparison: comparison.md
       - v1 → v2 Migration: v2-migration.md
     - Ecosystem:
