@@ -81,7 +81,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 ## Cookbook
 
-- [Overview](https://drexed.github.io/cmdx/cookbook/index.md): Integration recipes for jobs, Rails, auth, observability, and more
+- [Cookbook](https://drexed.github.io/cmdx/cookbook/index.md): Integration recipes for jobs, Rails, auth, observability, and more
 
 ## Cookbook: Rails and Active Record
 

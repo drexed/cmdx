@@ -2129,6 +2129,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../comparison/" class="md-nav__link">
         
   
@@ -2559,7 +2587,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    Cookbook
   
 
     
@@ -3384,7 +3412,7 @@
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="n">before_validation</span><span class="w">           </span><span class="c1"># “Inputs are next; do any prep.”</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="n">around_execution</span><span class="w">            </span><span class="c1"># Wraps the real work (and rollback). You *must* call the continuation once.</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># --- resolve inputs → circuit_breaker → lock_with → idempotent_by (when declared) ---</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># --- resolve inputs → rate_limit → circuit_breaker → lock_with → idempotent_by (when declared) ---</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># --- retry_on { work }; verify outputs unless halted; #rollback on failure ---</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="n">after_execution</span><span class="w">             </span><span class="c1"># “Work (and maybe rollback) is done.”</span>
