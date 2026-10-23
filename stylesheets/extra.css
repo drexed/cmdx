@@ -234,18 +234,20 @@ body,
 }
 
 /* Sidebar / TOC group labels (Documentation, Basics, On this page, …) */
-.md-nav label.md-nav__title:not([for="__drawer"]),
-.md-sidebar--primary label.md-nav__link[for^="__nav_"] {
-  color: var(--md-default-fg-color--lighter) !important;
-  font-size: 0.55rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+@media screen and (min-width: 76.25em) {
+  .md-nav label.md-nav__title:not([for="__drawer"]),
+  .md-sidebar--primary label.md-nav__link[for^="__nav_"] {
+    color: var(--md-default-fg-color--lighter) !important;
+    font-size: 0.55rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
-.md-sidebar--primary label.md-nav__link[for^="__nav_"]:hover,
-.md-sidebar--primary label.md-nav__link[for^="__nav_"]:focus {
-  color: var(--md-default-fg-color) !important;
+  .md-sidebar--primary label.md-nav__link[for^="__nav_"]:hover,
+  .md-sidebar--primary label.md-nav__link[for^="__nav_"]:focus {
+    color: var(--md-default-fg-color) !important;
+  }
 }
 
 /* Header + tabs: Material paints both with --md-primary-fg-color (custom red) */

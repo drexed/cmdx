@@ -4202,6 +4202,7 @@
 
 .install-box {
   display: inline-flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.85rem;
   padding: 0.85rem 1rem 0.85rem 1.15rem;
@@ -4228,6 +4229,7 @@
 
 .copy-btn {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 0.4rem;
   padding: 0.45rem 0.75rem;
@@ -4329,8 +4331,6 @@
   .cta-footer    { padding: 4rem 1rem 5rem; }
   .hero-cta      { flex-direction: column; }
   .cmd-btn       { width: 100%; justify-content: center; }
-  .install-box   { flex-direction: column; align-items: stretch; gap: 0.6rem; }
-  .install-box code { text-align: center; }
 }
 </style>
 
