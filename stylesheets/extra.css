@@ -291,6 +291,12 @@ body[data-md-color-scheme="slate"] .md-tabs__item--active .md-tabs__link {
   opacity: 1;
 }
 
+.md-grid > .md-tabs__list {
+  justify-content: center;
+  width: 100%;
+  margin-inline-start: 0;
+}
+
 .md-typeset {
   font-feature-settings: "kern" 1, "liga" 1;
 }
