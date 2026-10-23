@@ -5167,6 +5167,10 @@
 </span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>└── CMDx::MiddlewareError        (NEW — middleware didn't yield)
 </span></code></pre></div>
 <p><code>CMDx::UndefinedMethodError</code> retired; use <code>ImplementationError</code> when a task forgot to implement <code>work</code>. Exception classes now live in <code>lib/cmdx.rb</code> instead of a separate <code>exception.rb</code> file.</p>
+<div class="admonition note">
+<p class="admonition-title">Current hierarchy</p>
+<p>Later releases added <code>CallbackError</code>, <code>FrozenTaskError</code>, <code>UnknownAccessorError</code>, <code>UnknownEntryError</code>, <code>UnknownLocaleError</code>, and <code>IdempotencyError</code>. The up-to-date tree lives in <a href="../interruptions/exceptions/">Interruptions — Exceptions</a>.</p>
+</div>
 <h3 id="matcher-api">Matcher API<a class="headerlink" href="#matcher-api" title="Permanent link">&para;</a></h3>
 <p><code>Fault</code> ships little helpers so your <code>rescue</code> lines read like English:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Fault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">ProcessOrder</span><span class="p">,</span><span class="w"> </span><span class="no">ChargeCard</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fault</span>

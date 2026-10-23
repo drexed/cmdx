@@ -21,7 +21,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 - [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md): Intentional task interruption using skip! and fail! methods
 - [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md): execute! exceptions for failed tasks with result, task, context, chain, and cleaned backtrace
-- [Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/index.md): Complete exception hierarchy (Error, DeprecationError, ImplementationError, MiddlewareError, Fault) and execute vs execute! semantics
+- [Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/index.md): Full CMDx::Error hierarchy (CallbackError, DefinitionError, DeprecationError, FrozenTaskError, IdempotencyError, ImplementationError, MiddlewareError, UnknownAccessorError, UnknownEntryError, UnknownLocaleError, Fault) and execute vs execute! semantics
 
 ## Outcomes
 

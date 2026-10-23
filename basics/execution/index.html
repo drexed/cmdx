@@ -3290,7 +3290,7 @@
 <tr>
 <td><code>execute</code></td>
 <td>A <code>CMDx::Result</code> every time — success, skip, or fail</td>
-<td>Ordinary failures don’t raise; you inspect the result. <strong>Framework</strong> mistakes (<code>CMDx::Error</code> subclasses: <code>ImplementationError</code>, <code>MiddlewareError</code>, <code>CallbackError</code>, <code>DefinitionError</code>, <code>DeprecationError</code>) still bubble up — those are “fix your app” problems, not user errors.</td>
+<td>Ordinary failures don’t raise; you inspect the result. <strong>Framework</strong> mistakes (any <code>CMDx::Error</code> subclass except <code>Fault</code> from a failed <code>Result</code> under <code>execute!</code>) still bubble up — see the <a href="../../interruptions/exceptions/#hierarchy">exception hierarchy</a>. Those are configuration, infrastructure, or callback/middleware problems, not end-user validation errors.</td>
 <td><code>if result.success?</code> … else …</td>
 </tr>
 <tr>

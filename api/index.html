@@ -152,21 +152,6 @@ continuation, which would otherwise silently skip the task body.</p>
         </dt>
         <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
-        <dt id="IdempotencyError-constant" class="">IdempotencyError =
-          <div class="docstring">
-  <div class="discussion">
-    <p>Raised when the idempotency store refuses to transition the key from
-<code>processing</code> to <code>completed</code>.</p>
-
-  </div>
-</div>
-<div class="tags">
-  
-
-</div>
-        </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
-      
         <dt id="DefinitionError-constant" class="">DefinitionError =
           <div class="docstring">
   <div class="discussion">
@@ -204,6 +189,21 @@ before continuing.</p>
     <p>Raised when a control-flow signal (e.g. <code>skip!</code>, <code>fail!</code>) is thrown against
 a task that has already completed and been frozen, making further state
 transitions impossible.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="IdempotencyError-constant" class="">IdempotencyError =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Raised when the idempotency store refuses to transition the key from
+<code>processing</code> to <code>completed</code>.</p>
 
   </div>
 </div>
@@ -644,7 +644,7 @@ avoid calling it on a hot path.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Oct 23 02:00:43 2026 by
+  Generated on Fri Oct 23 02:26:35 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.11).
 </div>
