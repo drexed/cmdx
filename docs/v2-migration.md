@@ -540,6 +540,10 @@ CMDx::Error = CMDx::Exception    (StandardError)
 
 `CMDx::UndefinedMethodError` retired; use `ImplementationError` when a task forgot to implement `work`. Exception classes now live in `lib/cmdx.rb` instead of a separate `exception.rb` file.
 
+!!! note "Current hierarchy"
+
+    Later releases added `CallbackError`, `FrozenTaskError`, `UnknownAccessorError`, `UnknownEntryError`, `UnknownLocaleError`, and `IdempotencyError`. The up-to-date tree lives in [Interruptions — Exceptions](interruptions/exceptions.md).
+
 ### Matcher API
 
 `Fault` ships little helpers so your `rescue` lines read like English:

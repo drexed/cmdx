@@ -448,19 +448,21 @@ Flat hierarchy rooted at `CMDx::Error` (aliased `CMDx::Exception`):
 
 ```
 StandardError
-└── CMDx::Error
-    ├── CMDx::DefinitionError      # input name collides with existing method
-    ├── CMDx::DeprecationError     # deprecation :error was triggered
-    ├── CMDx::FrozenTaskError      # halt signal after task freeze / double execution
+└── CMDx::Error  (alias: CMDx::Exception)
+    ├── CMDx::CallbackError        # around_execution didn't invoke continuation
+    ├── CMDx::DefinitionError      # conflicting input name or empty workflow group
+    ├── CMDx::DeprecationError     # deprecation :error prohibited execution
+    ├── CMDx::FrozenTaskError      # halt after task freeze
+    ├── CMDx::IdempotencyError     # store refused processing → completed transition
     ├── CMDx::ImplementationError  # missing #work, or #work defined on a Workflow
-    ├── CMDx::MiddlewareError      # middleware didn't yield
+    ├── CMDx::MiddlewareError      # middleware didn't yield next_link
     ├── CMDx::UnknownAccessorError # strict context read miss
-    ├── CMDx::UnknownEntryError    # registry / telemetry lookup miss
-    ├── CMDx::UnknownLocaleError   # locale file missing
-    └── CMDx::Fault                # raised by execute! on failed? results
+    ├── CMDx::UnknownEntryError    # registry or telemetry lookup miss
+    ├── CMDx::UnknownLocaleError   # default locale file missing
+    └── CMDx::Fault                # execute! on failed results (not skips)
 ```
 
-`CMDx::Error` subclasses other than `Fault` propagate through `execute` unconverted — they indicate framework misuse, not runtime failure.
+`CMDx::Error` subclasses other than `Fault` propagate through `execute` unconverted. Keep this tree aligned with [Interruptions — Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/).
 
 ## Common Pitfalls
 

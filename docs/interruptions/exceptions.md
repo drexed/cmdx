@@ -13,17 +13,20 @@ Whether you see an exception or a `Result` depends on how you call the task: `ex
 ```
 StandardError
 └── CMDx::Error  (alias: CMDx::Exception)
-    ├── CMDx::CallbackError
-    ├── CMDx::DefinitionError
-    ├── CMDx::DeprecationError
-    ├── CMDx::FrozenTaskError
-    ├── CMDx::ImplementationError
-    ├── CMDx::MiddlewareError
-    ├── CMDx::UnknownAccessorError
-    ├── CMDx::UnknownEntryError
-    ├── CMDx::UnknownLocaleError
-    └── CMDx::Fault
+    ├── CMDx::CallbackError        # around_execution didn't invoke continuation
+    ├── CMDx::DefinitionError      # conflicting input name or empty workflow group
+    ├── CMDx::DeprecationError     # deprecation :error prohibited execution
+    ├── CMDx::FrozenTaskError      # halt after task freeze
+    ├── CMDx::IdempotencyError     # store refused processing → completed transition
+    ├── CMDx::ImplementationError  # missing #work, or #work defined on a Workflow
+    ├── CMDx::MiddlewareError      # middleware didn't yield next_link
+    ├── CMDx::UnknownAccessorError # strict context read miss
+    ├── CMDx::UnknownEntryError    # registry or telemetry lookup miss
+    ├── CMDx::UnknownLocaleError   # default locale file missing
+    └── CMDx::Fault                # execute! on failed results (not skips)
 ```
+
+Agent skills mirror this tree — keep `skills/SKILL.md` and `skills/references/interruptions.md` in sync when adding subclasses.
 
 !!! note
 
@@ -41,6 +44,23 @@ begin
 rescue CMDx::Error => e
   # Catches every CMDx-raised exception
 end
+```
+
+### CMDx::CallbackError
+
+Raised when an `around_execution` callback never calls its continuation. Without this, a buggy callback could skip the task body and nobody would notice.
+
+```ruby
+class ForgetfulCallback < CMDx::Task
+  around_execution proc { |task, _cont| log("started") }  # never calls cont
+
+  def work
+    # ...
+  end
+end
+
+ForgetfulCallback.execute!
+#=> raises CMDx::CallbackError: "around_execution callback did not invoke its continuation"
 ```
 
 ### CMDx::DefinitionError
@@ -83,6 +103,36 @@ rescue CMDx::DeprecationError => e
 end
 ```
 
+### CMDx::FrozenTaskError
+
+Raised when `success!`, `skip!`, `fail!`, or `throw!` is called on a task that has already completed and been frozen. Halts only make sense **inside** `work` while Runtime's signal `catch` is active.
+
+```ruby
+class LateHalter < CMDx::Task
+  def work
+    # ...
+  end
+end
+
+task = LateHalter.new
+task.execute
+task.fail!("too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
+```
+
+### CMDx::IdempotencyError
+
+Raised when a run claimed an idempotency slot, finished `work` (and output verification) cleanly, but the store refused the `processing` → `completed` transition (`set` with `xx: true` returned false). That usually means a race, a broken store adapter, or the key expiring between claim and completion. CMDx deletes the claim before raising so a later run can try again.
+
+Duplicates (`processing` / `completed` already held) do **not** raise — they become skipped or failed results via `on_duplicate:`. See [Idempotency](../idempotency.md).
+
+```ruby
+begin
+  ChargeCustomer.execute!(payment_id: "pay_123")
+rescue CMDx::IdempotencyError => e
+  # e.message => "failed to mark idempotency key completed (cmdx:idem:ChargeCustomer:pay_123)"
+end
+```
+
 ### CMDx::ImplementationError
 
 "You forgot to finish the homework." Raised when a subclass breaks the abstract rules:
@@ -101,38 +151,32 @@ IncompleteTask.execute  #=> raises CMDx::ImplementationError
 IncompleteTask.execute! #=> raises CMDx::ImplementationError
 ```
 
-### CMDx::CallbackError
+### CMDx::MiddlewareError
 
-Raised when an `around_execution` callback never calls its continuation. Without this, a buggy callback could skip the task body and nobody would notice.
+Same idea as callbacks, but for middleware: something in the chain forgot to yield to `next_link`.
 
 ```ruby
-class ForgetfulCallback < CMDx::Task
-  around_execution proc { |task, _cont| log("started") }  # never calls cont
+class BrokenMiddleware
+  def call(task)
+    # forgot to yield
+  end
+end
+
+class MyTask < CMDx::Task
+  register :middleware, BrokenMiddleware
 
   def work
     # ...
   end
 end
 
-ForgetfulCallback.execute!
-#=> raises CMDx::CallbackError: "around_execution callback did not invoke its continuation"
+MyTask.execute!
+#=> raises CMDx::MiddlewareError: "middleware did not yield the next_link"
 ```
 
-### CMDx::FrozenTaskError
+!!! warning "Middleware escapes the signal catch"
 
-Raised when `success!`, `skip!`, `fail!`, or `throw!` is called on a task that has already completed and been frozen. Halts only make sense **inside** `work` while Runtime's signal `catch` is active.
-
-```ruby
-class LateHalter < CMDx::Task
-  def work
-    # ...
-  end
-end
-
-task = LateHalter.new
-task.execute
-task.fail!("too late") #=> raises CMDx::FrozenTaskError: "cannot call :fail! after the task has been frozen"
-```
+    Always `yield` (or call `next_link.call`) in middleware. `MiddlewareError` is raised outside the signal handler, so it bubbles out of both `execute` and `execute!`.
 
 ### CMDx::UnknownAccessorError
 
@@ -177,33 +221,6 @@ CMDx.configure { |c| c.default_locale = "xx" }
 ProcessQuote.execute(price: "invalid")
 #=> raises CMDx::UnknownLocaleError: "unable to load xx translations"
 ```
-
-### CMDx::MiddlewareError
-
-Same idea as callbacks, but for middleware: something in the chain forgot to yield to `next_link`.
-
-```ruby
-class BrokenMiddleware
-  def call(task)
-    # forgot to yield
-  end
-end
-
-class MyTask < CMDx::Task
-  register :middleware, BrokenMiddleware
-
-  def work
-    # ...
-  end
-end
-
-MyTask.execute!
-#=> raises CMDx::MiddlewareError: "middleware did not yield the next_link"
-```
-
-!!! warning "Middleware escapes the signal catch"
-
-    Always `yield` (or call `next_link.call`) in middleware. `MiddlewareError` is raised outside the signal handler, so it bubbles out of both `execute` and `execute!`.
 
 ### CMDx::Fault
 
@@ -267,9 +284,8 @@ end
 | `throw!(failed_result)` | failed result | raises `Fault` |
 | Coercion / validation error on input | failed result | raises `Fault` |
 | Non-framework `StandardError` inside `work` | failed result with `cause` | re-raises the **original** exception |
-| Any `CMDx::Error` subclass inside `work` (`ImplementationError`, `DeprecationError`, `MiddlewareError`, `CallbackError`, `FrozenTaskError`, `UnknownAccessorError`, `UnknownEntryError`, `UnknownLocaleError`) | propagates | propagates |
-| `ImplementationError` from `Workflow.method_added` | propagates at class-load time | propagates at class-load time |
-| `DefinitionError` from a conflicting input declaration | propagates at class-load time | propagates at class-load time |
+| Any other `CMDx::Error` subclass during a run (every type in [Hierarchy](#hierarchy) except `Fault` from a failed `Result`) | propagates | propagates |
+| `DefinitionError` / `ImplementationError` from class definition (conflicting input, empty workflow group, `Workflow#work`, etc.) | propagates at class-load time | propagates at class-load time |
 | Non-`StandardError` (e.g. `Interrupt`, `SignalException`) | propagates | propagates |
 
 For matching faults in `rescue` clauses, see [Faults](faults.md).

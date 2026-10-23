@@ -72,7 +72,7 @@ These patterns require special documentation attention:
 | `CMDx::Stores` | Document delegation to `Configuration#store`, `get`/`set`/`incr`/`del`, TTL and `nx`/`xx` on `set`. |
 | `lock_with` / `idempotent_by` / `circuit_breaker` | Document store keys, TTL, `on_busy` / cool-off behavior, and related telemetry event names. |
 | `Telemetry.emit` | Class method used by runtime and store helpers; document `subscribed?` gating and `Telemetry::Event` fields (`xid`, `cid`, `root`, `payload`). |
-| `CMDx::Error` subclasses | Document `FrozenTaskError`, `UnknownEntryError`, `UnknownAccessorError` instead of generic stdlib types where CMDx raises its own. |
+| `CMDx::Error` subclasses | Keep identical order and inline `#` comments in `docs/interruptions/exceptions.md`, `skills/SKILL.md`, and `skills/references/interruptions.md` (match `lib/cmdx.rb` declaration order, then `Fault`). |
 
 **Step 5: Update CHANGELOG**
 

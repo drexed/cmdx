@@ -49,10 +49,6 @@ module CMDx
   # continuation, which would otherwise silently skip the task body.
   CallbackError = Class.new(Error)
 
-  # Raised when the idempotency store refuses to transition the key from
-  # `processing` to `completed`.
-  IdempotencyError = Class.new(Error)
-
   # Raised when a task or workflow attempts to define an input where an
   # accessor with the same name already exists.
   DefinitionError = Class.new(Error)
@@ -66,6 +62,10 @@ module CMDx
   # a task that has already completed and been frozen, making further state
   # transitions impossible.
   FrozenTaskError = Class.new(Error)
+
+  # Raised when the idempotency store refuses to transition the key from
+  # `processing` to `completed`.
+  IdempotencyError = Class.new(Error)
 
   # Raised when a subclass fails to fulfill an abstract contract — most
   # commonly when {Task} is invoked without overriding `#work`, or when a

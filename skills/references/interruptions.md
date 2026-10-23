@@ -110,16 +110,18 @@ Flat, rooted at `CMDx::Error` (aliased `CMDx::Exception`):
 
 ```
 StandardError
-└── CMDx::Error
-    ├── CMDx::DefinitionError      # input reader name collides with existing method
-    ├── CMDx::DeprecationError     # deprecation :error path was taken
+└── CMDx::Error  (alias: CMDx::Exception)
+    ├── CMDx::CallbackError        # around_execution didn't invoke continuation
+    ├── CMDx::DefinitionError      # conflicting input name or empty workflow group
+    ├── CMDx::DeprecationError     # deprecation :error prohibited execution
     ├── CMDx::FrozenTaskError      # halt after task freeze
+    ├── CMDx::IdempotencyError     # store refused processing → completed transition
     ├── CMDx::ImplementationError  # missing #work, or #work defined on a Workflow
-    ├── CMDx::MiddlewareError      # middleware didn't yield
-    ├── CMDx::UnknownAccessorError # strict context miss
-    ├── CMDx::UnknownEntryError    # registry / telemetry miss
-    ├── CMDx::UnknownLocaleError   # locale load failure
-    └── CMDx::Fault                # raised by execute! on failed? results
+    ├── CMDx::MiddlewareError      # middleware didn't yield next_link
+    ├── CMDx::UnknownAccessorError # strict context read miss
+    ├── CMDx::UnknownEntryError    # registry or telemetry lookup miss
+    ├── CMDx::UnknownLocaleError   # default locale file missing
+    └── CMDx::Fault                # execute! on failed results (not skips)
 ```
 
 Runtime's `rescue` chain inside `catch(Signal::TAG)`:
@@ -128,4 +130,4 @@ Runtime's `rescue` chain inside `catch(Signal::TAG)`:
 2. `CMDx::Error` (any other subclass) → **re-raised** past the signal catch; fails the whole execution outside of result machinery.
 3. `StandardError` → converted to `Signal.failed("[Class] message", cause: e)`; the exception lives on `result.cause`.
 
-Because `CMDx::Error` is re-raised, `DefinitionError` / `ImplementationError` / `MiddlewareError` / `DeprecationError` propagate out of `execute` unconverted — they indicate framework misuse, not runtime failure.
+Because `CMDx::Error` is re-raised, every subclass in the hierarchy above (except `Fault` from a failed `Result` under `execute!`) propagates out of `execute` unconverted — configuration mistakes, store/idempotency failures, and callback/middleware bugs, not end-user validation errors. Published reference: [Interruptions — Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/).

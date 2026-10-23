@@ -122,7 +122,7 @@ plugins:
         Interruptions:
           - interruptions/signals.md: Intentional task interruption using skip! and fail! methods
           - interruptions/faults.md: execute! exceptions for failed tasks with result, task, context, chain, and cleaned backtrace
-          - interruptions/exceptions.md: Complete exception hierarchy (Error, DeprecationError, ImplementationError, MiddlewareError, Fault) and execute vs execute! semantics
+          - interruptions/exceptions.md: Full CMDx::Error hierarchy (CallbackError, DefinitionError, DeprecationError, FrozenTaskError, IdempotencyError, ImplementationError, MiddlewareError, UnknownAccessorError, UnknownEntryError, UnknownLocaleError, Fault) and execute vs execute! semantics
         Outcomes:
           - outcomes/result.md: Result objects exposing execution state, status, context, and metadata
           - outcomes/states.md: Execution lifecycle states (initialized, executing, complete, interrupted)

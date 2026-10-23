@@ -8,7 +8,7 @@ Same task, two vibes:
 
 | Method | What you get | Exceptions | When to use it |
 |--------|--------------|------------|----------------|
-| `execute` | A `CMDx::Result` every time — success, skip, or fail | Ordinary failures don’t raise; you inspect the result. **Framework** mistakes (`CMDx::Error` subclasses: `ImplementationError`, `MiddlewareError`, `CallbackError`, `DefinitionError`, `DeprecationError`) still bubble up — those are “fix your app” problems, not user errors. | `if result.success?` … else … |
+| `execute` | A `CMDx::Result` every time — success, skip, or fail | Ordinary failures don’t raise; you inspect the result. **Framework** mistakes (any `CMDx::Error` subclass except `Fault` from a failed `Result` under `execute!`) still bubble up — see the [exception hierarchy](../interruptions/exceptions.md#hierarchy). Those are configuration, infrastructure, or callback/middleware problems, not end-user validation errors. | `if result.success?` … else … |
 | `execute!` | A `Result` on success or skip | Raises `CMDx::Fault` when the task **failed**, or re-raises the original `StandardError` from `work` when that’s what happened | `rescue` blocks, “let it blow” controllers, jobs that retry on exception |
 
 `call` / `call!` are aliases — same behavior. You can also pass a block to `execute` / `execute!`: the block gets the `Result`, and **whatever the block returns** becomes the return value of the call (instead of the raw `Result`).
