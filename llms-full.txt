@@ -89,35 +89,100 @@ result.reason            #=> "name cannot be empty"
 result.errors.to_h       #=> { name: ["cannot be empty"] }
 ```
 
+For how tasks fit together in your head—**CERO** and the full execution pipeline—read [Fundamentals](https://drexed.github.io/cmdx/fundamentals/index.md).
+
 When you are ready to go deeper, this map points you at the right doc:
 
-| You want…                                | Read…                                                                               | Quick idea                              |
-| ---------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------- |
-| Global defaults                          | [Configuration](https://drexed.github.io/cmdx/configuration/index.md)               | `CMDx.configure { ... }`                |
-| One class, one job                       | [Setup](https://drexed.github.io/cmdx/basics/setup/index.md)                        | `class Foo < CMDx::Task`                |
-| `required` / `optional` inputs           | [Definitions](https://drexed.github.io/cmdx/inputs/definitions/index.md)            | `required :id, coerce: :integer`        |
-| Safer input types                        | [Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md)                | `coerce: :integer`                      |
-| Rules on values                          | [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md)            | `numeric: { min: 1 }`                   |
-| Values when omitted                      | [Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md)                  | `optional :tier, default: "free"`       |
-| Data in and out of `work`                | [Context](https://drexed.github.io/cmdx/basics/context/index.md)                    | `context.greeting = ...`                |
-| `.execute` vs `.execute!`                | [Execution](https://drexed.github.io/cmdx/basics/execution/index.md)                | Result object vs raise                  |
-| What happened?                           | [Result](https://drexed.github.io/cmdx/outcomes/result/index.md)                    | `success?`, `reason`, `errors`          |
-| Stop early on purpose                    | [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md)             | `skip!`, `fail!`                        |
-| Failures as exceptions                   | [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md)               | `Task.execute!`                         |
-| Declared outputs                         | [Outputs](https://drexed.github.io/cmdx/outputs/index.md)                           | `output :user, :token`                  |
-| Several tasks in a row                   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)                       | `include CMDx::Workflow`                |
-| Who called whom                          | [Chain](https://drexed.github.io/cmdx/basics/chain/index.md)                        | `cid` / `tid` in logs                   |
-| Cross-cutting stuff (timing, auth, etc.) | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)                   | `register :middleware`                  |
-| Hooks around run                         | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)                       | `on_success`, `before_execution`        |
-| Automatic retries                        | [Retries](https://drexed.github.io/cmdx/retries/index.md)                           | `retry_on Net::OpenTimeout, limit: 3`   |
-| Cap how often a task runs                | [Rate limit](https://drexed.github.io/cmdx/rate_limit/index.md)                     | `rate_limit :email, max: 5, per: 60`    |
-| At-most-once side effects                | [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md)                   | `idempotent_by :payment_id`             |
-| One worker at a time                     | [Locks](https://drexed.github.io/cmdx/locks/index.md)                               | `lock_with :account_id`                 |
-| Protect flaky dependencies               | [Circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md)           | `circuit_breaker threshold: 3`          |
-| Redis / memory backing                   | [Stores](https://drexed.github.io/cmdx/stores/index.md)                             | `config.store = Stores::Redis.new(...)` |
-| What got logged                          | [Logging](https://drexed.github.io/cmdx/logging/index.md)                           | Built-in structured lines               |
-| RSpec patterns                           | [Testing](https://drexed.github.io/cmdx/testing/index.md)                           | `be_success`, `be_failed` matchers      |
-| Translated error messages                | [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md) | Locale YAML under `cmdx`                |
+| You want…                                | Read…                                                                               | Quick idea                                                                                 |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Mental model + lifecycle                 | [Fundamentals](https://drexed.github.io/cmdx/fundamentals/index.md)                 | CERO; [task lifecycle](https://drexed.github.io/cmdx/fundamentals/#task-lifecycle) diagram |
+| Global defaults                          | [Configuration](https://drexed.github.io/cmdx/configuration/index.md)               | `CMDx.configure { ... }`                                                                   |
+| One class, one job                       | [Setup](https://drexed.github.io/cmdx/basics/setup/index.md)                        | `class Foo < CMDx::Task`                                                                   |
+| `required` / `optional` inputs           | [Definitions](https://drexed.github.io/cmdx/inputs/definitions/index.md)            | `required :id, coerce: :integer`                                                           |
+| Safer input types                        | [Coercions](https://drexed.github.io/cmdx/inputs/coercions/index.md)                | `coerce: :integer`                                                                         |
+| Rules on values                          | [Validations](https://drexed.github.io/cmdx/inputs/validations/index.md)            | `numeric: { min: 1 }`                                                                      |
+| Values when omitted                      | [Defaults](https://drexed.github.io/cmdx/inputs/defaults/index.md)                  | `optional :tier, default: "free"`                                                          |
+| Data in and out of `work`                | [Context](https://drexed.github.io/cmdx/basics/context/index.md)                    | `context.greeting = ...`                                                                   |
+| `.execute` vs `.execute!`                | [Execution](https://drexed.github.io/cmdx/basics/execution/index.md)                | Result object vs raise                                                                     |
+| What happened?                           | [Result](https://drexed.github.io/cmdx/outcomes/result/index.md)                    | `success?`, `reason`, `errors`                                                             |
+| Stop early on purpose                    | [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md)             | `skip!`, `fail!`                                                                           |
+| Failures as exceptions                   | [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md)               | `Task.execute!`                                                                            |
+| Declared outputs                         | [Outputs](https://drexed.github.io/cmdx/outputs/index.md)                           | `output :user, :token`                                                                     |
+| Several tasks in a row                   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)                       | `include CMDx::Workflow`                                                                   |
+| Who called whom                          | [Chain](https://drexed.github.io/cmdx/basics/chain/index.md)                        | `cid` / `tid` in logs                                                                      |
+| Cross-cutting stuff (timing, auth, etc.) | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)                   | `register :middleware`                                                                     |
+| Hooks around run                         | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)                       | `on_success`, `before_execution`                                                           |
+| Automatic retries                        | [Retries](https://drexed.github.io/cmdx/retries/index.md)                           | `retry_on Net::OpenTimeout, limit: 3`                                                      |
+| Cap how often a task runs                | [Rate limit](https://drexed.github.io/cmdx/rate_limit/index.md)                     | `rate_limit :email, max: 5, per: 60`                                                       |
+| At-most-once side effects                | [Idempotency](https://drexed.github.io/cmdx/idempotency/index.md)                   | `idempotent_by :payment_id`                                                                |
+| One worker at a time                     | [Locks](https://drexed.github.io/cmdx/locks/index.md)                               | `lock_with :account_id`                                                                    |
+| Protect flaky dependencies               | [Circuit breaker](https://drexed.github.io/cmdx/circuit_breaker/index.md)           | `circuit_breaker threshold: 3`                                                             |
+| Redis / memory backing                   | [Stores](https://drexed.github.io/cmdx/stores/index.md)                             | `config.store = Stores::Redis.new(...)`                                                    |
+| What got logged                          | [Logging](https://drexed.github.io/cmdx/logging/index.md)                           | Built-in structured lines                                                                  |
+| RSpec patterns                           | [Testing](https://drexed.github.io/cmdx/testing/index.md)                           | `be_success`, `be_failed` matchers                                                         |
+| Translated error messages                | [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md) | Locale YAML under `cmdx`                                                                   |
+
+## Task generator
+
+Rails ships generators so you are not copy-pasting boilerplate:
+
+```bash
+# Task
+rails generate cmdx:task ModerateBlogPost
+
+# Workflow
+rails generate cmdx:workflow ProcessNotifications
+
+# Namespaced
+rails generate cmdx:task Admin::AuditUser
+# => Creates app/tasks/admin/audit_user.rb
+```
+
+You get a starter file like:
+
+```ruby
+# app/tasks/moderate_blog_post.rb
+class ModerateBlogPost < CMDx::Task
+  def work
+    # Your logic here...
+  end
+end
+```
+
+If you define `ApplicationTask`, new files inherit from it; otherwise they inherit `CMDx::Task`. Handy for shared retries, logging, or request context:
+
+```ruby
+# app/tasks/application_task.rb
+class ApplicationTask < CMDx::Task
+  retry_on Net::OpenTimeout, Net::ReadTimeout, limit: 3, jitter: :exponential
+
+  before_execution :set_request_context
+
+  private
+
+  def set_request_context
+    context.request_id ||= SecureRandom.uuid
+  end
+end
+```
+
+Tip
+
+Name tasks like **verb + thing**: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`. Your future self will thank you in `grep`.
+
+## Documentation and editor help
+
+Public APIs in the gem are documented with YARD. Together with the DSL (`required`, `optional`, `output`, `coerce:`, `validate:`, `on_success`, …) you get:
+
+- **Readable task definitions** — the top of a class lists its contract at a glance.
+- **Editor hints** — Solargraph, RubyMine, and friends can show docs inline.
+- **A generated book** — run `bundle exec yard doc` locally or browse [the published API docs](https://drexed.github.io/cmdx/api/index.html).
+
+If something in this guide felt fast, read [Fundamentals](https://drexed.github.io/cmdx/fundamentals/index.md) next, then pick a link from the table above—you are already on the right track.
+
+# Fundamentals
+
+Once you have [installed CMDx](https://drexed.github.io/cmdx/getting_started/index.md) and run a small task, this page is the mental model: **CERO** for day-to-day design and the **task lifecycle** for debugging middleware, store-backed features, signals, and rollbacks.
 
 ## The CERO Pattern
 
@@ -252,76 +317,19 @@ flowchart TD
 **Rules of thumb (memorize these five):**
 
 - **Middleware wraps deprecation and the callback lifecycle** — from `:task_started` through post-work hooks. Result finalization, lifecycle logging, and teardown run **after** the middleware chain returns (middleware can still halt with `success!` / `skip!` / `fail!` / `throw!` before the inner lifecycle runs).
-- **Retries only wrap `work`** — input resolution, [rate limit](https://drexed.github.io/cmdx/rate_limit/index.md) admission, circuit breaker, lock, and idempotency run once per invocation (not per retry attempt); output verification also runs once unless `work` halts early.
+- **Retries only wrap `work`** — input resolution, rate limiting, circuit breaker, lock, and idempotency run once per invocation (not per retry attempt); output verification also runs once unless `work` halts early.
 - **Output verification runs only when `work` does not halt** — `success!`, `skip!`, `fail!`, and `throw!` skip `verify_outputs!`; see [Outputs — Verification behavior](https://drexed.github.io/cmdx/outputs/#verification-behavior).
 - **Rollback runs only on failure**, inside `around_execution` and before post-work callbacks, so hooks and telemetry already know whether rollback happened.
 - **Teardown always runs** (via `ensure`): the task and context are frozen, errors are captured, and fiber-local chain state is cleared—even when `execute!` re-raises after finalization.
 
-## Domain-driven design
+## Designing with tasks
 
-You do not have to read a thick DDD book to benefit. CMDx nudges you toward three ideas that keep big apps sane:
+You do not have to read a thick DDD book to benefit. CMDx nudges you toward a few ideas that keep big apps sane:
 
 - **Speak the same words as the business.** Name tasks like the team names workflows: `ApproveLoan`, `ShipOrder`, not `DoStuffService`.
 - **Draw boundaries.** Use namespaces so `Billing::GenerateInvoice` and `Shipping::GenerateLabel` do not step on each other’s toes.
 - **Keep controllers thin.** Let models hold data; let tasks hold orchestration and rules. That split makes tests smaller and failures easier to find.
-
-## Task generator
-
-Rails ships generators so you are not copy-pasting boilerplate:
-
-```bash
-# Task
-rails generate cmdx:task ModerateBlogPost
-
-# Workflow
-rails generate cmdx:workflow ProcessNotifications
-
-# Namespaced
-rails generate cmdx:task Admin::AuditUser
-# => Creates app/tasks/admin/audit_user.rb
-```
-
-You get a starter file like:
-
-```ruby
-# app/tasks/moderate_blog_post.rb
-class ModerateBlogPost < CMDx::Task
-  def work
-    # Your logic here...
-  end
-end
-```
-
-If you define `ApplicationTask`, new files inherit from it; otherwise they inherit `CMDx::Task`. Handy for shared retries, logging, or request context:
-
-```ruby
-# app/tasks/application_task.rb
-class ApplicationTask < CMDx::Task
-  retry_on Net::OpenTimeout, Net::ReadTimeout, limit: 3, jitter: :exponential
-
-  before_execution :set_request_context
-
-  private
-
-  def set_request_context
-    context.request_id ||= SecureRandom.uuid
-  end
-end
-```
-
-Tip
-
-Name tasks like **verb + thing**: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`. Your future self will thank you in `grep`.
-
-## Documentation and editor help
-
-Public APIs in the gem are documented with YARD. Together with the DSL (`required`, `optional`, `output`, `coerce:`, `validate:`, `on_success`, …) you get:
-
-- **Readable task definitions** — the top of a class lists its contract at a glance.
-- **Editor hints** — Solargraph, RubyMine, and friends can show docs inline.
-- **A generated book** — run `bundle exec yard doc` locally or browse [the published API docs](https://drexed.github.io/cmdx/api/index.html).
-
-If something in this guide felt fast, pick a link from the table above and read that page next—you are already on the right track.
+- **Choose composition on purpose.** Use [workflows](https://drexed.github.io/cmdx/workflows/index.md) when several steps share one context and you need a clear order. Publish [domain events](https://drexed.github.io/cmdx/cookbook/pub_sub_task_chaining/index.md) when follow-on work should stay decoupled—mailers, analytics, separate queues. [Telemetry](https://drexed.github.io/cmdx/configuration/#telemetry) observes the runtime (`:task_executed`, retries, rollbacks); it is not a substitute for your app’s domain event bus.
 
 # Configuration
 
@@ -871,7 +879,7 @@ end
 
 ## Lifecycle
 
-Tasks run in the same order every time — easy to reason about. The “halt” helpers (`success!`, `skip!`, `fail!`, `throw!`) are special: they **stop** the current path by throwing a `Signal` that the runtime catches. Anything after a halt in `work` won’t run. For the full menu, see [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md); for a picture of the whole flow, see [Getting Started - Task Lifecycle](https://drexed.github.io/cmdx/getting_started/#task-lifecycle).
+Tasks run in the same order every time — easy to reason about. The “halt” helpers (`success!`, `skip!`, `fail!`, `throw!`) are special: they **stop** the current path by throwing a `Signal` that the runtime catches. Anything after a halt in `work` won’t run. For the full menu, see [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md); for a picture of the whole flow, see [Fundamentals — Task lifecycle](https://drexed.github.io/cmdx/fundamentals/#task-lifecycle).
 
 | Stage                    | In plain English                                                                                                                                                                                                          |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

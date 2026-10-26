@@ -74,7 +74,7 @@ end
 
 ## Lifecycle
 
-Tasks run in the same order every time — easy to reason about. The “halt” helpers (`success!`, `skip!`, `fail!`, `throw!`) are special: they **stop** the current path by throwing a `Signal` that the runtime catches. Anything after a halt in `work` won’t run. For the full menu, see [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md); for a picture of the whole flow, see [Getting Started - Task Lifecycle](https://drexed.github.io/cmdx/getting_started/#task-lifecycle).
+Tasks run in the same order every time — easy to reason about. The “halt” helpers (`success!`, `skip!`, `fail!`, `throw!`) are special: they **stop** the current path by throwing a `Signal` that the runtime catches. Anything after a halt in `work` won’t run. For the full menu, see [Signals](https://drexed.github.io/cmdx/interruptions/signals/index.md); for a picture of the whole flow, see [Fundamentals — Task lifecycle](https://drexed.github.io/cmdx/fundamentals/#task-lifecycle).
 
 | Stage                    | In plain English                                                                                                                                                                                                          |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
