@@ -143,7 +143,7 @@ flowchart TD
 **Rules of thumb (memorize these five):**
 
 - **Middleware wraps deprecation and the callback lifecycle** — from `:task_started` through post-work hooks. Result finalization, lifecycle logging, and teardown run **after** the middleware chain returns (middleware can still halt with `success!` / `skip!` / `fail!` / `throw!` before the inner lifecycle runs).
-- **Retries only wrap `work`** — input resolution, [rate limit](rate_limit.md) admission, circuit breaker, lock, and idempotency run once per invocation (not per retry attempt); output verification also runs once unless `work` halts early.
+- **Retries only wrap `work`** — input resolution, rate limiting, circuit breaker, lock, and idempotency run once per invocation (not per retry attempt); output verification also runs once unless `work` halts early.
 - **Output verification runs only when `work` does not halt** — `success!`, `skip!`, `fail!`, and `throw!` skip `verify_outputs!`; see [Outputs — Verification behavior](outputs.md#verification-behavior).
 - **Rollback runs only on failure**, inside `around_execution` and before post-work callbacks, so hooks and telemetry already know whether rollback happened.
 - **Teardown always runs** (via `ensure`): the task and context are frozen, errors are captured, and fiber-local chain state is cleared—even when `execute!` re-raises after finalization.
