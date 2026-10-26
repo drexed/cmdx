@@ -148,10 +148,11 @@ flowchart TD
 - **Rollback runs only on failure**, inside `around_execution` and before post-work callbacks, so hooks and telemetry already know whether rollback happened.
 - **Teardown always runs** (via `ensure`): the task and context are frozen, errors are captured, and fiber-local chain state is cleared—even when `execute!` re-raises after finalization.
 
-## Domain-driven design
+## Designing with tasks
 
-You do not have to read a thick DDD book to benefit. CMDx nudges you toward three ideas that keep big apps sane:
+You do not have to read a thick DDD book to benefit. CMDx nudges you toward a few ideas that keep big apps sane:
 
 - **Speak the same words as the business.** Name tasks like the team names workflows: `ApproveLoan`, `ShipOrder`, not `DoStuffService`.
 - **Draw boundaries.** Use namespaces so `Billing::GenerateInvoice` and `Shipping::GenerateLabel` do not step on each other’s toes.
 - **Keep controllers thin.** Let models hold data; let tasks hold orchestration and rules. That split makes tests smaller and failures easier to find.
+- **Choose composition on purpose.** Use [workflows](workflows.md) when several steps share one context and you need a clear order. Publish [domain events](cookbook/pub_sub_task_chaining.md) when follow-on work should stay decoupled—mailers, analytics, separate queues. [Telemetry](configuration.md#telemetry) observes the runtime (`:task_executed`, retries, rollbacks); it is not a substitute for your app’s domain event bus.

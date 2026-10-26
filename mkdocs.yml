@@ -113,7 +113,7 @@ plugins:
         "Getting Started":
           - index.md: CMDx framework overview, installation, quick examples, and core concepts
           - getting_started.md: Installation, configuration, quick start, and documentation map
-          - fundamentals.md: CERO mental model, task lifecycle diagram, and domain-driven design
+          - fundamentals.md: CERO mental model, task lifecycle diagram, and designing with tasks
           - configuration.md: Comprehensive guide to CMDx configuration
         Basics:
           - basics/setup.md: Task structure, inheritance, and basic setup requirements
