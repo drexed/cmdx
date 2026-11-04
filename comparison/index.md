@@ -33,6 +33,6 @@ Use the table to answer: *“Do I care about this capability out of the box?”*
 - **Retries and faults** — Say `retry_on` with jitter when the network wobbles; use `success!` / `skip!` / `fail!` / `throw!` for clear outcomes instead of scattering magic return values.
 - **Parallel workflows (when you need them)** — Workflow groups can run work in parallel using registered executors (`:threads`, `:fibers`, or your own) and merge context with registered mergers (`:last_write_wins`, `:deep_merge`, `:no_merge`, or custom). Details: [Workflows - Parallel Groups](https://drexed.github.io/cmdx/workflows/#parallel-execution).
 - **Telemetry you can actually subscribe to** — Events like `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed` only fire if someone is listening — no subscriber, no overhead.
-- **No framework lock-in** — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (`bigdecimal`, `logger`); you don’t need ActiveSupport just to exist.
+- **No framework lock-in** — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (stdlib gems only); you don’t need ActiveSupport just to exist.
 
 If a row in the table made you go “wait, I need that,” follow the link to the gem that fits — and if several rows are ✅ for CMDx for *your* app, you might enjoy staying in one ecosystem.

@@ -27,7 +27,7 @@ If you have ever opened a “service object” file and wondered *what actually 
 ## Requirements
 
 - **Ruby:** MRI 3.3+ (or a recent JRuby / TruffleRuby that matches)
-- **Gems:** `bigdecimal` and `logger` (stdlib gems on most setups)
+- **Gems:** `bigdecimal`, `date`, `json`, `logger`, `securerandom`, `time`, and `yaml` (stdlib gems; Bundler installs them automatically)
 
 You do **not** need Rails. If you use Rails, there is an optional hook (`CMDx::Railtie`) so integration is a choice, not a requirement.
 

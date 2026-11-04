@@ -3426,7 +3426,7 @@ Use the table to answer: <em>“Do I care about this capability out of the box?�
 <p><strong>Telemetry you can actually subscribe to</strong> — Events like <code>:task_started</code>, <code>:task_deprecated</code>, <code>:task_retried</code>, <code>:task_rolled_back</code>, <code>:task_executed</code> only fire if someone is listening — no subscriber, no overhead.</p>
 </li>
 <li>
-<p><strong>No framework lock-in</strong> — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (<code>bigdecimal</code>, <code>logger</code>); you don’t need ActiveSupport just to exist.</p>
+<p><strong>No framework lock-in</strong> — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (stdlib gems only); you don’t need ActiveSupport just to exist.</p>
 </li>
 </ul>
 <p>If a row in the table made you go “wait, I need that,” follow the link to the gem that fits — and if several rows are ✅ for CMDx for <em>your</em> app, you might enjoy staying in one ecosystem.</p>
