@@ -40,6 +40,6 @@ Use the table to answer: *“Do I care about this capability out of the box?”*
 
 - **Telemetry you can actually subscribe to** — Events like `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed` only fire if someone is listening — no subscriber, no overhead.
 
-- **No framework lock-in** — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (`bigdecimal`, `logger`); you don’t need ActiveSupport just to exist.
+- **No framework lock-in** — Rails, Hanami, Sinatra, or plain Ruby are all fine. Runtime deps stay small (stdlib gems only); you don’t need ActiveSupport just to exist.
 
 If a row in the table made you go “wait, I need that,” follow the link to the gem that fits — and if several rows are ✅ for CMDx for *your* app, you might enjoy staying in one ecosystem.

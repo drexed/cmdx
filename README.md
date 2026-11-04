@@ -43,7 +43,7 @@ See the [feature comparison](https://drexed.github.io/cmdx/comparison/) for how 
 ## Requirements
 
 - Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release
-- Runtime dependencies: `bigdecimal` and `logger` (stdlib only — no ActiveSupport required)
+- Runtime dependencies: `bigdecimal`, `date`, `json`, `logger`, `securerandom`, `time`, and `yaml` (stdlib gems — no ActiveSupport required)
 
 Rails support is built-in, but CMDx is framework-agnostic at its core.
 

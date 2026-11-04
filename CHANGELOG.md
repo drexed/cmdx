@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## UNRELEASED
 
+### Changed
+- Declare stdlib gems required at load time (`date`, `json`, `securerandom`, `time`, `yaml`) as runtime dependencies alongside `bigdecimal` and `logger` so Bundler installs them on Ruby 3.4+ / 4.0+
+
 ## [2.4.0] - 2026-10-22
 
 ### Added

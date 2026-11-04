@@ -55,7 +55,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "bigdecimal"
+  spec.add_dependency "date"
+  spec.add_dependency "json"
   spec.add_dependency "logger"
+  spec.add_dependency "securerandom"
+  spec.add_dependency "time"
+  spec.add_dependency "yaml"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "i18n"
