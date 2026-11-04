@@ -31,8 +31,7 @@ module CMDx
   EMPTY_SENTINEL = Object.new.freeze
   private_constant :EMPTY_SENTINEL
 
-  # Shared empty string constant used as a sentinel default. Intentionally
-  # not frozen so callers may treat it as a mutable seed when needed.
+  # Shared empty string constant used as a sentinel default.
   #
   # @api private
   EMPTY_STRING = ""
