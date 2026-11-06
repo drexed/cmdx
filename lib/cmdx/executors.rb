@@ -97,12 +97,7 @@ module CMDx
       effective = spec.nil? ? (default || :threads) : spec
 
       if effective == :auto
-        effective =
-          if ::Fiber.scheduler.nil?
-            :threads
-          else
-            :fibers
-          end
+        effective = ::Fiber.scheduler.nil? ? :threads : :fibers
       end
 
       lookup(effective)
