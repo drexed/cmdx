@@ -4213,10 +4213,10 @@ result.metadata[:code]   #=> :flag_off
 
 ```ruby
 register :middleware, ->(task, &next_link) {
-  Thread.current[:current_user_id] = task.context.user_id
+  Fiber[:current_user_id] = task.context.user_id
   next_link.call
 ensure
-  Thread.current[:current_user_id] = nil
+  Fiber[:current_user_id] = nil
 }
 ```
 
