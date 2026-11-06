@@ -588,12 +588,12 @@ for each job, blocking until every job is done.</p>
       <pre class="lines">
 
 
-112
-113
-114</pre>
+107
+108
+109</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 107</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -1092,12 +1092,7 @@ otherwise <code>:threads</code>. When <code>spec</code> is nil, <code>default</c
 101
 102
 103
-104
-105
-106
-107
-108
-109</pre>
+104</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 87</span>
@@ -1115,12 +1110,7 @@ otherwise <code>:threads</code>. When <code>spec</code> is nil, <code>default</c
   <span class='id identifier rubyid_effective'>effective</span> <span class='op'>=</span> <span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span> <span class='op'>||</span> <span class='symbol'>:threads</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_spec'>spec</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_effective'>effective</span> <span class='op'>==</span> <span class='symbol'>:auto</span>
-    <span class='id identifier rubyid_effective'>effective</span> <span class='op'>=</span>
-      <span class='kw'>if</span> <span class='op'>::</span><span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_scheduler'>scheduler</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
-        <span class='symbol'>:threads</span>
-      <span class='kw'>else</span>
-        <span class='symbol'>:fibers</span>
-      <span class='kw'>end</span>
+    <span class='id identifier rubyid_effective'>effective</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_scheduler'>scheduler</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='symbol'>:threads</span> <span class='op'>:</span> <span class='symbol'>:fibers</span>
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_effective'>effective</span><span class='rparen'>)</span>
@@ -1167,12 +1157,12 @@ otherwise <code>:threads</code>. When <code>spec</code> is nil, <code>default</c
       <pre class="lines">
 
 
-117
-118
-119</pre>
+112
+113
+114</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 117</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 112</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1187,7 +1177,7 @@ otherwise <code>:threads</code>. When <code>spec</code> is nil, <code>default</c
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 04:08:46 2026 by
+  Generated on Fri Nov  6 16:25:22 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>
