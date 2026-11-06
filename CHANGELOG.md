@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## UNRELEASED
 
 ### Changed
+- Correct `Executors::Thread` YARD; note parallel chain propagation in `Pipeline`
+- Middleware docs: fiber-local state section (was mislabeled thread-local)
 - Declare stdlib gems required at load time (`date`, `json`, `securerandom`, `time`, `yaml`) as runtime dependencies alongside `bigdecimal` and `logger` so Bundler installs them on Ruby 3.4+ / 4.0+
 
 ## [2.4.0] - 2026-10-22

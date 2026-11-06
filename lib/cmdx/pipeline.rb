@@ -100,6 +100,8 @@ module CMDx
 
       jobs = tasks.each_with_index.to_a
 
+      # Propagate the workflow's chain into each worker (thread or scheduled fiber)
+      # via fiber-local storage; parallel tasks run on a deep_dup'd context.
       on_job = lambda do |(task_class, index)|
         mutex.synchronize { return if cancelled }
 

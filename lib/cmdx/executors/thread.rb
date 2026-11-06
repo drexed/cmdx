@@ -3,10 +3,11 @@
 module CMDx
   class Executors
     # Default executor. Uses a fixed-size `Thread` pool drained via a `Queue`;
-    # sentinel `nil`s terminate workers. Workers inherit the parent's chain via
-    # fiber-local storage. Exceptions raised inside `on_job` are captured per
-    # worker and re-raised on the main thread once every worker has joined, so
-    # callers see failures instead of silently dropped jobs.
+    # sentinel `nil`s terminate workers. {Pipeline} assigns `Fiber[:cmdx_chain]`
+    # and a `deep_dup`'d workflow context inside `on_job` for each worker.
+    # Exceptions raised inside `on_job` are captured per worker and re-raised on
+    # the main thread once every worker has joined, so callers see failures
+    # instead of silently dropped jobs.
     #
     # @api private
     module Thread
