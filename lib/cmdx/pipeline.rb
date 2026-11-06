@@ -120,8 +120,11 @@ module CMDx
         end
       end
 
-      executor = @workflow.class.executors.resolve(group.options[:executor])
-      merger   = @workflow.class.mergers.resolve(group.options[:merger])
+      executor = @workflow.class.executors.resolve_parallel(
+        group.options[:executor],
+        default: @workflow.class.settings.default_executor
+      )
+      merger = @workflow.class.mergers.resolve(group.options[:merger])
 
       executor.call(jobs:, concurrency: size, on_job:)
 

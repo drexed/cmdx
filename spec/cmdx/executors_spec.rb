@@ -95,6 +95,32 @@ RSpec.describe CMDx::Executors do
     end
   end
 
+  describe "#resolve_parallel" do
+    it "defaults to :threads when spec and default are nil" do
+      expect(executors.resolve_parallel(nil, default: nil)).to be(CMDx::Executors::Thread)
+    end
+
+    it "uses default when spec is nil" do
+      expect(executors.resolve_parallel(nil, default: :fibers)).to be(CMDx::Executors::Fiber)
+    end
+
+    it "prefers explicit spec over default" do
+      expect(executors.resolve_parallel(:threads, default: :fibers)).to be(CMDx::Executors::Thread)
+    end
+
+    it "resolves :auto to :threads without a scheduler" do
+      expect(executors.resolve_parallel(:auto, default: nil)).to be(CMDx::Executors::Thread)
+    end
+
+    it "resolves :auto to :fibers when Fiber.scheduler is installed" do
+      allow(Fiber).to receive(:scheduler).and_return(Object.new)
+
+      expect(executors.resolve_parallel(:auto, default: nil)).to be(CMDx::Executors::Fiber)
+    ensure
+      allow(Fiber).to receive(:scheduler).and_call_original
+    end
+  end
+
   describe "#empty? / #size" do
     it "reports the registry size" do
       expect(executors.size).to eq(2)

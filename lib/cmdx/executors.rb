@@ -73,6 +73,24 @@ module CMDx
       end
     end
 
+    # Resolves a parallel workflow group's `:executor` option. When `spec` is
+    # nil, uses `default` (task {Settings#default_executor} or
+    # {Configuration#default_executor}). `:auto` expands to `:fibers` when
+    # {Fiber.scheduler} is installed, otherwise `:threads`.
+    #
+    # @param spec [Symbol, #call, nil] group `executor:` option
+    # @param default [Symbol, nil]
+    # @return [#call]
+    # @raise [UnknownEntryError] when the resolved symbol is unknown or not callable
+    def resolve_parallel(spec, default: nil)
+      effective = spec.nil? ? default : spec
+      effective = :threads if effective.nil?
+      effective = :fibers if effective == :auto && !::Fiber.scheduler.nil?
+      effective = :threads if effective == :auto
+
+      resolve(effective)
+    end
+
     # Resolves a declaration's `:executor` option to a concrete callable.
     # Accepts `nil` (default `:threads`), a Symbol (registry lookup), or any
     # object responding to `#call`.
