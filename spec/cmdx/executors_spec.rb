@@ -93,29 +93,23 @@ RSpec.describe CMDx::Executors do
       expect { executors.resolve(Object.new) }
         .to raise_error(CMDx::UnknownEntryError, /unknown executor/)
     end
-  end
-
-  describe "#resolve_parallel" do
-    it "defaults to :threads when spec and default are nil" do
-      expect(executors.resolve_parallel(nil, default: nil)).to be(CMDx::Executors::Thread)
-    end
 
     it "uses default when spec is nil" do
-      expect(executors.resolve_parallel(nil, default: :fibers)).to be(CMDx::Executors::Fiber)
+      expect(executors.resolve(nil, default: :fibers)).to be(CMDx::Executors::Fiber)
     end
 
     it "prefers explicit spec over default" do
-      expect(executors.resolve_parallel(:threads, default: :fibers)).to be(CMDx::Executors::Thread)
+      expect(executors.resolve(:threads, default: :fibers)).to be(CMDx::Executors::Thread)
     end
 
     it "resolves :auto to :threads without a scheduler" do
-      expect(executors.resolve_parallel(:auto, default: nil)).to be(CMDx::Executors::Thread)
+      expect(executors.resolve(:auto)).to be(CMDx::Executors::Thread)
     end
 
     it "resolves :auto to :fibers when Fiber.scheduler is installed" do
       allow(Fiber).to receive(:scheduler).and_return(Object.new)
 
-      expect(executors.resolve_parallel(:auto, default: nil)).to be(CMDx::Executors::Fiber)
+      expect(executors.resolve(:auto)).to be(CMDx::Executors::Fiber)
     ensure
       allow(Fiber).to receive(:scheduler).and_call_original
     end

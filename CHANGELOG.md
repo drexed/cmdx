@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - `Configuration#default_executor` and `Task.settings(..., default_executor:)` — default parallel `:executor` when a group omits `executor:`; `:auto` selects `:fibers` when `Fiber.scheduler` is installed, otherwise `:threads`
-- `Executors#resolve_parallel`
+- `Executors#resolve` accepts optional `default:` for parallel groups and expands `:auto` to `:fibers` when `Fiber.scheduler` is installed, otherwise `:threads`
 
 ### Changed
 - `Retry` backoff and `Lock` wait polling use `Util.wait` instead of `Kernel.sleep` directly (yields to `Fiber.scheduler` when installed)

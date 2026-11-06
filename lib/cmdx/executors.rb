@@ -73,38 +73,19 @@ module CMDx
       end
     end
 
-    # Resolves a parallel workflow group's `:executor` option. When `spec` is
-    # nil, uses `default` (task {Settings#default_executor} or
-    # {Configuration#default_executor}). `:auto` expands to `:fibers` when
-    # {Fiber.scheduler} is installed, otherwise `:threads`.
+    # Resolves a declaration's `:executor` option to a concrete callable.
+    # Accepts `nil` (default `:threads` unless `default:` is set), a Symbol
+    # (`:threads`, `:fibers`, or `:auto`), or any object responding to `#call`.
+    # `:auto` expands to `:fibers` when `::Fiber.scheduler` is installed,
+    # otherwise `:threads`. When `spec` is nil, `default` supplies the
+    # {Settings#default_executor} / {Configuration#default_executor} value.
     #
     # @param spec [Symbol, #call, nil] group `executor:` option
-    # @param default [Symbol, nil]
+    # @param default [Symbol, nil] used when `spec` is nil
     # @return [#call]
     # @raise [UnknownEntryError] when the resolved symbol is unknown or not callable
-    def resolve_parallel(spec, default: nil)
-      effective = spec.nil? ? default : spec
-      effective = :threads if effective.nil?
-      effective = :fibers if effective == :auto && !::Fiber.scheduler.nil?
-      effective = :threads if effective == :auto
-
-      resolve(effective)
-    end
-
-    # Resolves a declaration's `:executor` option to a concrete callable.
-    # Accepts `nil` (default `:threads`), a Symbol (registry lookup), or any
-    # object responding to `#call`.
-    #
-    # @param spec [Symbol, #call, nil]
-    # @return [#call]
-    # @raise [UnknownEntryError] when `spec` is an unknown symbol or not callable
-    def resolve(spec)
-      case spec
-      when NilClass
-        lookup(:threads)
-      when Symbol
-        lookup(spec)
-      else
+    def resolve(spec, default: nil)
+      unless spec.is_a?(Symbol) || spec.nil?
         return spec if spec.respond_to?(:call)
 
         raise UnknownEntryError, <<~MSG.chomp
@@ -112,6 +93,19 @@ module CMDx
           See https://drexed.github.io/cmdx/workflows/#executors
         MSG
       end
+
+      effective = spec.nil? ? (default || :threads) : spec
+
+      if effective == :auto
+        effective =
+          if ::Fiber.scheduler.nil?
+            :threads
+          else
+            :fibers
+          end
+      end
+
+      lookup(effective)
     end
 
     # @return [Boolean]

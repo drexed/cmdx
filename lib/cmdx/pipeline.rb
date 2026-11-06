@@ -120,7 +120,7 @@ module CMDx
         end
       end
 
-      executor = @workflow.class.executors.resolve_parallel(
+      executor = @workflow.class.executors.resolve(
         group.options[:executor],
         default: @workflow.class.settings.default_executor
       )
