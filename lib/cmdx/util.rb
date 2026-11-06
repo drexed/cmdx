@@ -76,6 +76,22 @@ module CMDx
       Process.clock_gettime(Process::CLOCK_MONOTONIC, unit)
     end
 
+    # Sleeps for `seconds`, yielding to {Fiber.scheduler} when one is installed.
+    #
+    # @param seconds [Numeric] duration in seconds; non-positive values are no-ops
+    # @return [void]
+    def wait(seconds)
+      return unless seconds.is_a?(Numeric) && seconds.positive?
+
+      sched = Fiber.scheduler
+
+      if sched.respond_to?(:kernel_sleep)
+        sched.kernel_sleep(seconds)
+      else
+        Kernel.sleep(seconds)
+      end
+    end
+
     # Recursively merges two Hash-like trees. When both values at a key are
     # Hashes, they merge recursively; otherwise the right-hand value wins
     # (last-write-wins). When either top-level operand is not a Hash, returns

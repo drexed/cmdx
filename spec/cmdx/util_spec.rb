@@ -139,6 +139,31 @@ RSpec.describe CMDx::Util do
     end
   end
 
+  describe ".wait" do
+    it "does not sleep for non-positive durations" do
+      expect(Kernel).not_to receive(:sleep)
+      described_class.wait(0)
+      described_class.wait(-1)
+    end
+
+    it "uses Kernel.sleep when no scheduler is installed" do
+      expect(Kernel).to receive(:sleep).with(0.5)
+      described_class.wait(0.5)
+    end
+
+    it "delegates to Fiber.scheduler#kernel_sleep when present" do
+      scheduler = instance_double("Scheduler", kernel_sleep: nil)
+      allow(Fiber).to receive(:scheduler).and_return(scheduler)
+
+      expect(scheduler).to receive(:kernel_sleep).with(0.25)
+      expect(Kernel).not_to receive(:sleep)
+
+      described_class.wait(0.25)
+    ensure
+      allow(Fiber).to receive(:scheduler).and_call_original
+    end
+  end
+
   describe ".to_error_s" do
     it "returns [Class] message for a standard error" do
       error = RuntimeError.new("boom")

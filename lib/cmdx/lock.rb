@@ -148,7 +148,7 @@ module CMDx
         break if Util.monotonic_now >= deadline
 
         sleep_interval = [0.05, deadline - Util.monotonic_now].min
-        Kernel.sleep(sleep_interval) if sleep_interval.positive?
+        Util.wait(sleep_interval) if sleep_interval.positive?
       end
 
       false

@@ -127,7 +127,7 @@ module CMDx
 
       d = delay unless d.is_a?(Numeric) && d.finite?
       d = d.clamp(0, max_delay) if max_delay
-      Kernel.sleep(d) if d.positive?
+      Util.wait(d) if d.positive?
       d
     end
 
