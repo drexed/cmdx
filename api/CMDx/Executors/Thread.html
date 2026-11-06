@@ -103,10 +103,11 @@
   You should avoid using this module if possible, as it may be removed or be changed in the future.
 </p>
 <p>Default executor. Uses a fixed-size <code>Thread</code> pool drained via a <code>Queue</code>;
-sentinel <code>nil</code>s terminate workers. Workers inherit the parent's chain via
-fiber-local storage. Exceptions raised inside <code>on_job</code> are captured per
-worker and re-raised on the main thread once every worker has joined, so
-callers see failures instead of silently dropped jobs.</p>
+sentinel <code>nil</code>s terminate workers. <span class='object_link'><a href="../Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span> assigns <code>Fiber[:cmdx_chain]</code>
+and a <code>deep_dup</code>'d workflow context inside <code>on_job</code> for each worker.
+Exceptions raised inside <code>on_job</code> are captured per worker and re-raised on
+the main thread once every worker has joined, so callers see failures
+instead of silently dropped jobs.</p>
 
   </div>
 </div>
@@ -262,7 +263,6 @@ callers see failures instead of silently dropped jobs.</p>
       <pre class="lines">
 
 
-22
 23
 24
 25
@@ -286,10 +286,11 @@ callers see failures instead of silently dropped jobs.</p>
 43
 44
 45
-46</pre>
+46
+47</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors/thread.rb', line 22</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors/thread.rb', line 23</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>jobs:</span><span class='comma'>,</span> <span class='label'>concurrency:</span><span class='comma'>,</span> <span class='label'>on_job:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>executor concurrency must be a positive Integer (got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
@@ -326,7 +327,7 @@ callers see failures instead of silently dropped jobs.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 02:36:02 2026 by
+  Generated on Fri Nov  6 04:08:44 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>

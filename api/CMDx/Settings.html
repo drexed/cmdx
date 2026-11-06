@@ -197,6 +197,28 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#default_executor-instance_method" title="#default_executor (instance method)">#<strong>default_executor</strong>  &#x21d2; Symbol<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Default <code>:executor</code> for parallel workflow groups when a group omits <code>executor:</code>; falls back to <span class='object_link'><a href="Configuration.html#default_executor-instance_method" title="CMDx::Configuration#default_executor (method)">Configuration#default_executor</a></span>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(options = EMPTY_HASH)  &#x21d2; Settings </a>
     
 
@@ -463,6 +485,15 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
           
         </li>
       
+        <li>
+          <span class="name">:default_executor</span>
+          <span class="type">(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
     </ul>
   
 
@@ -473,12 +504,12 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
       <pre class="lines">
 
 
-17
 18
-19</pre>
+19
+20</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 17</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 18</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='ivar'>@options</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
@@ -535,14 +566,14 @@ back to <span class='object_link'><a href="../CMDx.html#configuration-instance_m
       <pre class="lines">
 
 
-64
 65
 66
 67
-68</pre>
+68
+69</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 65</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_backtrace_cleaner'>backtrace_cleaner</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:backtrace_cleaner</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -613,14 +644,14 @@ unchanged when <code>new_options</code> is empty (used by Task inheritance).</p>
       <pre class="lines">
 
 
-26
 27
 28
 29
-30</pre>
+30
+31</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 26</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 27</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_new_options'>new_options</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_new_options'>new_options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -676,18 +707,79 @@ task-level setting → <span class='object_link'><a href="Configuration.html#cor
       <pre class="lines">
 
 
-87
 88
 89
 90
-91</pre>
+91
+92</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 88</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_correlation_id'>correlation_id</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:correlation_id</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_correlation_id'><span class='object_link'><a href="Configuration.html#correlation_id-instance_method" title="CMDx::Configuration#correlation_id (method)">correlation_id</a></span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="default_executor-instance_method">
+  
+    #<strong>default_executor</strong>  &#x21d2; <tt>Symbol</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns default <code>:executor</code> for parallel workflow groups when
+a group omits <code>executor:</code>; falls back to <span class='object_link'><a href="Configuration.html#default_executor-instance_method" title="CMDx::Configuration#default_executor (method)">Configuration#default_executor</a></span>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>default <code>:executor</code> for parallel workflow groups when
+a group omits <code>executor:</code>; falls back to <span class='object_link'><a href="Configuration.html#default_executor-instance_method" title="CMDx::Configuration#default_executor (method)">Configuration#default_executor</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+96
+97
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 96</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_default_executor'>default_executor</span>
+  <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:default_executor</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_default_executor'><span class='object_link'><a href="Configuration.html#default_executor-instance_method" title="CMDx::Configuration#default_executor (method)">default_executor</a></span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -741,14 +833,14 @@ Matched against <span class='object_link'><a href="Result.html#to_h-instance_met
       <pre class="lines">
 
 
-57
 58
 59
 60
-61</pre>
+61
+62</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 57</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 58</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_log_exclusions'>log_exclusions</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:log_exclusions</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -800,14 +892,14 @@ Matched against <span class='object_link'><a href="Result.html#to_h-instance_met
       <pre class="lines">
 
 
-40
 41
 42
 43
-44</pre>
+44
+45</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 40</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 41</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:log_formatter</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -859,14 +951,14 @@ Matched against <span class='object_link'><a href="Result.html#to_h-instance_met
       <pre class="lines">
 
 
-47
 48
 49
 50
-51</pre>
+51
+52</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 48</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_log_level'>log_level</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:log_level</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -918,14 +1010,14 @@ Matched against <span class='object_link'><a href="Result.html#to_h-instance_met
       <pre class="lines">
 
 
-33
 34
 35
 36
-37</pre>
+37
+38</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 34</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:logger</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -981,14 +1073,14 @@ unknown dynamic reads; falls back to
       <pre class="lines">
 
 
-78
 79
 80
 81
-82</pre>
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 78</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 79</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_strict_context'>strict_context</span>
   <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:strict_context</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1040,12 +1132,12 @@ unknown dynamic reads; falls back to
       <pre class="lines">
 
 
-71
 72
-73</pre>
+73
+74</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 71</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tags'>tags</span>
   <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:tags</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>EMPTY_ARRAY</span>
@@ -1060,7 +1152,7 @@ unknown dynamic reads; falls back to
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 02:36:04 2026 by
+  Generated on Fri Nov  6 04:08:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>

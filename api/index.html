@@ -443,14 +443,14 @@ file on the i18n load path.</p>
       <pre class="lines">
 
 
-51
 52
 53
 54
-55</pre>
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 51</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 52</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_configuration'>configuration</span>
   <span class='kw'>return</span> <span class='ivar'>@configuration</span> <span class='kw'>if</span> <span class='ivar'>@configuration</span>
@@ -528,14 +528,14 @@ file on the i18n load path.</p>
       <pre class="lines">
 
 
-63
 64
 65
 66
-67</pre>
+67
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 63</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 64</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_configure'>configure</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CMDx.configure requires a block</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
@@ -576,7 +576,6 @@ avoid calling it on a hot path.</p>
       <pre class="lines">
 
 
-78
 79
 80
 81
@@ -602,10 +601,11 @@ avoid calling it on a hot path.</p>
 101
 102
 103
-104</pre>
+104
+105</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 78</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 79</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_reset_configuration!'>reset_configuration!</span>
   <span class='ivar'>@configuration</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CMDx/Configuration.html#initialize-instance_method" title="CMDx::Configuration#initialize (method)">new</a></span></span>
@@ -644,7 +644,7 @@ avoid calling it on a hot path.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 02:36:01 2026 by
+  Generated on Fri Nov  6 04:08:44 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>

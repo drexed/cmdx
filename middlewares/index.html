@@ -1591,10 +1591,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wrapping-with-thread-local-state" class="md-nav__link">
+  <a href="#wrapping-with-fiber-local-state" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wrapping with thread-local state
+        Wrapping with fiber-local state
       
     </span>
   </a>
@@ -3455,10 +3455,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wrapping-with-thread-local-state" class="md-nav__link">
+  <a href="#wrapping-with-fiber-local-state" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wrapping with thread-local state
+        Wrapping with fiber-local state
       
     </span>
   </a>
@@ -3770,7 +3770,12 @@
 </span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">            </span><span class="c1">#=&gt; "experimental_path disabled"</span>
 </span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:code</span><span class="o">]</span><span class="w">   </span><span class="c1">#=&gt; :flag_off</span>
 </span></code></pre></div>
-<h3 id="wrapping-with-thread-local-state">Wrapping with thread-local state<a class="headerlink" href="#wrapping-with-thread-local-state" title="Permanent link">&para;</a></h3>
+<h3 id="wrapping-with-fiber-local-state">Wrapping with fiber-local state<a class="headerlink" href="#wrapping-with-fiber-local-state" title="Permanent link">&para;</a></h3>
+<p>Prefer <code>task.context</code> or <code>task.metadata</code> for data that should travel with the
+task. When you need a process-wide slot (logging, legacy helpers), use <code>Fiber[]</code>
+so concurrent fibers on the same OS thread do not leak values — avoid
+<code>Thread.current</code> under fiber schedulers and Puma fiber mode. Always clear custom
+keys in <code>ensure</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="no">Fiber</span><span class="o">[</span><span class="ss">:current_user_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user_id</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span>

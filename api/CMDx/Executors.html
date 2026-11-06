@@ -333,7 +333,7 @@ for each job, blocking until every job is done.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#resolve-instance_method" title="#resolve (instance method)">#<strong>resolve</strong>(spec)  &#x21d2; #call </a>
+      <a href="#resolve-instance_method" title="#resolve (instance method)">#<strong>resolve</strong>(spec, default: nil)  &#x21d2; #call </a>
     
 
     
@@ -588,12 +588,12 @@ for each job, blocking until every job is done.</p>
       <pre class="lines">
 
 
-100
-101
-102</pre>
+112
+113
+114</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 100</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 112</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -986,7 +986,7 @@ when the resolved executor isn't callable</p></div>
       <div class="method_details ">
   <h3 class="signature " id="resolve-instance_method">
   
-    #<strong>resolve</strong>(spec)  &#x21d2; <tt>#call</tt> 
+    #<strong>resolve</strong>(spec, default: nil)  &#x21d2; <tt>#call</tt> 
   
 
   
@@ -995,8 +995,11 @@ when the resolved executor isn't callable</p></div>
 </h3><div class="docstring">
   <div class="discussion">
     <p>Resolves a declaration's <code>:executor</code> option to a concrete callable.
-Accepts <code>nil</code> (default <code>:threads</code>), a Symbol (registry lookup), or any
-object responding to <code>#call</code>.</p>
+Accepts <code>nil</code> (default <code>:threads</code> unless <code>default:</code> is set), a Symbol
+(<code>:threads</code>, <code>:fibers</code>, or <code>:auto</code>), or any object responding to <code>#call</code>.
+<code>:auto</code> expands to <code>:fibers</code> when <code>::Fiber.scheduler</code> is installed,
+otherwise <code>:threads</code>. When <code>spec</code> is nil, <code>default</code> supplies the
+<span class='object_link'><a href="Settings.html#default_executor-instance_method" title="CMDx::Settings#default_executor (method)">Settings#default_executor</a></span> / <span class='object_link'><a href="Configuration.html#default_executor-instance_method" title="CMDx::Configuration#default_executor (method)">Configuration#default_executor</a></span> value.</p>
 
   </div>
 </div>
@@ -1012,6 +1015,25 @@ object responding to <code>#call</code>.</p>
         <span class='type'>(<tt>Symbol</tt>, <tt>#call</tt>, <tt>nil</tt>)</span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>group <code>executor:</code> option</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>default</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>used when <code>spec</code> is nil</p></div>
       
     </li>
   
@@ -1041,7 +1063,7 @@ object responding to <code>#call</code>.</p>
       
       
         &mdash;
-        <div class='inline'><p>when <code>spec</code> is an unknown symbol or not callable</p></div>
+        <div class='inline'><p>when the resolved symbol is unknown or not callable</p></div>
       
     </li>
   
@@ -1053,10 +1075,6 @@ object responding to <code>#call</code>.</p>
       <pre class="lines">
 
 
-83
-84
-85
-86
 87
 88
 89
@@ -1067,18 +1085,25 @@ object responding to <code>#call</code>.</p>
 94
 95
 96
-97</pre>
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 83</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 87</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span><span class='rparen'>)</span>
-  <span class='kw'>case</span> <span class='id identifier rubyid_spec'>spec</span>
-  <span class='kw'>when</span> <span class='const'>NilClass</span>
-    <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='symbol'>:threads</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='const'>Symbol</span>
-    <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span><span class='rparen'>)</span>
-  <span class='kw'>else</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span><span class='comma'>,</span> <span class='label'>default:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Symbol</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='kw'>return</span> <span class='id identifier rubyid_spec'>spec</span> <span class='kw'>if</span> <span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
 
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UnknownEntryError-constant" title="CMDx::UnknownEntryError (constant)">UnknownEntryError</a></span></span><span class='comma'>,</span> <span class='heredoc_beg'>&lt;&lt;~MSG</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
@@ -1086,6 +1111,19 @@ object responding to <code>#call</code>.</p>
 </span><span class='tstring_content'>      See https://drexed.github.io/cmdx/workflows/#executors
 </span><span class='heredoc_end'>    MSG
 </span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_effective'>effective</span> <span class='op'>=</span> <span class='id identifier rubyid_spec'>spec</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span> <span class='op'>||</span> <span class='symbol'>:threads</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_spec'>spec</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_effective'>effective</span> <span class='op'>==</span> <span class='symbol'>:auto</span>
+    <span class='id identifier rubyid_effective'>effective</span> <span class='op'>=</span>
+      <span class='kw'>if</span> <span class='op'>::</span><span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_scheduler'>scheduler</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='symbol'>:threads</span>
+      <span class='kw'>else</span>
+        <span class='symbol'>:fibers</span>
+      <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_effective'>effective</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1129,12 +1167,12 @@ object responding to <code>#call</code>.</p>
       <pre class="lines">
 
 
-105
-106
-107</pre>
+117
+118
+119</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 105</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executors.rb', line 117</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1149,7 +1187,7 @@ object responding to <code>#call</code>.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 02:36:04 2026 by
+  Generated on Fri Nov  6 04:08:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>

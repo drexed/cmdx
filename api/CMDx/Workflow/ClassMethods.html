@@ -391,7 +391,9 @@ to read the existing group list.</p>
           </span>
           
             &mdash; <div class='inline'><p>parallel
-dispatch backend. <code>:fibers</code> requires a <code>Fiber.scheduler</code> to be
+dispatch backend when set on the group. When omitted, uses
+<span class='object_link'><a href="../Settings.html#default_executor-instance_method" title="CMDx::Settings#default_executor (method)">Settings#default_executor</a></span> / <span class='object_link'><a href="../Configuration.html#default_executor-instance_method" title="CMDx::Configuration#default_executor (method)">Configuration#default_executor</a></span>
+(<code>:threads</code>, <code>:fibers</code>, or <code>:auto</code>). <code>:fibers</code> requires a <code>Fiber.scheduler</code>
 installed (e.g. <code>Async { ... }</code>). A custom callable accepting
 <code>jobs:, concurrency:, on_job:</code> may also be passed.</p></div>
           
@@ -512,8 +514,6 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
       <pre class="lines">
 
 
-62
-63
 64
 65
 66
@@ -532,10 +532,12 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
 79
 80
 81
-82</pre>
+82
+83
+84</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 62</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 64</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tasks'>tasks</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tasks'>tasks</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_tasks'>tasks</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -568,7 +570,7 @@ Applies to both <code>:sequential</code> and <code>:parallel</code> strategies. 
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 02:36:02 2026 by
+  Generated on Fri Nov  6 04:08:44 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>

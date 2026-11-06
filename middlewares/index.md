@@ -254,7 +254,9 @@ result.reason            #=> "experimental_path disabled"
 result.metadata[:code]   #=> :flag_off
 ```
 
-### Wrapping with thread-local state
+### Wrapping with fiber-local state
+
+Prefer `task.context` or `task.metadata` for data that should travel with the task. When you need a process-wide slot (logging, legacy helpers), use `Fiber[]` so concurrent fibers on the same OS thread do not leak values — avoid `Thread.current` under fiber schedulers and Puma fiber mode. Always clear custom keys in `ensure`.
 
 ```ruby
 register :middleware, ->(task, &next_link) {

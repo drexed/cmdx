@@ -1403,7 +1403,7 @@ or a non-Numeric value.</p>
 
   <span class='id identifier rubyid_d'>d</span> <span class='op'>=</span> <span class='id identifier rubyid_delay'>delay</span> <span class='kw'>unless</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Numeric</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_finite?'>finite?</span>
   <span class='id identifier rubyid_d'>d</span> <span class='op'>=</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_clamp'>clamp</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_max_delay'>max_delay</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_max_delay'>max_delay</span>
-  <span class='const'>Kernel</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_d'>d</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
+  <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_wait'><span class='object_link'><a href="Util.html#wait-instance_method" title="CMDx::Util#wait (method)">wait</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_d'>d</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_d'>d</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
   <span class='id identifier rubyid_d'>d</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1416,7 +1416,7 @@ or a non-Numeric value.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Nov  6 02:36:03 2026 by
+  Generated on Fri Nov  6 04:08:45 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.45 (ruby-3.4.12).
 </div>
