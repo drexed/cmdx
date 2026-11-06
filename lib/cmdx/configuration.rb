@@ -10,9 +10,9 @@ module CMDx
   class Configuration
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators, :executors,
-      :mergers, :retriers, :limiters, :deprecators, :telemetry, :store, :correlation_id, :default_locale,
-      :strict_context, :backtrace_cleaner, :log_exclusions, :log_formatter,
-      :log_level, :logger
+      :mergers, :retriers, :limiters, :deprecators, :telemetry, :store,
+      :correlation_id, :default_executor, :default_locale, :strict_context,
+      :backtrace_cleaner, :log_exclusions, :log_formatter, :log_level, :logger
 
     def initialize
       @middlewares = Middlewares.new
@@ -28,6 +28,7 @@ module CMDx
       @store       = Stores::Memory.new
 
       @correlation_id    = nil
+      @default_executor  = nil
       @default_locale    = "en"
       @strict_context    = false
       @backtrace_cleaner = nil

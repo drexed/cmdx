@@ -50,6 +50,13 @@ RSpec.describe CMDx::Settings do
     ensure
       CMDx.configuration.strict_context = false
     end
+
+    it "default_executor falls back to the global configuration" do
+      CMDx.configuration.default_executor = :auto
+      expect(described_class.new.default_executor).to eq(:auto)
+    ensure
+      CMDx.configuration.default_executor = nil
+    end
   end
 
   describe "option overrides" do

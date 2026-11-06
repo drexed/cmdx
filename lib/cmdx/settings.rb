@@ -14,6 +14,7 @@ module CMDx
     # @option options [Array<Symbol>] :log_exclusions
     # @option options [Array<Symbol, String>] :tags
     # @option options [Boolean] :strict_context
+    # @option options [Symbol, nil] :default_executor
     def initialize(options = EMPTY_HASH)
       @options = options.freeze
     end
@@ -87,6 +88,14 @@ module CMDx
     def correlation_id
       @options.fetch(:correlation_id) do
         CMDx.configuration.correlation_id
+      end
+    end
+
+    # @return [Symbol, nil] default `:executor` for parallel workflow groups when
+    #   a group omits `executor:`; falls back to {Configuration#default_executor}
+    def default_executor
+      @options.fetch(:default_executor) do
+        CMDx.configuration.default_executor
       end
     end
 

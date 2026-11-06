@@ -383,6 +383,41 @@ RSpec.describe CMDx::Pipeline do
           expect(result.context.b).to be(true)
         end
 
+        it "uses settings default_executor :auto with fibers when a scheduler is installed" do
+          scheduler = Class.new do
+            def fiber(&block)
+              fiber = Fiber.new(blocking: false, &block)
+              fiber.resume
+              fiber
+            end
+
+            def close; end
+            def block(*); end
+            def unblock(*); end
+            def kernel_sleep(*); end
+            def io_wait(*); end
+            def process_wait(*); end
+            def fiber_interrupt(*); end
+          end.new
+
+          t1 = create_successful_task(name: "Auto1")
+          t2 = create_successful_task(name: "Auto2")
+          workflow_class = create_workflow_class do
+            settings default_executor: :auto
+            tasks t1, t2, strategy: :parallel
+          end
+
+          result = nil
+          Thread.new do
+            Fiber.set_scheduler(scheduler)
+            result = workflow_class.execute
+          ensure
+            Fiber.set_scheduler(nil)
+          end.join
+
+          expect(result).to be_success
+        end
+
         it "merges context from tasks that completed before the failure was observed" do
           ok = create_task_class(name: "Ok") do
             define_method(:work) { context.ok = true }

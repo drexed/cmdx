@@ -201,6 +201,7 @@ module CMDx
       # @option options [#call] :correlation_id callable returning a String id
       #   resolved once by {Runtime} when the root chain is acquired; surfaces
       #   as `result.xid` (see {Settings#correlation_id})
+      # @option options [Symbol, nil] :default_executor (see {Settings#default_executor})
       # @return [Settings]
       def settings(options = EMPTY_HASH)
         @settings ||=

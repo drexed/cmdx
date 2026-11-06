@@ -212,7 +212,11 @@ CMDx.configure do |config|
   # `(jobs:, concurrency:, on_job:)`, runs `on_job.call(job)` for every job,
   # and blocks until every job is done.
   #
-  # Built-ins: :threads (default), :fibers.
+  # Built-ins: :threads (default when unset), :fibers. When a group omits
+  # `executor:`, resolution uses `Task.settings` / `config.default_executor`
+  # (`:threads`, `:fibers`, or `:auto`).
+  #
+  # config.default_executor = :auto
   #
   # config.executors.register(:ractors, proc do |jobs:, concurrency:, on_job:|
   #   jobs.each_slice(concurrency) do |slice|

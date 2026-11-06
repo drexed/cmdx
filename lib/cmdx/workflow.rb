@@ -33,7 +33,9 @@ module CMDx
       # @option options [:sequential, :parallel] :strategy (:sequential)
       # @option options [Integer] :pool_size parallel worker/fiber count
       # @option options [:threads, :fibers, #call] :executor (:threads) parallel
-      #   dispatch backend. `:fibers` requires a `Fiber.scheduler` to be
+      #   dispatch backend when set on the group. When omitted, uses
+      #   {Settings#default_executor} / {Configuration#default_executor}
+      #   (`:threads`, `:fibers`, or `:auto`). `:fibers` requires a `Fiber.scheduler`
       #   installed (e.g. `Async { ... }`). A custom callable accepting
       #   `jobs:, concurrency:, on_job:` may also be passed.
       # @option options [:last_write_wins, :deep_merge, :no_merge, #call] :merger

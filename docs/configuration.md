@@ -36,6 +36,7 @@ CMDx keeps **global** defaults and lets each **task class** override or extend t
 | `coercions` | `Coercions.new` (13 built-ins) | Input coercers |
 | `validators` | `Validators.new` (7 built-ins) | Input validators |
 | `executors` | `Executors.new` (`:threads`, `:fibers`) | Parallel workflow backends |
+| `default_executor` | `nil` (→ `:threads` per group) | Default `:executor` when a parallel group omits it; `:auto` picks `:fibers` under `Fiber.scheduler` |
 | `mergers` | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`) | How parallel branches merge into context |
 | `retriers` | `Retriers.new` (7 built-ins) | Named retry / jitter strategies |
 | `limiters` | `Limiters.new` (`:fixed_window`, `:leaky_bucket`) | Named rate-limit strategies |
@@ -299,10 +300,11 @@ Full API, adapters, testing notes, and example patterns: [Stores](stores.md).
 
 ### Executors
 
-Executors power **parallel** workflow groups. Contract: `call(jobs:, concurrency:, on_job:)` — call `on_job.call(job)` for each job, wait until all finish. Built-ins: `:threads` (default), `:fibers`.
+Executors power **parallel** workflow groups. Contract: `call(jobs:, concurrency:, on_job:)` — call `on_job.call(job)` for each job, wait until all finish. Built-ins: `:threads` (default when unset), `:fibers`. Set `config.default_executor` to `:threads`, `:fibers`, or `:auto` (`:auto` picks `:fibers` when `Fiber.scheduler` is installed). Per-group `executor:` overrides. Task-level: `settings default_executor: :auto`.
 
 ```ruby
 CMDx.configure do |config|
+  config.default_executor = :auto
   config.executors.register :ractor, RactorExecutor
 
   config.executors.register(:inline, proc do |jobs:, concurrency:, on_job:|
